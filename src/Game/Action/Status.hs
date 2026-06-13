@@ -1,14 +1,14 @@
 -- | Actions that characters can use to affect @Status@es.
 module Game.Action.Status
   ( -- * Applying statuses
-    apply, apply', applyWith, applyWith'
-  , tag, tag'
-  , flag, flag'
-  , hide, hide'
-  , addStack, addStack', addStacks, addStacks', applyStacks
+    apply, applyWith
+  , tag
+  , flag
+  , hide
+  , addStack, addStacks, addStacks', applyStacks
   , control, control'
     -- * Applying bombs
-  , bomb, bomb', bombWith, bombWith'
+  , bomb, bombWith
   -- * Adjusting statuses
   , refresh, prolong, hasten
   -- * Removing statuses
@@ -59,31 +59,19 @@ hasten :: ∀ m. MonadPlay m => Duration -> Text -> m ()
 hasten dur name = P.unsilenced $ P.fromUser (Ninjas.prolong $ negate dur) name
 
 -- | Adds a @Status@ to 'N.statuses'.
-apply :: ∀ m. MonadPlay m => Duration -> [Effect] -> m ()
-apply = apply' ""
--- | 'apply' with a 'Status.name'.
-apply' :: ∀ m. MonadPlay m => Text -> Duration -> [Effect] -> m ()
-apply' = applyWith' mempty
+apply :: ∀ m. MonadPlay m => Duration -> Text -> [Effect] -> m ()
+apply = applyWith mempty
+
 -- | 'apply' with extra 'Status.classes'.
 applyWith :: ∀ m. MonadPlay m
-          => EnumSet Class -> Duration -> [Effect] -> m ()
-applyWith classes = applyWith' classes ""
--- | 'applyWith' with a 'Status.name'.
-applyWith' :: ∀ m. MonadPlay m
-           => EnumSet Class -> Text -> Duration -> [Effect] -> m ()
-applyWith' classes turns efs =
-        P.unsilenced . Statuses.apply 1 classes [] turns efs
+           => EnumSet Class -> Duration -> Text -> [Effect] -> m ()
+applyWith classes turns name efs =
+        P.unsilenced $ Statuses.apply 1 classes [] turns name efs
 
 -- | Adds a simple @Status@ with no 'Status.effects' or 'Status.dur'
 -- 'N.statuses'. Stacks are unremovable.
-addStack :: ∀ m. MonadPlay m => m ()
-addStack = do
-    Context{skill = Skill{name}} <- P.context
-    addStacks' Permanent name 1
-
--- | 'addStack' with a 'Status.name'.
-addStack' :: ∀ m. MonadPlay m => Text -> m ()
-addStack' name = addStacks' Permanent name 1
+addStack :: ∀ m. MonadPlay m => Text -> m ()
+addStack name = addStacks' Permanent name 1
 
 -- | 'addStack' with a 'Status.name' and 'Status.amount'.
 addStacks :: ∀ m. MonadPlay m => Text -> Int -> m ()
@@ -93,10 +81,11 @@ addStacks = addStacks' Permanent
 -- Uses 'Ninjas.addStatus' internally.
 addStacks' :: ∀ m. MonadPlay m => Duration -> Text -> Int -> m ()
 addStacks' dur name i = do
-    Context{skill, target, user} <- P.context
-    let st = Status.new user dur skill
+    Context{skill = skill@Skill{name = skillName}, target, user} <- P.context
+    let st    = Status.new user dur skill
+        name' = if null name then skillName else name
     P.modify target $ Ninjas.addStatus
-        st { Status.name    = name
+        st { Status.name    = name'
            , Status.amount  = i
            , Status.user    = user
            , Status.classes = deleteSet Nonstacking . deleteSet Continues
@@ -104,27 +93,17 @@ addStacks' dur name i = do
            }
 
 -- | Adds a hidden @Status@ with no effects that immediately expires.
-flag :: ∀ m. MonadPlay m => m ()
-flag = flag' . toLower . Skill.name . Context.skill =<< P.context
--- | 'flag' with a 'Status.name'.
-flag' :: ∀ m. MonadPlay m => Text -> m ()
-flag' name =
-    applyWith' (setFromList [Hidden, Unremovable, Nonstacking]) name -1 []
+flag :: ∀ m. MonadPlay m => Text -> m ()
+flag name =
+    applyWith (setFromList [Hidden, Unremovable, Nonstacking]) -1 name []
 -- | Applies a @Status@ with no effects, used as a marker for other
 -- 'Skill.Skill's.
-tag :: ∀ m. MonadPlay m => Duration -> m ()
-tag = tag' ""
--- | 'tag' with a 'Status.name'.
-tag' :: ∀ m. MonadPlay m => Text -> Duration -> m ()
-tag' name dur = applyWith' (setFromList [Unremovable, Nonstacking]) name dur []
+tag :: ∀ m. MonadPlay m => Duration -> Text -> m ()
+tag dur name = applyWith (setFromList [Unremovable, Nonstacking]) dur name []
 
 -- | Applies a 'Hidden' and 'Unremovable' @Status@.
-hide :: ∀ m. MonadPlay m => Duration -> [Effect] -> m ()
-hide = hide' ""
-
--- | 'hide' with a 'Status.name'.
-hide' :: ∀ m. MonadPlay m => Text -> Duration -> [Effect] -> m ()
-hide' = applyWith' $ setFromList [Unremovable, Hidden]
+hide :: ∀ m. MonadPlay m => Duration -> Text -> [Effect] -> m ()
+hide = applyWith $ setFromList [Unremovable, Hidden]
 
 controlWith :: ∀ m. MonadPlay m => EnumSet Class -> [Effect] -> m ()
 controlWith classes efs = do
@@ -132,7 +111,7 @@ controlWith classes efs = do
     case dur of
         Control i -> do
 
-            applyWith' classes name i efs
+            applyWith classes i name efs
         _         -> return ()
 
 control :: ∀ m. MonadPlay m => [Effect] -> m ()
@@ -149,30 +128,21 @@ control' = controlWith $ setFromList [Controlled, Hidden]
 -- 'Status.dur'. If the @Bomb@ type is 'Status.Done', the bomb activates in both
 -- situations.
 bomb :: ∀ m. MonadPlay m
-     => Duration -> [Effect] -> [Runnable Bomb] -> m ()
-bomb = bomb' ""
--- | @Bomb@ with a 'Status.name'.
-bomb' :: ∀ m. MonadPlay m
-      => Text -> Duration -> [Effect] -> [Runnable Bomb] -> m ()
-bomb' = bombWith' mempty
+      => Duration -> Text -> [Effect] -> [Runnable Bomb] -> m ()
+bomb = bombWith mempty
 -- | @Bomb@ with extra 'Status.classes'.
-bombWith :: MonadPlay m
-         => EnumSet Class -> Duration -> [Effect] -> [Runnable Bomb]
-         -> m ()
-bombWith classes = bombWith' classes ""
--- | 'bombWith' with a 'Status.name'.
-bombWith' :: ∀ m. MonadPlay m
-          => EnumSet Class -> Text -> Duration -> [Effect] -> [Runnable Bomb]
+bombWith :: ∀ m. MonadPlay m
+          => EnumSet Class -> Duration -> Text -> [Effect] -> [Runnable Bomb]
           -> m ()
-bombWith' classes name dur effects bombs = P.unsilenced
-    $ Statuses.apply 1 classes bombs name dur effects
+bombWith classes dur name effects bombs = P.unsilenced
+    $ Statuses.apply 1 classes bombs dur name effects
 
 -- | 'addStacks' with 'Status.effect's.
 applyStacks :: ∀ m. MonadPlay m
             => Text -> Int -> [Effect]
             -> m ()
 applyStacks name amount =
-    Statuses.apply amount (singleton Unremovable) mempty name Permanent
+    Statuses.apply amount (singleton Unremovable) mempty Permanent name
 
 -- | Removes non-'Effect.helpful' effects in 'N.statuses' that match a
 -- predicate.

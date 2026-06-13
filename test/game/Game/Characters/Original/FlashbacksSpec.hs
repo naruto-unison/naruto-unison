@@ -13,7 +13,7 @@ spec = parallel do
         useOn Enemy "Life Link" do
             it "kills target if user dies" do
                 Sim.act
-                apply Permanent [ Endure
+                apply Permanent skillName [ Endure
                                 , Invulnerable All
                                 , Nullify
                                 , Reflect
@@ -24,7 +24,7 @@ spec = parallel do
                 targetHealth `shouldBe` 0
             it "kills user if target dies" do
                 Sim.act
-                targeting Self $ apply Permanent [ Endure
+                targeting Self $ apply Permanent skillName [ Endure
                                                  , Invulnerable All
                                                  , Nullify
                                                  , Reflect
@@ -39,9 +39,9 @@ spec = parallel do
 
         useOn Enemy "Adamantine Sealing Chains" do
             it "purges helpful effects" do
-                apply 10 [ Build testStacks ]
-                Sim.as Enemy $ targeting Self $ apply 10 [ Build testStacks ]
-                Sim.as XEnemies $ apply 10 [ Build testStacks ]
+                apply 10 skillName [ Build testStacks ]
+                Sim.as Enemy $ targeting Self $ apply 10 skillName [ Build testStacks ]
+                Sim.as XEnemies $ apply 10 skillName [ Build testStacks ]
                 Sim.act
                 targetBuild <- target $ Effects.build
                 targetBuild `shouldBe` 0
@@ -53,11 +53,11 @@ spec = parallel do
                 Sim.act
                 target has "Space-Time Marking"
             it "deals bonus damage with Space-Time Marking" do
-                targeting Everyone $ tag' "Space-Time Marking" Permanent
+                targeting Everyone $ tag Permanent "Space-Time Marking"
                 damaged <- measureDamage Sim.act
                 damaged `shouldBe` 30 + 30
             it "damages all with Space-Time Marking" do
-                targeting Everyone $ tag' "Space-Time Marking" Permanent
+                targeting Everyone $ tag Permanent "Space-Time Marking"
                 remove "Space-Time Marking"
                 damaged <- measureDamageTo XEnemies Sim.act
                 damaged `shouldBe` 30
@@ -67,7 +67,7 @@ spec = parallel do
                 Sim.act
                 target has "Space-Time Marking"
             it "makes all invulnerable with Space-Time Marking" do
-                targeting Everyone $ tag' "Space-Time Marking" Permanent
+                targeting Everyone $ tag Permanent "Space-Time Marking"
                 remove "Space-Time Marking"
                 Sim.act
                 targetInvuln <- Effects.invulnerable <$> Sim.targets XAlly
@@ -79,20 +79,20 @@ spec = parallel do
                 Sim.use "Veritable 1000-Armed Kannon"
                 Sim.act
                 Sim.turns 2
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 not <$> user (`is` Reveal)
 
     describeCharacter "Young Kakashi" do
         useOn Enemy "White Light Blade" do
             it "stuns if user has Sharingan Stun" do
-                targeting Self $ tag' "Sharingan Stun" Permanent
+                targeting Self $ tag Permanent "Sharingan Stun"
                 Sim.act
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [All]
 
         useOn Enemy "Lightning Blade" do
             it "stuns if user has Sharingan Stun" do
-                targeting Self $ tag' "Sharingan Stun" Permanent
+                targeting Self $ tag Permanent "Sharingan Stun"
                 Sim.act
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [All]
@@ -120,30 +120,30 @@ spec = parallel do
                 chakras `shouldBe` ([], [])
             it "stuns if enemy stuns" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Stun Physical ]
+                Sim.as Enemy $ apply Permanent skillName [ Stun Physical ]
                 user has "Sharingan Stun"
             it "stuns if enemy disables" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Disable Counters ]
+                Sim.as Enemy $ apply Permanent skillName [ Disable Counters ]
                 user has "Sharingan Stun"
             it "does not stun otherwise" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Throttle 1 Counters ]
+                Sim.as Enemy $ apply Permanent skillName [ Throttle 1 Counters ]
                 not <$> user has "Sharingan Stun"
             it "strengthens if target damages" do
-                targeting Self $ apply Permanent [ Reduce [All] Flat 5 ]
+                targeting Self $ apply Permanent skillName [ Reduce [All] Flat 5 ]
                 Sim.act
                 Sim.as Enemy $ damage 6
                 damaged <- measureDamage $ damage dmg
                 damaged - dmg `shouldBe` 10
             it "does not strengthen otherwise" do
-                targeting Self $ apply Permanent [ Reduce [All] Flat 5 ]
+                targeting Self $ apply Permanent skillName [ Reduce [All] Flat 5 ]
                 Sim.act
                 Sim.as Enemy $ damage 5
                 damaged <- measureDamage $ damage dmg
                 damaged - dmg `shouldBe` 0
             it "stuns if user has Sharingan Stun" do
-                targeting Self $ tag' "Sharingan Stun" Permanent
+                targeting Self $ tag Permanent "Sharingan Stun"
                 Sim.act
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [All]
@@ -195,33 +195,33 @@ spec = parallel do
                 Sim.use "Kusari Chains"
                 Sim.act
                 Sim.turns 1
-                Sim.as XEnemies $ apply Permanent [ Focus ]
+                Sim.as XEnemies $ apply Permanent skillName [ Focus ]
                 not <$> target (`is` Focus)
 
         useOn Self "Kamui Phase" do
             it "works on its own" do
                 Sim.use "Kamui Phase"
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 not <$> user (`is` Reveal)
             it "does not work after Kusari Chains" do
                 Sim.use "Kusari Chains"
                 Sim.use "Kamui Phase"
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 user (`is` Reveal)
             it "does not work after Kamui Banishment" do
                 Sim.use "Kamui Banishment"
                 Sim.use "Kamui Phase"
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 user (`is` Reveal)
             it "does not work after Major Summoning: Kurama" do
                 Sim.use "Major Summoning: Kurama"
                 Sim.use "Kamui Phase"
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 user (`is` Reveal)
             it "does not work after itself" do
                 Sim.use "Kamui Phase"
                 Sim.use "Kamui Phase"
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 user (`is` Reveal)
   where
     describeCharacter = describeCategory Original

@@ -69,7 +69,7 @@ import           Game.Model.Duration (Duration(..), sync)
 import           Game.Model.Effect (Amount(..), Effect(..))
 import qualified Game.Model.Effect as Effect
 import qualified Game.Model.Face as Face
-import           Game.Model.ID (HasID, ID)
+import           Game.Model.ID (HasID, ID(ID))
 import qualified Game.Model.ID as ID
 import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
@@ -462,8 +462,8 @@ rechargeAll :: Ninja -> Ninja
 rechargeAll n = n { N.charges = mempty }
 
 -- | Resets an element in 'charges'.
-recharge :: Text -> Slot -> Ninja -> Ninja
-recharge name owner n = n { N.charges = deleteMap key $ N.charges n }
+recharge :: ID -> Ninja -> Ninja
+recharge ID{name, owner} n = n { N.charges = deleteMap key $ N.charges n }
   where
     key = Skill.Key name owner
 

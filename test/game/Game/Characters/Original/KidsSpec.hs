@@ -133,7 +133,7 @@ spec = parallel do
                 Sim.use "Chili Pill"
                 Sim.act
                 setHealth 100
-                apply Permanent [Plague]
+                apply Permanent skillName [Plague]
                 damaged <- measureDamage $ Sim.turns 2
                 damaged `shouldBe` 0
 
@@ -161,7 +161,7 @@ spec = parallel do
                     Sim.turns 5
                 factory
                 targeting Self factory
-                targeting Self $ tag' "Fifth Gate Opening" Permanent
+                targeting Self $ tag Permanent "Fifth Gate Opening"
                 damagedWith <- measureDamage do
                     Sim.act
                     Sim.turns 5
@@ -188,7 +188,7 @@ spec = parallel do
 
         useOn Enemy "Hidden Lotus" do
             it "damages target" do
-                apply Permanent [ Reduce [All] Flat testStacks ]
+                apply Permanent skillName [ Reduce [All] Flat testStacks ]
                 damaged <- measureDamage Sim.act
                 damaged + testStacks `shouldBe` 100
 
@@ -249,12 +249,12 @@ spec = parallel do
 
         useOn Self "Sand Clone" do
             it "blocks harmful effects" do
-                Sim.as Enemy $ apply Permanent [ Plague ]
+                Sim.as Enemy $ apply Permanent skillName [ Plague ]
                 Sim.act
                 Sim.as Enemy $ afflict 5
                 not <$> user (`is` Plague)
             it "ends with new non-affliction damage" do
-                Sim.as Enemy $ apply Permanent [ Plague ]
+                Sim.as Enemy $ apply Permanent skillName [ Plague ]
                 Sim.act
                 Sim.as Enemy $ damage 5
                 user (`is` Plague)

@@ -33,7 +33,7 @@ characters =
         , Skill.classes   = [Physical, Melee, Bane]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
-          [ To Enemy $ apply 2 [ Afflict 20 ] ]
+          [ To Enemy $ apply 2 skillName [ Afflict 20 ] ]
         }
       ]
     , [ Skill.new
@@ -60,12 +60,12 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                addStack
+                addStack skillName
                 trap Permanent OnHarm do
-                    removeTrap
-                    stacks <- target numStacks "Exploding Palm"
+                    removeTrap skillName
+                    stacks <- target numStacks skillName
                     pierce (20 * stacks)
-                    remove "Exploding Palm"
+                    remove skillName
           ]
         }
       ]
@@ -78,7 +78,7 @@ characters =
         , Skill.effects   =
           [ To Self $ trapFrom 1 (OnHarmed All) do
                 damage 25
-                targeting Self $ apply 2 [ Reduce [All] Percent 25
+                targeting Self $ apply 2 skillName [ Reduce [All] Percent 25
                                          , Heal 15
                                          ]
           ]
@@ -108,7 +108,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 25
-                addStack' "Spirit Word"
+                addStack "Spirit Word"
           ]
         }
       ]
@@ -119,10 +119,10 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                apply 1 [ Stun Physical
+                apply 1 skillName [ Stun Physical
                         , Stun Melee
                         ]
-                addStack' "Spirit Word"
+                addStack "Spirit Word"
           ]
         }
       ]
@@ -136,8 +136,8 @@ characters =
           [ To Enemy do
                 stacks <- target numStacks "Spirit Word"
                 afflict (10 + 5 * stacks)
-                addStack' "Scroll of Fire"
-                addStack' "Spirit Word"
+                addStack "Scroll of Fire"
+                addStack "Spirit Word"
           ]
         }
       ]
@@ -155,8 +155,8 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 afflict 25
-                addStack' "Spirit Word"
-          , To Self $ apply 1 [ Reduce [All] Percent 50 ]
+                addStack "Spirit Word"
+          , To Self $ apply 1 skillName [ Reduce [All] Percent 50 ]
           ]
         }
       ]
@@ -168,13 +168,13 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy do
-                addStack
+                addStack skillName
                 trap Permanent OnHarm do
-                    removeTrap
-                    stacks <- target numStacks "Gold Rope"
+                    removeTrap skillName
+                    stacks <- target numStacks skillName
                     damage (35 * stacks)
                     addStacks "Spirit Word" stacks
-                    remove "Gold Rope"
+                    remove skillName
           ]
         }
       ]
@@ -186,9 +186,9 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemies do
-                stacks <- target numStacks "Scroll of Fire"
+                stacks <- target numStacks skillName
                 damage (20 + 5 * stacks)
-                addStack' "Spirit Word"
+                addStack "Spirit Word"
           ]
         }
       ]
@@ -205,7 +205,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self $ trapFrom 2 (OnHarmed All) $
-                apply Permanent [ Plague ]
+                apply Permanent skillName [ Plague ]
           , To Enemy do
                 stacksA <- target numStacks "Conserving Bee Twin Blades"
                 stacksB <- target numStacks "Magnetic Current"
@@ -219,7 +219,7 @@ characters =
         , Skill.classes   = [Physical]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Self $ apply 3
+          [ To Self $ apply 3 skillName
                 [ Reduce [All] Percent 50
                 , Alternate "Magnetic Field"
                             "Conserving Bee Twin Blades"
@@ -234,7 +234,7 @@ characters =
           [ To Enemy do
                 stacks <- target numStacks "Magnetic Current"
                 pierce (10 + 5 * stacks)
-                addStack
+                addStack skillName
           ]
         }
       ]
@@ -248,7 +248,7 @@ characters =
           [ To Enemies do
                 stacks <- target numStacks "Conserving Bee Twin Blades"
                 pierce (10 + 5 * stacks)
-                addStack
+                addStack skillName
           ]
         }
       ]
@@ -267,7 +267,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 afflict 10
-                addStack
+                addStack skillName
           ]
         }
       ]
@@ -278,7 +278,7 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $ apply Permanent [Reduce [Affliction] Percent 10]
+          [ To Self $ apply Permanent skillName [Reduce [Affliction] Percent 10]
           , To Enemy do
                 stacks <- target numStacks "Chakra Arms"
                 damage (30 + 5 * stacks)
@@ -295,7 +295,7 @@ characters =
           [ To Enemy do
                 stacks <- target numStacks "Chakra Arms"
                 pierce (15 + 5 * stacks)
-                apply 1 [ Stun Chakra
+                apply 1 skillName [ Stun Chakra
                         , Stun Ranged
                         ]
           ]
@@ -315,7 +315,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.dur       = Action 2
         , Skill.start     =
-          [ To Enemy $ apply 1 [ Stun Physical
+          [ To Enemy $ apply 1 skillName [ Stun Physical
                                , Stun Ranged
                                ]
           ]
@@ -332,7 +332,7 @@ characters =
         , Skill.effects   =
           [ To Enemy $ trap Permanent (Countered All) do
                 damage 20
-                apply 1 [ Stun Physical ]
+                apply 1 skillName [ Stun Physical ]
           ]
         }
       ]
@@ -344,7 +344,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy $ damage 20
-          , To Self $ apply 1 [ Invulnerable NonRanged ]
+          , To Self $ apply 1 skillName [ Invulnerable NonRanged ]
           ]
         }
       ]
@@ -361,7 +361,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ To Self $ apply 2 [ Invulnerable Ranged ] ]
+          [ To Self $ apply 2 skillName [ Invulnerable Ranged ] ]
         }
       ]
     , [ Skill.new
@@ -371,7 +371,7 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemies $ apply 1 [ Exhaust [All] ] ]
+          [ To Enemies $ apply 1 skillName [ Exhaust [All] ] ]
         , Skill.changes   = changeWith "Hidden Frost" $ setCost [Rand]
         }
       ]
@@ -382,7 +382,7 @@ characters =
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ To Enemy do
-                apply 1 [Expose]
+                apply 1 skillName [Expose]
                 bonus <- 10 `bonusIf` user has "Hidden Frost"
                 pierce (30 + bonus)
           ]

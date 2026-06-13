@@ -60,12 +60,11 @@ is :: Ninja -> Effect -> Bool
 is Ninja{effects} ef = ef ∈ effects
 
 -- | Searches 'channels'.
-isChanneling :: Text -- ^ 'Skill.name'.
+isChanneling :: ID -- ^ 'Skill.name'.
              -> Ninja -> Bool
-isChanneling name n = any matches $ channels n
+isChanneling (ID.fromOwner -> skillID) n = any matches $ channels n
   where
-    matches Channel{new = False, skill = Skill{name = skillName}} =
-        name == skillName
+    matches chan@Channel{new = False} = ID.from chan == skillID
     matches _ = False
 
 has' :: ∀ a. HasID a

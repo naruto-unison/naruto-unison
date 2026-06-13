@@ -26,11 +26,11 @@ spec = parallel do
             it "damages target if they harm" do
                 damaged <- measureDamage do
                     Sim.act
-                    Sim.as Enemy $ apply Permanent [ Reveal ]
+                    Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 damaged `shouldBe` 40
             it "makes target vulnerable if they harm" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 setHealth 100
                 damaged <- measureDamage $ Sim.withClass Physical $ damage dmg
                 damaged - dmg `shouldBe` 25
@@ -41,7 +41,7 @@ spec = parallel do
                 damaged <- measureDamage Sim.act
                 damaged `shouldBe` 15
             it "damages instantly during Successful Ambush" do
-                targeting Self $ tag' "Successful Ambush" Permanent
+                targeting Self $ tag Permanent "Successful Ambush"
                 damaged <- measureDamage Sim.act
                 damaged `shouldBe` 30
 
@@ -54,24 +54,24 @@ spec = parallel do
                 damaged <- measureDamage Sim.act
                 damaged `shouldBe` 10 + 2 * 10
             it "deals bonus damage during Successful Ambush" do
-                targeting Self $ tag' "Successful Ambush" Permanent
+                targeting Self $ tag Permanent "Successful Ambush"
                 damaged <- measureDamage Sim.act
                 damaged `shouldBe` 10 + 30
 
         useOn Self "Genjutsu Ambush Tactics" do
             it "does not make invulnerable instantly" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 user (`is` Reveal)
             it "does not make invulnerable if damaged" do
                 Sim.act
                 Sim.as Enemy $ damage dmg
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 user (`is` Reveal)
             it "makes invulnerable if not damaged" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Plague ]
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Plague ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 not <$> user (`is` Reveal)
             it "tags user if not damaged" do
                 Sim.act
@@ -92,7 +92,7 @@ spec = parallel do
                 targetHealth `shouldBe` 0
             it "kills user" do
                 Sim.use "Dual Pin"
-                targeting Self $ apply Permanent [ Endure ]
+                targeting Self $ apply Permanent skillName [ Endure ]
                 Sim.act
                 userHealth <- user health
                 userHealth `shouldBe` 0
@@ -149,11 +149,11 @@ spec = parallel do
         useOn Ally "Self-Sacrifice" do
             it "redirects from ally" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 not <$> target (`is` Reveal)
             it "redirects to user" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 user (`is` Reveal)
 
     describeCharacter "Might Guy" do
@@ -165,12 +165,12 @@ spec = parallel do
         useOn Enemy "Counter Punch" do
             it "counters target" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 not <$> user (`is` Reveal)
             it "damages countered target" do
                 Sim.act
                 damaged <- measureDamage
-                         $ Sim.as Enemy $ apply Permanent [ Reveal ]
+                         $ Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 damaged `shouldBe` 30
 
     describeCharacter "Baki" do
@@ -180,11 +180,11 @@ spec = parallel do
                 targetDefense <- target totalDefense
                 targetDefense `shouldBe` 50
             it "protects target from effects" do
-                Sim.as Enemy $ apply Permanent [ Plague ]
+                Sim.as Enemy $ apply Permanent skillName [ Plague ]
                 Sim.act
                 not <$> target (`is` Plague)
             it "ends when defense is destroyed" do
-                Sim.as Enemy $ apply Permanent [ Plague ]
+                Sim.as Enemy $ apply Permanent skillName [ Plague ]
                 Sim.act
                 Sim.as Enemy demolishAll
                 target (`is` Plague)

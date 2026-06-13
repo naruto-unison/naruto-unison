@@ -31,9 +31,9 @@ import           Util ((∈), (∉), intersects)
 -- | Status engine.
 -- Uses 'Ninjas.addStatus' internally.
 apply :: ∀ m. MonadPlay m
-          => Int -> EnumSet Class -> [Runnable Bomb] -> Text -> Duration
+          => Int -> EnumSet Class -> [Runnable Bomb] -> Duration -> Text
           -> [Effect] -> m ()
-apply amount classes bombs name unthrottled effects = void $ runMaybeT do
+apply amount classes bombs unthrottled name effects = void $ runMaybeT do
     context@Context{new, target, user} <- P.context
     nUser   <- P.nUser
     nTarget <- P.nTarget

@@ -5,6 +5,7 @@ module Game.Characters.Import
   ( module Import
   , SkillEffect
   , invuln
+  , skillName
   , user, target
   , channeling, inGroup
   , targeting
@@ -64,13 +65,16 @@ invuln :: Text -- ^ 'Skill.name'.
        -> Text -- ^ Character name/nickname; first phrase in 'Skill.desc'.
        -> EnumSet Class -- ^ 'Skill.classes'.
        -> Skill
-invuln skillName userName classes = Skill.new
-    { Skill.name      = skillName
+invuln name userName classes = Skill.new
+    { Skill.name      = name
     , Skill.desc      = userName ++ " becomes invulnerable for 1 turn."
     , Skill.classes   = classes
     , Skill.cooldown  = 4
-    , Skill.effects   = [To Self $ apply 1 [Invulnerable All]]
+    , Skill.effects   = [To Self $ apply 1 skillName [Invulnerable All]]
     }
+
+skillName :: Text
+skillName = ""
 
 targeting :: ∀ m. (MonadPlay m, MonadRandom m) => Target -> m () -> m ()
 targeting t f = do
@@ -86,7 +90,7 @@ bonusIf amount condition = getBonus <$> condition
 
 -- | True if user 'N.isChanneling'.
 channeling :: ∀ m. MonadPlay m => Text -> m Bool
-channeling name = N.isChanneling name <$> P.nUser
+channeling name = N.isChanneling <$> P.createID name <*> P.nUser
 
 -- | True if 'N.character' has a 'Group'.
 inGroup :: Group -> Ninja -> Bool

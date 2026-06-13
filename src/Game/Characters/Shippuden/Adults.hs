@@ -20,9 +20,9 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy do
-                trap' 1 (OnDamaged All) $ apply 1 [ Stun All ]
+                trap' 1 (OnDamaged All) $ apply 1 skillName [ Stun All ]
                 pierce 25
-          , To Self $ hide 1 [ Alternate "Lightning Beast Fang"
+          , To Self $ hide 1 skillName [ Alternate "Lightning Beast Fang"
                                          "Lightning Blade Finisher"
                              ]
           ]
@@ -49,12 +49,12 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 40
-                apply 1 [ Snare 1
+                apply 1 skillName [ Snare 1
                         , Exhaust [All]
                         ]
           , To XAlly do
                 cureAll
-                apply 1 [ Invulnerable All ]
+                apply 1 skillName [ Invulnerable All ]
           ]
         }
       ]
@@ -65,9 +65,9 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To XAllies $ apply 3 [ Snare -1 ]
+          [ To XAllies $ apply 3 skillName [ Snare -1 ]
           , To Enemies $ trap 3 (OnAction All) do
-                targeting Everyone removeTrap
+                targeting Everyone $ removeTrap skillName
                 copyLast 1
           ]
         }
@@ -88,9 +88,9 @@ characters =
           [ To Enemy $ damage 25
           , To Self do
                 defend Permanent 40
-                bombWith [Hidden] 1 [ Alternate "Thousand Hand Strike"
-                                                "Kannon Strike"
-                                    ] [ To Done $ tag' "Overheating" 1 ]
+                bombWith [Hidden] 1 skillName [ Alternate "Thousand Hand Strike"
+                                                          "Kannon Strike"
+                                              ] [ To Done $ tag 1 "Overheating" ]
           ]
         }
       , Skill.new
@@ -111,13 +111,13 @@ characters =
         , Skill.cost      = [Gen, Rand]
         , Skill.dur       = Action Permanent
         , Skill.effects   =
-          [ To Enemies $ apply Permanent [ Snare 1 ]
-          , To Self $ hide 1 [ Alternate "Burning Ash"
+          [ To Enemies $ apply Permanent skillName [ Snare 1 ]
+          , To Self $ hide 1 skillName [ Alternate "Burning Ash"
                                          "Burning Ash: Ignite"
                              ]
           ]
         , Skill.stunned   =
-          [ To Self $ hide 1 [ Alternate "Burning Ash"
+          [ To Self $ hide 1 skillName [ Alternate "Burning Ash"
                                          "Burning Ash: Ignite"
                              ]
           ]
@@ -132,7 +132,7 @@ characters =
                 stacks <- target numStacks "Burning Ash"
                 afflict (10 * stacks)
           , To Self do
-                cancelChannel' "Burning Ash"
+                cancelChannel "Burning Ash"
                 targeting Everyone $ remove "Burning Ash"
           ]
         }
@@ -164,7 +164,7 @@ characters =
         , Skill.effects   =
           [ To Self $ trapFrom 1 (OnHarmed Physical) $ damage 10
           , To Enemy do
-                afterFirstTurn <- channeling "Nunchaku"
+                afterFirstTurn <- channeling skillName
                 if afterFirstTurn then
                     damage 10
                 else do
@@ -182,7 +182,7 @@ characters =
           [ To Enemy do
                 stacks <- user numStacks "Single Gate Release"
                 damage (35 + 5 * stacks)
-                apply 1 [ Weaken [All] Flat 20 ]
+                apply 1 skillName [ Weaken [All] Flat 20 ]
           ]
         }
       , Skill.new
@@ -193,7 +193,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 60
-                apply 1 [ Stun All ]
+                apply 1 skillName [ Stun All ]
           ]
         }
       , Skill.new
@@ -213,8 +213,8 @@ characters =
         , Skill.effects   =
           [ To Self do
                 sacrifice 0 5
-                stacks <- user numStacks "Single Gate Release"
-                apply Permanent $ Reduce [All] Flat 5 : case stacks of
+                stacks <- user numStacks skillName
+                apply Permanent skillName $ Reduce [All] Flat 5 : case stacks of
                     5 -> [ Alternate "Fiery Kick"
                                      "Asakujaku"
                          ]
@@ -239,9 +239,9 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Self do
-                apply 1 [ Reduce [All] Percent 50 ]
+                apply 1 skillName [ Reduce [All] Percent 50 ]
                 trapFrom 1 (OnHarmed All) $
-                    apply 1 [ Stun Physical
+                    apply 1 skillName [ Stun Physical
                             , Stun Melee
                             ]
           ]
@@ -255,7 +255,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                apply 1 [ BlockEnemies ]
+                apply 1 skillName [ BlockEnemies ]
           ]
         }
       ]
@@ -266,7 +266,7 @@ characters =
         , Skill.cost      = [Nin, Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Enemy $ apply 2 [ Stun Chakra
+          [ To Enemy $ apply 2 skillName [ Stun Chakra
                                , Stun Ranged
                                , Bleed [Melee] Flat 5
                                ]
@@ -298,7 +298,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                apply 1 [ Stun NonMental ]
+                apply 1 skillName [ Stun NonMental ]
                 sealed <- target has "Lion Roar Sealing"
                 if sealed then afflict 30 else damage 30
           ]
@@ -318,7 +318,7 @@ characters =
                                       , Alternate "Ten Puppets Collection"
                                                   "Lion Roar Sealing"
                                       ]
-                onBreak cancelChannel
+                onBreak $ cancelChannel skillName
           ]
         , Skill.effects   =
           [ To REnemy $ damage 10 ]
@@ -330,7 +330,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Enemy $ apply 2 [ Expose
+          [ To Enemy $ apply 2 skillName [ Expose
                                , Seal
                                ]
           ]
@@ -374,7 +374,7 @@ characters =
         , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Enemies $ damage 15
-          , To Self $ apply 1 [ Reduce [All] Percent 25 ]
+          , To Self $ apply 1 skillName [ Reduce [All] Percent 25 ]
           ]
         }
       ]
@@ -406,8 +406,8 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 25
-                tag 1
-          , To Self $ apply 1 [ Reduce [All] Percent 50 ]
+                tag 1 skillName
+          , To Self $ apply 1 skillName [ Reduce [All] Percent 50 ]
           ]
         }
       ]
@@ -420,7 +420,7 @@ characters =
           [ To Enemy do
                 damage 20
                 whenM (target has "Lava Quicklime") $
-                    apply 1 [ Stun Physical
+                    apply 1 skillName [ Stun Physical
                             , Stun Chakra
                             ]
           ]
@@ -435,7 +435,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 damage 15
-                apply 1 [ Alone ]
+                apply 1 skillName [ Alone ]
           ]
         }
       ]
@@ -454,7 +454,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 35
-                apply 1 [ Disable Counters
+                apply 1 skillName [ Disable Counters
                         , Disable (Only Reflect)
                         , Disable (Any ReflectAll)
                         ]
@@ -468,10 +468,10 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Self $ apply 1 [Reduce [All] Percent 20]
+          [ To Self $ apply 1 skillName [Reduce [All] Percent 20]
           , To Enemies do
                 damage 10
-                apply 1 [ Throttle 1 Counters
+                apply 1 skillName [ Throttle 1 Counters
                         , Throttle 1 (Only Reflect)
                         , Throttle 1 (Any ReflectAll)
                         , Throttle 1 Stuns
@@ -508,8 +508,8 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ apply 2 [ Reduce [All] Flat 15 ]
-          , To Enemies $ apply 2 [ Bleed [All] Percent 20 ]
+          [ To Self $ apply 2 skillName [ Reduce [All] Flat 15 ]
+          , To Enemies $ apply 2 skillName [ Bleed [All] Percent 20 ]
           ]
         }
       ]
@@ -521,7 +521,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 30
-                apply 1 [ Weaken [All] Flat 10 ]
+                apply 1 skillName [ Weaken [All] Flat 10 ]
           ]
         }
       ]
@@ -532,8 +532,8 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $ apply 1 [ Invulnerable Ranged ]
-          , To Ally $ apply 1 [ Invulnerable Ranged ]
+          [ To Self $ apply 1 skillName [ Invulnerable Ranged ]
+          , To Ally $ apply 1 skillName [ Invulnerable Ranged ]
           ]
         }
       ]
@@ -552,7 +552,7 @@ characters =
         , Skill.effects   =
           [ To REnemy $ damage 20
           , To Self $ trap 1 (OnHarmed All) $
-                apply 1 [ Invulnerable All ]
+                apply 1 skillName [ Invulnerable All ]
           ]
         }
       ]
@@ -574,7 +574,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 35
-                apply 1 [ Alone ]
+                apply 1 skillName [ Alone ]
           ]
         }
       ]
@@ -592,7 +592,7 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self do
-                apply 3 [ Reduce [All] Flat 10 ]
+                apply 3 skillName [ Reduce [All] Flat 10 ]
                 trapFrom 3 (OnHarmed All) $
                     afflict 10
           ]
@@ -638,7 +638,7 @@ characters =
           [ To Self do
                 trapFrom 1 (CounterAll All) $
                     pierce 20
-                hide Permanent [ Alternate "Back Slice"
+                hide Permanent skillName [ Alternate "Back Slice"
                                            "Crescent Moon Slice"
                                ]
           ]
@@ -650,7 +650,7 @@ characters =
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ To Enemy do
-                apply 1 [ Expose ]
+                apply 1 skillName [ Expose ]
                 pierce 35
           , To Self $ remove "back slice"
           ]
@@ -665,7 +665,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 25
-                apply 1 [ BlockAllies ]
+                apply 1 skillName [ BlockAllies ]
           ]
         }
       ]
@@ -677,13 +677,13 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Ally do
-                addStack
+                addStack skillName
                 ally <- target slot
                 trapFrom Permanent (OnHarmed All) do
                     stacks <- withTarget ally do
-                        removeTrap
+                        removeTrap skillName
                         stacks <- target numStacks "Paper Bomb"
-                        remove "Paper Bomb"
+                        remove skillName
                         return stacks
                     damage (20 * stacks)
           ]
@@ -702,7 +702,7 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ To Allies $ apply 3 [ Reduce [All] Percent 20
+          [ To Allies $ apply 3 skillName [ Reduce [All] Percent 20
                                 , Focus
                                 ]
           ]
@@ -719,12 +719,12 @@ characters =
                 pierce 20
                 rubber <- target has "Rubber Sphere and Rope"
                 if rubber then
-                    apply 1 [ Disable Stuns
+                    apply 1 skillName [ Disable Stuns
                             , Stun Physical
                             , Stun Chakra
                             ]
                 else
-                    apply 1 [ Disable Stuns ]
+                    apply 1 skillName [ Disable Stuns ]
           ]
         }
       ]
@@ -737,8 +737,8 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 35
-                tag 4
-          , To RXAlly $ apply 1 [ Invulnerable All ]
+                tag 4 skillName
+          , To RXAlly $ apply 1 skillName [ Invulnerable All ]
           ]
         }
       ]
@@ -774,7 +774,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 afflict 5
-                tag 1
+                tag 1 skillName
           ]
         }
       ]
@@ -805,7 +805,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Self do
-                apply 3 [ Reduce [All] Flat 5 ]
+                apply 3 skillName [ Reduce [All] Flat 5 ]
                 trapFrom 3 (OnHarmed NonMental) $
                     damage 10
           ]
@@ -818,7 +818,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemy do
-                apply 1 [ Expose ]
+                apply 1 skillName [ Expose ]
                 damage 25
           ]
         }
@@ -831,7 +831,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Self $ trapFrom 1 (CounterAll All) $
-                apply 1 [ Exhaust [All] ]
+                apply 1 skillName [ Exhaust [All] ]
           ]
         }
       ]

@@ -21,7 +21,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                apply 1 [ Stun All ]
+                apply 1 skillName [ Stun All ]
                 arms  <- 10 `bonusIf` channeling "Tailed Beast Chakra Arms"
                 inner <- -10 `bonusIf` channeling "Inner Chakra Mode"
                 damage (35 + arms + inner)
@@ -52,7 +52,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 heal 15
-                apply 1 [ Reduce [All] Flat 10 ]
+                apply 1 skillName [ Reduce [All] Flat 10 ]
           ]
         }
       ]
@@ -71,7 +71,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 45
-                apply 2 [ Weaken [All] Flat 20 ]
+                apply 2 skillName [ Weaken [All] Flat 20 ]
           ]
         , Skill.changes   = changeWith "Curse Mark" $ setCost [Rand]
         }
@@ -83,11 +83,12 @@ characters =
         , Skill.cost      = [Nin, Nin, Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ To Enemy $ bombWith [Bypassing] 2 [ Stun All
-                                              , Alone
-                                              , Invulnerable All
-                                              ]
-                                              [ To Expire $ damage 55 ]
+          [ To Enemy $
+                bombWith [Bypassing] 2 skillName [ Stun All
+                                                 , Alone
+                                                 , Invulnerable All
+                                                 ]
+                                                 [ To Expire $ damage 55 ]
           ]
         , Skill.changes   = changeWith "Curse Mark" $ setCost [Rand, Rand]
         }
@@ -100,7 +101,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                   sacrifice 0 20
-                  apply 1 [ Invulnerable All ]
+                  apply 1 skillName [ Invulnerable All ]
           ]
         }
       ]
@@ -117,16 +118,16 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To REnemy do
-                stacks <- user numStacks "Unpredictable Assault"
+                stacks <- user numStacks skillName
                 damage (20 + 5 * stacks)
-          , To Self addStack
+          , To Self $ addStack skillName
           ]
         , Skill.changes   = changeWithChannel "Drunken Fist" \x -> x
                 { Skill.effects =
                   [ To Enemy do
-                        stacks <- user numStacks "Unpredictable Assault"
+                        stacks <- user numStacks skillName
                         damage (25 + 5 * stacks)
-                    , To Self addStack
+                    , To Self $ addStack skillName
                   ]
                 }
         }
@@ -141,7 +142,7 @@ characters =
           [ To Ally $ trapFrom 1 (Counter Physical) do
                 stacks <- user numStacks "Unpredictable Assault"
                 damage (20 + 5 * stacks)
-                targeting Self $ addStack' "Unpredictable Assault"
+                targeting Self $ addStack "Unpredictable Assault"
           ]
         }
       ]
@@ -153,7 +154,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.dur       = Action 3
         , Skill.effects   =
-          [ To Self $ apply 1 [ Enrage ]
+          [ To Self $ apply 1 skillName [ Enrage ]
           , To Enemy $ damage 15
           ]
         }
@@ -185,8 +186,8 @@ characters =
         , Skill.cooldown  = 2
         , Skill.dur       = Control Permanent
         , Skill.start     =
-          [ To Enemy $ controlTrap Nullified
-                cancelChannel
+          [ To Enemy $ controlTrap Nullified $
+                cancelChannel skillName
           ]
         , Skill.effects   =
           [ To Enemy $ damage 10 ]
@@ -213,12 +214,12 @@ characters =
           [ To Self $ defend Permanent 10 ]
         , Skill.end       =
           [ To Self $
-                apply' "Tailed Beast Form" 3 [ Face
-                                             , Alternate "Monstrous Sand Arm"
-                                                         "Wind Bullet"
-                                             , Alternate "Sand Transformation"
-                                                        "Shukaku Full Release"
-                                             ]
+                apply 3 "Tailed Beast Form" [ Face
+                                            , Alternate "Monstrous Sand Arm"
+                                                        "Wind Bullet"
+                                            , Alternate "Sand Transformation"
+                                                       "Shukaku Full Release"
+                                            ]
           ]
         }
       , Skill.new
@@ -227,7 +228,7 @@ characters =
         , Skill.classes   = [Mental, Unremovable]
         , Skill.cost      = [Blood]
         , Skill.effects   =
-          [ To Self $ apply 1 [ Strengthen [All] Percent 100 ] ]
+          [ To Self $ apply 1 skillName [ Strengthen [All] Percent 100 ] ]
         }
       ]
     , [ invuln "Thick Sand Coat" "Shukaku" [Physical] ]
@@ -256,10 +257,10 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemies do
-                apply 1 [ Exhaust [NonMental] ]
+                apply 1 skillName [ Exhaust [NonMental] ]
                 trap 1 (OnAction NonMental) $
-                    remove "Sand Burial Prison"
-          , To Self $ hide 1 [ Alternate "Sand Burial Prison"
+                    remove skillName
+          , To Self $ hide 1 skillName [ Alternate "Sand Burial Prison"
                                          "Giant Sand Burial"
                              ]
           ]
@@ -287,8 +288,8 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 damage 15
-                apply 1 [ Build -10 ]
-          , To Allies $ apply 1 [ Build 10 ]
+                apply 1 skillName [ Build -10 ]
+          , To Allies $ apply 1 skillName [ Build 10 ]
           ]
         }
       ]

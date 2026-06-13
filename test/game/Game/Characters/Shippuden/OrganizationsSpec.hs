@@ -43,7 +43,7 @@ spec = parallel do
         useOn Ally "Wood Clone" do
             it "counters on target" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 not <$> target (`is` Reveal)
             it "counters with defense" do
                 Sim.act
@@ -140,7 +140,7 @@ spec = parallel do
             it "counters on target" do
                 Sim.act
                 Sim.withClass NonMental $ Sim.as Enemy $
-                    apply Permanent [ Reveal ]
+                    apply Permanent skillName [ Reveal ]
                 not <$> target (`is` Reveal)
             it "teaches countered" do
                 Sim.act
@@ -160,13 +160,13 @@ spec = parallel do
             it "counters enemies" do
                 Sim.act
                 Sim.withClass NonMental $ Sim.as XEnemies $
-                    apply Permanent [ Reveal ]
+                    apply Permanent skillName [ Reveal ]
                 not <$> user (`is` Reveal)
             it "damages countered" do
                 Sim.act
                 damaged <- measureDamageTo Enemies
                          $ Sim.withClass NonMental $ Sim.as Enemies
-                         $ apply Permanent [ Reveal ]
+                         $ apply Permanent skillName [ Reveal ]
                 damaged `shouldBe` 10
             it "alternates" do
                 Sim.act
@@ -177,7 +177,7 @@ spec = parallel do
                 Sim.act
                 setHealth 100
                 damaged <- measureDamage
-                         $ Sim.as Enemy $ apply Permanent [ Reveal ]
+                         $ Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 damaged `shouldBe` 5
 
         useOn Enemy "Kirin" do
@@ -189,7 +189,7 @@ spec = parallel do
             it "can be used after Dragon Flame" do
                 Sim.use "Dragon Flame"
                 Sim.as Enemy $ return ()
-                cancelChannel' "Dragon Flame"
+                cancelChannel "Dragon Flame"
                 setHealth 100
                 Sim.use "Kirin"
                 targetHealth <- target health
@@ -201,7 +201,7 @@ spec = parallel do
                 Sim.use "Kirin"
                 Sim.as Enemy $ return ()
                 setHealth 100
-                cancelChannel' "Dragon Flame"
+                cancelChannel "Dragon Flame"
                 Sim.use "Kirin"
                 targetHealth <- target health
                 targetHealth `shouldBe` 100

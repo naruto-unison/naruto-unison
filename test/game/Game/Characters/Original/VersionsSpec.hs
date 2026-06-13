@@ -56,29 +56,29 @@ spec = parallel do
         useOn Enemy "Drunken Counter" do
             it "counters on target" do
                 targeting Self Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 not <$> user (`is` Reveal)
             it "damages with Unpredictable Assault if countered" do
                 targeting Self Sim.act
                 damaged <- measureDamage
-                         $ Sim.as Enemy $ apply Permanent [ Reveal ]
+                         $ Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 damaged `shouldBe` 20
             it "adds Unpredictable Assault if countered" do
                 targeting Self Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 user has "Unpredictable Assault"
 
     describeCharacter "Shukaku Gaara" do
         useOn Enemy "Monstrous Sand Arm" do
             it "counters target" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 not <$> user (`is` Reveal)
             it "damages target until target acts" do
                 damaged <- measureDamage do
                     Sim.act
                     Sim.turns testStacks
-                    Sim.as Enemy $ apply Permanent [ Reveal ]
+                    Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                     Sim.turns 5
                 damaged `shouldBe` 10 * (testStacks + 1)
 

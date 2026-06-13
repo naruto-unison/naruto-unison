@@ -73,9 +73,9 @@ succeed _     (UserHealth i) user Ninja{health, slot = target}
 succeed _     (TargetHealth i) user Ninja{health, slot = target}
   | user == target = True
   | otherwise      = health <= i
-succeed _     (UserChannel expected name) user n@Ninja{slot = target}
+succeed owner (UserChannel expected name) user n@Ninja{slot = target}
   | user /= target = True
-  | otherwise      = expected == N.isChanneling name n
+  | otherwise      = expected == N.isChanneling ID { user, owner, name } n
 succeed owner (UserDefense i name) user n@Ninja{slot = target}
   | user /= target = True
   | i > 0          = N.defenseAmount ID { user, owner, name } n >= i

@@ -16,7 +16,7 @@ spec = parallel do
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [All]
             it "does not stun otherwise" do
-                apply Permanent [ Reduce [Affliction] Flat 25 ]
+                apply Permanent skillName [ Reduce [Affliction] Flat 25 ]
                 Sim.act
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` []
@@ -37,14 +37,14 @@ spec = parallel do
                 damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
-                apply Permanent [ Stun All ]
+                apply Permanent skillName [ Stun All ]
                 damagedWith <- measureDamage Sim.act
                 damagedWith - damagedWithout `shouldBe` 10
             it "deals bonus damage if both" do
                 damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
-                apply Permanent [ Stun All ]
+                apply Permanent skillName [ Stun All ]
                 Sim.use "Lightning Beast Fang"
                 setHealth 100
                 damagedWith <- measureDamage Sim.act
@@ -161,7 +161,7 @@ spec = parallel do
             it "cures harm on death" do
                 Sim.act
                 Sim.as Enemy do
-                    apply Permanent [ Reveal ]
+                    apply Permanent skillName [ Reveal ]
                     kill
                 not <$> target (`is` Reveal)
             it "heals target on death" do
@@ -212,7 +212,7 @@ spec = parallel do
             it "makes user invulnerable if harmed" do
                 Sim.act
                 Sim.as Enemy $ return ()
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 not <$> user (`is` Reveal)
 
     describeCharacter "Atsui" do
@@ -239,12 +239,12 @@ spec = parallel do
         useOn Enemies "Back Slice" do
             it "counters" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 not <$> user (`is` Reveal)
             it "damages countered" do
                 Sim.act
                 damaged <- measureDamage
-                         $ Sim.as Enemy $ apply Permanent [ Reveal ]
+                         $ Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 damaged `shouldBe` 20
             it "alternates" do
                 Sim.act
@@ -267,7 +267,7 @@ spec = parallel do
         useOn RAlly "Rubber Sphere and Rope" do
             it "makes random ally invulnerable" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 not <$> target (`is` Reveal)
 
     describeCharacter "Darui" do
@@ -301,7 +301,7 @@ spec = parallel do
             it "counters on user" do
                 Sim.act
                 Sim.withClass NonMental $ Sim.as Enemy $
-                    apply Permanent [ Reveal ]
+                    apply Permanent skillName [ Reveal ]
                 not <$> user (`is` Reveal)
             it "exhausts countered" do
                 Sim.act
@@ -314,13 +314,13 @@ spec = parallel do
             it "counters on user" do
                 Sim.act
                 Sim.withClass Physical $ Sim.as Enemy $
-                    apply Permanent [ Reveal ]
+                    apply Permanent skillName [ Reveal ]
                 not <$> user (`is` Reveal)
             it "damages countered" do
                 Sim.act
                 damaged <- measureDamage
                          $ Sim.withClass Physical $ Sim.as Enemy
-                         $ apply Permanent [ Reveal ]
+                         $ apply Permanent skillName [ Reveal ]
                 damaged `shouldBe` 20
   where
     describeCharacter = describeCategory Shippuden

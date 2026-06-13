@@ -17,9 +17,9 @@ spec = parallel do
 
         useOn Enemy "Throw a Fit" do
             it "damages target per helpful effect from allies" do
-                targeting Self $ apply Permanent [ Focus ]
+                targeting Self $ apply Permanent skillName [ Focus ]
                 Sim.as Ally $ targeting Everyone $
-                    replicateM_ testStacks $ apply Permanent [ Focus ]
+                    replicateM_ testStacks $ apply Permanent skillName [ Focus ]
                 damaged <- measureDamage do
                     Sim.act
                     Sim.turns 5
@@ -27,9 +27,9 @@ spec = parallel do
 
         useOn Enemy "Throw a Shuriken" do
             it "damages target per helpful effect from allies" do
-                targeting Self $ apply Permanent [ Focus ]
+                targeting Self $ apply Permanent skillName [ Focus ]
                 Sim.as Ally $ targeting Everyone $
-                    replicateM_ testStacks $ apply Permanent [ Focus ]
+                    replicateM_ testStacks $ apply Permanent skillName [ Focus ]
                 damaged <- measureDamage Sim.act
                 damaged `shouldBe` 10 + 10 * testStacks
 
@@ -60,7 +60,7 @@ spec = parallel do
             it "ignores stuns if target dies" do
                 Sim.act
                 Sim.as XEnemies kill
-                targeting Self $ Sim.as XEnemies $ apply Permanent [ Stun All ]
+                targeting Self $ Sim.as XEnemies $ apply Permanent skillName [ Stun All ]
                 userStunned <- user Effects.stun
                 userStunned `shouldBe` []
             it "makes user immortal if target dies" do
@@ -95,7 +95,7 @@ spec = parallel do
             it "counters on ally" do
                 Sim.act
                 Sim.withClass NonMental $ Sim.as Enemy $
-                    apply Permanent [ Reveal ]
+                    apply Permanent skillName [ Reveal ]
                 not <$> target (`is` Reveal)
         useOn Enemy "Partial Expansion" do
             it "counters against enemy" do
@@ -118,7 +118,7 @@ spec = parallel do
                 damageWith <- measureDamage Sim.act
                 damageWith - damageWithout `shouldBe` 10
             it "stuns an additional turn if target has Ensnared" do
-                tag' "Ensnared" Permanent
+                tag Permanent "Ensnared"
                 Sim.act
                 Sim.turns 2
                 targetStunned <- target Effects.stun
@@ -146,7 +146,7 @@ spec = parallel do
                 damaged <- measureDamage Sim.act
                 damaged `shouldBe` 30
             it "stuns an additional turn if target has Ensnared" do
-                tag' "Ensnared" Permanent
+                tag Permanent "Ensnared"
                 Sim.act
                 Sim.turns 1
                 targetStunned <- target Effects.stun
@@ -160,11 +160,11 @@ spec = parallel do
         useOn Enemies "Black Spider Lily" do
             it "tags target if they stun" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Stun All ]
+                Sim.as Enemy $ apply Permanent skillName [ Stun All ]
                 target has "Ensnared"
             it "does not tag otherwise" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Focus ]
+                Sim.as Enemy $ apply Permanent skillName [ Focus ]
                 not <$> target has "Ensnared"
 
     describeCharacter "Inoichi Yamanaka" do
@@ -201,17 +201,17 @@ spec = parallel do
                 Sim.act
                 Sim.withClass Mental $ Sim.as Self $ return ()
                 Sim.withClass Mental $ Sim.as Self $ return ()
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 not <$> user (`is` Reveal)
             it "does not provide invulnerability otherwise" do
                 Sim.act
                 Sim.withClass Physical $ Sim.as Self $ return ()
                 Sim.withClass Physical $ Sim.as Self $ return ()
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 user (`is` Reveal)
             it "does not provide invulnerability from its own effect" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 user (`is` Reveal)
   where
     describeCharacter = describeCategory Original

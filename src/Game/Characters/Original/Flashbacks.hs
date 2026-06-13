@@ -24,8 +24,8 @@ characters =
                 demolishAll
                 deplete 1
                 pierce 15
-                apply 1 [ Stun All ]
-                apply Permanent [ Weaken [All] Flat 5 ]
+                apply 1 skillName [ Stun All ]
+                apply Permanent skillName [ Weaken [All] Flat 5 ]
           ]
         }
       ]
@@ -37,15 +37,15 @@ characters =
         , Skill.cooldown  = 5
         , Skill.effects   =
           [ To Enemy do
-                tag 4
+                tag 4 skillName
                 trap 4 OnDeath $
                     targeting Self killHard
                 targeting Self do
-                    apply 4 [ Alternate "Life Link"
-                                        "Life Transfer"
-                            ]
+                    apply 4 skillName [ Alternate "Life Link"
+                                                  "Life Transfer"
+                                      ]
                     trap 4 OnDeath $ targeting Everyone $
-                        whenM (target has "Life Link")
+                        whenM (target has skillName)
                             killHard
           ]
         }
@@ -69,10 +69,10 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 purge
-                apply 2 [ Stun All
-                        , Alone
-                        , Invulnerable All
-                        ]
+                apply 2 skillName [ Stun All
+                                  , Alone
+                                  , Invulnerable All
+                                  ]
           ]
         }
       ]
@@ -88,19 +88,19 @@ characters =
         , Skill.classes   = [Physical, Melee, Bypassing]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
-        [ To Self $ apply 1 [ Invulnerable All ]
+        [ To Self $ apply 1 skillName [ Invulnerable All ]
         , To XAllies $ whenM (target has "Space-Time Marking") $
-                apply 1 [ Invulnerable All ]
+                apply 1 skillName [ Invulnerable All ]
         , To Enemies $ whenM (target has "Space-Time Marking") $
                 damage 30
         , To XAlly do
-                apply 1 [ Invulnerable All ]
+                apply 1 skillName [ Invulnerable All ]
                 whenM (user has "Space-Time Marking") $
-                    tag' "Space-Time Marking" 1
+                    tag 1 "Space-Time Marking"
         , To Enemy do
                 damage 30
                 whenM (user has "Space-Time Marking") $
-                    tag' "Space-Time Marking" 1
+                    tag 1 "Space-Time Marking"
           ]
         }
       ]
@@ -124,7 +124,7 @@ characters =
         , Skill.cost      = [Gen, Nin]
         , Skill.cooldown  = 6
         , Skill.effects   =
-          [ To Self $ tag 3 ]
+          [ To Self $ tag 3 skillName ]
         }
       ]
     , [ invuln "Flying Light" "Minato" [Physical] ]
@@ -140,7 +140,7 @@ characters =
         , Skill.cost      = [Gen, Nin]
         , Skill.effects   =
           [ To Enemy $ damage 35
-          , To Self $ tag 1
+          , To Self $ tag 1 skillName
           ]
         , Skill.changes   = changeWith "Rasengan" $ setCost [Nin]
         }
@@ -152,7 +152,7 @@ characters =
         , Skill.cost      = [Gen, Gen]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ To Ally $ apply 2 [ Reflect ] ]
+          [ To Ally $ apply 2 skillName [ Reflect ] ]
         }
       ]
     , [ Skill.new
@@ -163,7 +163,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 afflict 25
-                apply Permanent [ Weaken [All] Flat 5 ]
+                apply Permanent skillName [ Weaken [All] Flat 5 ]
           , To Self $ sacrifice 0 15
           ]
         }
@@ -183,7 +183,7 @@ characters =
         , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Self do
-                apply 1 [ Invulnerable Chakra ]
+                apply 1 skillName [ Invulnerable Chakra ]
                 absorb 1
           ]
         , Skill.changes   = changeWith "Veritable 1000-Armed Kannon" $
@@ -199,7 +199,7 @@ characters =
         , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Enemy $ damage 20
-          , To Self $ apply 1 [ Invulnerable Physical ]
+          , To Self $ apply 1 skillName [ Invulnerable Physical ]
           ]
         , Skill.changes   = changeWith "Veritable 1000-Armed Kannon" $
                             setCost [Blood] . setDur (Action 3)
@@ -213,7 +213,7 @@ characters =
         , Skill.cooldown  = 5
         , Skill.effects   =
           [ To Allies $ defend Permanent 30
-          , To Self $ tag 3
+          , To Self $ tag 3 skillName
           ]
         }
       ]
@@ -231,10 +231,10 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 20
-                apply 1 [ Weaken [All] Flat 5 ]
+                apply 1 skillName [ Weaken [All] Flat 5 ]
                 whenM (user has "Sharingan Stun") $
-                    apply 1 [ Stun All ]
-          , To Self $ apply 1 [ Strengthen [All] Flat 5 ]
+                    apply 1 skillName [ Stun All ]
+          , To Self $ apply 1 skillName [ Strengthen [All] Flat 5 ]
           ]
         }
       ]
@@ -246,10 +246,10 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 20
-                apply 1 [ Weaken [All] Flat 5 ]
+                apply 1 skillName [ Weaken [All] Flat 5 ]
                 whenM (user has "Sharingan Stun") $
-                    apply 1 [ Stun All ]
-          , To Self $ apply 1 [ Strengthen [All] Flat 5 ]
+                    apply 1 skillName [ Stun All ]
+          , To Self $ apply 1 skillName [ Strengthen [All] Flat 5 ]
           ]
         }
       ]
@@ -261,16 +261,17 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 whenM (user has "Sharingan Stun") $
-                    apply 1 [ Stun All ]
+                    apply 1 skillName [ Stun All ]
                 trap 2 OnChakra do
-                    removeTrap
+                    removeTrap skillName
                     targeting Self $ gain [Rand]
                 trap 2 OnStun do
-                    removeTrap
-                    targeting Self $ tag' "Sharingan Stun" 1
+                    removeTrap skillName
+                    targeting Self $ tag 1 "Sharingan Stun"
                 trap 2 OnDamage do
-                    removeTrap
-                    targeting Self $ apply 1 [ Strengthen [All] Flat 10 ]
+                    removeTrap skillName
+                    targeting Self $
+                        apply 1 skillName [ Strengthen [All] Flat 10 ]
           ]
         }
       ]
@@ -286,7 +287,7 @@ characters =
         , Skill.classes   = [Physical, Ranged, Invisible, Bypassing]
         , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ To Self $ apply 1 [ Reduce [All] Flat 15 ]
+          [ To Self $ apply 1 skillName [ Reduce [All] Flat 15 ]
           , To Enemy do
                 trap 1 (OnAction All) $
                     pierce 30
@@ -314,9 +315,9 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Ally $ apply 3 [ Bless 10
-                              , Heal 10
-                              ]
+          [ To Ally $ apply 3 skillName [ Bless 10
+                                        , Heal 10
+                                        ]
           ]
         }
       ]
@@ -345,7 +346,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy $ apply 2 [ Afflict 15 ] ]
+          [ To Enemy $ apply 2 skillName [ Afflict 15 ] ]
         , Skill.changes   = changeWith "Sharingan" \x -> x
                 { Skill.cooldown = 0
                 , Skill.effects =
@@ -361,13 +362,13 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To XAlly do
-                targeting Allies $ remove "Sharingan" -- in case cooldown resets
-                tag 4
+                targeting Allies $ remove skillName -- in case cooldown resets
+                tag 4 skillName
           ,  To Self do
-                apply 4 [ Reduce [All] Flat 15 ]
+                apply 4 skillName [ Reduce [All] Flat 15 ]
                 trap 4 OnDeath $ targeting Everyone $
-                    whenM (target has "Sharingan") $
-                        apply' "Borrowed Sharingan" Permanent
+                    whenM (target has skillName) $
+                        apply Permanent "Borrowed Sharingan"
                             [ Reduce [All] Flat 5
                             , Strengthen [NonAffliction] Flat 5
                             ]
@@ -387,10 +388,10 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Self $ tag' "Corporeal" 1
-          , To Enemy $ apply 1 [ Stun Physical
-                               , Expose
-                               ]
+          [ To Self $ tag 1 "Corporeal"
+          , To Enemy $ apply 1 skillName [ Stun Physical
+                                         , Expose
+                                         ]
           ]
         }
       ]
@@ -401,14 +402,14 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $ tag' "Corporeal" 1
+          [ To Self $ tag 1 "Corporeal"
           , To Enemy do
                 bonus <- 1 `bonusIf` target has "Kusari Chains"
                 pierce (20 + 20 * bonus)
                 userSlot <- user slot
-                apply (1 + fromIntegral bonus) [ Alone
-                                               , Taunt userSlot
-                                               ]
+                apply (1 + fromIntegral bonus) skillName [ Alone
+                                                         , Taunt userSlot
+                                                         ]
           ]
         }
       ]
@@ -420,7 +421,7 @@ characters =
         , Skill.cooldown  = 5
         , Skill.dur       = Ongoing 3
         , Skill.effects   =
-          [ To Self $ tag' "Corporeal" 1
+          [ To Self $ tag 1 "Corporeal"
           , To Enemies demolishAll
           , To REnemy $ damage 25
           ]
@@ -432,8 +433,8 @@ characters =
         , Skill.cooldown = 0
         , Skill.effects  =
           [ To Self do
-                tag' "Corporeal" 1
-                apply 1 [ Invulnerable All ]
+                tag 1 "Corporeal"
+                apply 1 skillName [ Invulnerable All ]
           ]
         }
       ]

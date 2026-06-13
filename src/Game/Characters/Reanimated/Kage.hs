@@ -36,7 +36,7 @@ characters =
           [ To Enemy do
                 damage 25
                 forest <- channeling "Deep Forest Creation"
-                apply 1 if forest then
+                apply 1 skillName if forest then
                     [ Stun All ]
                 else
                     [ Stun Physical
@@ -52,10 +52,10 @@ characters =
         , Skill.cost      = [Blood, Blood]
         , Skill.dur       = Ongoing 2
         , Skill.effects   =
-          [ To Enemies $ apply 1 [ Snare 1
+          [ To Enemies $ apply 1 skillName [ Snare 1
                                  , Exhaust [NonMental]
                                  ]
-          , To Self $ hide 1 [ Alternate "Deep Forest Creation"
+          , To Self $ hide 1 skillName [ Alternate "Deep Forest Creation"
                                          "Deep Forest Flourishing"
                              ]
           ]
@@ -87,7 +87,7 @@ characters =
           [ To Enemy do
                 bonus <- 15 `bonusIf` channeling "Water Shockwave"
                 damage (15 + bonus)
-                apply 1 [ Seal ]
+                apply 1 skillName [ Seal ]
           ]
         }
       ]
@@ -101,7 +101,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 damage 15
-                apply 1 [ Stun Bane ]
+                apply 1 skillName [ Stun Bane ]
           ]
         }
       ]
@@ -112,7 +112,7 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Allies $ apply 1 [ Invulnerable Physical
+          [ To Allies $ apply 1 skillName [ Invulnerable Physical
                                 , Invulnerable Mental
                                 ]
           ]
@@ -134,8 +134,9 @@ characters =
           let
             setTrap :: Duration -> SkillEffect
             setTrap dur = trap dur OnNoAction do
-                applyWith [Invisible] 4 []
-                targeting Self $ applyWith [Invisible] 4 [ Reduce [All] Flat 5 ]
+                applyWith [Invisible] 4 skillName []
+                targeting Self $
+                    applyWith [Invisible] 4 skillName [ Reduce [All] Flat 5 ]
           in
           [ To XAllies $ setTrap -1
           , To Enemies $ setTrap 1
@@ -152,9 +153,9 @@ characters =
           let
             setRoundRobin :: Slot -> SkillEffect
             setRoundRobin slot = do
-                apply -1 [Redirect slot]
+                apply -1 skillName [Redirect slot]
                 trap -1 (OnHarmed All) $ withTarget slot $
-                    apply' "Round-Robin Surprise Attack" -1
+                    apply -1 "Round-Robin Surprise Attack"
                         [ AntiCounter
                         , Bypass
                         , Pierce
@@ -188,7 +189,7 @@ characters =
         , Skill.classes   = [Chakra, Bypassing]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Allies $ apply 1 [ Invulnerable All ] ]
+          [ To Allies $ apply 1 skillName [ Invulnerable All ] ]
         }
       ]
     ]
@@ -249,10 +250,10 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Allies $ trapFrom Permanent (OnHarmed All) $
-                tag 1
+                tag 1 skillName
           , To Self do
-                addStack' "Hell Stab"
-                hide Permanent [ Alternate "Piercing Four-Fingered"
+                addStack "Hell Stab"
+                hide Permanent skillName [ Alternate "Piercing Four-Fingered"
                                            "Three-Fingered Assault"
                                ]
           ]
@@ -264,10 +265,10 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
           [ To Self do
-                addStack' "Hell Stab"
+                addStack "Hell Stab"
                 trap Permanent (OnDamaged All) $
                     alterCooldown "Lightning Armor" -1
-                hide Permanent [ Alternate "Piercing Four-Fingered"
+                hide Permanent skillName [ Alternate "Piercing Four-Fingered"
                                            "One-Fingered Assault"
                                ]
           ]
@@ -280,8 +281,8 @@ characters =
         , Skill.charges   = 1
         , Skill.effects   =
           [ To Self do
-                addStack' "Hell Stab"
-                apply Permanent [ Invulnerable Affliction ]
+                addStack "Hell Stab"
+                apply Permanent skillName [ Invulnerable Affliction ]
           ]
         }
       ]
@@ -292,7 +293,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 8
         , Skill.effects   =
-          [ To Self $ apply 3 [ Limit 10 ] ]
+          [ To Self $ apply 3 skillName [ Limit 10 ] ]
         }
       ]
     , [ Skill.new
@@ -309,9 +310,9 @@ characters =
                 when (targetHealth' < targetHealth) $
                     alterCooldown "Lighting Armor" -1
                 unlessM (target has "Aftershocks") do
-                    apply 1 [Stun All]
+                    apply 1 skillName [Stun All]
                     bonus <- 1 `bonusIf` user has "One-Fingered Assault"
-                    tag' "Aftershocks" (4 - bonus)
+                    tag (4 - bonus) "Aftershocks"
           ]
         }
       ]
@@ -342,14 +343,14 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self do
-                apply 2 [ Focus
+                apply 2 skillName [ Focus
                         , Reduce [All] Percent 50
                         , Weaken [All] Flat 5
                         ]
                 trap 2 OnRes do
-                    removeTrap
+                    removeTrap skillName
                     setHealth 15
-                    remove "Fragmentation"
+                    remove skillName
           ]
         }
       ]
@@ -381,12 +382,11 @@ characters =
         , Skill.cooldown  = 5
         , Skill.dur       = Ongoing 4
         , Skill.effects   =
-          [ To RAlly $ apply 1 [ Reflect ]
+          [ To RAlly $ apply 1 skillName [ Reflect ]
           , To RAlly do
                 defend 1 80
-                onBreak $
-                    unlessM (target has' defense "Major Summoning: Giant Clam")
-                        cancelChannel
+                onBreak $ unlessM (target has' defense skillName) $
+                    cancelChannel skillName
           ]
         }
       ]
@@ -418,12 +418,12 @@ characters =
             duel slot = do
                 health <- target health
                 setHealth 30
-                bomb 2 [ Duel slot
-                       , Taunt slot
-                       ]
-                       [ To Expire $ whenM (target alive) $
-                            setHealth health
-                       ]
+                bomb 2  skillName [ Duel slot
+                                  , Taunt slot
+                                  ]
+                                  [ To Expire $ whenM (target alive) $
+                                        setHealth health
+                                  ]
           in
           [ To Enemy do
                 userSlot   <- user slot
@@ -447,27 +447,27 @@ characters =
         , Skill.cooldown  = 6
         , Skill.effects   =
           [ To Self do
-                hide Permanent [ Reduce [Affliction] Percent 50 ]
+                hide Permanent skillName [ Reduce [Affliction] Percent 50 ]
                 applyStacks "Major Summoning: Ibuse" 30
                     [ Alternate "Major Summoning: Ibuse"
                                 "Poison Fog"
                     ]
                 trapPer' Permanent PerDamaged \i -> do
-                    stacks <- user numStacks "Major Summoning: Ibuse"
+                    stacks <- user numStacks skillName
                     if stacks > i then
-                        removeStacks "Major Summoning: Ibuse" i
+                        removeStacks skillName i
                     else do
-                        removeTrap
-                        remove "Major Summoning: Ibuse"
+                        removeTrap skillName
+                        remove skillName
                         remove "major summoning: ibuse"
-                        cancelChannel' "Poison Fog"
+                        cancelChannel "Poison Fog"
                         sacrifice 0 (i - stacks)
           ]
-        , Skill.changes   = changeWith "Venomc Sac" \x -> x
+        , Skill.changes   = changeWith "Venom Sac" \x -> x
                 { Skill.effects =
                   [ To Self do
                         remove "Venom Sac"
-                        alterCooldown "Major Summoning: Ibuse" -2
+                        alterCooldown skillName -2
                   ]
                 }
         }
@@ -491,10 +491,10 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 15
-                apply 2 [ Afflict 5 ]
+                apply 2 skillName [ Afflict 5 ]
                 whenM (user has "Major Summoning: Ibuse") do
                     afflict 10
-                    apply 1 [ Stun All ]
+                    apply 1 skillName [ Stun All ]
           ]
         }
       ]
@@ -505,16 +505,16 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Self $ trapFrom 1 (OnHarmed NonMental) do
-                  targeting Self removeTrap
-                  apply Permanent [ Afflict 20 ]
+                  targeting Self $ removeTrap skillName
+                  apply Permanent skillName [ Afflict 20 ]
                   ibuse <- user has "major summoning: ibuse"
                   targeting Self $ if ibuse then do
                       remove "Major Summoning Ibuse"
                       remove "major summoning: ibuse"
                       alterCooldown "Major Summoning: Ibuse" -2
-                      cancelChannel' "Poison Fog"
+                      cancelChannel "Poison Fog"
                   else
-                      apply Permanent [Afflict 10]
+                      apply Permanent skillName [Afflict 10]
           ]
         }
       ]

@@ -12,7 +12,7 @@ spec = parallel do
     describeCharacter "Izumo and Kotetsu" do
         useOn Enemy "Mace Crush" do
             it "deals bonus damage if target has Syrup Trap" do
-                tag' "Syrup Trap" Permanent
+                tag Permanent "Syrup Trap"
                 damaged <- measureDamage Sim.act
                 damaged `shouldBe` 30 + 10
 
@@ -37,11 +37,11 @@ spec = parallel do
                 Sim.act
                 target has "Devastate"
             it "deals damage if target has Annihilate" do
-                tag' "Annihilate" Permanent
+                tag Permanent "Annihilate"
                 damaged <- measureDamage Sim.act
                 damaged `shouldBe` 65
             it "does not tag if target has Annihilate" do
-                tag' "Annihilate" Permanent
+                tag Permanent "Annihilate"
                 Sim.act
                 not <$> target has "Devastate"
 
@@ -50,11 +50,11 @@ spec = parallel do
                 Sim.act
                 target has "Annihilate"
             it "deals damage if target has Devastate" do
-                tag' "Devastate" Permanent
+                tag Permanent "Devastate"
                 damaged <- measureDamage Sim.act
                 damaged `shouldBe` 65
             it "does not tag if target has Devastate" do
-                tag' "Devastate" Permanent
+                tag Permanent "Devastate"
                 Sim.act
                 not <$> target has "Annihilate"
 
@@ -101,7 +101,7 @@ spec = parallel do
                 targetHealth `shouldBe` 5
             it "ignores harm" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 Sim.as Enemy kill
                 not <$> user (`is` Reveal)
             it "ignores help" do
@@ -122,7 +122,7 @@ spec = parallel do
         useOn Enemy "Converging Murder" do
             it "damages target per Scattering Crow Swarm" do
                 replicateM_ testStacks $ Sim.use "Scattering Crow Swarm"
-                cancelChannel' "Scattering Crow Swarm"
+                cancelChannel "Scattering Crow Swarm"
                 setHealth 100
                 damaged <- measureDamage Sim.act
                 damaged `shouldBe` 45 + 5 * testStacks
@@ -217,12 +217,12 @@ spec = parallel do
 
         useOn Ally "Acupuncture" do
             it "removes stun effects" do
-                apply' "stun" 5 [Stun All]
+                apply 5 "stun" [Stun All]
                 Sim.act
                 not <$> target has "stun"
             it "ignores stuns" do
                 Sim.act
-                apply 5 [Stun All]
+                apply 5 skillName [Stun All]
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` []
             it "is normally single-target" do
@@ -312,7 +312,7 @@ spec = parallel do
                 damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
-                apply Permanent [ Invulnerable Affliction ]
+                apply Permanent skillName [ Invulnerable Affliction ]
                 Sim.use "Demon Parasite"
                 damagedWith <- measureDamage Sim.act
                 damagedWithout - damagedWith `shouldBe` 20
@@ -332,7 +332,7 @@ spec = parallel do
         useOn Enemy "Summoning: Rashōmon" do
             it "makes user invulnerable" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 not <$> user (`is` Reveal)
             it "ends Demon Parasite" do
                 Sim.use "Demon Parasite"

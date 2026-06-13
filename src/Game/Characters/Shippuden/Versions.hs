@@ -5,7 +5,13 @@ module Game.Characters.Shippuden.Versions (characters) where
 
 import Game.Characters.Import
 
+import qualified Class.Play as P
+import           Game.Model.Context (Context(Context))
+import qualified Game.Model.Context
 import           Game.Model.Ninja (isChanneling)
+import           Game.Model.ID (ID(ID))
+import qualified Game.Model.ID
+import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 
 characters :: [Category -> Text -> Character]
@@ -22,10 +28,10 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                apply 1 [ Stun Physical
+                apply 1 skillName [ Stun Physical
                         , Stun Melee
                         ]
-          , To Self $ hide Permanent [ Alternate "Frog Kumite"
+          , To Self $ hide Permanent skillName [ Alternate "Frog Kumite"
                                                  "Rasen Shuriken"
                                      ]
           ]
@@ -38,7 +44,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 50
-                apply Permanent [ Weaken [Chakra] Percent 10 ]
+                apply Permanent skillName [ Weaken [Chakra] Percent 10 ]
           , To Self $ remove "frog kumite"
           ]
         }
@@ -59,8 +65,8 @@ characters =
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Enemies $ apply 1 [ Disable Stuns ]
-          , To Self $ hide Permanent [ Alternate "Natural Energy Assault"
+          [ To Enemies $ apply 1 skillName [ Disable Stuns ]
+          , To Self $ hide Permanent skillName [ Alternate "Natural Energy Assault"
                                                  "Rasengan Barrage"
                                      ]
           ]
@@ -93,7 +99,7 @@ characters =
           [ To Enemy do
                 stacks <- target numStacks "Sand Bomb"
                 damage (15 + 5 * stacks)
-                apply' "Sand Bomb" Permanent []
+                apply Permanent "Sand Bomb" []
           ]
         , Skill.changes   = changeWithDefense "Mother's Embrace" targetAll
                             `also` changeWith "Sand Mausoleum Seal" (setCost [])
@@ -120,7 +126,7 @@ characters =
           [ To Enemies do
                 stacks <- target numStacks "Sand Bomb"
                 damage (15 + 5 * stacks)
-                apply 1 [ Exhaust [All] ]
+                apply 1 skillName [ Exhaust [All] ]
           , To Everyone $ remove "Sand Bomb"
           ]
         }
@@ -140,12 +146,12 @@ characters =
         , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemy $ damage 15
-          , To Self $ hide 1 [ Alternate "Sasori Surrogate"
+          , To Self $ hide 1 skillName [ Alternate "Sasori Surrogate"
                                          "Hidden Coil Strike"
                              ]
           ]
         , Skill.stunned   =
-          [ To Self $ hide 1 [ Alternate "Sasori Surrogate"
+          [ To Self $ hide 1 skillName [ Alternate "Sasori Surrogate"
                                          "Hidden Coil Strike"
                              ]
           ]
@@ -159,10 +165,10 @@ characters =
           [ To Enemy do
                 pierce 10
                 userSlot <- user slot
-                apply 1 [ Taunt userSlot ]
+                apply 1 skillName [ Taunt userSlot ]
                 whenM (target has "Kuroari Trap") do
                     remove "Kuroari Trap"
-                    apply' "Kuroari Ambush" 1 [ Stun All
+                    apply 1 "Kuroari Ambush" [ Stun All
                                               , Alone
                                               , Duel userSlot
                                               ]
@@ -176,13 +182,13 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ To Self $ hide Permanent [ Alternate "Kuroari Trap"
+          [ To Self $ hide Permanent skillName [ Alternate "Kuroari Trap"
                                                  "Iron Maiden"
                                      ]
-          , To Enemy $ bomb 5 []
+          , To Enemy $ bomb 5 skillName []
                 [ To Expire do
                     userSlot <- user slot
-                    apply' "Kuroari Ambush" 1 [ Stun All
+                    apply 1 "Kuroari Ambush" [ Stun All
                                               , Alone
                                               , Duel userSlot
                                               ]
@@ -213,15 +219,15 @@ characters =
         , Skill.start     =
           [ To Self do
                 defend Permanent 40
-                onBreak cancelChannel
+                onBreak $ cancelChannel skillName
           ]
         , Skill.effects   =
           [ To XAllies do
                 userSlot <- user slot
-                apply 1 [ Redirect userSlot ]
+                apply 1 skillName [ Redirect userSlot ]
           ]
         , Skill.end       =
-          [ To Self $ targeting XAllies $ remove "Salamander Shield" ]
+          [ To Self $ targeting XAllies $ remove skillName ]
         }
       ]
     , [ invuln "Puppet Distraction" "Kankurō" [Physical] ]
@@ -238,14 +244,23 @@ characters =
         rename "Taijutsu Sage"       = "Bloodline Sage"
         rename x                     = x
 
-        modeChakra n
-          | isChanneling "Bloodline Sage" n = Blood
-          | isChanneling "Genjutsu Sage"  n = Gen
-          | isChanneling "Ninjutsu Sage"  n = Nin
-          | isChanneling "Taijutsu Sage"  n = Tai
-          | otherwise                       = Rand
+        modeChakra owner n
+          | isMode "Bloodline Sage" n = Blood
+          | isMode "Genjutsu Sage"  n = Gen
+          | isMode "Ninjutsu Sage"  n = Nin
+          | isMode "Taijutsu Sage"  n = Tai
+          | otherwise                 = Rand
+          where
+            isMode name = isChanneling ID { user = owner, owner, name }
 
-        withMode f n = f $ modeChakra n
+        getModeChakra :: RunConstraint Chakra
+        getModeChakra = do
+            Context{skill = Skill{owner}} <- P.context
+            nUser <- P.nUser
+            return $ modeChakra owner nUser
+
+
+        withMode f n skill@Skill{owner} = f (modeChakra owner n) skill
     in
     [ [ Skill.new
         { Skill.name      = "Sage Transformation"
@@ -254,7 +269,7 @@ characters =
         , Skill.cost      = [Rand, Rand, Rand]
         , Skill.dur       = Ongoing Permanent
         , Skill.start     =
-          [ To Self $ hide Permanent [ Alternate "Sage Transformation"
+          [ To Self $ hide Permanent skillName [ Alternate "Sage Transformation"
                                                  "DNA Transmission Shadow" ]
           ]
         , Skill.effects   =
@@ -271,7 +286,7 @@ characters =
           let
             killShadow :: SkillEffect
             killShadow = targeting Everyone $
-                whenM (target has "DNA Transmission Shadow")
+                whenM (target has skillName)
                     killHard
           in
           [ To Self do
@@ -280,9 +295,9 @@ characters =
                     killShadow
           ]
         , Skill.effects   =
-          [ To XAlly $ whenM (channeling "DNA Transmission Shadow") do
+          [ To XAlly $ whenM (channeling skillName) do
                 factory
-                tag Permanent
+                tag Permanent skillName
           ]
         , Skill.changes   = withMode \m -> setCost [m, m, m]
         }
@@ -293,7 +308,7 @@ characters =
         , Skill.classes   = [Physical, Ranged, Unreflectable, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Self $ targeting Enemies $ apply 1 [ Restrict ]
+          [ To Self $ targeting Enemies $ apply 1 skillName [ Restrict ]
           , To Enemies do
                 targetHealth <- target health
                 damage 10
@@ -311,12 +326,12 @@ characters =
         , Skill.charges   = 1
         , Skill.effects   =
           [ To Self do
-                chakra <- user modeChakra
+                chakra <- getModeChakra
                 gain [chakra]
           , To Ally do
                 resetCooldowns
                 cureBane
-                apply 3 [ Heal 15
+                apply 3 skillName [ Heal 15
                         , Invulnerable Bane
                         ]
           ]
@@ -332,10 +347,10 @@ characters =
         , Skill.charges   = 1
         , Skill.effects   =
           [ To Self do
-                chakra <- user modeChakra
+                chakra <- getModeChakra
                 gain [chakra, chakra]
-          , To XAllies $ apply 1 [ Stun All ]
-          , To Enemies $ apply 1 [ Stun All ]
+          , To XAllies $ apply 1 skillName [ Stun All ]
+          , To Enemies $ apply 1 skillName [ Stun All ]
           ]
         , Skill.changes   = withMode \m ->
                 addDesc $ " Kabuto gains 2 " ++ display m ++ " chakras."
@@ -353,14 +368,14 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user numStacks "Evening Elephant"
+                stacks <- user numStacks skillName
                 damage (20 + 20 * stacks)
-                apply 1 [ Alone
+                apply 1 skillName [ Alone
                         , Stun NonMental
                         ]
           , To Self do
                 sacrifice 1 20
-                addStack
+                addStack skillName
           ]
         , Skill.changes   = changePer "Evening Elephant" \i ->
                                 setCost $ [Tai] ++ replicate i Rand
@@ -374,7 +389,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Self do
-                apply 1 [ Enrage
+                apply 1 skillName [ Enrage
                         , Strengthen [All] Percent 100
                         ]
                 sacrifice 1 10
@@ -389,15 +404,15 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user numStacks "Night Guy"
+                stacks <- user numStacks skillName
                 pierce (50 + 25 * stacks)
-                apply 2 [ Seal
+                apply 2 skillName [ Seal
                         , Weaken [All] Flat 5
                         ]
           , To Self do
                 sacrifice 1 30
-                addStack
-                apply' "Blood Mist" 2 [ Plague ]
+                addStack skillName
+                apply 2 "Blood Mist" [ Plague ]
           ]
         , Skill.changes   = changePer "Night Guy" \i ->
                                 setCost $ replicate (i + 2) Tai
@@ -418,7 +433,7 @@ characters =
         , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemy $ damage 10
-          , To Self $ apply 1 [ Reduce [All] Percent 20 ]
+          , To Self $ apply 1 skillName [ Reduce [All] Percent 20 ]
           ]
         }
       ]
@@ -455,7 +470,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ apply 3 [ Reduce [Affliction] Flat 15
+          [ To Self $ apply 3 skillName [ Reduce [Affliction] Flat 15
                               , Alternate "Chidori"
                                           "Blazing Arrow"
                               , Alternate "Amaterasu"
@@ -474,14 +489,14 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 20
-                apply 1 [Stun All]
+                apply 1 skillName [Stun All]
           , To Self do
                 trap -1 (OnHarmed Physical) $
-                    remove "Chidori"
-                bomb -1 [ Reduce [Physical] Flat 15 ]
+                    remove skillName
+                bomb -1 skillName [ Reduce [Physical] Flat 15 ]
                     [ To Expire do
-                          hide 1 []
-                          resetCooldown "Chidori" ]
+                          hide 1 skillName []
+                          resetCooldown skillName ]
           ]
         , Skill.changes   = changeWith "Chidori" $ setCost [Nin]
         }
@@ -494,25 +509,25 @@ characters =
         , Skill.dur       = Action 3
         , Skill.start     =
           [ To Self do
-                remove "Blazing Arrow"
-                addStacks "Blazing Arrow" 3
+                remove skillName
+                addStacks skillName 3
           ]
         , Skill.effects   =
           [ To Enemy $ damage 15
           , To Self do
-                removeStack "Blazing Arrow"
-                trap' 1 OnStunned
-                    cancelChannel
+                removeStack skillName
+                trap' 1 OnStunned $
+                    cancelChannel skillName
           ]
         , Skill.end       =
           [ To Enemy do
-                stacks <- user numStacks "Blazing Arrow"
+                stacks <- user numStacks skillName
                 when (stacks > 0) $
                     damage (15 * stacks)
           , To Self do
-                whenM (user has "Blazing Arrow") $
-                    resetCooldown "Blazing Arrow"
-                remove "Blazing Arrow"
+                whenM (user has skillName) $
+                    resetCooldown skillName
+                remove skillName
           ]
         }
       ]
@@ -527,10 +542,10 @@ characters =
             amaterasu :: SkillEffect
             amaterasu = do
                 trapWith [Bypassing] Permanent OnInvulnerable do
-                    removeTrap
-                    remove "Amaterasu"
-                bombWith [Bypassing] Permanent [ Afflict 5 ]
-                    [ To Done $ targeting Self addStack ]
+                    removeTrap skillName
+                    remove skillName
+                bombWith [Bypassing] Permanent skillName [ Afflict 5 ]
+                    [ To Done $ targeting Self $ addStack skillName ]
                 trapFrom Permanent OnHelped
                     amaterasu
           in
@@ -557,7 +572,7 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self do
-                apply 1 [ Invulnerable All ]
+                apply 1 skillName [ Invulnerable All ]
                 prolong 1 "Susanoo"
 
           ]
@@ -575,10 +590,10 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
-                apply 3 [ Afflict 5 ]
+                apply 3 skillName [ Afflict 5 ]
                 userSlot <- user slot
-                apply 1 [ Taunt userSlot ]
-          , To Self $ hide Permanent [ Alternate "Poisonous Chain Skewer"
+                apply 1 skillName [ Taunt userSlot ]
+          , To Self $ hide Permanent skillName [ Alternate "Poisonous Chain Skewer"
                                                  "Impale"
                                      ]
           ]
@@ -592,10 +607,10 @@ characters =
           [ To Self $ remove "poisonous chain skewer"
           ,  To Enemy do
                   pierce 15
-                  apply 2 [ Afflict 5 ]
+                  apply 2 skillName [ Afflict 5 ]
                   whenM (target has "Poisonous Chain Skewer") $
-                      bomb' "Complex Toxin" 2 []
-                            [ To Expire $ apply 1 [ Stun All ] ]
+                      bomb 2 "Complex Toxin" []
+                            [ To Expire $ apply 1 skillName [ Stun All ] ]
           ]
         }
       ]
@@ -607,26 +622,26 @@ characters =
         , Skill.cooldown  = 3
         , Skill.dur       = Action 3
         , Skill.start     =
-          [ To Self $ hide Permanent [ Alternate "Flamethrower Jets"
+          [ To Self $ hide Permanent skillName [ Alternate "Flamethrower Jets"
                                                  "Cutting Water Jets"
                                      ]
           ]
         , Skill.effects   =
           [ To Self do
-                apply 1 [ Enrage ]
+                apply 1 skillName [ Enrage ]
                 whenM (channeling "Flamethrower Jets") $
-                    trap' 1 (OnAction All)
-                        cancelChannel
+                    trap' 1 (OnAction All) $
+                        cancelChannel skillName
           , To Enemy do
                 afflict 10
-                tag 1
+                tag 1 skillName
                 targetSlot <- target slot
-                targeting Self $ apply' "Flame Blast" 1 [ Duel targetSlot ]
+                targeting Self $ apply 1 "Flame Blast" [ Duel targetSlot ]
           ]
         , Skill.end       =
           [ To Self $ targeting Everyone do
+                remove skillName
                 remove "Flame Blast"
-                remove "Flamethrower Jets"
           ]
         }
       , Skill.new
@@ -650,7 +665,7 @@ characters =
         , Skill.cooldown  = 5
         , Skill.effects   =
           [ To Self do
-                cancelChannel' "Flamethrower Jets"
+                cancelChannel "Flamethrower Jets"
                 defend' Permanent 50 [ Alternate "Performance of a Hundred Puppets"
                                                  "Barrage of a Hundred Puppets"
                                      ]
@@ -665,8 +680,8 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 30
-                bomb' "Complex Toxin" 2 [] [ To Expire $ apply 1 [ Stun All ] ]
-          , To Self $ cancelChannel' "Flamethrower Jets"
+                bomb 2 "Complex Toxin" [] [ To Expire $ apply 1 skillName [ Stun All ] ]
+          , To Self $ cancelChannel "Flamethrower Jets"
           ]
         }
       ]
@@ -684,7 +699,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy $ pierce 35
-          , To Self $ apply 1 [ Focus ]
+          , To Self $ apply 1 skillName [ Focus ]
           ]
         }
       ]
@@ -695,8 +710,8 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Allies $ apply 2 [ Reduce [All] Flat 10 ]
-          , To Enemies $ apply 2 [ Snare 1 ]
+          [ To Allies $ apply 2 skillName [ Reduce [All] Flat 10 ]
+          , To Enemies $ apply 2 skillName [ Snare 1 ]
           ]
         }
       ]
@@ -706,7 +721,7 @@ characters =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Self $ hide Permanent [ Alternate "Paper Bomb"
+          [ To Self $ hide Permanent skillName [ Alternate "Paper Bomb"
                                                  "Paper Shuriken"
                                      ]
           , To Enemy do
@@ -723,7 +738,7 @@ characters =
           [ To Self $ remove "paper bomb"
           , To Enemy do
                 pierce 20
-                addStack
+                addStack skillName
           ]
         }
       ]
@@ -779,10 +794,10 @@ characters =
         , Skill.effects   =
           [ To Enemies $ damage 20
           , To Self do
-                apply 1 [ Focus ]
+                apply 1 skillName [ Focus ]
                 trapFrom 1 OnStunned do
                     damage 20
-                    apply 1 [ Stun All ]
+                    apply 1 skillName [ Stun All ]
           ]
         }
       ]
@@ -794,8 +809,8 @@ characters =
         , Skill.cost    = [Blood, Nin]
         , Skill.effects =
           [ To Ally do
-                targeting Self $ hide Permanent []
-                bomb Permanent []
+                targeting Self $ hide Permanent skillName []
+                bomb Permanent skillName []
                     [ To Done $ targeting Self $ remove "curse mark release" ]
                 trap' Permanent (OnDamaged All) $
                     unlessM (user alive) do
@@ -805,7 +820,7 @@ characters =
                             targeting Self do
                                 setHealth 100
                                 setAlternates [1, 1, 1, 1]
-                                apply Permanent [ Invulnerable Bane ]
+                                apply Permanent skillName [ Invulnerable Bane ]
           ]
         }
       , Skill.new
@@ -836,7 +851,7 @@ characters =
           [ To Enemy do
                 damage 20
                 pierce 15
-                apply 1 [ Throttle 1 Counters ]
+                apply 1 skillName [ Throttle 1 Counters ]
           ]
         }
       ]
@@ -848,7 +863,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemies $ damage 15
-          , To Self $ apply 1 [ Invulnerable Melee ]
+          , To Self $ apply 1 skillName [ Invulnerable Melee ]
           ]
         }
       ]
@@ -861,7 +876,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 45
-                apply 1 [ Expose ]
+                apply 1 skillName [ Expose ]
           ]
         }
       ]

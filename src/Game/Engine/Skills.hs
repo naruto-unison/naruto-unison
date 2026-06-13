@@ -41,9 +41,11 @@ changePer name f n = f $ N.numStacks (toID name n) n
 
 -- | Applies a 'Transform' conditional upon 'N.isChanneling'.
 changeWithChannel :: Text -> (Skill -> Skill) -> Transform
-changeWithChannel name f n
-  | N.isChanneling name n = f
-  | otherwise             = id
+changeWithChannel name f n skill@Skill{owner}
+  | N.isChanneling skillID n = f skill
+  | otherwise                = skill
+  where
+    skillID = ID { user = owner, owner, name }
 
 -- | Applies a 'Transform' conditional upon 'N.hasDefense'.
 changeWithDefense :: Text -> (Skill -> Skill) -> Transform

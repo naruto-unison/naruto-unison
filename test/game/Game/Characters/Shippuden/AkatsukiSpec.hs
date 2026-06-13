@@ -37,7 +37,7 @@ spec = parallel do
                 Sim.act
                 setHealth 100
                 damaged <- measureDamage
-                         $ Sim.as Enemy $ apply Permanent [ Reduce [All] Flat 10 ]
+                         $ Sim.as Enemy $ apply Permanent skillName [ Reduce [All] Flat 10 ]
                 damaged `shouldBe` 10
             it "does not damage otherwise" do
                 Sim.act
@@ -263,7 +263,7 @@ spec = parallel do
                 damaged `shouldBe` 30
             it "counters target" do
                 Sim.act
-                Sim.withClass Chakra $ Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.withClass Chakra $ Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 not <$> user (`is` Reveal)
             it "damages countered" do
                 Sim.act
@@ -311,22 +311,22 @@ spec = parallel do
         useOn Enemy "Mirage Crow" do
             it "counters target" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 not <$> user (`is` Reveal)
             it "stuns countered" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [Physical, Ranged]
 
         useOn Self "Yata Mirror" do
             it "ignores harm" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 not <$> user (`is` Reveal)
             it "exhausts attackers" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 targetExhausted <- Effects.exhaust [All] <$> Sim.targets Enemy
                 targetExhausted `shouldBe` [Rand]
 
@@ -381,7 +381,7 @@ spec = parallel do
                 user $ not . hasSkill "Kamui"
             it "counters on user" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 not <$> user (`is` Reveal)
             it "alternates when countered" do
                 Sim.act
@@ -417,7 +417,7 @@ spec = parallel do
 
         useOn Self "Izanagi" do
             it "restores condition" do
-                Sim.as Enemy $ apply 1 [Reveal]
+                Sim.as Enemy $ apply 1 skillName [Reveal]
                 Sim.act
                 Sim.turns 4
                 user (`is` Reveal)
@@ -435,13 +435,13 @@ spec = parallel do
             it "applies Almighty Push to user if used last turn" do
                 Sim.use "Almighty Push"
                 Sim.use "Universal Pull"
-                targeting Self $ Sim.as Enemy $ apply Permanent [ Reveal ]
+                targeting Self $ Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 not <$> user (`is` Reveal)
             it "does not apply Almighty Push otherwise" do
                 Sim.use "Almighty Push"
                 Sim.turns 2
                 Sim.use "Universal Pull"
-                targeting Self $ Sim.as Enemy $ apply Permanent [ Reveal ]
+                targeting Self $ Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 user (`is` Reveal)
 
         useOn Enemy "Chakra Receiver" do

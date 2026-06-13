@@ -19,7 +19,7 @@ characters =
         , Skill.require   = UserHas 0 "Two-Tailed Transformation"
         , Skill.classes   = [Chakra]
         , Skill.effects   =
-          [ To Self $ apply Permanent [ Reduce [All] Percent 50
+          [ To Self $ apply Permanent skillName [ Reduce [All] Percent 50
                                       , Face
                                       ]
           ]
@@ -34,10 +34,10 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user numStacks "Flaming Cat Roar"
+                stacks <- user numStacks skillName
                 damage (30 + 5 * stacks)
-                apply 1 [ Weaken [All] Flat 10 ]
-          , To Self addStack
+                apply 1 skillName [ Weaken [All] Flat 10 ]
+          , To Self $ addStack skillName
           ]
         }
       ]
@@ -50,12 +50,12 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user numStacks "Cat Claws"
+                stacks <- user numStacks skillName
                 damage (15 + 5 * stacks)
           , To XEnemies do
-                stacks <- user numStacks "Cat Claws"
+                stacks <- user numStacks skillName
                 damage (5 + 5 * stacks)
-          , To Self addStack
+          , To Self $ addStack skillName
           ]
         }
       ]
@@ -85,7 +85,7 @@ characters =
         , Skill.classes   = [Chakra, Ranged, Bane, Soulbound]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ To Enemy $ apply Permanent [ Afflict 10 ] ]
+          [ To Enemy $ apply Permanent skillName [ Afflict 10 ] ]
         }
       ]
     , [ Skill.new
@@ -97,7 +97,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 heal 25
-                apply 1 [ Reduce [Affliction] Percent 50 ]
+                apply 1 skillName [ Reduce [Affliction] Percent 50 ]
           ]
         }
       ]
@@ -128,7 +128,7 @@ characters =
           [ To Enemy do
                 bonus <- 20 `bonusIf` user has' traps "Acrobat"
                 pierce (20 + bonus)
-          , To Self $ apply 1 [ Invulnerable Genjutsu ]
+          , To Self $ apply 1 skillName [ Invulnerable Genjutsu ]
           ]
         , Skill.changes   = changeWith "Acrobat" $ setCost [Tai, Rand]
         }
@@ -161,7 +161,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.charges   = 5
         , Skill.effects   =
-          [ To Self $ apply Permanent [ Strengthen [All] Flat 5
+          [ To Self $ apply Permanent skillName [ Strengthen [All] Flat 5
                                       , Reduce [Affliction] Percent 10
                                       ]
           ]
@@ -176,7 +176,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                apply 1 [ Snare 1 ]
+                apply 1 skillName [ Snare 1 ]
           ]
         }
       ]
@@ -205,7 +205,7 @@ characters =
                 sacrifice 1 5
                 defend Permanent 10
                 setAlternates [1, 0, 0, 0]
-                apply Permanent [ Reduce [All] Flat 10
+                apply Permanent skillName [ Reduce [All] Flat 10
                                 , Plague
                                 , Face
                                 ]
@@ -218,7 +218,7 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
           [ To Self do
-                apply Permanent [ Reduce [All] Flat 20
+                apply Permanent skillName [ Reduce [All] Flat 20
                                 , Plague
                                 , Alone
                                 , Enrage
@@ -237,7 +237,7 @@ characters =
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
           [ To Self do
-                apply Permanent [ Reduce [All] Flat 30
+                apply Permanent skillName [ Reduce [All] Flat 30
                                 , Plague
                                 , Alone
                                 , Enrage
@@ -258,7 +258,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 afflict 20
-                apply 1 [ Weaken [All] Flat 10 ] ]
+                apply 1 skillName [ Weaken [All] Flat 10 ] ]
         }
       ]
     , [ Skill.new
@@ -282,7 +282,7 @@ characters =
                 if clasp then
                     afflict 30
                 else
-                    apply 3 [ Afflict 10 ]
+                    apply 3 skillName [ Afflict 10 ]
           ]
         }
       , Skill.new
@@ -305,7 +305,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                apply 1 [ Weaken [All] Flat 5 ]
+                apply 1 skillName [ Weaken [All] Flat 5 ]
           ]
         }
       , Skill.new
@@ -317,7 +317,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 10
-                apply 1 [ Stun NonMental ]
+                apply 1 skillName [ Stun NonMental ]
           ]
         }
       , Skill.new
@@ -327,7 +327,7 @@ characters =
         , Skill.cost      = [Rand, Rand, Rand, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Self $ tag 1 ]
+          [ To Self $ tag 1 skillName ]
         }
       ]
      , [ invuln "Chakra Skin" "Naruto" [Chakra]

@@ -1,8 +1,8 @@
 -- | Actions that characters can use to affect 'Channel's.
 module Game.Action.Channel
-  ( cancelChannel, cancelChannel'
+  ( cancelChannel
   , replaceChannel
-  , prolongChannel, prolongChannel'
+  , prolongChannel
   , interrupt
   , renameChannels
   ) where
@@ -29,11 +29,6 @@ replaceChannel = do
     channelID@ID{user} <- ID.from <$> P.context
     P.modify user $ Ninjas.cancelOldChannel channelID
 
--- | Cancels 'N.channels' with a matching 'Channel.name'.
--- Uses 'Ninjas.cancelChannel' internally.
-cancelChannel :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
-cancelChannel = cancelChannel' ""
-
 takeChannels :: ∀ m. (MonadPlay m) => Slot -> (Channel -> Bool) -> m [Channel]
 takeChannels slot f = do
     Ninja{channels} <- P.ninja slot
@@ -42,9 +37,9 @@ takeChannels slot f = do
     return yays
 
 -- | Cancels 'N.channels' with a matching 'Channel.name'.
--- Uses 'Ninjas.cancelChannel' internally.
-cancelChannel' :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> m ()
-cancelChannel' name = P.uncopied do
+-- Uses 'Ninjas.cancelChannel internally.
+cancelChannel :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> m ()
+cancelChannel name = P.uncopied do
     channelID@ID{user} <- P.createID name
     cancelled <- takeChannels user $ (== ID.fromOwner channelID) . ID.from
     mapM_ (Action.runInterruptions user) cancelled
@@ -58,14 +53,10 @@ interrupt = P.unsilenced do
 
 -- | Increases the duration of 'N.channels' with a matching 'Channel.name'.
 -- Uses 'Ninjas.prolongChannel' internally.
-prolongChannel' :: ∀ m. MonadPlay m => Text -> Duration -> m ()
-prolongChannel' name dur = P.uncopied do
+prolongChannel :: ∀ m. MonadPlay m => Text -> Duration -> m ()
+prolongChannel name dur = P.uncopied do
     channelID@ID{user} <- P.createID name
     P.modify user $ Ninjas.prolongChannel dur channelID
-
--- | Increases the duration of the current channeled skill.
-prolongChannel :: ∀ m. MonadPlay m => Duration -> m ()
-prolongChannel = prolongChannel' ""
 
 -- | Modify all channel names.
 renameChannels :: ∀ m. MonadPlay m => (Text -> Text) -> m ()

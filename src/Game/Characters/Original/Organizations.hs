@@ -34,9 +34,9 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 trap 2 (OnAction Chakra) $
-                    apply 1 [ Stun Chakra ]
+                    apply 1 skillName [ Stun Chakra ]
                 trap 2 (OnAction Physical) $
-                    apply 1 [ Stun Physical ]
+                    apply 1 skillName [ Stun Physical ]
           ]
         }
       ]
@@ -52,7 +52,7 @@ characters =
                 if annihilate then
                     damage 65
                 else
-                    tag 3
+                    tag 3 skillName
           ]
         }
       , Skill.new
@@ -67,7 +67,7 @@ characters =
                 if devastate then
                     damage 65
                 else
-                    tag 3
+                    tag 3 skillName
           ]
         }
       ]
@@ -92,7 +92,7 @@ characters =
                     tagHealth' <- user numStacks "Izumo's Health"
                     setHealth tagHealth'
                     remove "Izumo's Health"
-                    hide' "solo" Permanent []
+                    hide Permanent "solo" []
           ]
         }
       , Skill.new
@@ -112,8 +112,8 @@ characters =
                     tagHealth' <- user numStacks "Kotetsu's Health"
                     setHealth tagHealth'
                     remove "Kotetsu's Health"
-                    hide' "solo" Permanent []
-                    hide Permanent [ Alternate "Devastate"
+                    hide Permanent "solo" []
+                    hide Permanent skillName [ Alternate "Devastate"
                                                "Annihilate"
                                    , Alternate "Tag Team"
                                                "Tag Team"
@@ -135,14 +135,14 @@ characters =
         , Skill.start     =
           [ To Self do
                 replaceChannel
-                targeting Enemies $ apply -4 []
-                targeting Allies $ apply -4 [ Reduce [All] Flat 5 ]
+                targeting Enemies $ apply -4 skillName []
+                targeting Allies $ apply -4 skillName [ Reduce [All] Flat 5 ]
           ]
         , Skill.effects   =
           [ To Enemies do
-                stacks <- target numStacks "Scattering Crow Swarm"
+                stacks <- target numStacks skillName
                 damage (5 * stacks)
-                flag
+                flag skillName
           ]
         }
       ]
@@ -157,14 +157,14 @@ characters =
                 setHealth 5
                 targetNumSkills <- target (length . skills)
                 teach 1 "Converging Murder" [0..targetNumSkills - 1]
-                bombWith [Bypassing] 1 [ Face
-                                       , Invulnerable All
-                                       , Alone
-                                       , Seal
-                                       , Enrage
-                                       , Focus
-                                       ]
-                                       [ To Expire killHard ]
+                bombWith [Bypassing] 1 skillName [ Face
+                                                 , Invulnerable All
+                                                 , Alone
+                                                 , Seal
+                                                 , Enrage
+                                                 , Focus
+                                                 ]
+                                                 [ To Expire killHard ]
           ]
         }
       ]
@@ -194,12 +194,12 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do
-                apply Permanent [ Reduce [All] Flat 10
+                apply Permanent skillName [ Reduce [All] Flat 10
                                 , Alternate "Biding Time"
                                             "Payback"
                                 ]
                 trap Permanent (OnDamaged All) $
-                    addStack' "Payback"
+                    addStack "Payback"
           ]
         }
      , Skill.new
@@ -209,9 +209,9 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user numStacks "Payback"
+                stacks <- user numStacks skillName
                 damage (15 + 5 * stacks)
-          , To Self $ remove "Payback"
+          , To Self $ remove skillName
           ]
         }
       ]
@@ -269,7 +269,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 defend 1 20
-                addStack
+                addStack skillName
           ]
         }
       ]
@@ -280,7 +280,7 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy $ apply 2 [ Expose
+          [ To Enemy $ apply 2 skillName [ Expose
                                , Undefend
                                , Uncounter
                                , NoIgnore
@@ -300,8 +300,8 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ To Enemy $ apply 1 [ Stun NonMental ]
-          , To Self $ hide 1 [ Alternate "Chain Wrap"
+          [ To Enemy $ apply 1 skillName [ Stun NonMental ]
+          , To Self $ hide 1 skillName [ Alternate "Chain Wrap"
                                          "Chain Shred"
                              ]
           ]
@@ -328,14 +328,14 @@ characters =
           [ To Enemy do
                 bonus <- 10 `bonusIf` target has "Chain Wrap"
                 damage (30 + bonus)
-                apply Permanent [ Afflict 1 ]
+                apply Permanent skillName [ Afflict 1 ]
                 trap Permanent OnSacrifice do
-                    removeTrap
+                    removeTrap skillName
                     remove "Poison Gauntlet"
-                flag
+                flag skillName
                 trap Permanent (OnDamaged NonAffliction) $
                     unlessM (target has "poison gauntlet") do
-                        removeTrap
+                        removeTrap skillName
                         remove "Poison Gauntlet"
           ]
         }
@@ -378,10 +378,10 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy $ apply 1 [ Stun All ]
+          [ To Enemy $ apply 1 skillName [ Stun All ]
           , To XAlly do
                 cureStun
-                apply 1 [ Focus ]
+                apply 1 skillName [ Focus ]
           ]
         , Skill.changes   = changeWith "Crystal Ice Mirrors" targetAll
         }
@@ -393,7 +393,7 @@ characters =
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 6
         , Skill.effects   =
-          [ To Self $ apply 3 [ Invulnerable All ] ]
+          [ To Self $ apply 3 skillName [ Invulnerable All ] ]
         }
       ]
     , [ invuln "Parry" "Haku" [Physical] ]
@@ -424,7 +424,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 damage 10
-                apply 1 [Stun Physical, Stun Bane]
+                apply 1 skillName [Stun Physical, Stun Bane]
           ]
         }
       ]
@@ -435,8 +435,8 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Self $ apply 2 [ Reduce [All] Flat 5 ]
-          , To Enemies $ apply 2 [ Exhaust [Physical, Mental] ]
+          [ To Self $ apply 2 skillName [ Reduce [All] Flat 5 ]
+          , To Enemies $ apply 2 skillName [ Exhaust [Physical, Mental] ]
           ]
         }
       ]
@@ -452,7 +452,7 @@ characters =
         , Skill.classes   = [Mental, Unremovable]
         , Skill.cost      = [Blood]
         , Skill.effects   =
-          [ To Self $ apply Permanent [ Invulnerable All
+          [ To Self $ apply Permanent skillName [ Invulnerable All
                                       , Afflict 15
                                       , Plague
                                       , Alternate "Mangekyō Sharingan"
@@ -465,7 +465,7 @@ characters =
         , Skill.desc      = "Ends the effect of [Mangekyō Sharingan], halving Itachi's cooldowns and chakra costs."
         , Skill.classes   = [Mental]
         , Skill.effects   =
-          [ To Self $ remove "Mangekyō Sharingan" ]
+          [ To Self $ remove skillName ]
         }
       ]
     , [ Skill.new
@@ -477,7 +477,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 afflict 10
-                apply Permanent [ Afflict 5 ]
+                apply Permanent skillName [ Afflict 5 ]
           ]
         , Skill.changes = changeWith "Mangekyō Sharingan" \x -> x
                 { Skill.cost     = [Nin, Nin]
@@ -485,7 +485,7 @@ characters =
                 , Skill.effects  =
                   [ To Enemies do
                         afflict 20
-                        apply Permanent [ Afflict 10 ]
+                        apply Permanent skillName [ Afflict 10 ]
                   ]
                 }
         }
@@ -499,7 +499,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                apply 1 [ Stun All ]
+                apply 1 skillName [ Stun All ]
           ]
         , Skill.changes = changeWith "Mangekyō Sharingan" \x -> x
                 { Skill.cost     = [Gen, Gen]
@@ -507,7 +507,7 @@ characters =
                 , Skill.effects  =
                   [ To Enemies do
                         damage 20
-                        apply 3 [Stun All]
+                        apply 3 skillName [Stun All]
                   ]
                 }
         }
@@ -527,7 +527,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                apply 1 [ Stun Chakra
+                apply 1 skillName [ Stun Chakra
                         , Stun Mental
                         ]
           ]
@@ -556,7 +556,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                apply 1 [ Stun Physical
+                apply 1 skillName [ Stun Physical
                         , Stun Bane
                         ]
           ]
@@ -574,7 +574,7 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
-          [ To Self $ tag 1
+          [ To Self $ tag 1 skillName
           , To Enemy do
                 bonus <- 10 `bonusIf` user has "Sphere of Graves"
                 damage (30 + bonus)
@@ -587,7 +587,7 @@ characters =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
-          [ To Self $ tag 1
+          [ To Self $ tag 1 skillName
           , To Enemies do
                 bonus <- 5 `bonusIf` user has "Crushing Palm"
                 damage (20 + bonus)
@@ -604,7 +604,7 @@ characters =
         , Skill.dur       = Passive
         , Skill.start     =
           [ To Allies $ defend 3 5
-          , To Self $ onBreak cancelChannel
+          , To Self $ onBreak $ cancelChannel skillName
           ]
         , Skill.effects   =
           [ To Self $ absorb 1 ]
@@ -636,8 +636,8 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 damage 10
-                apply 1 [ Snare 1 ]
-          , To Self $ apply 1 [ Reduce [All] Flat 10 ]
+                apply 1 skillName [ Snare 1 ]
+          , To Self $ apply 1 skillName [ Reduce [All] Flat 10 ]
           ]
         }
       ]
@@ -666,7 +666,7 @@ characters =
         , Skill.dur       = Ongoing 2
         , Skill.effects   =
           [ To Enemies $ damage 15
-          , To Self $ apply 1 [ Reduce [All] Flat 10 ]
+          , To Self $ apply 1 skillName [ Reduce [All] Flat 10 ]
           ]
         }
       ]
@@ -690,7 +690,7 @@ characters =
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Enemies $ apply 1 [ Stun All ] ]
+          [ To Enemies $ apply 1 skillName [ Stun All ] ]
         }
       ]
     , [ invuln "Foresight" "Tayuya" [Mental] ]
@@ -720,9 +720,9 @@ characters =
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
           [ To Enemy do
-                bomb Permanent [ Afflict 20 ]
-                    [ To Done $ targeting Everyone $ remove "Demon Parasite" ]
-                targeting Self $ apply Permanent [ Reduce [All] Flat 15 ]
+                bomb Permanent skillName [ Afflict 20 ]
+                    [ To Done $ targeting Everyone $ remove skillName ]
+                targeting Self $ apply Permanent skillName [ Reduce [All] Flat 15 ]
           ]
         }
       ]
@@ -746,7 +746,7 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self do
-                apply 1 [ Invulnerable All ]
+                apply 1 skillName [ Invulnerable All ]
                 targeting Everyone $ remove "Demon Parasite"
           ]
         }
@@ -776,7 +776,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 40
-                apply 1 [ Stun All ]
+                apply 1 skillName [ Stun All ]
           , To Self $ sacrifice 0 10
           ]
         }
@@ -790,10 +790,10 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 damage 30
-                apply 1 [ Weaken [Physical, Chakra, Summon] Flat 20 ]
+                apply 1 skillName [ Weaken [Physical, Chakra, Summon] Flat 20 ]
           , To Self do
                 sacrifice 0 15
-                bomb 1 [] [ To Expire $ sacrifice 0 15 ]
+                bomb 1 skillName [] [ To Expire $ sacrifice 0 15 ]
           ]
         }
       ]

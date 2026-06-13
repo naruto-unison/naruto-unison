@@ -51,9 +51,9 @@ characters =
         , Skill.effects   =
           [ To Self do
                 gain [Rand]
-                hide 1 [ Alternate "Major Summoning: Manda"
-                                   "Paralyzing Bite"
-                       ]
+                hide 1 skillName [ Alternate "Major Summoning: Manda"
+                                             "Paralyzing Bite"
+                                 ]
           ]
         }
       , Skill.new
@@ -63,7 +63,7 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy $ bomb 1 [ Stun All ] [ To Expire $ damage 25 ] ]
+          [ To Enemy $ bomb 1 skillName [ Stun All ] [ To Expire $ damage 25 ] ]
         }
       ]
     , [ invuln "Earth Clone" "Orochimaru" [Chakra] ]
@@ -90,9 +90,9 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Enemies $ apply 2 [ Expose ]
+          [ To Enemies $ apply 2 skillName [ Expose ]
           , To Allies $ trap 2 (OnDamaged NonAffliction) $
-                apply 1 [ Invulnerable All ]
+                apply 1 skillName [ Invulnerable All ]
           ]
         }
       ]
@@ -105,10 +105,10 @@ characters =
         , Skill.start     =
           [ To Enemies $ afflict 25 ]
         , Skill.effects   =
-          [ To Enemies $ apply 1 [ Bleed [Affliction] Flat 5 ]
-          , To Self $ hide 1 [ Alternate "Major Summoning: Gamabunta"
-                                         "Toad Oil Bomb"
-                             ]
+          [ To Enemies $ apply 1 skillName [ Bleed [Affliction] Flat 5 ]
+          , To Self $ hide 1 skillName [ Alternate "Major Summoning: Gamabunta"
+                                                   "Toad Oil Bomb"
+                                       ]
           ]
         }
       , Skill.new
@@ -118,7 +118,7 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemies $ apply 2 [ Afflict 15 ] ]
+          [ To Enemies $ apply 2 skillName [ Afflict 15 ] ]
         }
       ]
     , [ invuln "Needle Jizou" "Jiraiya" [Physical] ]
@@ -135,9 +135,9 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 30
-                apply 1 [ Stun Physical
-                        , Stun Mental
-                        ]
+                apply 1 skillName [ Stun Physical
+                                  , Stun Mental
+                                  ]
           ]
         }
       ]
@@ -164,9 +164,9 @@ characters =
           [ To Allies $ heal 40 ]
         , Skill.effects   =
           [ To Allies $ heal 5
-          , To Self $ hide 1 [ Alternate "Major Summoning: Katsuyu"
-                                         "Slug Division"
-                             ]
+          , To Self $ hide 1 skillName [ Alternate "Major Summoning: Katsuyu"
+                                                   "Slug Division"
+                                       ]
           ]
         }
       , Skill.new
@@ -196,7 +196,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 afflict 20
-                apply 2 [ Afflict 10 ]
+                apply 2 skillName [ Afflict 10 ]
           ]
         }
       ]
@@ -206,13 +206,13 @@ characters =
         , Skill.classes   = [Ranged, Unreflectable, Unremovable, Soulbound, Bypassing]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
-          [ To Enemy $ apply Permanent [ Afflict 40
-                                       , Stun All
-                                       , Expose
-                                       ]
-          , To Self $ apply Permanent [ Afflict 20
-                                      , Stun All
-                                      ]
+          [ To Enemy $ apply Permanent skillName [ Afflict 40
+                                                 , Stun All
+                                                 , Expose
+                                                 ]
+          , To Self $ apply Permanent skillName [ Afflict 20
+                                                , Stun All
+                                                ]
           ]
         }
       ]
@@ -223,13 +223,13 @@ characters =
         , Skill.cost      = [Gen, Nin, Tai]
         , Skill.dur       = Ongoing Permanent
         , Skill.start     =
-          [ To Allies $ apply 1 [ Invulnerable All ] ]
+          [ To Allies $ apply 1 skillName [ Invulnerable All ] ]
         , Skill.effects   =
           [ To Enemies $ damage 5
-          , To Allies $ apply 1 [ Reduce [All] Flat 5 ]
-          , To Self $ hide 1 [ Alternate "Major Summoning: Enma"
-                                         "Adamantine Prison"
-                             ]
+          , To Allies $ apply 1 skillName [ Reduce [All] Flat 5 ]
+          , To Self $ hide 1 skillName [ Alternate "Major Summoning: Enma"
+                                                   "Adamantine Prison"
+                                       ]
           ]
         }
       , Skill.new
@@ -239,9 +239,9 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Allies $ apply 1 [ Endure
-                                , Reduce [Affliction] Flat 20
-                                ]
+          [ To Allies $ apply 1 skillName [ Endure
+                                          , Reduce [Affliction] Flat 20
+                                          ]
           ]
         }
       ]

@@ -20,7 +20,7 @@ import qualified Data.Vector as Vector
 
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
-import           Game.Action.Status (applyWith')
+import           Game.Action.Status (applyWith)
 import           Game.Engine (unSoulbound)
 import qualified Game.Engine.Cooldown as Cooldown
 import qualified Game.Engine.Ninjas as Ninjas
@@ -35,44 +35,33 @@ import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
-import           Game.Model.Slot (Slot)
 import           Game.Model.Trigger (Trigger(..))
 import           Util ((!?))
-
-alterTarget :: ∀ m. MonadPlay m => (Ninja -> Ninja) -> m ()
-alterTarget f = P.unsilenced do
-    Context{target} <- P.context
-    P.modify target f
-
-alterTarget' :: ∀ m. MonadPlay m => (Slot -> Ninja -> Ninja) -> m ()
-alterTarget' f = P.unsilenced do
-    Context{target, skill = Skill{owner}} <- P.context
-    P.modify target $ f owner
 
 -- | Changes the 'Skill.cooldown' of a @Skill@ by 'Skill.name'.
 -- Uses 'Cooldown.alter' internally.
 alterCooldown :: ∀ m. MonadPlay m => Text -> Int -> m ()
-alterCooldown name cd = alterTarget' $ Cooldown.alter name cd
+alterCooldown name cd = P.fromUser (Cooldown.alter cd) name
 
 -- | Resets 'N.cooldowns' with a matching 'Skill.name' of a @Ninja@.
 -- Uses 'Cooldown.reset' internally.
 resetCooldown :: ∀ m. MonadPlay m => Text -> m ()
-resetCooldown name = alterTarget' $ Cooldown.reset name
+resetCooldown = P.fromUser Cooldown.reset
 
 -- | Resets all Instant 'N.cooldowns' of a @Ninja@.
 -- Uses 'Cooldown.resetAll' internally.
 resetCooldowns :: ∀ m. MonadPlay m => m ()
-resetCooldowns = alterTarget Cooldown.resetAll
+resetCooldowns = P.toTarget Cooldown.resetAll
 
 -- | Resets an element in 'N.charges' of a @Ninja@.
 -- Uses 'Ninjas.recharge' internally.
 recharge :: ∀ m. MonadPlay m => Text -> m ()
-recharge name = alterTarget' $ Ninjas.recharge name
+recharge = P.fromUser Ninjas.recharge
 
 -- | Resets all 'N.charges' of a @Ninja@.
 -- Uses 'Ninjas.rechargeAll' internally.
 rechargeAll :: ∀ m. MonadPlay m => m ()
-rechargeAll = alterTarget Ninjas.rechargeAll
+rechargeAll = P.toTarget Ninjas.rechargeAll
 
 alternateClasses :: EnumSet Class
 alternateClasses = setFromList [Hidden, Nonstacking, Unremovable]
@@ -86,7 +75,7 @@ userSkills = getSkills <$> P.nUser
 setAlternates :: ∀ m. MonadPlay m
           => NonNull Vector Int -- ^ Index offsets.
           -> m () -- ^ Recalculates every alternate of a target @Ninja@.
-setAlternates loadout = applyWith' alternateClasses "loadout" Permanent
+setAlternates loadout = applyWith alternateClasses Permanent "loadout"
     . catMaybes . toList
     . zipWith load loadout =<< userSkills
   where
@@ -96,12 +85,12 @@ setAlternates loadout = applyWith' alternateClasses "loadout" Permanent
 -- | Uses 'Ninjas.nextAlternate' internally.
 nextAlternate :: ∀ m. MonadPlay m => Text -> m ()
 nextAlternate name = do
+    Context{skill = Skill{name = skillName}} <- P.context
+    let name' = if null name then skillName else name
     nUser <- P.nUser
-    mapM_ applyNext $ Ninjas.nextAlternate name nUser
-  where
-    applyNext alt = P.with Context.reflect
-                  $ applyWith' alternateClasses "nextAlternate" 1
-                    [ Alternate name alt ]
+    forM_ (Ninjas.nextAlternate name' nUser) \alt -> P.with Context.reflect
+        $ applyWith alternateClasses 1 "nextAlternate"
+                [ Alternate name' alt ]
 
 -- | Copies all @Skill@s from the target into the user's 'N.copies'.
 -- Uses 'Ninjas.copyAll' internally.

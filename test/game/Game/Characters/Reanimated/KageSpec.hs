@@ -184,7 +184,7 @@ spec = parallel do
                 damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
-                apply Permanent [ Invulnerable All ]
+                apply Permanent skillName [ Invulnerable All ]
                 damagedWith <- measureDamage Sim.act
                 damagedWith - damagedWithout `shouldBe` 10
 
