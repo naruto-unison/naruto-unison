@@ -286,12 +286,13 @@ isDisable _         = False
 
 -- | Not canceled by 'Enrage'.
 bypassEnrage :: Effect -> Bool
-bypassEnrage Alone{}  = True
+bypassEnrage Alone{}   = True
+bypassEnrage Afflict{} = True
 -- bypassEnrage Bleed{}  = True
-bypassEnrage Reveal{} = True
-bypassEnrage Seal{}   = True
-bypassEnrage Share{}  = True
-bypassEnrage ef       = helpful ef
+bypassEnrage Reveal{}  = True
+bypassEnrage Seal{}    = True
+bypassEnrage Share{}   = True
+bypassEnrage ef        = helpful ef
 
 adjust :: (Int -> Int) -> Effect -> Effect
 adjust f (Afflict i)            = Afflict $ f i

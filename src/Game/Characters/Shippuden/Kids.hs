@@ -220,7 +220,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Three-Headed Wolf"
-        , Skill.desc      = "Akamaru and Kiba fuse together, ending [Man-Beast Clone]. For 3 turns, Kiba gains 30 points of damage reduction and ignores harmful status effects. While active, this skill becomes [Tail Chasing Rotating Fang][t][b][b]."
+        , Skill.desc      = "Akamaru and Kiba fuse together, ending [Man-Beast Clone]. For 3 turns, Kiba gains 30 points of damage reduction and ignores harmful non-damaging status effects. While active, this skill becomes [Tail Chasing Rotating Fang][t][b][b]."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 5
@@ -445,7 +445,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Mind Transfer Clone"
-        , Skill.desc      = "Ino takes control of her allies, forcing them to fight on no matter their condition. For 2 turns, her allies ignore harmful status effects."
+        , Skill.desc      = "Ino takes control of her allies, forcing them to fight on no matter their condition. For 2 turns, her allies ignore harmful non-damaging status effects."
         , Skill.classes   = [Mental, Invisible]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
@@ -561,7 +561,7 @@ characters =
     in
     [ [ Skill.new
         { Skill.name      = "Butterfly Bombing"
-        , Skill.desc      = "Chōji charges at an enemy for 1 turn, ignoring harmful status effects. At the end of the turn, he deals 30 damage to the target. Increases the costs of Chōji's skills by 2 arbitrary chakra."
+        , Skill.desc      = "Chōji charges at an enemy for 1 turn, ignoring harmful non-damaging status effects. At the end of the turn, he deals 30 damage to the target. Increases the costs of Chōji's skills by 2 arbitrary chakra."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand, Rand]
         , Skill.dur       = Action -1

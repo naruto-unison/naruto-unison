@@ -474,7 +474,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Flak Jacket"
-        , Skill.desc      = "Using a top-of-the-line Hidden Sand Village flak jacket, Baki provides 50 permanent destructible defense to himself or an ally. While the target has destructible defense from this skill, they ignore harmful status effects."
+        , Skill.desc      = "Using a top-of-the-line Hidden Sand Village flak jacket, Baki provides 50 permanent destructible defense to himself or an ally. While the target has destructible defense from this skill, they ignore harmful non-damaging status effects."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 6

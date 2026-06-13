@@ -29,7 +29,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Eternal Mangekyō Sharingan"
-        , Skill.desc      = "By predicting enemy attacks, Madara ignores harmful status effects for 1 turn."
+        , Skill.desc      = "By predicting enemy attacks, Madara ignores harmful non-damaging status effects for 1 turn."
         , Skill.classes   = [Mental]
         , Skill.cost      = [Rand]
         , Skill.effects   =

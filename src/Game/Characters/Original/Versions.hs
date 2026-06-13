@@ -148,7 +148,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Drunken Fist"
-        , Skill.desc      = "Lee assumes the Drunken Fist stance and deals 15 damage to an enemy for 3 turns, ignoring harmful status effects."
+        , Skill.desc      = "Lee assumes the Drunken Fist stance and deals 15 damage to an enemy for 3 turns, ignoring harmful non-damaging status effects."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
