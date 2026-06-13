@@ -21,6 +21,7 @@ import qualified Class.Parity as Parity
 import           Class.Play (MonadGame)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
+import           Class.TurnBased (TurnBased)
 import qualified Class.TurnBased as TurnBased
 import qualified Game.Action as Action
 import qualified Game.Engine.Chakra as Chakra
@@ -186,13 +187,20 @@ runControlExpirations = do
 
 
 getControlled :: [Ninja] -> HashSet ID
-getControlled ns = setFromList
-    [ ID.fromOwner $ ID.from status | n@Ninja{slot, statuses} <- ns
-                                    , N.alive n
-                                    , status@Status{classes, user} <- statuses
-                                    , user /= slot
-                                        && Controlled ∈ classes
-                                        && not (TurnBased.expiring status) ]
+getControlled ns = setFromList $ getFromNinja =<< ns
+  where
+    getFromNinja n
+      | N.alive n = getFrom N.traps n ++ getFrom N.statuses n
+      | otherwise = []
+    getFrom :: ∀ a. (Classed a, HasID a, TurnBased a)
+            => (Ninja -> [a]) -> Ninja -> [ID]
+    getFrom getter n@Ninja{slot} = mapMaybe controlledID $ getter n
+      where
+        controlledID item
+          | Controlled ∉ Classed.classes item || user == slot = Nothing
+          | otherwise = Just itemID
+          where
+            itemID@ID{user} = ID.from item
 
 -- | Removes 'Soulbound' effects. Applied when a Ninja dies or is factory-reset.
 unSoulbound :: Slot -> Ninja -> Ninja
