@@ -502,15 +502,12 @@ characters =
                     , Face
                     ]
           ]
-        , Skill.effects   =
-          [ To XAllies $ apply 1 "Protected" [Reduce [All] Flat 15]
-          , To Self $ unlessM (channeling "Chakra Wings") $
-                sacrifice 0 15
-          ]
-        , Skill.stunned   =
+        , Skill.always    =
           [ To Self $ unlessM (channeling "Chakra Wings") $
                 sacrifice 0 15
           ]
+        , Skill.effects   =
+          [ To XAllies $ apply 1 "Protected" [Reduce [All] Flat 15] ]
         }
       in
       [ chiliSkill

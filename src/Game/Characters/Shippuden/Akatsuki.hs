@@ -536,21 +536,15 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 4
         , Skill.dur       = Action 3
-        , Skill.effects   =
-          [ To Enemies $ apply 1 skillName [Snare 1]
-          , To Self $ hide 1 skillName
-                [ Alternate "Exploding Water Shockwave"
-                            "Shark Dance"
-                , Face
-                ]
-          ]
-        , Skill.stunned   =
+        , Skill.always    =
           [ To Self $ hide 1 skillName
                 [ Alternate "Exploding Water Shockwave"
                             "Shark Dance"
                 , Face
                 ]
           ]
+        , Skill.effects   =
+          [ To Enemies $ apply 1 skillName [Snare 1] ]
         }
       , Skill.new
         { Skill.name      = "Shark Dance"

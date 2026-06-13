@@ -298,21 +298,17 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 2
         , Skill.dur       = Action 3
+        , Skill.always    =
+          [ To Self $ hide 1 skillName
+                [ Alternate "Insect Swarm"
+                            "Chakra Leech"
+                ]
+          ]
         , Skill.effects   =
           [ To Enemy do
                 bonus <- 5 `bonusIf` target has "chakra leech"
                 afflict (15 + bonus)
                 apply 1 skillName [Alone]
-          , To Self $ hide 1 skillName
-                [ Alternate "Insect Swarm"
-                            "Chakra Leech"
-                ]
-          ]
-        , Skill.stunned   =
-          [ To Self $ hide 1 skillName
-                [ Alternate "Insect Swarm"
-                            "Chakra Leech"
-                ]
           ]
         }
       , Skill.new
@@ -933,20 +929,16 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
         , Skill.dur       = Action 3
-        , Skill.effects   =
-          [ To Allies $ apply 1 skillName
-                [ Reduce [All] Percent 25
-                , Invulnerable Affliction
-                ]
-          , To Self $ hide 1 skillName
+        , Skill.always    =
+          [ To Self $ hide 1 skillName
                 [ Alternate "Sanshōuo Shield"
                             "Salamander Puppet"
                 ]
           ]
-        , Skill.stunned   =
-          [ To Self $ hide 1 skillName
-                [ Alternate "Sanshōuo Shield"
-                            "Salamander Puppet"
+        , Skill.effects   =
+          [ To Allies $ apply 1 skillName
+                [ Reduce [All] Percent 25
+                , Invulnerable Affliction
                 ]
           ]
         }

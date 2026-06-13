@@ -37,10 +37,10 @@ new = Skill
     , cooldown  = 0
     , charges   = 0
     , dur       = Instant
-    , start     = []
-    , effects   = []
-    , stunned   = []
-    , end       = []
+    , start     = mempty
+    , always    = mempty
+    , effects   = mempty
+    , end       = mempty
     , changes   = const id
     , owner     = unsafeHead Slot.all
     }
@@ -61,11 +61,11 @@ targets Skill{effects, start} = addTargets (addTargets mempty start) effects
 -- Mutators
 
 changeEffects :: ([Runnable Target] -> [Runnable Target]) -> Skill -> Skill
-changeEffects f skill@Skill{effects, start, stunned, end} =
-    skill { effects   = f effects
-          , start     = f start
-          , stunned   = f stunned
-          , end       = f end
+changeEffects f skill@Skill{always, effects, start, end} =
+    skill { always  = f always
+          , effects = f effects
+          , start   = f start
+          , end     = f end
           }
 
 retarget :: (Target -> Target) -> Skill -> Skill

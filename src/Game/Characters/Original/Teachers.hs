@@ -325,19 +325,7 @@ characters =
         , Skill.cost      = [Nin, Tai]
         , Skill.cooldown  = 2
         , Skill.dur       = Action 2
-        , Skill.effects   =
-          [ To Enemies $ damage 15
-          , To Allies $ apply 1 skillName [Reduce [All] Flat 15]
-          , To Self do
-                remove "Sharpen Blades"
-                hide 1 skillName
-                    [ Alternate "Flying Swallow"
-                                "Finishing Blow"
-                    , Alternate "Sharpen Blades"
-                                "Flying Kick"
-                    ]
-          ]
-        , Skill.stunned   =
+        , Skill.always    =
           [ To Self do
                 remove "Sharpen Blades"
                 hide 1 skillName
@@ -346,6 +334,10 @@ characters =
                     , Alternate "Sharpen Blades"
                                 "Flying Kick"
                     ]
+          ]
+        , Skill.effects   =
+          [ To Enemies $ damage 15
+          , To Allies $ apply 1 skillName [Reduce [All] Flat 15]
           ]
         , Skill.changes   = changePer "Sharpen Blades" \i ->
                                 setDur $ Action (2 + fromIntegral i)

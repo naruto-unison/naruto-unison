@@ -393,17 +393,14 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 4
         , Skill.dur       = Action 2
+        , Skill.always    =
+          [ To Self $ hide 1 skillName [Face] ]
         , Skill.effects   =
           [ To Self do
-                apply 1 skillName
-                    [ Invulnerable Mental
-                    , Face
-                    ]
+                apply 1 skillName [Invulnerable Mental]
                 gain [Rand]
                 defend Permanent 10
           ]
-        , Skill.stunned   =
-          [ To Self $ apply 1 skillName [Face] ]
         }
       ]
     , [ invuln "Parry" "Suigetsu" [Physical] ]
@@ -478,15 +475,12 @@ characters =
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 4
         , Skill.dur       = Action 3
+        , Skill.always    =
+          [ To Self $ hide 1 skillName [Face] ]
         , Skill.effects   =
           [ To REnemy $ pierce 25
-          , To Self $ apply 1 skillName
-                [ Reduce [All] Percent 75
-                , Face
-                ]
+          , To Self $ apply 1 skillName [Reduce [All] Percent 75]
           ]
-        , Skill.stunned   =
-          [ To Self $ apply 1 skillName [Face] ]
         }
       ]
     , [ Skill.new

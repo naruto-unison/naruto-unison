@@ -147,19 +147,14 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 2
         , Skill.dur       = Action 3
-        , Skill.effects   =
-          [ To Enemy $ damage 15
-          , To Self $ hide 1 skillName
-                [ Alternate "Sasori Surrogate"
-                            "Hidden Coil Strike"
-                ]
-          ]
-        , Skill.stunned   =
+        , Skill.always    =
           [ To Self $ hide 1 skillName
                 [ Alternate "Sasori Surrogate"
                             "Hidden Coil Strike"
                 ]
           ]
+        , Skill.effects   =
+          [ To Enemy $ damage 15 ]
         }
       , Skill.new
         { Skill.name      = "Hidden Coil Strike"

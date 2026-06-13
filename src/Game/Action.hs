@@ -213,8 +213,19 @@ runTargeted effects = run =<< targeted effects
 -- | Performs an action, passing its effects to 'wrap' and activating any
 -- corresponding 'Trap.Trap's once it occurs.
 act :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Context -> m ()
-act context@Context{user, new, target, skill} = void $ runMaybeT do
-    let Skill{charges, cost, classes, dur, effects, require, start} = skill
+act context@Context { user
+                    , new
+                    , target
+                    , skill = skill@Skill { always
+                                          , charges
+                                          , cost
+                                          , classes
+                                          , dur
+                                          , effects
+                                          , require
+                                          , start
+                                          }
+                    } = void $ runMaybeT do
     Game{chakra} <- P.game
     nUser   <- P.ninja user
     initial <- P.ninjas
@@ -223,15 +234,16 @@ act context@Context{user, new, target, skill} = void $ runMaybeT do
 
     lift $ P.withContext context do
         if not new then do
-            contEfs <- targeted effects
+            contEfs <- targeted $ always ++ effects
             P.withContinues $ run' (singleton Targeted) contEfs
         else do
             P.modify user \n -> n { N.lastSkill = Just skill, N.acted = True }
             P.trigger user $ OnAction <$> toList classes
             when (charges > 0)
                 . P.modify user $ Ninjas.spendCharge skill
-            startEfs   <- targeted start
-            contEfs    <- targeted effects
+            startEfs <- targeted start
+            contEfs  <- targeted $ always ++ effects
+
             let bothEfs = startEfs ++ contEfs
 
             countering  <- Counter.filterCounters bothEfs <$> P.enemies user

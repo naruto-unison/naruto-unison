@@ -114,19 +114,14 @@ characters =
         , Skill.classes   = [Bane, Ranged, Unreflectable]
         , Skill.cost      = [Gen, Rand]
         , Skill.dur       = Action Permanent
-        , Skill.effects   =
-          [ To Enemies $ apply Permanent skillName [Snare 1]
-          , To Self $ hide 1 skillName
-                [ Alternate "Burning Ash"
-                            "Burning Ash: Ignite"
-                ]
-          ]
-        , Skill.stunned   =
+        , Skill.always    =
           [ To Self $ hide 1 skillName
                 [ Alternate "Burning Ash"
                             "Burning Ash: Ignite"
                 ]
           ]
+        , Skill.effects   =
+          [ To Enemies $ apply Permanent skillName [Snare 1] ]
         }
       , Skill.new
         { Skill.name      = "Burning Ash: Ignite"

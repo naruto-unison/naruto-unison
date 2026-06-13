@@ -288,8 +288,8 @@ data Skill = Skill
     , charges   :: Int               -- ^ Defaults to @0@
     , dur       :: Channeling        -- ^ Defaults to 'Instant'
     , start     :: [Runnable Target] -- ^ Defaults to empty
+    , always    :: [Runnable Target] -- ^ Defaults to empty
     , effects   :: [Runnable Target] -- ^ Defaults to empty
-    , stunned   :: [Runnable Target] -- ^ Defaults to empty
     , end       :: [Runnable Target] -- ^ Defaults to empty
     , changes   :: Ninja -> Skill -> Skill -- ^ Defaults to 'id'
     , owner     :: Slot
@@ -306,24 +306,24 @@ instance ToJSON Skill where
         , charges
         , dur
         , start
+        , always
         , effects
-        , stunned
         , end
         , owner
         } = object
-        [ "name"      .= name
-        , "desc"      .= desc
-        , "require"   .= require
-        , "classes"   .= classes
-        , "cost"      .= cost
-        , "cooldown"  .= cooldown
-        , "charges"   .= charges
-        , "dur"       .= dur
-        , "start"     .= start
-        , "effects"   .= effects
-        , "stunned"   .= stunned
-        , "end"       .= end
-        , "owner"     .= owner
+        [ "name"     .= name
+        , "desc"     .= desc
+        , "require"  .= require
+        , "classes"  .= classes
+        , "cost"     .= cost
+        , "cooldown" .= cooldown
+        , "charges"  .= charges
+        , "dur"      .= dur
+        , "start"    .= start
+        , "always"   .= always
+        , "effects"  .= effects
+        , "end"      .= end
+        , "owner"    .= owner
         ]
 
 instance Classed Skill where
