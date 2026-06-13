@@ -113,7 +113,7 @@ spec = parallel do
             it "adds stacks" do
                 replicateM_ testStacks Sim.act
                 stacks <- user numStacks "Illusion"
-                stacks `shouldBe` 3
+                stacks `shouldBe` testStacks
 
         useOn Self "Illusory Tree Meld" do
             it "adds destructible defense per Illusion" do
@@ -123,6 +123,10 @@ spec = parallel do
                 defense `shouldBe` 10 + 5 * testStacks
 
         useOn Enemy "Demonic Illusion: Sylvan Fetters" do
+            it "adds stacks" do
+                replicateM_ testStacks Sim.act
+                stacks <- user numStacks "Illusion"
+                stacks `shouldBe` testStacks
             it "alternates" do
                 Sim.act
                 user $ hasSkill "Sylvan Fetters Attack"

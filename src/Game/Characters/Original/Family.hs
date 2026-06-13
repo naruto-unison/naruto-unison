@@ -191,14 +191,14 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.dur       = Control 2
-        , Skill.effects   =
-          [ To Enemy do
-                damage 20
-                apply 1 [ Disable Counters
-                        , Disable (Only Reflect)
-                        , Disable (Any ReflectAll)
-                        ]
+        , Skill.start     =
+          [ To Enemy $ control [ Disable Counters
+                               , Disable (Only Reflect)
+                               , Disable (Any ReflectAll)
+                               ]
           ]
+        , Skill.effects   =
+          [ To Enemy $ damage 20 ]
         }
       ]
     , [ Skill.new
@@ -238,13 +238,12 @@ characters =
         , Skill.cooldown  = 4
         , Skill.dur       = Control 4
         , Skill.start     =
-          [ To Self $ hide -1 [] ]
-        , Skill.effects   =
-          [ To Enemy do
-                apply 1 [ Throttle 1 $ Any Invulnerable ]
-                trapFrom 1 (OnHarmed Mental) $
-                        unlessM (target has "mental invasion") $
-                            apply 1 [ Invulnerable All ]
+          [ To Self $ hide -1 []
+          , To Enemy do
+                control [ Throttle 1 $ Any Invulnerable ]
+                controlTrapFrom (OnHarmed Mental) $
+                    unlessM (target has "mental invasion") $
+                        apply 1 [ Invulnerable All ]
           ]
         }
       ]
@@ -259,16 +258,18 @@ characters =
         , Skill.desc      = "Shikamaru captures an enemy in shadows, stunning their non-mental skills for 2 turns and dealing 20 damage. Deals 10 additional damage if the target is affected by [Black Spider Lily]. The following turn, this skill becomes [Shadow Dispersion][g]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen, Rand]
+        , Skill.dur       = Control 2
         , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Self $ hide 1 [ Alternate "Shadow Possession"
-                                         "Shadow Dispersion"
-                             ]
-          , To Enemy do
+        , Skill.start     =
+          [ To Enemy do
                 bonus <- 10 `bonusIf` target has' traps "Black Spider Lily"
                 damage (20 + bonus)
-                bonusDur <- target numStacks "Ensnared"
-                apply (2 + fromIntegral bonusDur) [ Stun NonMental ]
+                control [ Stun NonMental ]
+                whenM (target has "Ensnared") $
+                    prolong 1 "Shadow Possession"
+          , To Self $ hide 1 [ Alternate "Shadow Possession"
+                                         "Shadow Dispersion"
+                             ]
           ]
         }
       , Skill.new

@@ -55,11 +55,12 @@ addGroups char@Character{groups, skills} =
     char { Character.groups = added ++ groups }
   where
     chakras = concatMap Skill.cost $ join skills
-    added = setFromList $ fst <$> filter ((∈ chakras) . snd) [ (BloodlineUser, Blood)
-                                             , (GenjutsuUser, Gen)
-                                             , (NinjutsuUser, Nin)
-                                             , (TaijutsuUser,  Tai)
-                                             ]
+    added = setFromList $ fst <$> filter ((∈ chakras) . snd)
+                [ (BloodlineUser, Blood)
+                , (GenjutsuUser, Gen)
+                , (NinjutsuUser, Nin)
+                , (TaijutsuUser,  Tai)
+                ]
 
 addClasses :: Character -> Character
 addClasses char@Character{skills} =

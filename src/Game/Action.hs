@@ -22,14 +22,13 @@ import qualified Class.Play as P
 import           Class.Random (MonadRandom)
 import qualified Class.Random as R
 import           Class.TurnBased (TurnBased)
-import qualified Class.TurnBased as TurnBased
 import qualified Game.Engine.Cooldown as Cooldown
 import qualified Game.Engine.Counter as Counter
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Traps as Traps
 import           Game.Model.Channel (Channel(Channel), Channeling(..))
-import qualified Game.Model.Channel
+import qualified Game.Model.Channel as Channel
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
@@ -277,9 +276,10 @@ act context@Context{user, new, target, skill} = void $ runMaybeT do
 
 -- | Effects to run when a channeled skill is canceled.
 runInterruptions :: ∀ m. (MonadGame m, MonadRandom m) => Slot -> Channel -> m ()
-runInterruptions user Channel{target, skill = skill@Skill{end, name}} = do
+runInterruptions user Channel{dur, target, skill = skill@Skill{end, name}} = do
     P.withContext context $ runTargeted end
-    P.modifyAll removeInterrupted
+    when (Channel.isControl dur)
+        $ P.modifyAll removeInterrupted
   where
     context = Context
         { skill
@@ -300,8 +300,7 @@ runInterruptions user Channel{target, skill = skill@Skill{end, name}} = do
                       || any interrupted defense
                       || any interrupted barrier
     interrupted :: ∀ a. (Classed a, HasID a, TurnBased a) => a -> Bool
-    interrupted a = Continues ∈ Classed.classes a && TurnBased.getDur a <= 1
-                    && ID.from a == channelID
+    interrupted a = Controlled ∈ Classed.classes a && ID.from a == channelID
     uninterrupted :: ∀ a. (Classed a, HasID a, TurnBased a) => a -> Bool
     uninterrupted = not . interrupted
     uninterruptedTrap :: Trap -> Bool

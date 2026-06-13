@@ -487,7 +487,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Blazing Arrow"
-        , Skill.desc      = "Sasuke forges three arrows out of flame and shoots them one after another at an enemy, dealing 15 damage for 3 turns. If this skill is stunned, Sasuke deals the remaining damage instantly and the cooldown of this skill resets."
+        , Skill.desc      = "Sasuke forges three arrows out of flame and shoots them one after another at an enemy, dealing 15 damage for 3 turns. If Sasuke is stunned or this skill is interrupted, he deals the remaining damage instantly and the cooldown of this skill resets."
         , Skill.classes   = [Bane, Chakra, Ranged, Resource]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 3
@@ -499,10 +499,11 @@ characters =
           ]
         , Skill.effects   =
           [ To Enemy $ damage 15
-          , To Self $ removeStack "Blazing Arrow"
+          , To Self do
+                removeStack "Blazing Arrow"
+                trap' 1 OnStunned
+                    cancelChannel
           ]
-        , Skill.stunned   =
-          [ To Self cancelChannel ]
         , Skill.end       =
           [ To Enemy do
                 stacks <- user numStacks "Blazing Arrow"
@@ -759,13 +760,14 @@ characters =
         , Skill.cost      = [Gen, Nin]
         , Skill.cooldown  = 3
         , Skill.dur       = Control 3
-        , Skill.effects   =
+        , Skill.start     =
           [ To Enemy do
-                damage 15
-                apply 1 [ Stun NonMental ]
-                trap 1 OnDeath $ targeting Self $
+                control [ Stun NonMental ]
+                controlTrap OnDeath $ targeting Self $
                     setHealth 100
           ]
+        , Skill.effects   =
+          [ To Enemy $ damage 15 ]
         }
       , Skill.new
         { Skill.name      = "Eight-Headed Serpent"

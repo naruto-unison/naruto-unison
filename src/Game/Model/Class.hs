@@ -28,6 +28,7 @@ data Class
     | Bypassing
     | Invisible
     | Soulbound
+    | Controlled
     -- Tags
     | Bane
     | Necromancy

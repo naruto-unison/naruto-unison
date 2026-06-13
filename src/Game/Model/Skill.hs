@@ -2,7 +2,6 @@ module Game.Model.Skill
   ( Skill(..), new, chakraClasses
   , Target(..)
   , Key(..), key
-  , defaultName
   , targets
   -- Mutators
   , addClass, addClasses, removeClass
@@ -52,11 +51,6 @@ new = Skill
 chakraClasses :: Skill -> Skill
 chakraClasses skill@Skill{classes, cost} =
     skill { classes = Classed.classes cost ++ classes }
-
--- | Replaces an empty string with a 'name'.
-defaultName :: Text -> Skill -> Text
-defaultName ""   Skill{name} = name
-defaultName name _           = name
 
 -- | All targets that a @Skill@ effects.
 targets :: Skill -> EnumSet Target

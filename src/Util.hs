@@ -6,6 +6,7 @@ module Util
   , Lift
   , epoch
   , intersects
+  , setFromFoldable
   , mapFromKeyed
   , tryFromJust, fromMaybeM, fromMaybeT
   , leftToMaybe, rightToMaybe
@@ -76,6 +77,11 @@ epoch = UTCTime (ModifiedJulianDay 0) 0
 intersects :: ∀ a. SetContainer a => a -> a -> Bool
 xs `intersects` ys = not . null $ intersection xs ys
 {-# INLINE intersects #-}
+
+setFromFoldable :: ∀ o s. (MonoFoldable o, IsSet s, Element o ~ Element s)
+                => o -> s
+setFromFoldable = foldl' (flip insertSet) mempty
+{-# INLINE setFromFoldable #-}
 
 -- | Creates a map from a list using a projection function.
 mapFromKeyed :: ∀ map a. IsMap map

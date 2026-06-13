@@ -288,13 +288,13 @@ characters =
         , Skill.cost      = [Gen, Gen]
         , Skill.cooldown  = 3
         , Skill.dur       = Control 4
-        , Skill.effects   =
-          [ To Enemy $ apply 1 [ Stun All
+        , Skill.start     =
+          [ To Enemy $ control [ Stun All
                                , Expose
                                ]
-          , To Self $ hide 1 [ Alternate "Mind Transfer"
-                                         "Art of the Valentine"
-                             ]
+          , To Self $ control' [ Alternate "Mind Transfer"
+                                           "Art of the Valentine"
+                               ]
           ]
         }
       , Skill.new
@@ -339,12 +339,15 @@ characters =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
-        , Skill.effects   =
+        , Skill.dur       = Control 1
+        , Skill.start     =
           [ To Enemies do
-                  bonus <- 1 `bonusIf` target has "Meditate"
-                  apply (1 + bonus) [ Expose ]
-                  damage 15
+                control [ Expose ]
+                whenM (target has "Meditate") $
+                    prolong 1 "Shadow Strangle"
           ]
+        , Skill.effects   =
+          [ To Enemies $ damage 15 ]
         }
       ]
     , [ Skill.new
@@ -353,10 +356,12 @@ characters =
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 3
-        , Skill.effects   =
+        , Skill.dur       = Control 1
+        , Skill.start     =
           [ To Enemies do
-                bonus <- 1 `bonusIf` target has "Meditate"
-                apply (1 + bonus) [ Stun NonMental ]
+                control [ Stun NonMental ]
+                whenM (target has "Meditate") $
+                    prolong 1 "Shadow Possession"
           ]
         }
       ]
@@ -717,12 +722,12 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 2
         , Skill.dur       = Control 2
-        , Skill.effects   =
-          [ To Self $ hide 1 [ Alternate "Sand Coffin"
-                                         "Sand Burial"
-                             ]
-          , To Enemy $ apply 1 [ Expose
+        , Skill.start     =
+          [ To Enemy $ control [ Expose
                                , Stun NonMental
+                               ]
+          , To Self $ control' [ Alternate "Sand Coffin"
+                                           "Sand Burial"
                                ]
           ]
         }

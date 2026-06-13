@@ -2,7 +2,7 @@
 module Game.Action.Channel
   ( cancelChannel, cancelChannel'
   , replaceChannel
-  , prolongChannel
+  , prolongChannel, prolongChannel'
   , interrupt
   , renameChannels
   ) where
@@ -19,17 +19,15 @@ import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context
 import           Game.Model.Duration (Duration)
 import           Game.Model.ID (ID(ID))
-import qualified Game.Model.ID
+import qualified Game.Model.ID as ID
 import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
-import           Game.Model.Skill (Skill(Skill))
-import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 
 replaceChannel :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
 replaceChannel = do
-    Context{user, skill = Skill{name, owner}} <- P.context
-    P.modify user $ Ninjas.cancelOldChannel ID { user = owner, owner, name }
+    channelID@ID{user} <- ID.from <$> P.context
+    P.modify user $ Ninjas.cancelOldChannel channelID
 
 -- | Cancels 'N.channels' with a matching 'Channel.name'.
 -- Uses 'Ninjas.cancelChannel' internally.
@@ -47,9 +45,8 @@ takeChannels slot f = do
 -- Uses 'Ninjas.cancelChannel' internally.
 cancelChannel' :: ∀ m. (MonadPlay m, MonadRandom m) => Text -> m ()
 cancelChannel' name = P.uncopied do
-    Context{user, skill} <- P.context
-    let name' = Skill.defaultName name skill
-    cancelled <- takeChannels user $ (== name') . Channel.name
+    channelID@ID{user} <- P.createID name
+    cancelled <- takeChannels user $ (== ID.fromOwner channelID) . ID.from
     mapM_ (Action.runInterruptions user) cancelled
 
 -- | Prematurely ends a channeled action.
@@ -61,8 +58,14 @@ interrupt = P.unsilenced do
 
 -- | Increases the duration of 'N.channels' with a matching 'Channel.name'.
 -- Uses 'Ninjas.prolongChannel' internally.
-prolongChannel :: ∀ m. MonadPlay m => Duration -> Text -> m ()
-prolongChannel dur name = P.uncopied . P.toUser $ Ninjas.prolongChannel dur name
+prolongChannel' :: ∀ m. MonadPlay m => Text -> Duration -> m ()
+prolongChannel' name dur = P.uncopied do
+    channelID@ID{user} <- P.createID name
+    P.modify user $ Ninjas.prolongChannel dur channelID
+
+-- | Increases the duration of the current channeled skill.
+prolongChannel :: ∀ m. MonadPlay m => Duration -> m ()
+prolongChannel = prolongChannel' ""
 
 -- | Modify all channel names.
 renameChannels :: ∀ m. MonadPlay m => (Text -> Text) -> m ()

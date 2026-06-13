@@ -1,6 +1,7 @@
 module Game.Model.ID
     ( ID(..)
     , HasID(..)
+    , fromOwner
     , withName
     ) where
 
@@ -18,6 +19,9 @@ instance Hashable ID
 
 class HasID a where
     from :: a -> ID
+
+fromOwner :: ID -> ID
+fromOwner someID@ID{owner} = someID { user = owner }
 
 withName :: Text -> ID -> ID
 withName name someID = someID { name = name }

@@ -43,13 +43,13 @@ characters =
         , Skill.cost      = [Blood, Tai]
         , Skill.cooldown  = 3
         , Skill.dur       = Control 2
-        , Skill.effects   =
-          [ To Enemy do
-                pierce 20
-                apply 1 [ Stun Physical
-                        , Stun Chakra
-                        ]
+        , Skill.start     =
+          [ To Enemy $ control [ Stun Physical
+                               , Stun Chakra
+                               ]
           ]
+        , Skill.effects   =
+          [ To Enemy $ pierce 20 ]
         }
       ]
     , [ invuln "Summoning: Triple Rashōmon" "Orochimaru" [Summon] ]
@@ -93,10 +93,11 @@ characters =
         , Skill.classes   = [Mental, Invisible, Melee, Unremovable, Unreflectable]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 2
+        , Skill.dur       = Control 1
         , Skill.effects   =
           [ To Enemy do
                 targetSlot <- target slot
-                targeting Self $ apply 1 [ Redirect targetSlot ]
+                targeting Self $ control [ Redirect targetSlot ]
           ]
         }
       ]

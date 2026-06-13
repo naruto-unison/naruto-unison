@@ -216,7 +216,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy $ leech 10 $ defend Permanent
-          , To Self $ prolongChannel 1 "Demon Shroud"
+          , To Self $ prolongChannel' "Demon Shroud" 1
           ]
         }
       ]
@@ -651,14 +651,14 @@ characters =
         , Skill.classes   = [Mental, Melee, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.dur       = Control Permanent
-        , Skill.effects   =
-          [ To Self $ hide 1 [ Alternate "Human Path"
-                                         "Naraka Path"
-                             ]
-          , To Enemy do
-                damage 15
-                apply 1 [ Reveal ]
+        , Skill.start     =
+          [ To Enemy $ control [ Reveal ]
+          , To Self $ control' [ Alternate "Human Path"
+                                           "Naraka Path"
+                               ]
           ]
+        , Skill.effects   =
+          [ To Enemy $ damage 15 ]
         }
       , Skill.new
         { Skill.name      = "Naraka Path"

@@ -185,7 +185,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.dur       = Control Permanent
         , Skill.start     =
-          [ To Enemy $ trap Permanent Nullified
+          [ To Enemy $ controlTrap Nullified
                 cancelChannel
           ]
         , Skill.effects   =

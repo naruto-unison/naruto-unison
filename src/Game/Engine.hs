@@ -28,7 +28,7 @@ import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Skills as Skills
 import qualified Game.Engine.Traps as Traps
-import           Game.Model.Channel (Channel(Channel))
+import           Game.Model.Channel (Channel(Channel), Channeling(..))
 import qualified Game.Model.Channel
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
@@ -36,7 +36,7 @@ import qualified Game.Model.Context as Context
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game as Game
-import           Game.Model.ID (HasID)
+import           Game.Model.ID (HasID, ID(ID))
 import qualified Game.Model.ID as ID
 import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
@@ -46,7 +46,7 @@ import           Game.Model.Runnable (Runnable(To))
 import qualified Game.Model.Runnable as Runnable
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
-import           Game.Model.Slot (Slot)
+import           Game.Model.Slot (Slot, SlotSet)
 import qualified Game.Model.Slot as Slot
 import           Game.Model.Status (Bomb(..), Status(Status))
 import qualified Game.Model.Status as Status
@@ -80,6 +80,7 @@ processTurn runner = do
     mapM_ Action.act channels
     Traps.runTurn initial
     doSkillEnds
+    runControlExpirations
     doDeaths
     Traps.runExpirations
     expired <- P.ninjas
@@ -150,10 +151,48 @@ doDeaths = mapM_ doEach Slot.all
             mapM_ (doBomb Done slot)
                 $ filter ((Necromancy ∉) . Status.classes) statuses
             P.modifyAll $ unSoulbound slot
+            let controls = setFromList $ ID.fromOwner . ID.from <$>
+                           filter ((Controlled ∈) . Status.classes) statuses
+            when (not $ null controls) do
+                ninjas <- toList <$> P.ninjas
+                let ended = controls `difference` getControlled ninjas
+                    users :: SlotSet
+                    users = foldl' (\acc ID{owner} -> insertSet owner acc)
+                            mempty ended
+                forM_ users \user -> P.modify user $ endControl ended
 
         else do
             P.modify slot $ Ninjas.setHealth 1 . Ninjas.clearTraps OnRes
             sequence_ res
+    endControl ended n = n { N.channels = filter retain $ N.channels n }
+      where
+        retain chan@Channel{dur = Control{}} = ID.from chan ∉ ended
+        retain _ = True
+
+runControlExpirations :: ∀ m. (MonadGame m, MonadRandom m) => m ()
+runControlExpirations = do
+    ninjas <- toList <$> P.ninjas
+    let controlled  = getControlled ninjas
+        controlEnds = getControlEnds controlled ninjas
+    mapM_ P.launch controlEnds
+    unless (null controlEnds)
+        $ P.modifyAll $ endControl controlled
+  where
+    endControl :: HashSet ID -> Ninja -> Ninja
+    endControl controlled n = n { N.channels = filter retain $ N.channels n }
+      where
+        retain chan@Channel{dur = Control{}} = ID.from chan ∈ controlled
+        retain _ = True
+
+
+getControlled :: [Ninja] -> HashSet ID
+getControlled ns = setFromList
+    [ ID.fromOwner $ ID.from status | n@Ninja{slot, statuses} <- ns
+                                    , N.alive n
+                                    , status@Status{classes, user} <- statuses
+                                    , user /= slot
+                                        && Controlled ∈ classes
+                                        && not (TurnBased.expiring status) ]
 
 -- | Removes 'Soulbound' effects. Applied when a Ninja dies or is factory-reset.
 unSoulbound :: Slot -> Ninja -> Ninja
@@ -161,7 +200,8 @@ unSoulbound user n = Ninjas.modifyAll (filter notSoulbound)
     n { N.copies = filter (maybe True notSoulbound) $ N.copies n }
   where
     notSoulbound :: ∀ a. (Classed a, HasID a) => a -> Bool
-    notSoulbound x = Soulbound ∉ Classed.classes x || (ID.user $ ID.from x) /= user
+    notSoulbound x = Soulbound ∉ Classed.classes x
+                     || (ID.user $ ID.from x) /= user
 
 doExpiredBombs :: ∀ m. (MonadGame m, MonadRandom m) => Vector Ninja -> m ()
 doExpiredBombs ninjas = mapM_ doEach ninjas
@@ -170,17 +210,27 @@ doExpiredBombs ninjas = mapM_ doEach ninjas
                                  $ filter TurnBased.expiring statuses
 
 doSkillEnds :: ∀ m. (MonadGame m, MonadRandom m) => m ()
-doSkillEnds = mapM_ doEach =<< P.ninjas
-  where
-    doEach n@Ninja{channels} = mapM_ (runSkillEnd n)
-                             $ filter TurnBased.expiring channels
+doSkillEnds = mapM_ P.launch . getSkillEnds . toList =<< P.ninjas
 
-runSkillEnd :: ∀ m. (MonadGame m, MonadRandom m) => Ninja -> Channel -> m ()
-runSkillEnd Ninja{slot} Channel{target, skill = skill@Skill{end}} = P.launch
-    $ To context $ Action.runTargeted end
+getSkillEnds :: [Ninja] -> [(Runnable Context)]
+getSkillEnds ninjas =
+    [ skillEnd slot chan | Ninja{channels, slot} <- ninjas
+                         , chan <- channels
+                         , TurnBased.expiring chan ]
+
+getControlEnds :: HashSet ID -> [Ninja] -> [(Runnable Context)]
+getControlEnds controlled ninjas =
+    [ skillEnd slot chan | Ninja{channels, slot} <- ninjas
+                         , chan@Channel{dur = Control{}} <- channels
+                         , not (TurnBased.expiring chan)
+                           && ID.from chan ∈ controlled ]
+
+skillEnd :: Slot -> Channel -> Runnable Context
+skillEnd user Channel{target, skill = skill@Skill{end}} =
+    To context $ Action.runTargeted end
   where
     context = Context { skill
-                      , user      = slot
+                      , user
                       , target
                       , new       = False
                       , continues = False

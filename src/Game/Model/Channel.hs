@@ -2,6 +2,7 @@ module Game.Model.Channel
   ( Channel(..), name
   , interruptible
   , Channeling(..)
+  , isControl
   , ignoreStun
   ) where
 
@@ -19,6 +20,10 @@ interruptible :: Channel -> Bool
 interruptible Channel{dur = Control{}} = True
 interruptible Channel{dur = Action{}}  = True
 interruptible _                       = False
+
+isControl :: Channeling -> Bool
+isControl Control{} = True
+isControl _         = False
 
 -- | 'Passive' and 'Ongoing' effects are not affected by 'Model.Effect.Stun'.
 ignoreStun :: Channeling -> Bool

@@ -2,7 +2,7 @@ module Class.TurnBased
   ( TurnBased(..)
   , decrement
   , expiring
-  , incr
+  , increment
   ) where
 
 import ClassyPrelude
@@ -27,6 +27,9 @@ class TurnBased a where
     getDur :: a -> Duration
     -- | Updates the remaining number of turns after a turn has passed.
     setDur :: Duration -> a -> a
+    -- | Extends a duration.
+    addDur :: Duration -> a -> a
+    addDur dur x = setDur (getDur x + dur) x
 
 -- | If @'getDur' == 'Permanent'@, has no effect.
 -- If @'getDur' == Duration 1@, deletes the structure; it has expired.
@@ -40,8 +43,8 @@ decrement x
 
 -- | If @'getDur' == 'Permanent'@, has no effect.
 -- Otherwise, increases the remaining duration by 1.
-incr :: ∀ a. TurnBased a => a -> a
-incr x = setDur (succ $ getDur x) x -- @succ Permanent == Permanent@
+increment :: ∀ a. TurnBased a => a -> a
+increment x = setDur (succ $ getDur x) x -- @succ Permanent == Permanent@
 
 expiring :: ∀ a. TurnBased a => a -> Bool
 expiring x = getDur x < 1
@@ -53,6 +56,7 @@ instance TurnBased Destructible where
 instance TurnBased Channel where
     getDur Channel{dur} = getDur dur
     setDur d x = x { Channel.dur = setDur d $ Channel.dur x }
+    addDur d x = x { Channel.dur = addDur d $ Channel.dur x }
 
 instance TurnBased Channeling where
     getDur Instant     = 1
@@ -60,11 +64,18 @@ instance TurnBased Channeling where
     getDur (Action d)  = d
     getDur (Control d) = d
     getDur (Ongoing d) = d
+
     setDur _ Instant     = Instant
     setDur _ Passive     = Passive
-    setDur d (Action _)  = Action d
+    setDur d (Action  _) = Action  d
     setDur d (Control _) = Control d
     setDur d (Ongoing _) = Ongoing d
+
+    addDur _ Instant      = Instant
+    addDur _ Passive      = Passive
+    addDur d (Action  d') = Action  $ d + d'
+    addDur d (Control d') = Control $ d + d'
+    addDur d (Ongoing d') = Ongoing $ d + d'
 
 instance TurnBased Copy where
     getDur Copy{dur} = dur

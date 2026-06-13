@@ -423,8 +423,8 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
         , Skill.dur       = Control 3
-        , Skill.effects   =
-          [ To Enemies $ apply 1 [ Reveal
+        , Skill.start     =
+          [ To Enemies $ control [ Reveal
                                  , Build -15
                                  , Unreduce 15
                                  ]
@@ -438,8 +438,8 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
         , Skill.dur       = Control 2
-        , Skill.effects   =
-          [ To XAllies $ apply 1 [ Enrage ] ]
+        , Skill.start     =
+          [ To XAllies $ control [ Enrage ] ]
         }
       ]
     , [ invuln "Hide" "Ino" [Mental] ]
@@ -839,10 +839,11 @@ characters =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 1
-        , Skill.effects   =
+        , Skill.dur       = Control 1
+        , Skill.start     =
           [ To Enemy do
                 damage 10
-                apply 1 [ Stun Chakra
+                control [ Stun Chakra
                         , Stun Melee
                         ]
           ]
@@ -875,8 +876,9 @@ characters =
         , Skill.classes   = [Physical, Ranged, Invisible, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
-        , Skill.effects   =
-          [ To Enemy $ trap 1 (Countered All) $
+        , Skill.dur       = Control 1
+        , Skill.start     =
+          [ To Enemy $ controlTrap (Countered All) $
                 tag 1
           ]
         }
@@ -1063,6 +1065,7 @@ characters =
           [ To Enemy $ whenM (channeling "Rasengan") do
                 bonus <- 15 `bonusIf` target has "rasengan"
                 damage (25 + bonus)
+                cancelChannel -- just in case
           ]
         }
       ]

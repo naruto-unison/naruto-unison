@@ -26,7 +26,7 @@ import qualified Game.Model.Skill as Skill
 import           Game.Model.Status (Bomb(..), Status(Status))
 import qualified Game.Model.Status as Status
 import           Game.Model.Trigger (Trigger(..))
-import           Util ((∈), (∉))
+import           Util ((∈), (∉), intersects)
 
 -- | Status engine.
 -- Uses 'Ninjas.addStatus' internally.
@@ -37,7 +37,7 @@ apply amount classes bombs name unthrottled effects = void $ runMaybeT do
     context@Context{new, target, user} <- P.context
     nUser   <- P.nUser
     nTarget <- P.nTarget
-    dur     <- if not new then return unthrottled else
+    dur     <- if not new || isChanneled then return unthrottled else
                 hoistMaybe $ Duration.throttle
                 (Effects.throttle effects nUser) unthrottled
     let st   = makeStatus context amount nUser nTarget
@@ -59,6 +59,7 @@ apply amount classes bombs name unthrottled effects = void $ runMaybeT do
         when (any isHeal efs)
             $ P.trigger user [OnHeal]
   where
+    isChanneled = setFromList [Continues, Controlled] `intersects` classes
     isHeal (Heal x)   = x > 0
     isHeal _          = False
     isReduce Reduce{} = True
@@ -72,7 +73,7 @@ makeStatus :: Context -> Int -> Ninja -> Ninja
 makeStatus Context{skill, user, continues, new, target}
            amount nUser nTarget classes bombs name dur effects =
     (Status.new user dur skill)
-    { Status.name    = Skill.defaultName name skill
+    { Status.name    = statusName
     , Status.user
     , Status.effects = filterDmg . filter disable
                      $ Ninjas.apply nUser nTarget effects
@@ -81,6 +82,10 @@ makeStatus Context{skill, user, continues, new, target}
     , Status.bombs
     }
   where
+    statusName
+      | not $ null name  = name
+      | Hidden ∈ classes = toLower $ Skill.name skill
+      | otherwise        = Skill.name skill
     modClasses
       | continues && dur <= 1 = insertSet Continues
       | continues || new      = deleteSet Continues

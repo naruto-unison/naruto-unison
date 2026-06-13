@@ -187,10 +187,7 @@
     was <i>Action</i>, now <i>Ongoing</i>.
   <li>
     ^{Link.skill "Shikamaru Nara" Original "Shadow Strangle"}:
-    was <i>Action</i>, now <i>Instant</i>.
-  <li>
-    ^{Link.skill "Shikamaru Nara" Original "Shadow Possession"}:
-    was <i>Control</i>, now <i>Instant</i>.
+    was <i>Action</i>, now <i>Control</i>.
   <li>
     ^{Link.skill "Inoichi Yamanaka" Original "Psycho Mind Transmission"}:
     was <i>Action</i>, now <i>Control</i>.
@@ -207,32 +204,8 @@
     ^{Link.skill "Shukaku Gaara" Original "Monstrous Sand Arm"}:
     was <i>Instant</i>, now <i>Control</i>.
   <li>
-    ^{Link.skill "Shikaku Nara" Original "Shadow Possession"}:
-    was <i>Control</i>, now <i>Instant</i>.
-  <li>
     ^{Link.skill "Ino Yamanaka" Shippuden "Mind Destruction"}:
     was <i>Instant</i>, now <i>Control</i>.
-  <li>
-    ^{Link.skill "Konohamaru Sarutobi" Shippuden "Rasengan"}:
-    was <i>Action</i>, now <i>Instant</i>.
-  <li>
-    ^{Link.skill "Kazekage Gaara" Shippuden "Sand Prison"}:
-    was <i>Control</i>, now <i>Instant</i>.
-  <li>
-    ^{Link.skill "Kankūrō" Shippuden "Kuroari Trap"}:
-    was <i>Control</i>, now <i>Instant</i>.
-  <li>
-    ^{Link.skill "Kitsuchi" Shippuden "Sandwiching Mountain"}:
-    was <i>Control</i>, now <i>Instant</i>.
-  <li>
-    ^{Link.skill "Darui" Shippuden "Laser Circus"}:
-    was <i>Control</i>, now <i>Instant</i>.
-  <li>
-    ^{Link.skill "Jiraiya" Shippuden "Toad Subjugation Shadow Manipulation"}:
-    was <i>Control</i>, now <i>Instant</i>.
-  <li>
-    ^{Link.skill "Itachi Uchiha" Shippuden "Mirage Crow"}:
-    was <i>Control</i>, now <i>Instant</i>.
   <li>
     ^{Link.skill "Pakura" Reanimated "Searing Combat"}:
     was <i>Action</i>, now <i>Instant</i>.

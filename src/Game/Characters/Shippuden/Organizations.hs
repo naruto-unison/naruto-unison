@@ -209,11 +209,10 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.dur       = Control 3
-        , Skill.start     = [ To Enemy commandeer ]
+        , Skill.start     =
+            [ To Enemy commandeer ]
         , Skill.effects   =
-          [ To Enemy do
-                tag 1
-                targeting Enemies $ hide 1 [ Reveal ]
+          [ To Self $ targeting Enemies $ apply 1 [ Reveal ]
           ]
         }
       ]

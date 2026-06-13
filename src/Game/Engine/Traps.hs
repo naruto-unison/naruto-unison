@@ -42,7 +42,7 @@ import           Game.Model.Trap (Trap(Trap))
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger(Trigger(..))
 import qualified Game.Model.Trigger as Trigger
-import           Util ((∈))
+import           Util ((∈), intersects)
 
 launch :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
        => Trap -> Runnable Context -> m ()
@@ -149,10 +149,12 @@ apply direction classes unthrottled trigger f = void $ runMaybeT do
     context@Context{new, target} <- P.context
     nUser <- P.nUser
     guard . not $ isCounter && nUser `is` Disable Counters
-    dur   <- if new then hoistMaybe (throttle nUser) else return unthrottled
+    dur   <- if not new || isChanneled then return unthrottled else
+                hoistMaybe $ throttle nUser
     let trap = makeTrap context direction classes dur trigger f
     P.modify target $ Ninjas.addTrap trap
   where
+    isChanneled = setFromList [Continues, Controlled] `intersects` classes
     isCounter = Trigger.isCounter trigger
     throttle n
       | isCounter = Duration.throttle (Effects.throttleCounters n) unthrottled

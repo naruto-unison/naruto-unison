@@ -1,6 +1,7 @@
 -- | Actions that characters can use to affect @Trap@s.
 module Game.Action.Trap
   ( trap, trap', trapFrom, trapFrom', trapPer, trapPer', trapWith
+  , controlTrap, controlTrapFrom
   , onBreak, onBreakFrom
   , removeTrap, removeTrap'
   ) where
@@ -13,10 +14,15 @@ import qualified Class.Play as P
 import qualified Game.Action as Action
 import qualified Game.Engine.Traps as Traps
 import qualified Game.Engine.Ninjas as Ninjas
+import           Game.Model.Channel (Channeling(..))
+import           Game.Model.Context (Context(Context))
+import qualified Game.Model.Context
 import           Game.Model.Class (Class(..))
 import           Game.Model.Duration (Duration(..))
 import           Game.Model.Runnable (IntRunConstraint, RunConstraint)
 import qualified Game.Model.ID as ID
+import           Game.Model.Skill (Skill(Skill))
+import qualified Game.Model.Skill
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
 
@@ -48,6 +54,21 @@ trapPer  = trapFull Trap.Per mempty
 trapPer' :: ∀ m. MonadPlay m
          => Duration -> Trigger -> IntRunConstraint () -> m ()
 trapPer' = trapFull Trap.Per $ setFromList [Bypassing, Hidden]
+
+controlTrapConst :: ∀ m. MonadPlay m
+                 => Trap.Direction -> EnumSet Class -> Trigger
+                 -> RunConstraint () -> m ()
+controlTrapConst trapType clas tr f = do
+    Context{skill = Skill{dur}} <- P.context
+    case dur of
+        Control i -> trapConst trapType clas i tr f
+        _         -> return ()
+
+controlTrap :: ∀ m. MonadPlay m => Trigger -> RunConstraint () -> m ()
+controlTrap = controlTrapConst Trap.Toward $ singleton Controlled
+
+controlTrapFrom :: ∀ m. MonadPlay m => Trigger -> RunConstraint () -> m ()
+controlTrapFrom = controlTrapConst Trap.From $ singleton Controlled
 
 -- | Adds an 'OnBreak' @Trap@ for the used 'Skill.Skill' to 'N.traps'.
 -- @OnBreak@ traps are triggered when a @Destructible@ in 'N.defense' with the

@@ -6,6 +6,7 @@ module Game.Action.Status
   , flag, flag'
   , hide, hide'
   , addStack, addStack', addStacks, addStacks', applyStacks
+  , control, control'
     -- * Applying bombs
   , bomb, bomb', bombWith, bombWith'
   -- * Adjusting statuses
@@ -25,6 +26,7 @@ import qualified Class.Play as P
 import           Class.Stackable ((.++))
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Statuses as Statuses
+import           Game.Model.Channel (Channeling(..))
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
@@ -118,13 +120,26 @@ tag' name dur = applyWith' (setFromList [Unremovable, Nonstacking]) name dur []
 
 -- | Applies a 'Hidden' and 'Unremovable' @Status@.
 hide :: ∀ m. MonadPlay m => Duration -> [Effect] -> m ()
-hide dur efs = do
-    Context{skill = Skill{name}} <- P.context
-    hide' (toLower name) dur efs
+hide = hide' ""
 
 -- | 'hide' with a 'Status.name'.
 hide' :: ∀ m. MonadPlay m => Text -> Duration -> [Effect] -> m ()
 hide' = applyWith' $ setFromList [Unremovable, Hidden]
+
+controlWith :: ∀ m. MonadPlay m => EnumSet Class -> [Effect] -> m ()
+controlWith classes efs = do
+    Context{skill = Skill{dur, name}} <- P.context
+    case dur of
+        Control i -> do
+
+            applyWith' classes name i efs
+        _         -> return ()
+
+control :: ∀ m. MonadPlay m => [Effect] -> m ()
+control = controlWith $ singleton Controlled
+
+control' :: ∀ m. MonadPlay m => [Effect] -> m ()
+control' = controlWith $ setFromList [Controlled, Hidden]
 
 -- | Adds a @Status@ with 'Status.bombs' to 'N.statuses'.
 -- @Bomb@s apply an effect when the @Status@ ends. If the @Bomb@ type is
@@ -157,7 +172,7 @@ applyStacks :: ∀ m. MonadPlay m
             => Text -> Int -> [Effect]
             -> m ()
 applyStacks name amount =
-    Statuses.apply amount (setFromList [Unremovable]) mempty name Permanent
+    Statuses.apply amount (singleton Unremovable) mempty name Permanent
 
 -- | Removes non-'Effect.helpful' effects in 'N.statuses' that match a
 -- predicate.

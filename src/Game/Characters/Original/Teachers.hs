@@ -287,11 +287,11 @@ characters =
         , Skill.cooldown  = 4
         , Skill.dur       = Control 2
         , Skill.start     =
-          [ To Enemy $ addStack' "Illusion" ]
-        , Skill.effects   =
-          [ To Enemy $ apply 1 [ Stun All ]
-          , To Self  $ hide 1 [ Alternate "Demonic Illusion: Sylvan Fetters"
-                                          "Sylvan Fetters Attack" ]
+          [ To Enemy $ control [ Stun All ]
+          , To Self do
+                addStack' "Illusion"
+                control [ Alternate "Demonic Illusion: Sylvan Fetters"
+                                    "Sylvan Fetters Attack" ]
           ]
         }
       , Skill.new

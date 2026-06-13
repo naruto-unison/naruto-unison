@@ -111,10 +111,10 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 3
         , Skill.dur       = Control 2
+        , Skill.start     =
+          [ To Enemies $ control [ Expose ] ]
         , Skill.effects   =
-          [ To Enemies $ apply 1 [ Expose ]
-          , To Self $ gain [Rand]
-          ]
+          [ To Self $ gain [Rand] ]
         }
       ]
     , [ Skill.new

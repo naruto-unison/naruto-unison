@@ -1,3 +1,4 @@
+
 -- | 'Ninja' processing.
 module Game.Engine.Ninjas
   ( modifyStatuses, modifyAll
@@ -38,7 +39,7 @@ module Game.Engine.Ninjas
   , copy, copyAll
   , recharge, rechargeAll, spendCharge
 
-  , prolong
+  , prolong, prolongControlled
   , prolongChannel
   , renameChannels
   , refresh
@@ -296,20 +297,21 @@ addChannels skill@Skill{dur} target n = n { N.channels = chan : N.channels n }
     chan = Channel
         { target
         , skill = skill { Skill.require = Usable }
-        , dur   = TurnBased.incr dur
+        , dur   = TurnBased.increment dur
         , new   = True
         }
 
 -- | Deletes matching 'channels'.
 cancelChannel :: ID -- ^ 'Skill.name'.
               -> Ninja -> Ninja
-cancelChannel channelID n =
+cancelChannel(ID.fromOwner -> channelID) n =
     n { N.channels = filter ((/= channelID) . ID.from) $ N.channels n }
 
 -- | Deletes matching 'channels' if they are not 'Channel.new'.
 cancelOldChannel :: ID -- ^ 'Skill.name'.
               -> Ninja -> Ninja
-cancelOldChannel channelID n = n { N.channels = filter retain $ N.channels n }
+cancelOldChannel (ID.fromOwner -> channelID) n =
+    n { N.channels = filter retain $ N.channels n }
   where
     retain Channel{new = True} = True
     retain channel = channelID /= ID.from channel
@@ -378,22 +380,34 @@ kill endurable n
 prolong :: Duration -- ^ Added to 'Status.dur'.
         -> ID -- ^ 'Status.name'.
         -> Ninja -> Ninja
-prolong dur statusID n
-  | dur < 0   = processEffects n'
+prolong dur statusID = prolongIf ((== statusID) . ID.from) dur
+
+-- | Extends the duration of matching 'statuses' that are 'Controlled'.
+prolongControlled :: Duration -- ^ Added to 'Status.dur'.
+        -> ID -- ^ 'Status.name'.
+        -> Ninja -> Ninja
+prolongControlled dur statusID = prolongIf matches dur
+  where
+    matches st@Status{classes} = Controlled ∈ classes && ID.from st == statusID
+
+prolongIf :: (Status -> Bool) -> Duration -> Ninja -> Ninja
+prolongIf condition dur n
+  | dur < 0 = processEffects n'
   | otherwise = n'
   where
-    n' = n { N.statuses = mapMaybe (prolong' dur statusID) $ N.statuses n }
+    n' = n { N.statuses = mapMaybe doProlong $ N.statuses n }
+    doProlong st
+      | condition st = prolong' dur st
+      | otherwise    = Just st
 
 -- | Extends the duration of a single 'Status'.
 prolong' :: Duration -- ^ Added to 'Status.dur'.
-         -> ID -- ^ 'Status.name'.
          -> Status -> Maybe Status
-prolong' Permanent _ st = Just st { Status.dur = Permanent }
-prolong' (Duration dur) statusID st
-  | Status.dur st == Permanent = Just st
-  | ID.from st /= statusID     = Just st
-  | statusDur' < 0             = Nothing
-  | otherwise                  = Just
+prolong' _ st@Status{dur = Permanent} = Just st
+prolong' Permanent st = Just st { Status.dur = Permanent }
+prolong' (Duration dur) st
+  | statusDur' < 0 = Nothing
+  | otherwise      = Just
         st { Status.dur    = statusDur'
            , Status.maxDur = max (Status.maxDur st) statusDur'
            }
@@ -404,14 +418,16 @@ prolong' (Duration dur) statusID st
         | dur < 0                          = dur + 1
         | otherwise                        = dur - 1
 
-prolongChannel :: Duration -> Text -> Ninja -> Ninja
-prolongChannel dur name n = n { N.channels = f <$> N.channels n }
+prolongChannel :: Duration -> ID -> Ninja -> Ninja
+prolongChannel dur (ID.fromOwner -> channelID) n =
+    n { N.channels = f <$> N.channels n }
   where
-    dur' chan = TurnBased.getDur chan + dur
-    f chan
-      | TurnBased.getDur chan <= 0              = chan
-      | name /= Skill.name (Channel.skill chan) = chan
-      | otherwise = TurnBased.setDur (dur' chan) chan
+    f chan@Channel{dur = dur'}
+      | prolongs dur' && ID.from chan == channelID = TurnBased.addDur dur chan
+      | otherwise                                  = chan
+    prolongs (Ongoing (Duration i)) = i >= 0
+    prolongs (Action  (Duration i)) = i >= 0
+    prolongs _                      = False
 
 renameChannels :: (Text -> Text) -> Ninja -> Ninja
 renameChannels rename n = n { N.channels = f <$> N.channels n }

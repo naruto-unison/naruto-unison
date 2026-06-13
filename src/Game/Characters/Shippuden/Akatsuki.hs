@@ -629,8 +629,9 @@ characters =
         , Skill.classes   = [Mental, Ranged, Invisible]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
+        , Skill.dur       = Control 1
         , Skill.effects   =
-          [ To Enemy $ trap 1 (Countered All) $
+          [ To Enemy $ controlTrap (Countered All) $
                 apply 2 [ Stun Physical
                         , Stun Ranged
                         ]
@@ -712,11 +713,10 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 2
         , Skill.dur       = Control 2
+        , Skill.start     =
+          [ To Enemy $ control [ Weaken [All] Percent 50 ] ]
         , Skill.effects   =
-          [ To Enemy do
-                damage 20
-                apply 1 [ Weaken [All] Percent 50 ]
-          ]
+          [ To Enemy $ damage 20 ]
         }
       , Skill.new
         { Skill.name      = "White Army"
@@ -1301,15 +1301,15 @@ characters =
         , Skill.classes   = [Summon, Unremovable]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 4
-        , Skill.dur       = Control -4
+        , Skill.dur       = Action -4
         , Skill.effects   =
           [ To Self do
                 controlStacks <- user numStacks "Control"
                 let maxReduce = min 25 $ 10 + 5 * controlStacks
-                apply 1 [ Reduce [All] Flat maxReduce
-                        , Alternate "Summoning: Gedo Statue"
-                                    "Control"
-                        ]
+                applyWith [Controlled] 1 [ Reduce [All] Flat maxReduce
+                                         , Alternate "Summoning: Gedo Statue"
+                                                     "Control"
+                                         ]
           ]
         , Skill.end       =
           [ To Self $ remove "Control" ]
@@ -1324,7 +1324,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 addStack
-                prolongChannel 2 "Summoning: Gedo Statue"
+                prolongChannel' "Summoning: Gedo Statue" 2
           ]
         , Skill.changes   = changeWith "Phantom Dragon" $ setCost []
         }

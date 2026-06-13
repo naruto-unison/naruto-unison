@@ -485,10 +485,11 @@ characters =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 2
-        , Skill.effects   =
+        , Skill.dur       = Control 2
+        , Skill.start     =
           [ To Enemy do
                 damage 45
-                apply 2 [ Stun Physical
+                control [ Stun Physical
                         , Stun Mental
                         ]
           ]
@@ -753,8 +754,9 @@ characters =
         , Skill.classes   = [Bane, Chakra, Ranged, Bypassing]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemy $ apply 1 [ Stun Mental
+        , Skill.dur       = Control 1
+        , Skill.start     =
+          [ To Enemy $ control [ Stun Mental
                                , Stun Ranged
                                ]
           , To XEnemies do
