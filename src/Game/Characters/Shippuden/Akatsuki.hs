@@ -1336,7 +1336,7 @@ characters =
           [ To Self do
                 controlStacks <- user numStacks "Control"
                 let maxReduce = min 25 $ 10 + 5 * controlStacks
-                applyWith [Controlled] 1 skillName
+                apply 1 skillName
                     [ Reduce [All] Flat maxReduce
                     , Alternate "Summoning: Gedo Statue"
                                 "Control"

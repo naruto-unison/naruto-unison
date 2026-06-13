@@ -152,7 +152,7 @@ doDeaths = mapM_ doEach Slot.all
             mapM_ (doBomb Done slot)
                 $ filter ((Necromancy ∉) . Status.classes) statuses
             P.modifyAll $ unSoulbound slot
-            let controls = setFromList $ ID.fromOwner . ID.from <$>
+            let controls = setFromList $ ID.from <$>
                            filter ((Controlled ∈) . Status.classes) statuses
             when (not $ null controls) do
                 ninjas <- toList <$> P.ninjas
@@ -189,18 +189,17 @@ runControlExpirations = do
 getControlled :: [Ninja] -> HashSet ID
 getControlled ns = setFromList $ getFromNinja =<< ns
   where
-    getFromNinja n
-      | N.alive n = getFrom N.traps n ++ getFrom N.statuses n
+    getFromNinja n@Ninja{slot, statuses, traps}
+      | N.alive n = filter ((/= slot) . ID.user)
+                  $ getFrom traps ++ getFrom statuses
       | otherwise = []
-    getFrom :: ∀ a. (Classed a, HasID a, TurnBased a)
-            => (Ninja -> [a]) -> Ninja -> [ID]
-    getFrom getter n@Ninja{slot} = mapMaybe controlledID $ getter n
+    getFrom :: ∀ a. (Classed a, HasID a, TurnBased a) => [a] -> [ID]
+    getFrom items = ID.from <$> filter isControlled items
       where
-        controlledID item
-          | Controlled ∉ Classed.classes item || user == slot = Nothing
-          | otherwise = Just itemID
-          where
-            itemID@ID{user} = ID.from item
+        isControlled item = Controlled ∈ classes && Hidden ∉ classes
+                            && not (TurnBased.expiring item)
+           where
+             classes = Classed.classes item
 
 -- | Removes 'Soulbound' effects. Applied when a Ninja dies or is factory-reset.
 unSoulbound :: Slot -> Ninja -> Ninja
