@@ -29,8 +29,8 @@ import           Class.Random (MonadRandom)
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import           Game.Model.Effect (Effect(..))
-import           Game.Model.ID (ID(ID))
-import qualified Game.Model.ID
+import           Game.Model.ID (ID)
+import qualified Game.Model.ID as ID
 import           Game.Model.Internal (MonadGame(..), MonadPlay(..))
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as N
@@ -105,13 +105,8 @@ toUser f = do
     modify user f
 
 createID :: ∀ m. MonadPlay m => Text -> m ID
-createID name = create <$> context
-  where
-    create Context{user, skill = Skill{owner, name = skillName}} = ID
-        { user
-        , owner
-        , name = if null name then skillName else name
-        }
+createID ""   = ID.from <$> context
+createID name = ID.withName name . ID.from <$> context
 
 -- | Applies a @Ninja@ transformation to the 'target', passing it the 'user' as
 -- an argument.

@@ -27,9 +27,9 @@ import qualified Game.Model.Attack as Attack
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
-import qualified Game.Model.Destructible as Destructible
 import           Game.Model.Duration (Duration(..))
 import           Game.Model.Effect (Effect(..))
+import qualified Game.Model.ID as ID
 import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Skill (Skill(Skill))
@@ -64,8 +64,8 @@ demolishAll = do
     Ninja{defense, slot = target} <- P.nTarget
     P.modify user   Ninjas.clearBarrier
     P.modify target Ninjas.clearDefense
-    P.trigger user   $ OnBreak . Destructible.name <$> barrier
-    P.trigger target $ OnBreak . Destructible.name <$> defense
+    P.trigger user   $ OnBreak . ID.from <$> barrier
+    P.trigger target $ OnBreak . ID.from <$> defense
 
 -- | Adds an amount to a 'Destructible' 'N.defense' that the target already has.
 -- If the target does not have any 'N.defense' with a matching
@@ -81,7 +81,8 @@ removeDefense :: ∀ m. MonadPlay m => Text -> m ()
 removeDefense name = P.unsilenced do
     P.fromUser Ninjas.removeDefense name
     Context{user} <- P.context
-    P.trigger user [OnBreak name]
+    triggerID     <- P.createID name
+    P.trigger user [OnBreak triggerID]
 
 -- | Adds new 'Destructible' 'N.barrier'.
 -- Destructible barrier acts as an extra bar in front of the 'N.health'

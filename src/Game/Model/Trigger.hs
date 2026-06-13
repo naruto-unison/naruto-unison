@@ -14,6 +14,8 @@ import           Class.Classed (Classed)
 import qualified Class.Classed
 import           Class.Display (Display(..))
 import           Game.Model.Class (Class(..), lower)
+import           Game.Model.ID (ID(ID))
+import qualified Game.Model.ID
 
 -- | Conditions to activate a 'Game.Model.Trap.Trap'
 data Trigger
@@ -23,7 +25,7 @@ data Trigger
     | Nullified
     | OnAction Class
     | OnNoAction
-    | OnBreak Text
+    | OnBreak ID
     | OnChakra
     | OnDamage
     | OnDamaged Class
@@ -71,7 +73,7 @@ instance Display Trigger where
     display Nullified          = "Next skill used will be countered."
     display (OnAction  All)    = "Trigger: Use any skill."
     display (OnAction  cla)    = "Trigger: Use " ++ lower cla ++ " skills."
-    display (OnBreak   name)   = "Trigger: Lose all destructible defense from [" ++ display name ++ "]."
+    display (OnBreak ID{name}) = "Trigger: Lose all destructible defense from [" ++ display name ++ "]."
     display OnChakra           = "Trigger: Gain, deplete, or absorb chakra."
     display OnDamage           = "Trigger: Deal damage."
     display (OnDamaged All)    = "Trigger: Receive damage."

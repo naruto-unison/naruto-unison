@@ -137,11 +137,10 @@ characters =
         applyVenomBeetle :: SkillEffect
         applyVenomBeetle = apply' "Venom Beetle" 5 [ Afflict 5 ]
 
-        applyBeetleDefense :: Int -> Text -> SkillEffect
-        applyBeetleDefense amount name = unlessM (user has' defense name) do
+        applyBeetleDefense :: Int -> SkillEffect
+        applyBeetleDefense amount = unlessM (user has' defense "") do
             defend Permanent amount
-            trapFrom' Permanent (OnBreak name)
-                applyVenomBeetle
+            onBreakFrom applyVenomBeetle
     in
     [ [ Skill.new
         { Skill.name      = "Nano-Sized Venom Beetles"
@@ -150,7 +149,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemy applyVenomBeetle
-          , To Self $ applyBeetleDefense 15 "Nano-Sized Venom Beetles"
+          , To Self $ applyBeetleDefense 15
           ]
         , Skill.changes   = changeWithDefense "Nano-Sized Venom Beetles"
                           $ setCost [Rand]
@@ -164,7 +163,7 @@ characters =
         , Skill.cooldown  = Permanent
         , Skill.effects   =
           [ To Enemies applyVenomBeetle
-          , To Self $ applyBeetleDefense 30 "Jar of Poison"
+          , To Self $ applyBeetleDefense 30
           ]
         , Skill.changes   = changeWithDefense "Jar of Poison"
                           $ setCost [Rand, Rand]

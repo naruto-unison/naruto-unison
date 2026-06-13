@@ -1,6 +1,7 @@
 module Game.Model.ID
     ( ID(..)
     , HasID(..)
+    , withName
     ) where
 
 import ClassyPrelude
@@ -11,7 +12,12 @@ data ID = ID
     { user  :: Slot
     , owner :: Slot
     , name  :: Text
-    } deriving (Eq, Ord, Show)
+    } deriving (Eq, Ord, Show, Generic)
+
+instance Hashable ID
 
 class HasID a where
     from :: a -> ID
+
+withName :: Text -> ID -> ID
+withName name someID = someID { name = name }

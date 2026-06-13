@@ -433,6 +433,9 @@ instance ToJSON Context
 instance Classed Context where
     classes Context{skill = Skill{classes}} = classes
 
+instance HasID Context where
+    from Context{user, skill = Skill{owner, name}} = ID { user, owner, name }
+
 
 instance MonadRandom m => MonadRandom (ReaderT Context m)
 

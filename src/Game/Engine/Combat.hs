@@ -23,6 +23,7 @@ import           Game.Model.Destructible (Destructible(Destructible))
 import qualified Game.Model.Destructible as Destructible
 import           Game.Model.Duration (Duration(..))
 import           Game.Model.Effect (Amount(..), Effect(..))
+import qualified Game.Model.ID as ID
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Skill (Skill(Skill))
@@ -159,8 +160,8 @@ attack atk dmg
 
     damaged <- (N.health nTarget -) . N.health <$> P.nTarget
 
-    P.trigger user $ OnBreak . Destructible.name <$> broken fromBarrier
-    P.trigger target $ OnBreak . Destructible.name <$> broken fromDefense
+    P.trigger user $ OnBreak . ID.from <$> broken fromBarrier
+    P.trigger target $ OnBreak . ID.from <$> broken fromDefense
 
     when (damaged > 0) do
         P.trigger user [OnDamage]

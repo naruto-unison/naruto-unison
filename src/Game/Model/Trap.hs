@@ -9,7 +9,7 @@ import ClassyPrelude
 
 import           Class.TurnBased (TurnBased)
 import qualified Class.TurnBased as TurnBased
-import           Game.Model.ID (HasID, ID(ID))
+import           Game.Model.ID (HasID, ID)
 import qualified Game.Model.ID as ID
 import           Game.Model.Internal (Trap(..), Direction(..), Ninja(Ninja), Skill(Skill))
 import qualified Game.Model.Internal
@@ -21,10 +21,10 @@ uncopied :: Trap -> Bool
 uncopied Trap{user, skill = Skill{owner}} = user == owner
 
 isExpiringMatch :: ∀ a. (HasID a, TurnBased a) => ID -> a -> Bool
-isExpiringMatch trapID a = TurnBased.expiring a && ID.from a == trapID
+isExpiringMatch triggerID a = TurnBased.expiring a && ID.from a == triggerID
 
 isExpiring :: Ninja -> Trap -> Bool
 isExpiring Ninja{health = 0} Trap{trigger = OnBreak _} = True
-isExpiring Ninja{barrier, defense} Trap{user, skill = Skill{owner}, trigger = OnBreak name} =
-    any (isExpiringMatch ID { user, owner, name }) $ barrier ++ defense
+isExpiring Ninja{barrier, defense} Trap{trigger = OnBreak destrID} =
+    any (isExpiringMatch destrID) $ barrier ++ defense
 isExpiring _ _ = False

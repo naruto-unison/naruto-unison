@@ -1,7 +1,7 @@
 -- | Actions that characters can use to affect @Trap@s.
 module Game.Action.Trap
   ( trap, trap', trapFrom, trapFrom', trapPer, trapPer', trapWith
-  , onBreak
+  , onBreak, onBreakFrom
   , removeTrap, removeTrap'
   ) where
 import ClassyPrelude
@@ -14,12 +14,9 @@ import qualified Game.Action as Action
 import qualified Game.Engine.Traps as Traps
 import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Class (Class(..))
-import           Game.Model.Context (Context(Context))
-import qualified Game.Model.Context as Context
 import           Game.Model.Duration (Duration(..))
 import           Game.Model.Runnable (IntRunConstraint, RunConstraint)
-import           Game.Model.Skill (Skill(Skill))
-import qualified Game.Model.Skill as Skill
+import qualified Game.Model.ID as ID
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
 
@@ -57,8 +54,16 @@ trapPer' = trapFull Trap.Per $ setFromList [Bypassing, Hidden]
 -- same 'Destructible.name' is broken.
 onBreak :: ∀ m. MonadPlay m => RunConstraint () -> m ()
 onBreak f = do
-    Context{skill = Skill{name}} <- P.context
-    trap' Permanent (OnBreak name) f
+    triggerID <- ID.from <$> P.context
+    trap' Permanent (OnBreak triggerID) f
+
+-- | Adds an 'OnBreak' @Trap@ for the used 'Skill.Skill' to 'N.traps'.
+-- @OnBreak@ traps are triggered when a @Destructible@ in 'N.defense' with the
+-- same 'Destructible.name' is broken.
+onBreakFrom :: ∀ m. MonadPlay m => RunConstraint () -> m ()
+onBreakFrom f = do
+    triggerID <- ID.from <$> P.context
+    trapFrom' Permanent (OnBreak triggerID) f
 
 -- | Adds a @Trap@ to 'N.traps'.
 trapConst :: ∀ m. MonadPlay m
