@@ -134,7 +134,7 @@ characters =
         , Skill.dur       = Ongoing -4
         , Skill.start     =
           [ To Self do
-                cancelChannel
+                replaceChannel
                 targeting Enemies $ apply -4 []
                 targeting Allies $ apply -4 [ Reduce [All] Flat 5 ]
           ]

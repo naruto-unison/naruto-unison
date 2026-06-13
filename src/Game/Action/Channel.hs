@@ -1,6 +1,7 @@
 -- | Actions that characters can use to affect 'Channel's.
 module Game.Action.Channel
   ( cancelChannel, cancelChannel'
+  , replaceChannel
   , prolongChannel
   , interrupt
   , renameChannels
@@ -17,10 +18,18 @@ import qualified Game.Model.Channel as Channel
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context
 import           Game.Model.Duration (Duration)
+import           Game.Model.ID (ID(ID))
+import qualified Game.Model.ID
 import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
+import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
+
+replaceChannel :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
+replaceChannel = do
+    Context{user, skill = Skill{name, owner}} <- P.context
+    P.modify user $ Ninjas.cancelOldChannel ID { user = owner, owner, name }
 
 -- | Cancels 'N.channels' with a matching 'Channel.name'.
 -- Uses 'Ninjas.cancelChannel' internally.

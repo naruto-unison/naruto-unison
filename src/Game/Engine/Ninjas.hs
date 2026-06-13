@@ -33,7 +33,7 @@ module Game.Engine.Ninjas
   , removeStacks
 
   , addChannels
-  , cancelChannel
+  , cancelChannel, cancelOldChannel
 
   , copy, copyAll
   , recharge, rechargeAll, spendCharge
@@ -301,10 +301,18 @@ addChannels skill@Skill{dur} target n = n { N.channels = chan : N.channels n }
         }
 
 -- | Deletes matching 'channels'.
-cancelChannel :: Text -- ^ 'Skill.name'.
+cancelChannel :: ID -- ^ 'Skill.name'.
               -> Ninja -> Ninja
-cancelChannel name n =
-    n { N.channels = filter ((/= name) . Channel.name) $ N.channels n }
+cancelChannel channelID n =
+    n { N.channels = filter ((/= channelID) . ID.from) $ N.channels n }
+
+-- | Deletes matching 'channels' if they are not 'Channel.new'.
+cancelOldChannel :: ID -- ^ 'Skill.name'.
+              -> Ninja -> Ninja
+cancelOldChannel channelID n = n { N.channels = filter retain $ N.channels n }
+  where
+    retain Channel{new = True} = True
+    retain channel = channelID /= ID.from channel
 
 -- | Copies all 'Skill's from a source into 'N.copies'.
 copyAll :: Duration -- ^ 'Copy.dur'.

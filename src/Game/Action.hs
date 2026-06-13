@@ -256,8 +256,8 @@ act context@Context{user, new, target, skill} = void $ runMaybeT do
             else case dur of
                 Instant -> run' (singleton Targeted) bothEfs
                 _       -> do
-                    run' (singleton Targeted) startEfs
                     P.modify user $ Ninjas.addChannels skill target
+                    run' (singleton Targeted) startEfs
                     P.withContinues $ run' (singleton Targeted) contEfs
             P.modify user $ Cooldown.update skill
         P.uncopied do
@@ -320,14 +320,11 @@ breakControls = mapM_ breakN =<< P.ninjas
 breakControl :: ∀ m. (MonadGame m, MonadRandom m)
              => Slot -> EnumSet Class -> Channel -> m ()
 breakControl user stuns chan@Channel { dur   = Control{}
-                                     , skill = skill@Skill { name
-                                                           , classes
-                                                           , effects
-                                                           }
+                                     , skill = skill@Skill{classes, effects}
                                      , target
                                      } =
     P.withContext context $ ifBroken do
-        P.modify user $ Ninjas.cancelChannel name
+        P.modify user $ Ninjas.cancelChannel $ ID.from skill
         runInterruptions user chan
   where
     context = Context

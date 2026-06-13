@@ -84,6 +84,9 @@ instance ToJSON Channel
 instance Classed Channel where
     classes Channel{skill = Skill{classes}} = classes
 
+instance HasID Channel where
+    from Channel{skill = Skill{owner, name}} = ID { user = owner, owner, name }
+
 
 -- | Types of channeling for 'Skill's.
 data Channeling
@@ -325,6 +328,9 @@ instance ToJSON Skill where
 
 instance Classed Skill where
     classes Skill{classes} = classes
+
+instance HasID Skill where
+    from Skill{owner, name} = ID { user = owner, owner, name }
 
 
 -- | A status effect affecting a 'Ninja'.

@@ -228,7 +228,7 @@ characters =
         , Skill.dur       = Passive
         , Skill.start     =
           [ To Self do
-                cancelChannel -- in case cooldown was reset
+                replaceChannel -- in case cooldown was reset
                 defend 2 20
                 onBreak cancelChannel
           ]
@@ -903,7 +903,7 @@ characters =
         , Skill.dur       = Passive
         , Skill.start     =
           [ To Enemy do
-                cancelChannel
+                replaceChannel
                 pierce 15
                 barricade Permanent 15
                 onBreak do
