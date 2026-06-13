@@ -13,14 +13,14 @@ spec = parallel do
         useOn Enemy "Multi Shadow Clone" do
             it "counters enemy" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 not <$> user (`is` Reveal)
             it "alternates" do
                 Sim.act
                 user $ hasSkill "Rasen Shuriken"
             it "tags enemy if countered" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 target has "Multi Shadow Clone"
             it "does not tag enemy otherwise" do
                 Sim.act
@@ -65,8 +65,8 @@ spec = parallel do
         useOn Allies "Ink Mist" do
             it "makes stunned allies invulnerable" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent skillName [ Stun All ]
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Stun All]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 not <$> target (`is` Reveal)
             it "gains chakra when depleted" do
                 Sim.act
@@ -157,17 +157,17 @@ spec = parallel do
         useOn Ally "Insect Barricade" do
             it "counters on target" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 not <$> target (`is` Reveal)
             it "counters with Gigantic Beetle Infestation" do
                 targeting Everyone $ addStacks "Gigantic Beetle Infestation" 2
                 Sim.act
                 damaged <- measureDamageTo Enemy
-                         $ Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                         $ Sim.as Enemy $ apply Permanent skillName [Reveal]
                 damaged `shouldBe` 3 * 25
             it "does not gain chakra normally" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 Sim.turns 2
                 chakras <- gameChakras
                 chakras `shouldBe` ([], [])
@@ -251,13 +251,13 @@ spec = parallel do
                 Sim.act
                 Sim.as Enemy $ afflict dmg
                 Sim.as Self $ return ()
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 not <$> user (`is` Reveal)
             it "pauses from non-affliction damage" do
                 Sim.act
                 Sim.as Enemy $ pierce dmg
                 Sim.as Self $ return ()
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 user (`is` Reveal)
             it "alternates" do
                 Sim.act
@@ -270,12 +270,12 @@ spec = parallel do
                 trap Permanent (Counter All) $ return ()
                 Sim.act
                 Sim.as Enemy $ return ()
-                Sim.as Self $ apply Permanent skillName [ Reveal ]
+                Sim.as Self $ apply Permanent skillName [Reveal]
                 target (`is` Reveal)
             it "does nothing if target does nothing" do
                 trap Permanent (Counter All) $ return ()
                 Sim.act
-                Sim.as Self $ apply Permanent skillName [ Reveal ]
+                Sim.as Self $ apply Permanent skillName [Reveal]
                 target (`is` Reveal)
 
     describeCharacter "Chōji Akimichi" do
@@ -288,18 +288,18 @@ spec = parallel do
         useOn Enemy "Mind Destruction" do
             it "counters target" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 not <$> user (`is` Reveal)
             it "copies countered target" do
                 Sim.act
-                Sim.withClass All $ Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.withClass All $ Sim.as Enemy $ apply Permanent skillName [Reveal]
                 user $ hasSkill "Unnamed"
 
         useOn Enemies "Proxy Surveillance" do
             it "reduces damage reduction" do
                 Sim.act
                 Sim.as Enemy $ targeting Self $
-                    apply Permanent skillName [ Reduce [All] Flat testStacks ]
+                    apply Permanent skillName [Reduce [All] Flat testStacks]
                 damaged <- measureDamage $ damage dmg
                 damaged - dmg + testStacks `shouldBe` 15
 
@@ -395,11 +395,11 @@ spec = parallel do
         useOn Enemies "Eight Trigrams Sixty-Four Palms" do
             it "counters" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 not <$> target (`is` Reveal)
             it "alternates when countered" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 user $ hasSkill "Pressure Point Strike"
 
         useOn Enemy "Pressure Point Strike" do
@@ -438,11 +438,11 @@ spec = parallel do
         useOn Enemy "Kuroari Trap" do
             it "counters enemy" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 not <$> user (`is` Reveal)
             it "tags countered enemy" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 target has "Kuroari Trap"
 
         useOn Enemy "Karasu Knives" do

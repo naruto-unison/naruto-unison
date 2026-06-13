@@ -32,7 +32,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 afflict 20
-                apply 1 skillName [ Throttle 1 Stuns ]
+                apply 1 skillName [Throttle 1 Stuns]
           ]
         }
       ]
@@ -44,9 +44,10 @@ characters =
         , Skill.cooldown  = 3
         , Skill.dur       = Control 2
         , Skill.start     =
-          [ To Enemy $ control [ Stun Physical
-                               , Stun Chakra
-                               ]
+          [ To Enemy $ control
+                [ Stun Physical
+                , Stun Chakra
+                ]
           ]
         , Skill.effects   =
           [ To Enemy $ pierce 20 ]
@@ -68,9 +69,10 @@ characters =
                 damage 20
                 stacks <- target numStacks "Toad Oil Bomb"
                 afflict (10 * stacks)
-          , To Self $ hide Permanent skillName [ Alternate "Giant Flame Bomb"
-                                                 "Toad Oil Bomb"
-                                     ]
+          , To Self $ hide Permanent skillName
+                [ Alternate "Giant Flame Bomb"
+                            "Toad Oil Bomb"
+                ]
           ]
         }
       , Skill.new
@@ -97,7 +99,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 targetSlot <- target slot
-                targeting Self $ control [ Redirect targetSlot ]
+                targeting Self $ control [Redirect targetSlot]
           ]
         }
       ]
@@ -115,9 +117,10 @@ characters =
                 trapFrom 3 (OnHarmed Ranged) $
                     whenM (target has "mane") do
                         damage 15
-                        apply 1 skillName [ Stun Melee
-                                , Stun Physical
-                                ]
+                        apply 1 skillName
+                            [ Stun Melee
+                            , Stun Physical
+                            ]
                 trapFrom 3 (OnHarmed Physical) $
                     flag "mane"
           ]
@@ -143,7 +146,7 @@ characters =
                 else
                     pierce 20
           , To Allies $ whenM (target has "Healing Wave") $
-                apply 1 skillName [ Endure ]
+                apply 1 skillName [Endure]
           , To Self $ remove "Strength of One Hundred Seal"
           ]
         }
@@ -159,10 +162,10 @@ characters =
                 seal <- user has "Strength of One Hundred Seal"
                 if seal then do
                     heal 40
-                    apply -3 skillName [ Heal 10 ]
+                    apply -3 skillName [Heal 10]
                 else do
                     heal 30
-                    apply -2 skillName [ Heal 10 ]
+                    apply -2 skillName [Heal 10]
           , To Self $ remove "Strength of One Hundred Seal"
           ]
         }
@@ -211,9 +214,10 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To XAlly $ apply 2 skillName [ Reduce [All] Flat 10
-                               , AntiCounter
-                               ]
+          [ To XAlly $ apply 2 skillName
+                [ Reduce [All] Flat 10
+                , AntiCounter
+                ]
           ]
         }
       ]
@@ -243,9 +247,10 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Enemy $ apply 3 skillName [ Afflict 15
-                               , Undefend
-                               ]
+          [ To Enemy $ apply 3 skillName
+                [ Afflict 15
+                , Undefend
+                ]
           ]
         }
       ]
@@ -257,7 +262,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemies do
-                apply 1 skillName [ Expose ]
+                apply 1 skillName [Expose]
                 pierce 20
           ]
         }
@@ -292,7 +297,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 afflict 20
-                apply 1 skillName [ Exhaust [All] ]
+                apply 1 skillName [Exhaust [All]]
           ]
         }
       ]
@@ -303,7 +308,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Allies $ apply 1 skillName [ Invulnerable Ranged ] ]
+          [ To Allies $ apply 1 skillName [Invulnerable Ranged] ]
         }
       ]
     , [ Skill.new
@@ -321,7 +326,7 @@ characters =
                 remove skillName
                 stacks <- user numStacks "Harmony"
                 when (stacks == 3) $
-                    apply 2 skillName [ Stun All ]
+                    apply 2 skillName [Stun All]
           ]
         }
       ]

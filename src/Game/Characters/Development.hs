@@ -27,9 +27,10 @@ characters = (\c -> c Original "") <$>
         , Skill.classes = [Bypassing, Uncounterable, Unreflectable]
         , Skill.effects =
           [ To Enemies $ apply Permanent skillName [Stun All]
-          , To Self $ hide Permanent skillName [ Alternate "The Funk Wasn't With You"
-                                                 "Could've Had a V8"
-                                     ]
+          , To Self $ hide Permanent skillName
+                [ Alternate "The Funk Wasn't With You"
+                            "Could've Had a V8"
+                ]
           ]
         }
       , Skill.new

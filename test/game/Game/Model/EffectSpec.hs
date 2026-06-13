@@ -58,7 +58,7 @@ spec = parallel do
 
     describe "Absorb" do
         let tryAbsorb t cost = simAt t do
-                apply Permanent skillName [ Absorb ]
+                apply Permanent skillName [Absorb]
                 Action.act Context
                     { new       = True
                     , user      = Sim.targetSlot Self
@@ -116,14 +116,14 @@ spec = parallel do
                 return $ targetHealth === healthBound (1 + hp + i)
 
     describe "Block" do
-        let tryTarget t = apply Permanent skillName [ Block $ Sim.targetSlot t ]
+        let tryTarget t = apply Permanent skillName [Block $ Sim.targetSlot t]
                           >> Sim.at XEnemies (canTargetAs Enemy)
 
         it "blocks vs. subject"  . not . simAt Enemy $ tryTarget XEnemies
         it "does not block vs. others" $ simAt Enemy $ tryTarget REnemy
 
     describe "BlockAllies" do
-        let tryTarget = targeting Self (apply Permanent skillName [ BlockAllies ])
+        let tryTarget = targeting Self (apply Permanent skillName [BlockAllies])
                         >> canTarget
 
         it "blocks vs. allies"    . not $ simAt Ally  tryTarget
@@ -143,8 +143,8 @@ spec = parallel do
             reduce      = 3
 
         it "boosts helpful effects" $ simAt Self do
-            Sim.as Ally $ apply Permanent skillName [ Reduce [All] Flat reduce ]
-            targeting Self $ apply Permanent skillName [ Boost boostAmount ]
+            Sim.as Ally $ apply Permanent skillName [Reduce [All] Flat reduce]
+            targeting Self $ apply Permanent skillName [Boost boostAmount]
             damaged <- measureDamage $ Sim.as Enemy $ damage dmg
             return $ dmg - damaged `shouldBe` boostAmount * reduce
 
@@ -171,8 +171,8 @@ spec = parallel do
 
     describe "Bypass" do
         it "makes all skills bypass" $ simAt Enemy do
-            targeting Self $ apply Permanent skillName [ Bypass ]
-            apply Permanent skillName [ Invulnerable All ]
+            targeting Self $ apply Permanent skillName [Bypass]
+            apply Permanent skillName [Invulnerable All]
             canTarget
 
     describe "DamageToDefense" do
@@ -195,13 +195,13 @@ spec = parallel do
 
     describe "Disable" do
         it "stuns stuns" $ simAt Enemy do
-            apply Permanent skillName [ Disable Stuns ]
-            Sim.as Enemy $ apply Permanent skillName [ Stun All ]
+            apply Permanent skillName [Disable Stuns]
+            Sim.as Enemy $ apply Permanent skillName [Stun All]
             userStunned <- user Effects.stun
             return $ userStunned `shouldBe` mempty
 
         it "stuns counters" $ simAt Enemy do
-            apply Permanent skillName [ Disable Counters ]
+            apply Permanent skillName [Disable Counters]
             Sim.as Enemy do
                 targeting Self do
                     trap Permanent (Counter All) $ return ()
@@ -210,14 +210,14 @@ spec = parallel do
             canTarget
 
         it "stuns others" $ simAt Enemy do
-            apply Permanent skillName [ Disable $ Any ReflectAll ]
+            apply Permanent skillName [Disable $ Any ReflectAll]
             Sim.as Enemy $ targeting Self $
                 apply Permanent skillName $ ReflectAll <$> [minBound..maxBound]
             canTarget
 
     describe "Duel" do
         let tryTarget t = Sim.as XAlly
-                          (apply Permanent skillName [ Duel $ Sim.targetSlot t ])
+                          (apply Permanent skillName [Duel $ Sim.targetSlot t])
                           >> canTarget
 
         it "invulnerable to enemies" . not . simAt Enemy $ tryTarget XEnemies
@@ -236,9 +236,9 @@ spec = parallel do
 
     describe "Enrage" do
         let tryApply effect = do
-                apply Permanent "1" [ effect ]
-                apply Permanent "2" [ Enrage ]
-                apply Permanent "3" [ effect ]
+                apply Permanent "1" [effect]
+                apply Permanent "2" [Enrage]
+                apply Permanent "3" [effect]
                 target (`is` effect)
 
         it "ignores negative effects" . not  . simAt Ally $ tryApply Plague
@@ -251,8 +251,8 @@ spec = parallel do
 
     describe "Expose" do
         it "prevents target from becoming invulnerable" $ simAt Enemy do
-            apply Permanent skillName [ Expose ]
-            Sim.as Enemy $ targeting Self $ apply Permanent skillName [ Invulnerable All ]
+            apply Permanent skillName [Expose]
+            Sim.as Enemy $ targeting Self $ apply Permanent skillName [Invulnerable All]
             canTarget
 
         it "prevents target from reducing damage" $ simAt Enemy do
@@ -271,20 +271,20 @@ spec = parallel do
                                              , Silence
                                              , Stun All
                                              ]
-            apply Permanent skillName [ Reveal ]
+            apply Permanent skillName [Reveal]
             target (`is` Reveal)
 
     describe "Heal" do
         prop "heals every turn" \i (Positive turns) -> simAt Enemy do
             setHealth 1
-            apply Permanent skillName [ Heal i ]
+            apply Permanent skillName [Heal i]
             Sim.turns -turns
             targetHealth <- target health
             return $ targetHealth === healthBound (1 + i * turns)
 
     describe "Invulnerable" do
         let ignore atk dmg = do
-                apply Permanent skillName [ Invulnerable atk ]
+                apply Permanent skillName [Invulnerable atk]
                 dmg 50
                 targetHealth <- target health
                 return $ targetHealth `shouldBe` 100
@@ -314,8 +314,8 @@ spec = parallel do
 
     describe "Pierce" do
         it "ignores damage reduction" $ simAt Enemy do
-            targeting Self $ apply Permanent skillName [ Pierce ]
-            apply Permanent skillName [ Reduce [All] Flat 100 ]
+            targeting Self $ apply Permanent skillName [Pierce]
+            apply Permanent skillName [Reduce [All] Flat 100]
             damaged <- measureDamage $ damage 1
             return $ damaged `shouldBe` 1
 
@@ -329,7 +329,7 @@ spec = parallel do
             return $ healed `shouldBe` 0
 
         it "blocks curing" $ simAt Enemy do
-            apply Permanent skillName [ Plague ]
+            apply Permanent skillName [Plague]
             cureAll
             target (`is` Plague)
 
@@ -361,17 +361,17 @@ spec = parallel do
 
     describe "Seal" do
         let tryApply effect = do
-                apply Permanent "1" [ effect ]
-                apply Permanent "2" [ Seal ]
-                apply Permanent "3" [ effect ]
+                apply Permanent "1" [effect]
+                apply Permanent "2" [Seal]
+                apply Permanent "3" [effect]
                 target (`is` effect)
         it "ignores helpful effects"   . not . simAt Self $ tryApply Focus
         it "does not ignore harmful effects" . simAt Self $ tryApply Reveal
 
     describe "Share" do
         let harms t = do
-                apply Permanent skillName [ Share $ Sim.targetSlot Enemy ]
-                Sim.as t $ apply Permanent skillName [ Reveal ]
+                apply Permanent skillName [Share $ Sim.targetSlot Enemy]
+                Sim.as t $ apply Permanent skillName [Reveal]
                 (`is` Reveal) <$> Sim.targets Enemy
 
         it "shares harm"                . simAt Ally $ harms XEnemies
@@ -379,7 +379,7 @@ spec = parallel do
 
     describe "Silence" do
         it "blocks non-damage" $ simAt Enemy do
-            targeting Self $ apply Permanent skillName [ Silence ]
+            targeting Self $ apply Permanent skillName [Silence]
             damage 1
             heal 100
             targetHealth <- target health
@@ -419,7 +419,7 @@ spec = parallel do
 
     describe "Taunt" do
         let tryTarget = targeting Self
-                        (apply Permanent skillName [ Taunt $ Sim.targetSlot Enemy ])
+                        (apply Permanent skillName [Taunt $ Sim.targetSlot Enemy])
                         >> canTarget
 
         it "does not block against subject" $ simAt Enemy    tryTarget
@@ -428,45 +428,45 @@ spec = parallel do
 
     describe "Throttle" do
         it "throttles counters" $ simAt Enemy do
-            apply Permanent skillName [ Throttle 1 Counters ]
-            Sim.as Enemy $ trap 5 (Countered All) $ apply Permanent skillName [ Reveal ]
+            apply Permanent skillName [Throttle 1 Counters]
+            Sim.as Enemy $ trap 5 (Countered All) $ apply Permanent skillName [Reveal]
             Sim.turns $ 5 - 2
             Sim.as Self $ return ()
             not <$> user (`is` Reveal)
         it "does not remove counters" $ simAt Enemy do
-            apply Permanent skillName [ Throttle 1 Counters ]
-            Sim.as Enemy $ trap 5 (Countered All) $ apply Permanent skillName [ Reveal ]
+            apply Permanent skillName [Throttle 1 Counters]
+            Sim.as Enemy $ trap 5 (Countered All) $ apply Permanent skillName [Reveal]
             Sim.turns $ 5 - 3
             Sim.as Self $ return ()
             user (`is` Reveal)
 
         it "throttles stuns" $ simAt Enemy do
-            apply Permanent skillName [ Throttle 1 Stuns ]
-            Sim.as Enemy $ apply 5 skillName [ Stun All ]
+            apply Permanent skillName [Throttle 1 Stuns]
+            Sim.as Enemy $ apply 5 skillName [Stun All]
             Sim.turns $ 5 - 1
             userStunned <- user Effects.stun
             return $ userStunned `shouldBe` mempty
         it "does not remove stuns" $ simAt Enemy do
-            apply Permanent skillName [ Throttle 1 Stuns ]
-            Sim.as Enemy $ apply 5 skillName [ Stun All ]
+            apply Permanent skillName [Throttle 1 Stuns]
+            Sim.as Enemy $ apply 5 skillName [Stun All]
             Sim.turns $ 5 - 2
             userStunned <- user Effects.stun
             return $ userStunned `shouldBe` [All]
 
         it "throttles others" $ simAt Enemy do
-            apply Permanent skillName [ Throttle 1 (Only Reveal) ]
-            Sim.as Enemy $ apply 5 skillName [ Reveal ]
+            apply Permanent skillName [Throttle 1 (Only Reveal)]
+            Sim.as Enemy $ apply 5 skillName [Reveal]
             Sim.turns $ 5 - 1
             not <$> user (`is` Reveal)
         it "does not remove others" $ simAt Enemy do
-            apply Permanent skillName [ Throttle 1 (Only Reveal) ]
-            Sim.as Enemy $ apply 5 skillName [ Reveal ]
+            apply Permanent skillName [Throttle 1 (Only Reveal)]
+            Sim.as Enemy $ apply 5 skillName [Reveal]
             Sim.turns $ 5 - 2
             user (`is` Reveal)
 
     describe "Undefend" do
         it "ignores own defense" $ simAt Enemy do
-            apply Permanent skillName [ Undefend ]
+            apply Permanent skillName [Undefend]
             defend Permanent 100
             damaged <- measureDamage $ damage 1
             return $ damaged `shouldBe` 1
@@ -484,8 +484,8 @@ spec = parallel do
     describe "Unreduce" do
         prop "lessens applied Reduce effects" \(Positive dmg) reduce unreduce ->
             simAt Enemy do
-                targeting Self $ apply Permanent skillName [ Unreduce unreduce ]
-                apply Permanent skillName [ Reduce [All] Flat reduce ]
+                targeting Self $ apply Permanent skillName [Unreduce unreduce]
+                apply Permanent skillName [Reduce [All] Flat reduce]
                 damaged <- measureDamage $ damage dmg
                 return $ damaged === healthBound (dmg + unreduce - reduce)
 
@@ -507,8 +507,8 @@ canTarget = canTargetAs Self
 
 harmedWith :: Effect -> ReaderT Context WrapperM Ninja -> Bool
 harmedWith effect t = simAt Enemy do
-    targeting Self $ apply 2 skillName [ effect ]
-    Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+    targeting Self $ apply 2 skillName [effect]
+    Sim.as Enemy $ apply Permanent skillName [Reveal]
     (`is` Reveal) <$> t
 
 healthBound :: Int -> Int

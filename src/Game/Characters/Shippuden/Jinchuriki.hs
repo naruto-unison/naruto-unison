@@ -19,9 +19,10 @@ characters =
         , Skill.require   = UserHas 0 "Two-Tailed Transformation"
         , Skill.classes   = [Chakra]
         , Skill.effects   =
-          [ To Self $ apply Permanent skillName [ Reduce [All] Percent 50
-                                      , Face
-                                      ]
+          [ To Self $ apply Permanent skillName
+                [ Reduce [All] Percent 50
+                , Face
+                ]
           ]
         }
       ]
@@ -36,7 +37,7 @@ characters =
           [ To Enemy do
                 stacks <- user numStacks skillName
                 damage (30 + 5 * stacks)
-                apply 1 skillName [ Weaken [All] Flat 10 ]
+                apply 1 skillName [Weaken [All] Flat 10]
           , To Self $ addStack skillName
           ]
         }
@@ -85,7 +86,7 @@ characters =
         , Skill.classes   = [Chakra, Ranged, Bane, Soulbound]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ To Enemy $ apply Permanent skillName [ Afflict 10 ] ]
+          [ To Enemy $ apply Permanent skillName [Afflict 10] ]
         }
       ]
     , [ Skill.new
@@ -97,7 +98,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 heal 25
-                apply 1 skillName [ Reduce [Affliction] Percent 50 ]
+                apply 1 skillName [Reduce [Affliction] Percent 50]
           ]
         }
       ]
@@ -128,7 +129,7 @@ characters =
           [ To Enemy do
                 bonus <- 20 `bonusIf` user has' traps "Acrobat"
                 pierce (20 + bonus)
-          , To Self $ apply 1 skillName [ Invulnerable Genjutsu ]
+          , To Self $ apply 1 skillName [Invulnerable Genjutsu]
           ]
         , Skill.changes   = changeWith "Acrobat" $ setCost [Tai, Rand]
         }
@@ -161,9 +162,10 @@ characters =
         , Skill.cooldown  = 1
         , Skill.charges   = 5
         , Skill.effects   =
-          [ To Self $ apply Permanent skillName [ Strengthen [All] Flat 5
-                                      , Reduce [Affliction] Percent 10
-                                      ]
+          [ To Self $ apply Permanent skillName
+                [ Strengthen [All] Flat 5
+                , Reduce [Affliction] Percent 10
+                ]
           ]
         }
       ]
@@ -176,7 +178,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                apply 1 skillName [ Snare 1 ]
+                apply 1 skillName [Snare 1]
           ]
         }
       ]
@@ -205,10 +207,11 @@ characters =
                 sacrifice 1 5
                 defend Permanent 10
                 setAlternates [1, 0, 0, 0]
-                apply Permanent skillName [ Reduce [All] Flat 10
-                                , Plague
-                                , Face
-                                ]
+                apply Permanent skillName
+                    [ Reduce [All] Flat 10
+                    , Plague
+                    , Face
+                    ]
           ]
         }
       , Skill.new
@@ -218,12 +221,13 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
           [ To Self do
-                apply Permanent skillName [ Reduce [All] Flat 20
-                                , Plague
-                                , Alone
-                                , Enrage
-                                , Face
-                                ]
+                apply Permanent skillName
+                    [ Reduce [All] Flat 20
+                    , Plague
+                    , Alone
+                    , Enrage
+                    , Face
+                    ]
                 remove "Four-Tailed Transformation"
                 sacrifice 1 10
                 defend Permanent 20
@@ -237,12 +241,13 @@ characters =
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
           [ To Self do
-                apply Permanent skillName [ Reduce [All] Flat 30
-                                , Plague
-                                , Alone
-                                , Enrage
-                                , Face
-                                ]
+                apply Permanent skillName
+                    [ Reduce [All] Flat 30
+                    , Plague
+                    , Alone
+                    , Enrage
+                    , Face
+                    ]
                 remove "Six-Tailed Transformation"
                 sacrifice 1 15
                 defend Permanent 30
@@ -258,7 +263,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 afflict 20
-                apply 1 skillName [ Weaken [All] Flat 10 ] ]
+                apply 1 skillName [Weaken [All] Flat 10] ]
         }
       ]
     , [ Skill.new
@@ -282,7 +287,7 @@ characters =
                 if clasp then
                     afflict 30
                 else
-                    apply 3 skillName [ Afflict 10 ]
+                    apply 3 skillName [Afflict 10]
           ]
         }
       , Skill.new
@@ -305,7 +310,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                apply 1 skillName [ Weaken [All] Flat 5 ]
+                apply 1 skillName [Weaken [All] Flat 5]
           ]
         }
       , Skill.new
@@ -317,7 +322,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 10
-                apply 1 skillName [ Stun NonMental ]
+                apply 1 skillName [Stun NonMental]
           ]
         }
       , Skill.new

@@ -48,7 +48,7 @@ spec = parallel do
                 damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
-                apply Permanent skillName [ Invulnerable Affliction ]
+                apply Permanent skillName [Invulnerable Affliction]
                 Sim.use "Drowning Bubble"
                 damagedWith <- measureDamage Sim.act
                 damagedWith - damagedWithout `shouldBe` 5
@@ -66,12 +66,12 @@ spec = parallel do
         useOn Enemies "Octopus Hold" do
             it "counters on user" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 not <$> target (`is` Reveal)
             it "damages countered" do
                 Sim.act
                 damaged <- measureDamage
-                         $ Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                         $ Sim.as Enemy $ apply Permanent skillName [Reveal]
                 damaged `shouldBe` 20
 
     describeCharacter "Eight-Tailed B" do

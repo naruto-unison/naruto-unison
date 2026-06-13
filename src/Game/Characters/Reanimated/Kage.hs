@@ -5,7 +5,6 @@ module Game.Characters.Reanimated.Kage (characters) where
 
 import Game.Characters.Import
 
-import qualified Game.Engine.Effects as Effects
 import qualified Game.Model.Skill as Skill
 
 characters :: [Category -> Text -> Character]
@@ -52,12 +51,14 @@ characters =
         , Skill.cost      = [Blood, Blood]
         , Skill.dur       = Ongoing 2
         , Skill.effects   =
-          [ To Enemies $ apply 1 skillName [ Snare 1
-                                 , Exhaust [NonMental]
-                                 ]
-          , To Self $ hide 1 skillName [ Alternate "Deep Forest Creation"
-                                         "Deep Forest Flourishing"
-                             ]
+          [ To Enemies $ apply 1 skillName
+                [ Snare 1
+                , Exhaust [NonMental]
+                ]
+          , To Self $ hide 1 skillName
+                [ Alternate "Deep Forest Creation"
+                            "Deep Forest Flourishing"
+                ]
           ]
         }
       , Skill.new
@@ -87,7 +88,7 @@ characters =
           [ To Enemy do
                 bonus <- 15 `bonusIf` channeling "Water Shockwave"
                 damage (15 + bonus)
-                apply 1 skillName [ Seal ]
+                apply 1 skillName [Seal]
           ]
         }
       ]
@@ -101,7 +102,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 damage 15
-                apply 1 skillName [ Stun Bane ]
+                apply 1 skillName [Stun Bane]
           ]
         }
       ]
@@ -112,9 +113,10 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Allies $ apply 1 skillName [ Invulnerable Physical
-                                , Invulnerable Mental
-                                ]
+          [ To Allies $ apply 1 skillName
+                [ Invulnerable Physical
+                , Invulnerable Mental
+                ]
           ]
         }
       ]
@@ -136,7 +138,7 @@ characters =
             setTrap dur = trap dur OnNoAction do
                 applyWith [Invisible] 4 skillName []
                 targeting Self $
-                    applyWith [Invisible] 4 skillName [ Reduce [All] Flat 5 ]
+                    applyWith [Invisible] 4 skillName [Reduce [All] Flat 5]
           in
           [ To XAllies $ setTrap -1
           , To Enemies $ setTrap 1
@@ -189,7 +191,7 @@ characters =
         , Skill.classes   = [Chakra, Bypassing]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Allies $ apply 1 skillName [ Invulnerable All ] ]
+          [ To Allies $ apply 1 skillName [Invulnerable All] ]
         }
       ]
     ]
@@ -207,7 +209,7 @@ characters =
           [ To Enemies do
                 damage 10
                 bonus <- 5 `bonusIf` target has' barrier "Gold Dust Waterfall"
-                barricade' Permanent (10 + bonus) [ Exhaust [All] ]
+                barricade' Permanent (10 + bonus) [Exhaust [All]]
           ]
         }
       ]
@@ -253,9 +255,10 @@ characters =
                 tag 1 skillName
           , To Self do
                 addStack "Hell Stab"
-                hide Permanent skillName [ Alternate "Piercing Four-Fingered"
-                                           "Three-Fingered Assault"
-                               ]
+                hide Permanent skillName
+                    [ Alternate "Piercing Four-Fingered"
+                                "Three-Fingered Assault"
+                    ]
           ]
         }
       , Skill.new
@@ -268,9 +271,10 @@ characters =
                 addStack "Hell Stab"
                 trap Permanent (OnDamaged All) $
                     alterCooldown "Lightning Armor" -1
-                hide Permanent skillName [ Alternate "Piercing Four-Fingered"
-                                           "One-Fingered Assault"
-                               ]
+                hide Permanent skillName
+                    [ Alternate "Piercing Four-Fingered"
+                                "One-Fingered Assault"
+                    ]
           ]
         }
       , Skill.new
@@ -282,7 +286,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 addStack "Hell Stab"
-                apply Permanent skillName [ Invulnerable Affliction ]
+                apply Permanent skillName [Invulnerable Affliction]
           ]
         }
       ]
@@ -293,7 +297,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 8
         , Skill.effects   =
-          [ To Self $ apply 3 skillName [ Limit 10 ] ]
+          [ To Self $ apply 3 skillName [Limit 10] ]
         }
       ]
     , [ Skill.new
@@ -343,10 +347,11 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self do
-                apply 2 skillName [ Focus
-                        , Reduce [All] Percent 50
-                        , Weaken [All] Flat 5
-                        ]
+                apply 2 skillName
+                    [ Focus
+                    , Reduce [All] Percent 50
+                    , Weaken [All] Flat 5
+                    ]
                 trap 2 OnRes do
                     removeTrap skillName
                     setHealth 15
@@ -382,11 +387,11 @@ characters =
         , Skill.cooldown  = 5
         , Skill.dur       = Ongoing 4
         , Skill.effects   =
-          [ To RAlly $ apply 1 skillName [ Reflect ]
+          [ To RAlly $ apply 1 skillName [Reflect]
           , To RAlly do
                 defend 1 80
                 onBreak $ unlessM (target has' defense skillName) $
-                    cancelChannel skillName
+                        cancelChannel skillName
           ]
         }
       ]
@@ -418,12 +423,13 @@ characters =
             duel slot = do
                 health <- target health
                 setHealth 30
-                bomb 2  skillName [ Duel slot
-                                  , Taunt slot
-                                  ]
-                                  [ To Expire $ whenM (target alive) $
-                                        setHealth health
-                                  ]
+                bomb 2 skillName
+                    [ Duel slot
+                    , Taunt slot
+                    ]
+                    [ To Expire $ whenM (target alive) $
+                        setHealth health
+                    ]
           in
           [ To Enemy do
                 userSlot   <- user slot
@@ -447,7 +453,7 @@ characters =
         , Skill.cooldown  = 6
         , Skill.effects   =
           [ To Self do
-                hide Permanent skillName [ Reduce [Affliction] Percent 50 ]
+                hide Permanent skillName [Reduce [Affliction] Percent 50]
                 applyStacks "Major Summoning: Ibuse" 30
                     [ Alternate "Major Summoning: Ibuse"
                                 "Poison Fog"
@@ -491,10 +497,10 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 15
-                apply 2 skillName [ Afflict 5 ]
+                apply 2 skillName [Afflict 5]
                 whenM (user has "Major Summoning: Ibuse") do
                     afflict 10
-                    apply 1 skillName [ Stun All ]
+                    apply 1 skillName [Stun All]
           ]
         }
       ]
@@ -506,7 +512,7 @@ characters =
         , Skill.effects   =
           [ To Self $ trapFrom 1 (OnHarmed NonMental) do
                   targeting Self $ removeTrap skillName
-                  apply Permanent skillName [ Afflict 20 ]
+                  apply Permanent skillName [Afflict 20]
                   ibuse <- user has "major summoning: ibuse"
                   targeting Self $ if ibuse then do
                       remove "Major Summoning Ibuse"

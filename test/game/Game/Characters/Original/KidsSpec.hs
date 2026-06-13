@@ -188,7 +188,7 @@ spec = parallel do
 
         useOn Enemy "Hidden Lotus" do
             it "damages target" do
-                apply Permanent skillName [ Reduce [All] Flat testStacks ]
+                apply Permanent skillName [Reduce [All] Flat testStacks]
                 damaged <- measureDamage Sim.act
                 damaged + testStacks `shouldBe` 100
 
@@ -249,12 +249,12 @@ spec = parallel do
 
         useOn Self "Sand Clone" do
             it "blocks harmful effects" do
-                Sim.as Enemy $ apply Permanent skillName [ Plague ]
+                Sim.as Enemy $ apply Permanent skillName [Plague]
                 Sim.act
                 Sim.as Enemy $ afflict 5
                 not <$> user (`is` Plague)
             it "ends with new non-affliction damage" do
-                Sim.as Enemy $ apply Permanent skillName [ Plague ]
+                Sim.as Enemy $ apply Permanent skillName [Plague]
                 Sim.act
                 Sim.as Enemy $ damage 5
                 user (`is` Plague)

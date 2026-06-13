@@ -70,7 +70,7 @@ invuln name userName classes = Skill.new
     , Skill.desc      = userName ++ " becomes invulnerable for 1 turn."
     , Skill.classes   = classes
     , Skill.cooldown  = 4
-    , Skill.effects   = [To Self $ apply 1 skillName [Invulnerable All]]
+    , Skill.effects   = [ To Self $ apply 1 skillName [Invulnerable All] ]
     }
 
 skillName :: Text

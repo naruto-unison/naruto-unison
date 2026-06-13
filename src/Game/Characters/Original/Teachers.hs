@@ -32,7 +32,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To XAlly $ apply 1 skillName [ Invulnerable All ] ]
+          [ To XAlly $ apply 1 skillName [Invulnerable All] ]
         }
       ]
     , [ Skill.new
@@ -44,7 +44,7 @@ characters =
         , Skill.effects   =
           [ To Enemy $ trap 1 OnHarm do
                 damage 40
-                apply 1 skillName [ Bleed [Physical, Chakra, Summon] Flat 25 ]
+                apply 1 skillName [Bleed [Physical, Chakra, Summon] Flat 25]
           ]
         }
       ]
@@ -91,8 +91,11 @@ characters =
         , Skill.cooldown  = 1
         , Skill.start     =
           [ To Self do
-                bomb -1 skillName [] [ To Expire $
-                    apply -1 "Successful Ambush" [ Invulnerable All ] ]
+                bomb -1 skillName
+                    []
+                    [ To Expire $
+                        apply -1 "Successful Ambush" [Invulnerable All]
+                    ]
                 trap -1 (OnDamaged All) $
                     remove skillName
           ]
@@ -110,12 +113,13 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.effects   =
           [ To Enemy do
-                apply 1 skillName [ Expose ]
+                apply 1 skillName [Expose]
                 bonus <- 5 `bonusIf` target has "Dragon Flame"
                 damage (5 + bonus)
-          , To Self $ hide 1 skillName [ Alternate "Dragon Flame"
-                                         "Twin Snake Sacrifice"
-                             ]
+          , To Self $ hide 1 skillName
+                [ Alternate "Dragon Flame"
+                            "Twin Snake Sacrifice"
+                ]
           ]
         }
       ]
@@ -126,9 +130,10 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemies $ apply 2 skillName [ Bleed [Bane] Flat 5
-                                 , Afflict 5
-                                 ]
+          [ To Enemies $ apply 2 skillName
+                [ Bleed [Bane] Flat 5
+                , Afflict 5
+                ]
           ]
         }
       , Skill.new
@@ -152,7 +157,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                apply 3 skillName [ Afflict 5 ]
+                apply 3 skillName [Afflict 5]
           ]
         }
       ]
@@ -169,7 +174,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy $ damage 15
-          , To Self $ apply Permanent skillName [ Strengthen [All] Flat 5 ]
+          , To Self $ apply Permanent skillName [Strengthen [All] Flat 5]
           ]
         }
       ]
@@ -193,11 +198,12 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Self do
-                apply 3 skillName [ Strengthen [All] Flat 10
-                        , Reduce [All] Flat 5
-                        ]
-                apply 2 skillName [ Reduce [All] Flat 10 ]
-                apply 1 skillName [ Reduce [All] Flat 10 ]
+                apply 3 skillName
+                    [ Strengthen [All] Flat 10
+                    , Reduce [All] Flat 5
+                    ]
+                apply 2 skillName [Reduce [All] Flat 10]
+                apply 1 skillName [Reduce [All] Flat 10]
           ]
         }
       ]
@@ -214,7 +220,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Self $ apply 1 skillName [ ReflectAll All ] ]
+          [ To Self $ apply 1 skillName [ReflectAll All] ]
         }
       ]
     , [ Skill.new
@@ -224,7 +230,7 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ apply 1 skillName [ Stun NonMental ] ]
+          [ To Enemy $ apply 1 skillName [Stun NonMental] ]
         }
       ]
     , [ Skill.new
@@ -255,10 +261,11 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy do
-                apply 2 skillName [ Weaken [All] Flat 10
-                        , Exhaust [All]
-                        , Expose
-                        ]
+                apply 2 skillName
+                    [ Weaken [All] Flat 10
+                    , Exhaust [All]
+                    , Expose
+                    ]
                 damage 10
           , To Self $ addStack "Illusion"
           ]
@@ -289,8 +296,10 @@ characters =
           [ To Enemy $ control [ Stun All ]
           , To Self do
                 addStack "Illusion"
-                control [ Alternate "Demonic Illusion: Sylvan Fetters"
-                                    "Sylvan Fetters Attack" ]
+                control
+                    [ Alternate "Demonic Illusion: Sylvan Fetters"
+                                "Sylvan Fetters Attack"
+                    ]
           ]
         }
       , Skill.new
@@ -318,23 +327,25 @@ characters =
         , Skill.dur       = Action 2
         , Skill.effects   =
           [ To Enemies $ damage 15
-          , To Allies $ apply 1 skillName [ Reduce [All] Flat 15 ]
+          , To Allies $ apply 1 skillName [Reduce [All] Flat 15]
           , To Self do
                 remove "Sharpen Blades"
-                hide 1 skillName [ Alternate "Flying Swallow"
-                                   "Finishing Blow"
-                       , Alternate "Sharpen Blades"
-                                   "Flying Kick"
-                       ]
+                hide 1 skillName
+                    [ Alternate "Flying Swallow"
+                                "Finishing Blow"
+                    , Alternate "Sharpen Blades"
+                                "Flying Kick"
+                    ]
           ]
         , Skill.stunned   =
           [ To Self do
                 remove "Sharpen Blades"
-                hide 1 skillName [ Alternate "Flying Swallow"
-                                   "Finishing Blow"
-                       , Alternate "Sharpen Blades"
-                                   "Flying Kick"
-                       ]
+                hide 1 skillName
+                    [ Alternate "Flying Swallow"
+                                "Finishing Blow"
+                    , Alternate "Sharpen Blades"
+                                "Flying Kick"
+                    ]
           ]
         , Skill.changes   = changePer "Sharpen Blades" \i ->
                                 setDur $ Action (2 + fromIntegral i)
@@ -364,7 +375,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 35
-                apply 1 skillName [ Stun All ]
+                apply 1 skillName [Stun All]
           ]
         }
       ]
@@ -376,11 +387,13 @@ characters =
         , Skill.effects   =
           [ To XAlly do
                 userSlot <- user slot
-                bomb Permanent skillName [ Redirect userSlot ]
+                bomb Permanent skillName
+                    [ Redirect userSlot ]
                     [ To Done $ targeting Self $ remove "self-sacrifice" ]
-          , To Self $ hide Permanent skillName [ Alternate "Self-Sacrifice"
-                                                 "Self-Sacrifice"
-                                     ]
+          , To Self $ hide Permanent skillName
+                [ Alternate "Self-Sacrifice"
+                            "Self-Sacrifice"
+                ]
           ]
         }
       , Skill.new
@@ -423,10 +436,11 @@ characters =
         , Skill.effects   =
           [ To Self do
                 sacrifice 1 40
-                apply 2 skillName [ Invulnerable All
-                        , Alternate "Leaf Hurricane"
-                                    "Severe Leaf Hurricane"
-                        ]
+                apply 2 skillName
+                    [ Invulnerable All
+                    , Alternate "Leaf Hurricane"
+                                "Severe Leaf Hurricane"
+                    ]
           ]
         }
       ]
@@ -473,7 +487,7 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 6
         , Skill.effects   =
-          [ To Ally $ defend' Permanent 50 [ Enrage ] ]
+          [ To Ally $ defend' Permanent 50 [Enrage] ]
         }
       ]
     , [ invuln "Teleport" "Baki" [Chakra] ]
@@ -499,7 +513,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy $ apply 3 skillName [ Afflict 10 ] ]
+          [ To Enemy $ apply 3 skillName [Afflict 10] ]
         }
       ]
     , [ Skill.new

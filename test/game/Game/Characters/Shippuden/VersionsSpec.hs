@@ -23,12 +23,12 @@ spec = parallel do
         useOn Enemies "Rasengan Barrage" do
             it "counters on user" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 not <$> user (`is` Reveal)
             it "damages countered" do
                 Sim.act
                 damaged <- measureDamage
-                         $ Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                         $ Sim.as Enemy $ apply Permanent skillName [Reveal]
                 damaged `shouldBe` 30
 
     describeCharacter "Mangekyō Sasuke" do
@@ -41,13 +41,13 @@ spec = parallel do
             it "damages immediately if interrupted" do
                 damaged <- measureDamage do
                     Sim.act
-                    Sim.as Enemy $ apply 1 skillName [ Stun All ]
+                    Sim.as Enemy $ apply 1 skillName [Stun All]
                     Sim.turns 1
                 damaged `shouldBe` 3 * 15
             it "does not continue to damage if interrupted" do
                 damaged <- measureDamage do
                     Sim.act
-                    Sim.as Enemy $ apply 1 skillName [ Stun All ]
+                    Sim.as Enemy $ apply 1 skillName [Stun All]
                     Sim.turns 5
                 damaged `shouldBe` 3 * 15
 
@@ -57,7 +57,7 @@ spec = parallel do
                     Sim.act
                     Sim.turns testStacks
                     Sim.as Enemy $ targeting Self $
-                        apply Permanent skillName [ Invulnerable Physical ]
+                        apply Permanent skillName [Invulnerable Physical]
                     Sim.turns 5
                 damaged `shouldBe` 5 * (testStacks + 1)
             it "spreads if helped" do
@@ -83,7 +83,7 @@ spec = parallel do
                 replicateM_ testStacks do
                     Sim.use "Amaterasu"
                     Sim.as Enemy $ targeting Self $
-                        apply 1 skillName [ Invulnerable Physical ]
+                        apply 1 skillName [Invulnerable Physical]
                     Sim.turns 1
                 Sim.use "Amaterasu"
                 Sim.as Enemy $ targeting Self cureAll
@@ -115,11 +115,11 @@ spec = parallel do
 
         useOn Self "Mother's Embrace" do
             it "ignores harmful effects" do
-                Sim.as Enemy $ apply Permanent skillName [ Plague ]
+                Sim.as Enemy $ apply Permanent skillName [Plague]
                 Sim.act
                 not <$> user (`is` Plague)
             it "ends when destroyed" do
-                Sim.as Enemy $ apply Permanent skillName [ Plague ]
+                Sim.as Enemy $ apply Permanent skillName [Plague]
                 Sim.act
                 Sim.as Enemy demolishAll
                 user (`is` Plague)
@@ -177,16 +177,16 @@ spec = parallel do
         useOn Allies "Salamander Shield" do
             it "redirects from targets" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 not <$> target (`is` Reveal)
             it "redirects to user" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 user (`is` Reveal)
             it "ends when destroyed" do
                 Sim.act
                 targeting Self $ Sim.as Enemy demolishAll
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 target (`is` Reveal)
 
     describeCharacter "Sage Mode Kabuto" do
@@ -411,19 +411,19 @@ spec = parallel do
         useOn Enemies "Eight-Headed Serpent" do
             it "stuns stunners" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent skillName [ Stun Mental ]
+                Sim.as Enemy $ apply Permanent skillName [Stun Mental]
                 targetStunned <- target Effects.stun
                 targetStunned `shouldBe` [All]
             it "removes stuns" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent skillName [ Stun Mental ]
+                Sim.as Enemy $ apply Permanent skillName [Stun Mental]
                 userStunned <- user Effects.stun
                 userStunned `shouldBe` []
             it "damages stunners" do
                 Sim.act
                 setHealth 100
                 damaged <- measureDamage
-                         $ Sim.as Enemy $ apply Permanent skillName [ Stun Mental ]
+                         $ Sim.as Enemy $ apply Permanent skillName [Stun Mental]
                 damaged `shouldBe` 20
   where
     describeCharacter = describeCategory Shippuden

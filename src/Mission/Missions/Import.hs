@@ -10,7 +10,7 @@ import ClassyPrelude as Import
 
 import Class.Parity as Import (allied)
 import Data.IntSet as Import (size)
-import Game.Engine.Effects as Import (stunned)
+import Game.Engine.Effects as Import (isStunned)
 import Game.Model.Ninja as Import (alive, health)
 import Game.Model.Trigger as Import (Trigger(..))
 import Mission.Goal as Import

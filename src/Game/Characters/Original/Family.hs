@@ -20,10 +20,11 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ apply 3 skillName [ Alternate "Refocus"
-                                          "Unsexy Technique"
-                                        , Boost 2
-                                        ]
+          [ To Self $ apply 3 skillName
+                [ Alternate "Refocus"
+                            "Unsexy Technique"
+                , Boost 2
+                ]
           ]
         }
       , Skill.new
@@ -33,10 +34,11 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy $ apply 1 skillName [ Seal
-                                         , Expose
-                                         , Uncounter
-                                         ]
+          [ To Enemy $ apply 1 skillName
+                [ Seal
+                , Expose
+                , Uncounter
+                ]
           ]
         }
       ]
@@ -80,10 +82,11 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self do
-                apply 4 skillName [ Reduce [All] Flat 10
-                                  , Alternate "Call Kuromaru"
-                                              "Fierce Bite"
-                                  ]
+                apply 4 skillName
+                    [ Reduce [All] Flat 10
+                    , Alternate "Call Kuromaru"
+                                "Fierce Bite"
+                    ]
                 trapFrom 4 (OnHarmed NonBane) $
                     damage 10
           ]
@@ -96,10 +99,11 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 trap' -1 OnDeath $ targeting Self $
-                    apply 2 skillName [ Strengthen [All] Flat 10
-                                      , Endure
-                                      , Focus
-                                      ]
+                    apply 2 skillName
+                        [ Strengthen [All] Flat 10
+                        , Endure
+                        , Focus
+                        ]
                 damage 25
           ]
         }
@@ -114,7 +118,7 @@ characters =
           [ To Enemy do
                 bonus <- 5 `bonusIf` user has "Call Kuromaru"
                 pierce (15 + bonus)
-                apply 1 skillName [ Throttle 2 Stuns ]
+                apply 1 skillName [Throttle 2 Stuns]
           ]
         }
       ]
@@ -126,7 +130,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.charges   = 3
         , Skill.effects   =
-          [ To Allies $ apply 1 skillName [ Invulnerable NonBane ] ]
+          [ To Allies $ apply 1 skillName [Invulnerable NonBane] ]
         }
       ]
     , [ invuln "Dodge" "Tsume" [Physical] ]
@@ -162,7 +166,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.dur       = Action 2
         , Skill.effects   =
-          [ To Self $ apply 1 skillName [ Invulnerable All ]
+          [ To Self $ apply 1 skillName [Invulnerable All]
           , To Enemy $ damage 15
           , To XEnemies $ damage 10
           ]
@@ -175,7 +179,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Ally $ apply 1 skillName [ Reflect ] ]
+          [ To Ally $ apply 1 skillName [Reflect] ]
         }
       ]
     , [ invuln "Byakugan Foresight" "Hiashi" [Mental] ]
@@ -192,10 +196,11 @@ characters =
         , Skill.cooldown  = 1
         , Skill.dur       = Control 2
         , Skill.start     =
-          [ To Enemy $ control [ Disable Counters
-                               , Disable (Only Reflect)
-                               , Disable (Any ReflectAll)
-                               ]
+          [ To Enemy $ control
+                [ Disable Counters
+                , Disable (Only Reflect)
+                , Disable (Any ReflectAll)
+                ]
           ]
         , Skill.effects   =
           [ To Enemy $ damage 20 ]
@@ -207,10 +212,10 @@ characters =
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ To Self $
-                hide Permanent skillName [ Alternate "Sensory Radar"
-                                                     "Sensory Radar: Collate"
-                                         ]
+          [ To Self $ hide Permanent skillName
+                [ Alternate "Sensory Radar"
+                            "Sensory Radar: Collate"
+                ]
           , To Enemies $ trap Permanent OnHarm $ targeting Self do
                 heal 10
                 addStack skillName
@@ -241,10 +246,10 @@ characters =
         , Skill.start     =
           [ To Self $ hide -1 skillName []
           , To Enemy do
-                control [ Throttle 1 $ Any Invulnerable ]
+                control [Throttle 1 $ Any Invulnerable]
                 controlTrapFrom (OnHarmed Mental) $
                     unlessM (target has "mental invasion") $
-                        apply 1 skillName [ Invulnerable All ]
+                        apply 1 skillName [Invulnerable All]
           ]
         }
       ]
@@ -265,12 +270,13 @@ characters =
           [ To Enemy do
                 bonus <- 10 `bonusIf` target has' traps "Black Spider Lily"
                 damage (20 + bonus)
-                control [ Stun NonMental ]
+                control [Stun NonMental]
                 whenM (target has "Ensnared") $
                     prolong 1 skillName
-          , To Self $ hide 1 skillName [ Alternate "Shadow Possession"
-                                                   "Shadow Dispersion"
-                                       ]
+          , To Self $ hide 1 skillName
+                [ Alternate "Shadow Possession"
+                            "Shadow Dispersion"
+                ]
           ]
         }
       , Skill.new
@@ -308,7 +314,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Ally do
-                apply 1 skillName [ DamageToDefense ]
+                apply 1 skillName [DamageToDefense]
                 trap 1 (OnDamaged NonAffliction) do
                     removeTrap skillName
                     remove skillName
@@ -329,7 +335,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 5
-                apply 1 skillName [ Weaken [Physical, Chakra, Summon] Flat 10 ]
+                apply 1 skillName [Weaken [Physical, Chakra, Summon] Flat 10]
           , To Allies $ defend Permanent 5
           ]
         }

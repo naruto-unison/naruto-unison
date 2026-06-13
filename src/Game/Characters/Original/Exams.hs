@@ -39,7 +39,7 @@ characters =
           [ To Enemy do
                 damage 15
                 trap 1 OnStun $
-                    apply 1 skillName [ Stun All ]
+                    apply 1 skillName [Stun All]
           ]
         , Skill.changes   = changeWith "Unyielding Tenacity" $ setCost [Rand]
         }
@@ -51,10 +51,11 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ apply 2 skillName [ Endure
-                                        , Focus
-                                        , Strengthen [All] Flat 5
-                                        ]
+          [ To Self $ apply 2 skillName
+                [ Endure
+                , Focus
+                , Strengthen [All] Flat 5
+                ]
           ]
         }
       ]
@@ -69,9 +70,10 @@ characters =
         , Skill.desc      = "Shigure tosses his umbrellas upward, gaining four Umbrellas. While Shigure has Umbrellas, this skill becomes [Umbrella Gathering]."
         , Skill.classes   = [Physical, Resource]
         , Skill.effects   =
-          [ To Self $ applyStacks "Umbrella" 4 [ Alternate "Umbrella Toss"
-                                                           "Umbrella Gathering"
-                                               ]
+          [ To Self $ applyStacks "Umbrella" 4
+                [ Alternate "Umbrella Toss"
+                            "Umbrella Gathering"
+                ]
           ]
         }
       , Skill.new
@@ -81,7 +83,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 stacks <- user numStacks "Umbrella"
-                apply 1 skillName [ Reduce [All] Flat (stacks * 10) ]
+                apply 1 skillName [Reduce [All] Flat (stacks * 10)]
                 remove "Umbrella"
           ]
         }
@@ -138,9 +140,10 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                apply 1 skillName [ Stun Physical
-                                  , Stun Mental
-                                  ]
+                apply 1 skillName
+                    [ Stun Physical
+                    , Stun Mental
+                    ]
           ]
         , Skill.changes   = changeWith "Fog Clone" $ targetAll . setCost [Gen]
         }
@@ -154,10 +157,11 @@ characters =
         , Skill.effects   =
           [ To Self do
                 defend 3 30
-                apply 3 skillName [ Invulnerable Mental
-                                  , Invulnerable Physical
-                                  , Invulnerable Summon
-                                  ]
+                apply 3 skillName
+                    [ Invulnerable Mental
+                    , Invulnerable Physical
+                    , Invulnerable Summon
+                    ]
           ]
         }
       ]
@@ -175,9 +179,10 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 20
-                apply 1 skillName [ Exhaust [All]
-                                  , Bleed [Physical, Chakra, Summon] Flat 5
-                                  ]
+                apply 1 skillName
+                    [ Exhaust [All]
+                    , Bleed [Physical, Chakra, Summon] Flat 5
+                    ]
           ]
         }
       ]
@@ -190,7 +195,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 cureBane
-                apply 5 skillName [ Heal 15 ]
+                apply 5 skillName [Heal 15]
           ]
         }
       ]
@@ -202,9 +207,10 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemies $ trap -1 OnNoAction $
-                apply 1 skillName [ Stun All
-                                  , Bleed [Physical, Chakra, Summon] Flat 10
-                                  ]
+                apply 1 skillName
+                    [ Stun All
+                    , Bleed [Physical, Chakra, Summon] Flat 10
+                    ]
           ]
         }
       ]
@@ -221,7 +227,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                apply 2 skillName [ Expose ]
+                apply 2 skillName [Expose]
                 bonus <- 20 `bonusIf` user has "Echo Speaker Tuning"
                 damage (20 + bonus)
                 tag 1 "Echoing Sound"
@@ -239,9 +245,10 @@ characters =
                 targetBonus <- 10 `bonusIf` target has "Echoing Sound"
                 userBonus   <- 10 `bonusIf` user has "Echo Speaker Tuning"
                 damage (10 + targetBonus + userBonus)
-                apply Permanent skillName [ Bleed [NonAffliction] Flat 5
-                                          , Weaken [All] Flat 5
-                                          ]
+                apply Permanent skillName
+                    [ Bleed [NonAffliction] Flat 5
+                    , Weaken [All] Flat 5
+                    ]
           ]
         }
       ]
@@ -270,7 +277,7 @@ characters =
           [ To Self do
                 senbon <- user has "Shadow Senbon"
                 if senbon then
-                    apply 1 skillName [ Invulnerable All ]
+                    apply 1 skillName [Invulnerable All]
                 else
                     tag 1 skillName
           , To Enemy do
@@ -288,11 +295,11 @@ characters =
         , Skill.effects   =
           [ To Self $ tag 1 skillName
           ,  To Enemy do
-                apply 2 skillName [ Expose ]
+                apply 2 skillName [Expose]
                 whenM (user has "Bell Ring Illusion") $
                     damage 10
                 whenM (user has "Unnerving Bells") $
-                    apply 1 skillName [ Stun All ]
+                    apply 1 skillName [Stun All]
           ]
         }
       ]
@@ -307,9 +314,9 @@ characters =
           , To Enemy do
                 deplete 1
                 whenM (user has "Bell Ring Illusion") $
-                    apply 1 skillName [ Bleed [Chakra] Flat 15 ]
+                    apply 1 skillName [Bleed [Chakra] Flat 15]
                 whenM (user has "Shadow Senbon") $
-                    apply 1 skillName [ Bleed [Physical] Flat 15 ]
+                    apply 1 skillName [Bleed [Physical] Flat 15]
           ]
         }
       ]
@@ -365,9 +372,9 @@ characters =
           [ To Enemy do
                 whenM (user has "Chakra Focus") $
                     absorb 1
-                apply 2 skillName [ Weaken [All] Flat 5 ]
+                apply 2 skillName [Weaken [All] Flat 5]
                 leech 20 heal
-          , To Self $ apply 2 skillName [ Strengthen [All] Flat 5 ]
+          , To Self $ apply 2 skillName [Strengthen [All] Flat 5]
           ]
         }
       ]
@@ -382,9 +389,9 @@ characters =
           [ To Enemy do
                 whenM (user has "Chakra Focus") $
                     absorb 1
-                apply 1 skillName [ Weaken [All] Flat 5 ]
+                apply 1 skillName [Weaken [All] Flat 5]
                 leech 15 heal
-          , To Self $ apply 1 skillName [ Strengthen [All] Flat 5 ]
+          , To Self $ apply 1 skillName [Strengthen [All] Flat 5]
           ]
         }
       ]
@@ -410,7 +417,7 @@ characters =
         , Skill.classes   = [Physical, Melee, Bypassing]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To XAlly $ apply 1 skillName [ Reduce [All] Flat 15 ]
+          [ To XAlly $ apply 1 skillName [Reduce [All] Flat 15]
           , To Enemy $ damage 15
           ]
         }
@@ -423,9 +430,9 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Enemy do
-                apply 2 skillName [ Expose ]
+                apply 2 skillName [Expose]
                 targetSlot <- target slot
-                targeting Self $ apply 2 skillName [ Redirect targetSlot ]
+                targeting Self $ apply 2 skillName [Redirect targetSlot]
           ]
         }
       ]
@@ -439,7 +446,7 @@ characters =
           [ To Self $ defend Permanent 15
           , To Enemies do
                 damage 20
-                apply 1 skillName [ Stun All ]
+                apply 1 skillName [Stun All]
           ]
         }
       ]

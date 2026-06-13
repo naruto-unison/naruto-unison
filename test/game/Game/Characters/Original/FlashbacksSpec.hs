@@ -39,9 +39,9 @@ spec = parallel do
 
         useOn Enemy "Adamantine Sealing Chains" do
             it "purges helpful effects" do
-                apply 10 skillName [ Build testStacks ]
-                Sim.as Enemy $ targeting Self $ apply 10 skillName [ Build testStacks ]
-                Sim.as XEnemies $ apply 10 skillName [ Build testStacks ]
+                apply 10 skillName [Build testStacks]
+                Sim.as Enemy $ targeting Self $ apply 10 skillName [Build testStacks]
+                Sim.as XEnemies $ apply 10 skillName [Build testStacks]
                 Sim.act
                 targetBuild <- target $ Effects.build
                 targetBuild `shouldBe` 0
@@ -79,7 +79,7 @@ spec = parallel do
                 Sim.use "Veritable 1000-Armed Kannon"
                 Sim.act
                 Sim.turns 2
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 not <$> user (`is` Reveal)
 
     describeCharacter "Young Kakashi" do
@@ -120,24 +120,24 @@ spec = parallel do
                 chakras `shouldBe` ([], [])
             it "stuns if enemy stuns" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent skillName [ Stun Physical ]
+                Sim.as Enemy $ apply Permanent skillName [Stun Physical]
                 user has "Sharingan Stun"
             it "stuns if enemy disables" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent skillName [ Disable Counters ]
+                Sim.as Enemy $ apply Permanent skillName [Disable Counters]
                 user has "Sharingan Stun"
             it "does not stun otherwise" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent skillName [ Throttle 1 Counters ]
+                Sim.as Enemy $ apply Permanent skillName [Throttle 1 Counters]
                 not <$> user has "Sharingan Stun"
             it "strengthens if target damages" do
-                targeting Self $ apply Permanent skillName [ Reduce [All] Flat 5 ]
+                targeting Self $ apply Permanent skillName [Reduce [All] Flat 5]
                 Sim.act
                 Sim.as Enemy $ damage 6
                 damaged <- measureDamage $ damage dmg
                 damaged - dmg `shouldBe` 10
             it "does not strengthen otherwise" do
-                targeting Self $ apply Permanent skillName [ Reduce [All] Flat 5 ]
+                targeting Self $ apply Permanent skillName [Reduce [All] Flat 5]
                 Sim.act
                 Sim.as Enemy $ damage 5
                 damaged <- measureDamage $ damage dmg
@@ -195,33 +195,33 @@ spec = parallel do
                 Sim.use "Kusari Chains"
                 Sim.act
                 Sim.turns 1
-                Sim.as XEnemies $ apply Permanent skillName [ Focus ]
+                Sim.as XEnemies $ apply Permanent skillName [Focus]
                 not <$> target (`is` Focus)
 
         useOn Self "Kamui Phase" do
             it "works on its own" do
                 Sim.use "Kamui Phase"
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 not <$> user (`is` Reveal)
             it "does not work after Kusari Chains" do
                 Sim.use "Kusari Chains"
                 Sim.use "Kamui Phase"
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 user (`is` Reveal)
             it "does not work after Kamui Banishment" do
                 Sim.use "Kamui Banishment"
                 Sim.use "Kamui Phase"
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 user (`is` Reveal)
             it "does not work after Major Summoning: Kurama" do
                 Sim.use "Major Summoning: Kurama"
                 Sim.use "Kamui Phase"
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 user (`is` Reveal)
             it "does not work after itself" do
                 Sim.use "Kamui Phase"
                 Sim.use "Kamui Phase"
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 user (`is` Reveal)
   where
     describeCharacter = describeCategory Original

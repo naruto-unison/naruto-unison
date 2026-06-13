@@ -177,7 +177,7 @@ spec = parallel do
         useOn Enemy "Possum" do
             it "counters target" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
+                Sim.as Enemy $ apply Permanent skillName [Reveal]
                 not <$> user (`is` Reveal)
             it "damages countered" do
                 Sim.act
