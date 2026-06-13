@@ -908,7 +908,7 @@ characters =
                 barricade Permanent 15
                 onBreak do
                     remove "Chakra Receiver"
-                    whenM ((== 0) <$> numAffected "Chakra Receiver")
+                    unlessM (anyoneHas "Chakra Receiver")
                         cancelChannel
           ]
         , Skill.effects   =

@@ -8,7 +8,9 @@ module Game.Characters.Import
   , user, target
   , channeling, inGroup
   , targeting
-  , bonusIf, numAffected, numDeadAllies
+  , bonusIf
+  , anyoneHas
+  , numAffected, numDeadAllies
   ) where
 
 import ClassyPrelude as Import hiding (swap)
@@ -91,10 +93,18 @@ inGroup :: Group -> Ninja -> Bool
 inGroup x n = x ∈ Character.groups (N.character n)
 
 -- | Number of users affected by a 'Model.Game.Status.Status'.
+anyoneHas :: ∀ m. MonadPlay m => Text -> m Bool
+anyoneHas name = do
+    statusID <- P.createID name
+    ninjas   <- P.ninjas
+    return $ any (N.has statusID) ninjas
+
+-- | Number of users affected by a 'Model.Game.Status.Status'.
 numAffected :: ∀ m. MonadPlay m => Text -> m Int
-numAffected name = getNumAffected <$> P.createID name <*> P.ninjas
-  where
-    getNumAffected statusID ninjas = length $ filter (N.has statusID) ninjas
+numAffected name = do
+    statusID <- P.createID name
+    ninjas   <- P.ninjas
+    return . length $ filter (N.has statusID) ninjas
 
 -- | Number of user's allies who are dead.
 numDeadAllies :: ∀ m. MonadPlay m => m Int
