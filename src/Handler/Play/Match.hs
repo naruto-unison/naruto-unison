@@ -19,6 +19,7 @@ import           Application.Model.User (User)
 import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game
 import           Game.Model.Player (Player)
+import           Util ((∈))
 
 -- | Result of a game from the perspective of one of its players.
 data Outcome
@@ -48,10 +49,10 @@ victor _                   = Nothing
 
 -- | Outcome of a game from a player's perspective, based on 'victor'.
 outcome :: Game -> Player -> Outcome
-outcome Game{victor = [v]} player
-  | v == player = Victory
-  | otherwise   = Defeat
-outcome _ _     = Tie
+outcome Game{victor = gameVictor} player
+  | length gameVictor /= 1 = Tie
+  | player ∈ gameVictor    = Victory
+  | otherwise              = Defeat
 
 map :: ∀ a b. (Outcome -> a -> a -> b) -> Match a -> Match b
 map f Match{outcomeA, playerA, playerB} = Match outcomeA

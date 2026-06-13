@@ -6,6 +6,7 @@ module Handler.Play.Turn
 import ClassyPrelude
 
 import Data.Aeson (ToJSON)
+import Data.Enum.Set (EnumSet)
 
 import           Class.Classed (Classed)
 import qualified Class.Classed as Classed
@@ -31,7 +32,7 @@ import           Util ((∈), (∉))
 data Turn = Turn
     { chakra    :: Chakras
     , playing   :: Player
-    , victor    :: [Player]
+    , victor    :: EnumSet Player
     , inactive  :: (Int, Int)
     , ninjas    :: [Ninja]
     , snapshots :: [Snapshot]

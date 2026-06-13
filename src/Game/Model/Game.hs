@@ -11,6 +11,8 @@ module Game.Model.Game
 
 import ClassyPrelude
 
+import Data.Enum.Set (EnumSet)
+
 import           Class.Parity (Parity)
 import qualified Class.Parity as Parity
 import           Class.Random (MonadRandom)
@@ -27,7 +29,7 @@ data Game = Game
     -- ^ Starts at @('Chakras' 0 0 0 0 0, 'Chakras' 0 0 0 0 0)@
     , playing   :: Player
     -- ^ Starts at 'Player.A'.
-    , victor    :: [Player]
+    , victor    :: EnumSet Player
     -- ^ Starts empty.
     , inactive  :: (Int, Int)
     -- ^ Starts at @(0, 0)@.
@@ -86,10 +88,10 @@ resetInactive player game@Game{inactive} =
     game { inactive = Parity.setOf player 0 inactive }
 
 forfeit :: Player -> Game -> Game
-forfeit player game = game { victor    = [Player.opponent player]
+forfeit player game = game { victor    = singleton $ Player.opponent player
                            , forfeited = True
                            }
 
 setVictorBy :: (Player -> Bool) -> Game -> Game
 setVictorBy isVictor game =
-    game { victor = filter isVictor [Player.A, Player.B] }
+    game { victor = setFromList $ filter isVictor [Player.A, Player.B] }
