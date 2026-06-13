@@ -98,9 +98,9 @@ hasTrap = has' traps
 destructibleAmount :: (Ninja -> [Destructible]) -- ^ Getter.
                    -> ID -- ^ 'Destructible.name'.
                    -> Ninja -> Int
-destructibleAmount getter destID n = sum
+destructibleAmount getter destrID n = sum
     [ amount | d@Destructible{amount} <- getter n,
-               ID.from d == destID ]
+               ID.from d == destrID ]
 
 -- | Sums 'Destructible.amount' of all matching 'barrier'.
 barrierAmount :: ID -- ^ 'Destructible.name'.
