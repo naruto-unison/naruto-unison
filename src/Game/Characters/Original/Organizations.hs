@@ -133,18 +133,12 @@ characters =
         , Skill.desc      = "A flock of self-duplicating crows swarms the enemy team for 4 turns, dealing 5 damage each turn and providing 5 points of damage reduction to Aoba and his allies."
         , Skill.classes   = [Mental, Ranged, Resource]
         , Skill.cost      = [Gen]
-        , Skill.dur       = Ongoing -4
-        , Skill.start     =
-          [ To Self do
-                replaceChannel
-                targeting Enemies $ apply -4 skillName []
-                targeting Allies $ apply -4 skillName [Reduce [All] Flat 5]
-          ]
+        , Skill.dur       = Ongoing 4
         , Skill.effects   =
-          [ To Enemies do
-                stacks <- target numStacks skillName
-                damage (5 * stacks)
-                flag skillName
+          [ To Allies $ apply 1 skillName [Reduce [All] Flat 5]
+          , To Enemies do
+                damage 5
+                apply 1 skillName []
           ]
         }
       ]

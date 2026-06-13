@@ -101,7 +101,7 @@ spec = parallel do
                 targetHealth `shouldBe` 5
             it "ignores harm" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent skillName [Reveal]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 Sim.as Enemy kill
                 not <$> user (`is` Reveal)
             it "ignores help" do
@@ -312,7 +312,7 @@ spec = parallel do
                 damagedWithout <- measureDamage Sim.act
                 factory
                 targeting Self factory
-                apply Permanent skillName [Invulnerable Affliction]
+                apply Permanent skillName [ Invulnerable Affliction ]
                 Sim.use "Demon Parasite"
                 damagedWith <- measureDamage Sim.act
                 damagedWithout - damagedWith `shouldBe` 20
@@ -332,7 +332,7 @@ spec = parallel do
         useOn Enemy "Summoning: Rashōmon" do
             it "makes user invulnerable" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent skillName [Reveal]
+                Sim.as Enemy $ apply Permanent skillName [ Reveal ]
                 not <$> user (`is` Reveal)
             it "ends Demon Parasite" do
                 Sim.use "Demon Parasite"
