@@ -234,19 +234,19 @@ act context@Context { user
 
     lift $ P.withContext context do
         if not new then do
-            contEfs <- targeted $ always ++ effects
-            P.withContinues $ run' (singleton Targeted) contEfs
+            mainEffects <- targeted $ always ++ effects
+            P.withContinues $ run' (singleton Targeted) mainEffects
         else do
             P.modify user \n -> n { N.lastSkill = Just skill, N.acted = True }
             P.trigger user $ OnAction <$> toList classes
             when (charges > 0)
                 . P.modify user $ Ninjas.spendCharge skill
-            startEfs <- targeted start
-            contEfs  <- targeted $ always ++ effects
+            startEffects <- targeted start
+            mainEffects  <- targeted $ always ++ effects
 
-            let bothEfs = startEfs ++ contEfs
+            let allEffects = startEffects ++ mainEffects
 
-            countering  <- Counter.filterCounters bothEfs <$> P.enemies user
+            countering  <- Counter.filterCounters allEffects <$> P.enemies user
             forM_ countering \n ->
                 when (n `is` Absorb) $ P.alterGame $ Game.addChakra n cost
 
@@ -265,11 +265,11 @@ act context@Context { user
                 P.modifyAll uncounter
                 sequence_ counters
             else case dur of
-                Instant -> run' (singleton Targeted) bothEfs
+                Instant -> run' (singleton Targeted) allEffects
                 _       -> do
                     P.modify user $ Ninjas.addChannels skill target
-                    run' (singleton Targeted) startEfs
-                    P.withContinues $ run' (singleton Targeted) contEfs
+                    run' (singleton Targeted) startEffects
+                    P.withContinues $ run' (singleton Targeted) mainEffects
             P.modify user $ Cooldown.update skill
         P.uncopied do
             Hook.action skill initial =<< P.ninjas
