@@ -490,7 +490,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Hammer Bash"
-        , Skill.desc      = "Jinin slams the hammer part of Kabutowari into an enemy, dealing 25 damage. If the target is affected by [Axe Slash], they are prevented from reducing damage or becoming invulnerable for 4 turns."
+        , Skill.desc      = "Jinin slams the hammer part of Kabutowari into an enemy, dealing 25 damage. If the target is affected by [Axe Chop], they are prevented from reducing damage or becoming invulnerable for 4 turns."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =

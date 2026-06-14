@@ -285,15 +285,14 @@ characters =
     [LeafVillage, Chunin, Jinchuriki, Fire, Water, Yang]
     [ [ Skill.new
         { Skill.name      = "Pit Trap"
-        , Skill.desc      = "An enemy falls into a pit and is trapped there for 1 turn. At the end of their turn, the target takes 15 piercing damage. If they used a skill that turn, they take 15 additional damage. While active, Rin gains 15 points of damage reduction."
+        , Skill.desc      = "An enemy falls into a pit, taking 15 piercing damage. For 1 turn, if they use a skill, they will take 15 piercing damage. While active, Rin gains 15 points of damage reduction."
         , Skill.classes   = [Physical, Ranged, Invisible, Bypassing]
         , Skill.cost      = [Gen]
         , Skill.effects   =
           [ To Self $ apply 1 skillName [Reduce [All] Flat 15]
           , To Enemy do
+                pierce 15
                 trap 1 (OnAction All) $
-                    pierce 30
-                trap 1 OnNoAction $
                     pierce 15
           ]
         }

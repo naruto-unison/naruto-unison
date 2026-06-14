@@ -727,7 +727,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 bomb Permanent skillName
-                    [Afflict 20]
+                    [ Afflict 20 ]
                     [ To Done $ targeting Everyone $ remove skillName ]
                 targeting Self $ apply Permanent skillName [Reduce [All] Flat 15]
           ]
@@ -765,18 +765,18 @@ characters =
     [SoundVillage, Orochimaru]
     [ [ Skill.new
         { Skill.name      = "Camellia Dance"
-        , Skill.desc      = "Kimimaro wields his arm bones as swords, dealing 30 damage to an enemy. Kimimaro loses 5 health."
+        , Skill.desc      = "Kimimaro wields his arm bones as swords, dealing 30 damage to an enemy. Kimimaro takes 5 affliction damage at the end of his turn."
         , Skill.classes   = [Physical, Melee, Uncounterable, Unreflectable]
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy $ damage 30
-          , To Self $ sacrifice 0 5
+          , To Self $ applyWith [Bane] -1 skillName [Afflict 5]
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Clematis Dance"
-        , Skill.desc      = "Kimimaro attacks an enemy with a long, sharp bone spear, dealing 40 damage and stunning them for a turn. Kimimaro loses 10 health."
+        , Skill.desc      = "Kimimaro attacks an enemy with a long, sharp bone spear, dealing 40 damage and stunning them for a turn. Kimimaro takes 10 affliction damage at the end of his turn."
         , Skill.classes   = [Physical, Melee, Uncounterable, Unreflectable]
         , Skill.cooldown  = 1
         , Skill.cost      = [Blood, Tai]
@@ -784,13 +784,13 @@ characters =
           [ To Enemy do
                 damage 40
                 apply 1 skillName [Stun All]
-          , To Self $ sacrifice 0 10
+          , To Self $ applyWith [Bane] -1 skillName [Afflict 10]
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Bracken Dance"
-        , Skill.desc      = "A forest of razor-sharp bones erupts from the ground, dealing 30 damage to all enemies and reducing all enemy physical, chakra, and summon damage by 20 for 1 turn. Kimimaro loses 15 health and another 15 health at the end of his next turn."
+        , Skill.desc      = "A forest of razor-sharp bones erupts from the ground, dealing 30 damage to all enemies and reducing all enemy physical, chakra, and summon damage by 20 for 1 turn. Kimimaro takes 15 affliction damage at the end of his turn for 2 turns."
         , Skill.classes   = [Physical, Ranged, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Blood, Rand, Rand]
         , Skill.cooldown  = 2
@@ -798,11 +798,7 @@ characters =
           [ To Enemies do
                 damage 30
                 apply 1 skillName [Weaken [Physical, Chakra, Summon] Flat 20]
-          , To Self do
-                sacrifice 0 15
-                bomb 1 skillName
-                    []
-                    [ To Expire $ sacrifice 0 15 ]
+          , To Self $ applyWith [Bane] -2 skillName [Afflict 15]
           ]
         }
       ]

@@ -151,12 +151,13 @@ spec = parallel do
     describeCharacter "Rin Nohara" do
         useOn Enemy "Pit Trap" do
             it "damages target" do
-                Sim.act
-                damaged <- measureDamage $ Sim.turns 2
+                damaged <- measureDamage do
+                    Sim.act
+                    Sim.turns 2
                 damaged `shouldBe` 15
             it "deals bonus damage if target acts" do
-                Sim.act
                 damaged <- measureDamage do
+                    Sim.act
                     Sim.as Enemy $ return ()
                     Sim.turns 2
                 damaged `shouldBe` 15 + 15

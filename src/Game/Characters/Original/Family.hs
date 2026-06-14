@@ -244,7 +244,7 @@ characters =
         , Skill.cooldown  = 4
         , Skill.dur       = Control 4
         , Skill.start     =
-          [ To Self $ hide -1 skillName []
+          [ To Self $ flag skillName
           , To Enemy do
                 control [Throttle 1 $ Any Invulnerable]
                 controlTrapFrom (OnHarmed Mental) $

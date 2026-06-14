@@ -331,8 +331,7 @@ characters =
         , Skill.effects   =
           [ To Self $ bomb -1 "Barricaded"
                 []
-                [ To Expire $ gain [Blood]
-          ]
+                [ To Expire $ gain [Blood] ]
           ,  To Ally $ trapFrom 1 (Counter All) do
                 triggerGiganticBeetle
                 targeting Self $ remove "Barricaded"

@@ -59,14 +59,15 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Paralyzing Bite"
-        , Skill.desc      = "Stuns an enemy for 1 turn and deals 25 damage when the effect ends."
+        , Skill.desc      = "Stuns an enemy for 1 turn and deals 25 affliction damage when the effect ends unless cured."
         , Skill.classes   = [Bane, Physical, Melee]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy $ bomb 1 skillName
                 [Stun All]
-                [To Expire $ damage 25] ]
+                [ To Expire $ afflict 25 ]
+          ]
         }
       ]
     , [ invuln "Earth Clone" "Orochimaru" [Chakra] ]
@@ -209,6 +210,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Reaper Death Seal"
         , Skill.desc      = "Hiruzen unleashes the God of Death upon an enemy in exchange for his soul. Each turn, the God of Death deals 40 affliction damage to the target and 20 affliction damage to Hiruzen. Both are permanently stunned, and the target cannot reduce damage or become invulnerable."
+        , Skill.require   = UserHas 0 "Reaper Death Seal"
         , Skill.classes   = [Ranged, Unreflectable, Unremovable, Soulbound, Bypassing]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =

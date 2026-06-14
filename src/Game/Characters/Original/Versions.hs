@@ -82,14 +82,16 @@ characters =
         , Skill.classes   = [Bane, Chakra, Ranged, Soulbound]
         , Skill.cost      = [Nin, Nin, Rand]
         , Skill.cooldown  = 5
+        , Skill.dur       = Ongoing 2
         , Skill.effects   =
-          [ To Enemy $ bombWith [Bypassing] 2 skillName
+          [ To Enemy $ apply 1 skillName
                 [ Stun All
                 , Alone
                 , Invulnerable All
                 ]
-                [ To Expire $ damage 55 ]
           ]
+        , Skill.end       =
+          [ To Enemy $ damage 55 ]
         , Skill.changes   = changeWith "Curse Mark" $ setCost [Rand, Rand]
         }
       ]

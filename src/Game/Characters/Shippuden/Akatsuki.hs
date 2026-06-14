@@ -359,7 +359,7 @@ characters =
                     targeting Enemies $ whenM (target has "Blood Curse") $
                         pierce 50
                 else
-                    sacrifice 0 50
+                    pierce 50
           ]
         }
       ]
@@ -378,7 +378,7 @@ characters =
                             pierce 35
                             apply 1 skillName [Stun All]
                 else do
-                    sacrifice 0 35
+                    pierce 35
                     apply 1 skillName [Stun All]
           ]
         }

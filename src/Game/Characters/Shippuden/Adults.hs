@@ -82,7 +82,7 @@ characters =
     [LeafVillage, Jonin, TeamLeader, Wind, Fire, Sarutobi]
     [ [ Skill.new
         { Skill.name      = "Thousand Hand Strike"
-        , Skill.desc      = "Asuma summons Kannon, the Fire Temple's patron spirit, which provides him with 40 permanent destructible defense and deals 25 damage to an enemy. The following turn, this skill becomes [Kannon Strike][r]. When [Kannon Strike] ends, this skill is disabled for 1 turn."
+        , Skill.desc      = "Asuma summons Kannon, the Fire Temple's patron spirit, which provides him with 40 permanent destructible defense and deals 25 damage to an enemy. The following turn, this skill becomes [Kannon Strike][r]. When [Kannon Strike] ends, this skill cannot be used for 1 turn."
         , Skill.require   = UserHas 0 "Overheating"
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Rand]
@@ -90,11 +90,11 @@ characters =
           [ To Enemy $ damage 25
           , To Self do
                 defend Permanent 40
-                bombWith [Hidden] 1 skillName
+                tag 2 "Overheating"
+                hide 1 skillName
                     [ Alternate "Thousand Hand Strike"
                                 "Kannon Strike"
                     ]
-                    [ To Done $ tag 1 "Overheating" ]
           ]
         }
       , Skill.new
@@ -104,7 +104,9 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy $ damage 20
-          , To Self $ prolong 1 "Thousand Hand Strike"
+          , To Self do
+                prolong 1 "Thousand Hand Strike"
+                prolong 1 "Overheating"
           ]
         }
       ]
