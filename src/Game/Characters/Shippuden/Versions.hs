@@ -5,13 +5,9 @@ module Game.Characters.Shippuden.Versions (characters) where
 
 import Game.Characters.Import
 
-import qualified Class.Play as P
-import           Game.Model.Context (Context(Context))
-import qualified Game.Model.Context
 import           Game.Model.Ninja (isChanneling)
 import           Game.Model.ID (ID(ID))
 import qualified Game.Model.ID
-import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 
 characters :: [Category -> Text -> Character]
@@ -240,30 +236,17 @@ characters =
     "Unable to find an identity of his own, Kabuto has spent his life taking on the traits of others. Years of research and experiments upon himself have reached their conclusion, and now Kabuto prepares for his final metamorphosis."
     [LeafVillage, Rogue, Sage, TeamLeader, Earth, Water, Wind, Yin, Yang]
     let
-        rename "Sage Transformation" = "Bloodline Sage"
-        rename "Bloodline Sage"      = "Genjutsu Sage"
-        rename "Genjutsu Sage"       = "Ninjutsu Sage"
-        rename "Ninjutsu Sage"       = "Taijutsu Sage"
-        rename "Taijutsu Sage"       = "Bloodline Sage"
-        rename x                     = x
-
-        modeChakra owner n
+        modeChakra n
           | isMode "Bloodline Sage" n = Blood
           | isMode "Genjutsu Sage"  n = Gen
           | isMode "Ninjutsu Sage"  n = Nin
           | isMode "Taijutsu Sage"  n = Tai
           | otherwise                 = Rand
           where
+            owner = slot n
             isMode name = isChanneling ID { user = owner, owner, name }
 
-        getModeChakra :: RunConstraint Chakra
-        getModeChakra = do
-            Context{skill = Skill{owner}} <- P.context
-            nUser <- P.nUser
-            return $ modeChakra owner nUser
-
-
-        withMode f n skill@Skill{owner} = f (modeChakra owner n) skill
+        withMode f n = f $ modeChakra n
     in
     [ [ Skill.new
         { Skill.name      = "Sage Transformation"
@@ -278,6 +261,14 @@ characters =
                 ]
           ]
         , Skill.effects   =
+          let
+            rename "Sage Transformation" = "Bloodline Sage"
+            rename "Bloodline Sage"      = "Genjutsu Sage"
+            rename "Genjutsu Sage"       = "Ninjutsu Sage"
+            rename "Ninjutsu Sage"       = "Taijutsu Sage"
+            rename "Taijutsu Sage"       = "Bloodline Sage"
+            rename x                     = x
+          in
           [ To Self $ renameChannels rename ]
         }
       , Skill.new
@@ -331,7 +322,7 @@ characters =
         , Skill.charges   = 1
         , Skill.effects   =
           [ To Self do
-                chakra <- getModeChakra
+                chakra <- user modeChakra
                 gain [chakra]
           , To Ally do
                 resetCooldowns
@@ -353,7 +344,7 @@ characters =
         , Skill.charges   = 1
         , Skill.effects   =
           [ To Self do
-                chakra <- getModeChakra
+                chakra <- user modeChakra
                 gain [chakra, chakra]
           , To XAllies $ apply 1 skillName [Stun All]
           , To Enemies $ apply 1 skillName [Stun All]
