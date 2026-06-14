@@ -45,14 +45,14 @@ spec = parallel do
                 not <$> target has "Space-Time Marking"
 
         useOn XAlly "Reciprocal Round-Robin" do
-            it "tags user if target harmed" do
+            it "tags target if target harmed" do
                 Sim.act
                 Sim.as Enemy $ return ()
-                user has "Round-Robin Surprise Attack"
-            it "tags target if user harmed" do
+                target has "Round-Robin Surprise Attack"
+            it "tags user if user harmed" do
                 Sim.act
                 targeting Self $ Sim.as Enemy $ return ()
-                target has "Round-Robin Surprise Attack"
+                user has "Round-Robin Surprise Attack"
 
     describeCharacter "Hanzō" do
         useOn Self "Major Summoning: Ibuse" do

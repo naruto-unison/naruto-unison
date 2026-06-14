@@ -156,7 +156,7 @@ characters =
             setRoundRobin :: Slot -> SkillEffect
             setRoundRobin slot = do
                 apply -1 skillName [Redirect slot]
-                trap -1 (OnHarmed All) $ withTarget slot $
+                trap -1 (OnHarmed All) $
                     apply -1 "Round-Robin Surprise Attack"
                         [ AntiCounter
                         , Bypass
