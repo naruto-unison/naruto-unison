@@ -102,7 +102,7 @@ app websocket ports =
                             [ H.div [ A.id "searching" ]
                                 [ H.img
                                     [ A.src "/img/spin.gif"
-                                    , A.alt "Loading"
+                                    , A.alt "Spinning loading indicator"
                                     ]
                                     []
                                 ]

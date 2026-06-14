@@ -105,15 +105,8 @@ icon char path attrs =
                 ++ "/"
                 ++ shorten path
                 ++ ".jpg"
-
-        alt =
-            if path == "icon" then
-                char.name
-
-            else
-                path
     in
-    H.img ([ A.src src, A.alt alt ] ++ attrs) []
+    H.img (A.src src :: attrs) []
 
 
 name : Character -> List (Html msg)

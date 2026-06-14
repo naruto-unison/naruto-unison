@@ -457,7 +457,6 @@ renderTop st characters =
                 [ H.img
                     [ A.class "charicon"
                     , A.src st.user.avatar
-                    , A.alt "user avatar"
                     ]
                     []
                 , case st.war of
@@ -480,7 +479,6 @@ renderTop st characters =
                 [ H.img
                     [ A.class "charicon"
                     , A.src st.vs.avatar
-                    , A.alt "User avatar"
                     ]
                     []
                 , case st.war of
@@ -1182,7 +1180,6 @@ renderView visibles characters viewing =
                     [ H.img
                         [ A.class "char"
                         , A.src x.avatar
-                        , A.alt "User avatar"
                         ]
                         []
                     , H.dl []
