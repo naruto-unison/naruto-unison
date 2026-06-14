@@ -588,7 +588,7 @@ characters =
     [SandVillage, Kabuto, Akatsuki, Rogue]
     [ [ Skill.new
         { Skill.name      = "Chakra Threads"
-        , Skill.desc      = "Sasori defends himself by ensaring his enemies, gaining 10 points of damage reduction."
+        , Skill.desc      = "Sasori defends himself by ensaring his enemies, gaining 10 points of damage reduction for 4 turns."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
