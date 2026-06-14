@@ -60,5 +60,5 @@ consecWins x = (Goal.char x, ) . fst <$> filter consec indices
 -- | All 'Character.ident's in 'list' paired with 'WinConsecutive' indices
 -- within their missions.
 consecutiveWins :: [(Text, Int)]
-consecutiveWins = consecWins =<< list
+consecutiveWins = concatMap consecWins list
 {-# NOINLINE consecutiveWins #-}

@@ -187,7 +187,7 @@ runControlExpirations = do
 
 
 getControlled :: [Ninja] -> HashSet ID
-getControlled ns = setFromList $ getFromNinja =<< ns
+getControlled ns = setFromList $ concatMap getFromNinja ns
   where
     getFromNinja n@Ninja{slot, statuses, traps}
       | N.alive n = filter ((/= slot) . ID.user)

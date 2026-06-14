@@ -252,7 +252,8 @@ act context@Context { user
 
             let counters = Counter.userCounters (not $ null countering)
                            user classes nUser ++
-                           (countering >>= Counter.targetCounters user classes)
+                           concatMap (Counter.targetCounters user classes)
+                           countering
             if not $ Uncounterable ∈ classes
                   || nUser `is` AntiCounter
                   || null counters

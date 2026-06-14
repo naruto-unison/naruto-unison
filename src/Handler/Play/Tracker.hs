@@ -152,7 +152,7 @@ new Ninja{character = character@Character{ident}, slot} = do
     progress <- MVector.replicate (length objectives) 0
     return $ foldl' go Track
         { slot
-        , key      = missionKeys ident =<< missions
+        , key      = concatMap (missionKeys ident) missions
         , actions  = MultiMap.empty
         , chakras  = MultiMap.empty
         , stores   = MultiMap.empty
