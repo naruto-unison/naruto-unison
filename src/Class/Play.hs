@@ -116,6 +116,7 @@ fromUser f name = toTarget . f =<< createID name
 -- | Adds to 'N.triggers' if 'Context.user' is not 'Context.target' and
 -- 'Context.new' is @True@.
 trigger :: ∀ m. MonadPlay m => Slot -> [Trigger] -> m ()
+trigger _ [] = return ()
 trigger i xs = whenM (Context.new <$> context)
     $ modify i \n ->
         n { N.triggers = foldl' (flip insertSet) (N.triggers n) xs }

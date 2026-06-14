@@ -354,6 +354,7 @@ characters =
         , Skill.cost      = [Gen, Tai]
         , Skill.effects   =
           [ To Self do
+                trigger [OnSacrifice]
                 linked <- user has "bloodlink"
                 if linked then
                     targeting Enemies $ whenM (target has "Blood Curse") $
@@ -371,6 +372,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Self do
+                trigger [OnSacrifice]
                 linked <- user has "bloodlink"
                 if linked then do
                         apply 1 skillName []

@@ -8,6 +8,7 @@ module Game.Characters.Import
   , skillName
   , user, target
   , channeling, inGroup
+  , trigger
   , targeting
   , bonusIf
   , anyoneHas
@@ -48,6 +49,7 @@ import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import qualified Game.Action as Action
 import qualified Game.Model.Character as Character
+import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import           Game.Model.ID (ID)
 import qualified Game.Model.Ninja as N
@@ -80,6 +82,11 @@ targeting :: ∀ m. (MonadPlay m, MonadRandom m) => Target -> m () -> m ()
 targeting t f = do
     targets <- Action.chooseTargets t
     P.withTargets targets f
+
+trigger :: ∀ m. MonadPlay m => [Trigger] -> m ()
+trigger triggers = do
+    Context{target = triggerTarget} <- P.context
+    P.trigger triggerTarget triggers
 
 -- | Returns the bonus if the monadic condition succeeds, otherwise returns 0.
 bonusIf :: ∀ a m. (MonadPlay m, Num a) => a -> m Bool -> m a

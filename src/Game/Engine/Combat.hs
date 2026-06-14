@@ -9,6 +9,7 @@ import ClassyPrelude
 import Control.Monad.Trans.Maybe (MaybeT(..))
 import Data.Enum.Set (EnumSet)
 
+import qualified Class.Parity as Parity
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import qualified Game.Engine.Effects as Effects
@@ -163,11 +164,11 @@ attack atk dmg
     P.trigger user $ OnBreak . ID.from <$> broken fromBarrier
     P.trigger target $ OnBreak . ID.from <$> broken fromDefense
 
-    when (damaged > 0) do
-        P.trigger user [OnDamage]
-        P.trigger target $ OnDamaged <$> toList classes'
-        P.modify target $ Traps.track PerDamaged damaged
+    guard $ damaged > 0 && not (Parity.allied user target)
 
+    P.trigger user [OnDamage]
+    P.trigger target $ OnDamaged <$> toList classes'
+    P.modify target $ Traps.track PerDamaged damaged
   where
     refreshEffects destructibles n
       | all (null . Destructible.effects) $ broken destructibles = n
