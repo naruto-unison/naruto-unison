@@ -34,7 +34,7 @@ import Game.Model.Class as Import (Class(..))
 import Game.Model.Duration as Import (Duration(..))
 import Game.Model.Effect as Import (Amount(..), Constructor(..), Effect(..))
 import Game.Model.Group as Import (Group(..))
-import Game.Model.Ninja as Import (Ninja(barrier, defense, health, skills, slot, statuses, traps), alive, barrierAmount, defenseAmount, has, has', is, lastChakraSpent, numHelpful, numStacks)
+import Game.Model.Ninja as Import (Ninja(barrier, defense, health, skills, slot, statuses, traps), alive, barrierAmount, defenseAmount, has, has', is, lastChakraSpent, numHelpful, numStacks, numAnyStacks)
 import Game.Model.Requirement as Import (Requirement(..))
 import Game.Model.Runnable as Import (IntRunConstraint, RunConstraint, Runnable(To))
 import Game.Model.Skill as Import (Skill, Target(..), addDesc, targetAll, restrict, addClasses, setCooldown, setDur, setCost)
@@ -77,6 +77,10 @@ invuln name userName classes = Skill.new
 
 skillName :: Text
 skillName = ""
+
+orSkillName :: ∀ m. MonadPlay m => Text -> m Text
+orSkillName ""   = Skill.name . Context.skill <$> P.context
+orSkillName name = return name
 
 targeting :: ∀ m. (MonadPlay m, MonadRandom m) => Target -> m () -> m ()
 targeting t f = do
@@ -138,6 +142,11 @@ instance MonadPlay m => NinjaGetter m (Ninja -> a) where
     type Getter m (Ninja -> a) = m a
     target f = f <$> P.nTarget
     user   f = f <$> P.nUser
+
+instance MonadPlay m => NinjaGetter m (Text -> Ninja -> a) where
+    type Getter m (Text -> Ninja -> a) = Text -> m a
+    target f name = f <$> orSkillName name <*> P.nTarget
+    user   f name = f <$> orSkillName name <*> P.nUser
 
 instance MonadPlay m => NinjaGetter m (ID -> Ninja -> a) where
     type Getter m (ID -> Ninja -> a) = Text -> m a

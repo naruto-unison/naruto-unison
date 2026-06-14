@@ -130,13 +130,13 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Benihisago"
-        , Skill.desc      = "Ginkaku draws an enemy's soul into a crimson gourd, dealing 10 affliction damage and 5 additional damage for each of the target's Spirit Words. This also extracts a Spirit Word from the target and increases the damage of Kinkaku's [Scroll of Fire] on the target by 5."
+        , Skill.desc      = "Ginkaku draws an enemy's soul into a crimson gourd, dealing 10 affliction damage and 5 additional damage for each of the target's Spirit Words from himself or Kinkaku. This also extracts a Spirit Word from the target and increases the damage of Kinkaku's [Scroll of Fire] on the target by 5."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                stacks <- target numStacks "Spirit Word"
+                stacks <- target numAnyStacks "Spirit Word"
                 afflict (10 + 5 * stacks)
                 addStack "Scroll of Fire"
                 addStack "Spirit Word"
@@ -182,14 +182,14 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Scroll of Fire"
-        , Skill.desc      = "A coil of flame erupts from the Bashōsen Leaf Fan, dealing 20 damage to all enemies and extracting a Spirit Word from each of them."
+        , Skill.desc      = "A coil of flame erupts from the Bashōsen Leaf Fan, dealing 20 affliction damage to all enemies and extracting a Spirit Word from each of them."
         , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemies do
-                stacks <- target numStacks skillName
-                damage (20 + 5 * stacks)
+                stacks <- target numAnyStacks skillName
+                afflict (20 + 5 * stacks)
                 addStack "Spirit Word"
           ]
         }

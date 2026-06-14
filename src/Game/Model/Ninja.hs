@@ -3,7 +3,7 @@ module Game.Model.Ninja
   , alive
   , is, isChanneling
   , has, has', hasBarrier, hasDefense, hasTrap
-  , numStacks, numHelpful, numHarmful
+  , numStacks, numAnyStacks, numHelpful, numHarmful
   , barrierAmount, defenseAmount, totalDefense, totalBarrier
   , lastChakraSpent
   ) where
@@ -130,6 +130,13 @@ numStacks :: ID -- ^ 'Status.name'.
 numStacks statusID Ninja{statuses} = sum
     [ amount | st@Status{amount} <- statuses,
                ID.from st == statusID ]
+
+-- | Number of stacks of matching 'statuses' from any source.
+numAnyStacks :: Text -- ^ 'Status.name'.
+             -> Ninja -> Int
+numAnyStacks statusName Ninja{statuses} = sum
+    [ amount | Status{amount, name} <- statuses,
+               name == statusName ]
 
 -- | Counts all 'Effect.helpful' effects in 'statuses' from allies.
 -- Does not include self-applied or 'Hidden' 'Status.Status'es.
