@@ -128,8 +128,8 @@ processEffects n@Ninja{barrier, defense, statuses} =
       }
   where
     flattenStatusEffects Status{effects, amount} = replicate amount =<< effects
-    allEffects = (flattenStatusEffects =<< statuses)
-              ++ (Destructible.effects =<< barrier ++ defense)
+    allEffects = (Destructible.effects =<< barrier ++ defense)
+                 ++ (flattenStatusEffects =<< statuses)
 
     hasEffect ef = ef ∈ allEffects
     hasNoIgnore  = hasEffect NoIgnore
