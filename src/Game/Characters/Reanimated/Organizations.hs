@@ -298,7 +298,7 @@ characters =
     [MistVillage, Kabuto, SevenSwordsmen, Jonin]
     [ [ Skill.new
         { Skill.name      = "Needle Stitching"
-        , Skill.desc      = "Nuibari skewers an enemy and pulls a wire through them, dealing piercing 20 damage and preventing them from affecting him for 1 turn. Deals 5 additional damage per person affected by [Needle Stitching] and extends its duration on them by 1 turn. Cannot be used on an enemy already affected by this skill."
+        , Skill.desc      = "Nuibari skewers an enemy and pulls a wire through them, dealing 20 piercing damage and preventing them from affecting him for 1 turn. Deals 5 additional damage per person affected by [Needle Stitching] and extends its duration on them by 1 turn. Cannot be used on an enemy already affected by this skill."
         , Skill.require   = TargetHas 0 "Needle Stitching"
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
