@@ -15,7 +15,7 @@ module Class.Play
   , withContinues
   , uncopied, unsilenced
   -- * Lifting
-  , toTarget, toUser, fromUser
+  , toTarget, toTargetFromUser, toUser, toUserFromUser
   -- * Other
   , createID
   , trigger
@@ -110,8 +110,13 @@ createID name = ID.withName name . ID.from <$> context
 
 -- | Applies a @Ninja@ transformation to the 'target', passing it the 'user' as
 -- an argument.
-fromUser :: ∀ m. MonadPlay m => (ID -> Ninja -> Ninja) -> Text -> m ()
-fromUser f name = toTarget . f =<< createID name
+toTargetFromUser :: ∀ m. MonadPlay m => (ID -> Ninja -> Ninja) -> Text -> m ()
+toTargetFromUser f name = toTarget . f =<< createID name
+
+-- | Applies a @Ninja@ transformation to the 'user', passing it the 'user' as
+-- an argument.
+toUserFromUser :: ∀ m. MonadPlay m => (ID -> Ninja -> Ninja) -> Text -> m ()
+toUserFromUser f name = toUser . f =<< createID name
 
 -- | Adds to 'N.triggers' if 'Context.user' is not 'Context.target' and
 -- 'Context.new' is @True@.

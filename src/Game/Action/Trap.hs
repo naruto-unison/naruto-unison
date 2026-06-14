@@ -102,4 +102,4 @@ trapFull direction classes unthrottled trigger f =
 -- | Removes 'N.traps' with matching 'Trap.name'.
 -- Uses 'Ninjas.clearTrap' internally.
 removeTrap :: ∀ m. MonadPlay m => Text -> m ()
-removeTrap name = P.fromUser Ninjas.clearTrap name
+removeTrap name = P.toTargetFromUser Ninjas.clearTrap name

@@ -73,13 +73,13 @@ demolishAll = do
 -- Uses 'Ninjas.increaseDefense' internally.
 increaseDefense :: ∀ m. MonadPlay m => Text -> Int -> m ()
 increaseDefense name amount = P.unsilenced
-    $ (P.fromUser $ Ninjas.increaseDefense amount) name
+    $ (P.toTargetFromUser $ Ninjas.increaseDefense amount) name
 
 -- | Clears all 'Destructible' 'N.defense' with matching name and user.
 -- Uses 'Ninjas.removeDefense' internally.
 removeDefense :: ∀ m. MonadPlay m => Text -> m ()
 removeDefense name = P.unsilenced do
-    P.fromUser Ninjas.removeDefense name
+    P.toTargetFromUser Ninjas.removeDefense name
     Context{user} <- P.context
     triggerID     <- P.createID name
     P.trigger user [OnBreak triggerID]

@@ -41,12 +41,12 @@ import           Util ((!?))
 -- | Changes the 'Skill.cooldown' of a @Skill@ by 'Skill.name'.
 -- Uses 'Cooldown.alter' internally.
 alterCooldown :: ∀ m. MonadPlay m => Text -> Int -> m ()
-alterCooldown name cd = P.fromUser (Cooldown.alter cd) name
+alterCooldown name cd = P.toUserFromUser (Cooldown.alter cd) name
 
 -- | Resets 'N.cooldowns' with a matching 'Skill.name' of a @Ninja@.
 -- Uses 'Cooldown.reset' internally.
 resetCooldown :: ∀ m. MonadPlay m => Text -> m ()
-resetCooldown = P.fromUser Cooldown.reset
+resetCooldown = P.toUserFromUser Cooldown.reset
 
 -- | Resets all Instant 'N.cooldowns' of a @Ninja@.
 -- Uses 'Cooldown.resetAll' internally.
@@ -56,7 +56,7 @@ resetCooldowns = P.toTarget Cooldown.resetAll
 -- | Resets an element in 'N.charges' of a @Ninja@.
 -- Uses 'Ninjas.recharge' internally.
 recharge :: ∀ m. MonadPlay m => Text -> m ()
-recharge = P.fromUser Ninjas.recharge
+recharge = P.toUserFromUser Ninjas.recharge
 
 -- | Resets all 'N.charges' of a @Ninja@.
 -- Uses 'Ninjas.rechargeAll' internally.
