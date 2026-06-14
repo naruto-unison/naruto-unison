@@ -570,7 +570,7 @@ characters =
                 addCalories 2
           ]
         , Skill.end       =
-          [ To Enemy $ damage 30 ]
+          [ To Enemy $ whenM (user alive ) $ damage 30 ]
         , Skill.changes   = caloricCost
         }
       ]

@@ -1154,7 +1154,7 @@ characters =
                 ]
           ]
         , Skill.end       =
-          [ To Self $ targeting Enemies $
+          [ To Self $ whenM (user alive) $ targeting Enemies $
                 whenM (target has' traps skillName) $
                     apply 1 "Giant Centipede Stun" [Stun All]
           ]

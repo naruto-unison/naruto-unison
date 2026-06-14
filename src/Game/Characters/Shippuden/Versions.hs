@@ -532,7 +532,7 @@ characters =
                     cancelChannel skillName
           ]
         , Skill.end       =
-          [ To Enemy do
+          [ To Enemy $ whenM (user alive) do
                 stacks <- user numStacks skillName
                 when (stacks > 0) $
                     damage (15 * stacks)
