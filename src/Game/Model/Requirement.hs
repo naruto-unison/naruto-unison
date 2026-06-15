@@ -28,7 +28,7 @@ import           Util ((∈), (∉), (?), intersects)
 -- | Processes 'Skill.require'.
 usable :: Bool -- ^ New.
        -> Ninja -> Skill -> Skill
-usable new n@Ninja{slot} x@Skill{charges, cooldown, classes, owner}
+usable new n@Ninja{slot} x@Skill{charges, cooldown, classes, dur, owner}
   | not new                                  = x'
   | cooldown /= 0 && N.cooldowns `atLeast` 1 = unusable
   | charges == 0                             = x'
@@ -42,6 +42,7 @@ usable new n@Ninja{slot} x@Skill{charges, cooldown, classes, owner}
     unusable = x { Skill.require = Unusable }
     required = x { Skill.require = isUsable $ Skill.require x }
     x'
+      | Channel.isControl dur && n `is` Silence   = unusable
       | Channel.ignoreStun $ Skill.dur x          = required
       | not $ classes `intersects` Effects.stun n = required
       | new                                       = unusable
