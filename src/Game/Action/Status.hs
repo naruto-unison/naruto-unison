@@ -113,7 +113,9 @@ controlWith classes effects = P.unsilenced do
     nUser   <- P.nUser
     nTarget <- P.nTarget
     case status nUser nTarget context of
-        Just st -> P.modify target $ Ninjas.addStatus st
+        Just st -> do
+            P.modify target $ Ninjas.addStatus st
+            Statuses.triggerStatusApplied $ Status.effects st
         Nothing -> return ()
   where
     status nUser nTarget context@Context{skill = Skill{dur = Control i}} = Just
