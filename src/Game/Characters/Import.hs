@@ -134,11 +134,6 @@ class NinjaGetter (m :: Type -> Type) a where
     target :: a -> Getter m a
     user   :: a -> Getter m a
 
-instance MonadPlay m => NinjaGetter m () where
-    type Getter m () = m Ninja
-    target () = P.nTarget
-    user   () = P.nUser
-
 instance MonadPlay m => NinjaGetter m (Ninja -> a) where
     type Getter m (Ninja -> a) = m a
     target f = f <$> P.nTarget

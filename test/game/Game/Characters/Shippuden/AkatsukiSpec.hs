@@ -417,7 +417,7 @@ spec = parallel do
 
         useOn Self "Izanagi" do
             it "restores condition" do
-                Sim.as Enemy $ apply 1 skillName [Reveal]
+                apply 1 "dummy" [Reveal]
                 Sim.act
                 Sim.turns 4
                 user (`is` Reveal)
