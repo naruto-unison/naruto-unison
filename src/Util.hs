@@ -1,22 +1,24 @@
 -- | Lightweight helper functions.
 module Util
-  ( (!?), (!!)
+  ( (!?), (!!), (?), (!)
   , (∈), (∉)
   , (<.$.>), (<.$), ($.>), (<.&.>)
   , Lift
   , epoch
   , intersects
   , setFromFoldable
-  , mapFromKeyed
+  , lazyMapFromKeyed
   , tryFromJust, fromMaybeM, fromMaybeT
   , leftToMaybe, rightToMaybe
   ) where
 
 import ClassyPrelude
 
-import Control.Monad.Trans.Class (MonadTrans)
-import Control.Monad.Trans.Maybe (MaybeT(..))
-import Control.Monad.Error.Class (MonadError(..))
+import           Control.Monad.Trans.Class (MonadTrans)
+import           Control.Monad.Trans.Maybe (MaybeT(..))
+import           Control.Monad.Error.Class (MonadError(..))
+import qualified Data.HashMap.Lazy as LHashMap
+import           GHC.Stack (HasCallStack)
 
 -- If a function doesn't seem like it should be inlined, it probably doesn't go
 -- here.
@@ -32,6 +34,20 @@ infixl 9 !!
 (!!) :: ∀ o. IsSequence o => o -> Index o -> Element o
 (!!) = unsafeIndex
 {-# INLINE (!!) #-}
+
+-- | 'index' for maps.
+infixl 9 ?
+(?) :: ∀ o. IsMap o => o -> ContainerKey o -> Maybe (MapValue o)
+m ? k = k `lookup` m
+{-# INLINE (?) #-}
+
+-- | 'unsafeIndex' for maps.
+infixl 9 !
+(!) :: ∀ o. (HasCallStack, IsMap o) => o -> ContainerKey o -> MapValue o
+m ! k = case m ? k of
+    Just v  -> v
+    Nothing -> error "(!): key not found"
+{-# INLINE (!) #-}
 
 -- | 'elem'.
 infix 4 ∈
@@ -84,10 +100,12 @@ setFromFoldable = foldl' (flip insertSet) mempty
 {-# INLINE setFromFoldable #-}
 
 -- | Creates a map from a list using a projection function.
-mapFromKeyed :: ∀ map a. IsMap map
-             => (a -> ContainerKey map, a -> MapValue map) -> [a] -> map
-mapFromKeyed (toKey, toVal) xs = mapFromList $ (\x -> (toKey x, toVal x)) <$> xs
-{-# INLINABLE mapFromKeyed #-}
+lazyMapFromKeyed :: ∀ a k v. Hashable k
+             => (a -> k, a -> v) -> [a] -> HashMap k v
+lazyMapFromKeyed (toKey, toVal) = foldl' f mempty
+  where
+    f acc el = LHashMap.insert (toKey el) (toVal el) acc
+{-# INLINABLE lazyMapFromKeyed #-}
 
 tryFromJust :: ∀ e a m. MonadError e m => e -> Maybe a -> m a
 tryFromJust e = maybe (throwError e) return

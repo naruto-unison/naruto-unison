@@ -8,8 +8,6 @@ module Game.Characters
 
 import ClassyPrelude hiding (link, lookup, map)
 
-import qualified Data.HashMap.Strict as HashMap
-
 import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
 import           Game.Model.Chakras (Chakra(..))
@@ -17,7 +15,7 @@ import           Game.Model.Class (Class(..))
 import           Game.Model.Group (Group(..))
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
-import           Util ((∈), (∉), mapFromKeyed)
+import           Util ((∈), (∉), (?), lazyMapFromKeyed)
 
 #ifdef DEVELOPMENT
 import qualified Game.Characters.Development
@@ -37,11 +35,11 @@ list = setIdent . addGroups . addClasses <$>
 {-# NOINLINE list #-}
 
 map :: HashMap Text Character
-map = mapFromKeyed (Character.ident, id) list
+map = lazyMapFromKeyed (Character.ident, id) list
 {-# NOINLINE map #-}
 
 lookup :: Text -> Maybe Character
-lookup k = HashMap.lookup k map
+lookup k = map ? k
 
 lookupAll :: [Text] -> [Character]
 lookupAll ks = mapMaybe lookup ks

@@ -51,7 +51,7 @@ import           Mission.Progress (Progress(Progress))
 import qualified Mission.Progress
 import           Mission.UsageRate (UsageRate)
 import qualified Mission.UsageRate as UsageRate
-import           Util ((!?), (∈), (∉))
+import           Util ((!?), (∈), (∉), (?))
 
 -- | Starts up the mission database by mapping every Character to a database
 -- ID. Returns the map, which goes into 'App.characterIDs'.
@@ -117,7 +117,7 @@ userMission :: Text -> App.Handler (Maybe (Seq (Goal, Int)))
 userMission char = runMaybeT do
     Just who    <- Auth.maybeAuthId
     Just charID <- characterID char
-    mission     <- hoistMaybe $ lookup char Missions.map
+    mission     <- hoistMaybe $ Missions.map ? char
     objectives  <- liftDB do
         alreadyUnlocked <- selectFirst [ UnlockedUser      ==. who
                                        , UnlockedCharacter ==. charID
@@ -177,7 +177,7 @@ updateProgress :: Progress -> App.Handler Bool
 updateProgress Progress{amount = 0} = return False
 updateProgress Progress{character, objective, amount} = fromMaybe False <$> runMaybeT do
     Just who  <- Auth.maybeAuthId
-    goals     <- hoistMaybe $ lookup character Missions.map
+    goals     <- hoistMaybe $ Missions.map ? character
     guard $ objective < length goals
     Just char <- characterID character
     liftDB $ insertProgress who amount GoalIndex { goals, char, i = objective }

@@ -23,7 +23,7 @@ import qualified Game.Model.Ninja as N
 import           Game.Model.Skill (Skill(Skill), Target(..))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
-import           Util ((∈), (∉), intersects)
+import           Util ((∈), (∉), (?), intersects)
 
 -- | Processes 'Skill.require'.
 usable :: Bool -- ^ New.
@@ -35,7 +35,7 @@ usable new n@Ninja{slot} x@Skill{charges, cooldown, classes, owner}
   | N.charges `atLeast` charges              = unusable
   | otherwise                                = x'
   where
-    getter `atLeast` limit = case key `lookup` getter n of
+    getter `atLeast` limit = case getter n ? key of
                                 Just value -> value >= limit
                                 Nothing    -> False
     key      = Skill.key x

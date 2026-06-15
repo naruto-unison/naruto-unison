@@ -13,7 +13,7 @@ import qualified Game.Model.Character as Character
 import           Mission.Goal (Goal(Reach), Mission(Mission))
 import qualified Mission.Goal as Goal
 import           Mission.Objective (Objective(..), WinType(..))
-import           Util (mapFromKeyed)
+import           Util (lazyMapFromKeyed)
 
 import qualified Mission.Missions.Shippuden
 
@@ -40,7 +40,7 @@ list = clean <$> Mission.Missions.Shippuden.missions
 
 -- | Map of all missions objectives, from 'Character.ident's to 'Goal.goal's.
 map :: HashMap Text (Seq Goal)
-map = mapFromKeyed (Goal.char, Goal.goals) list
+map = lazyMapFromKeyed (Goal.char, Goal.goals) list
 {-# NOINLINE map #-}
 
 -- | Obtains all of a character's missions from 'list'.
