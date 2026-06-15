@@ -199,13 +199,13 @@ completed mission objectives = and . zipWith ((<=) . Goal.reach) mission
 winners :: Bimap CharacterId Text
         -> [Text] -> Unlocks
         -> [GoalIndex]
-winners ids team unlocks = do
-    Goal.Mission{char, goals} <- Missions.list
-    guard $ char ∉ unlocks
-    (i, Win _ team') <- zip [0..] $ Goal.objective <$> toList goals
-    guard $ all (∈ team) team'
-    charID <- Bimap.lookupR char ids
-    return GoalIndex { goals, char = charID, i }
+winners ids team unlocks =
+    [ GoalIndex { goals, char = charID, i }
+        | Goal.Mission{char, goals} <- Missions.list,
+          char ∉ unlocks,
+          (i, Win _ team') <- zip [0..] $ Goal.objective <$> toList goals,
+          all (∈ team) team',
+          charID <- Bimap.lookupR char ids ]
 
 newUsage :: CharacterId -> Usage
 newUsage x = Usage x 0 0 0 0
