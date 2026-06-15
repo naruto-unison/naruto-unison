@@ -860,10 +860,10 @@ characters =
         , Skill.charges    = 2
         , Skill.effects    =
           [ To Self do
-                backup <- createBackup
+                rewind <- user ()
                 bombWith [Necromancy] 4 skillName
                     []
-                    [ To Expire $ restoreBackup backup ]
+                    [ To Expire $ replaceWith rewind ]
           ]
         }
       ]

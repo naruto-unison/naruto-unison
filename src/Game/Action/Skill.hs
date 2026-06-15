@@ -9,7 +9,7 @@ module Game.Action.Skill
   , setAlternates, nextAlternate
 
   -- * Other
-  , factory, createBackup, restoreBackup
+  , factory, replaceWith
   ) where
 
 import ClassyPrelude
@@ -21,8 +21,6 @@ import qualified Data.Vector as Vector
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import           Game.Engine (unSoulbound)
-import           Game.Engine.Backup (Backup)
-import qualified Game.Engine.Backup as Backup
 import qualified Game.Engine.Cooldown as Cooldown
 import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Character (Character(Character))
@@ -32,7 +30,6 @@ import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import           Game.Model.Duration (Duration(..))
 import           Game.Model.Effect (Effect(..))
-import qualified Game.Model.ID as ID
 import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
 import           Game.Model.Skill (Skill(Skill))
@@ -148,13 +145,6 @@ factory = do
     when (alive' && not alive)
         $ P.trigger user [OnHeal]
 
--- | Creates a backup of the target's condition.
-createBackup :: ∀ m. MonadPlay m => m Backup
-createBackup = do
-    skillID <- ID.from <$> P.context
-    nUser <- P.nUser
-    return $ Backup.create skillID nUser
-
--- | Restores a backup of the target's condition.
-restoreBackup :: ∀ m. MonadPlay m => Backup -> m ()
-restoreBackup backup = P.toTarget $ Backup.restore backup
+-- | Restores a target to an earlier state. Charges are preserved.
+replaceWith :: ∀ m. MonadPlay m => Ninja -> m ()
+replaceWith n = P.toTarget \n' -> n { N.charges = N.charges n' }

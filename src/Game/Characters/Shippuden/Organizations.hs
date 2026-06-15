@@ -279,9 +279,9 @@ characters =
                 return anyLeft
           in
           [ To Self $ unlessM (user has "paused") $ whenM (spendSharingans 1) do
-                backup <- createBackup
+                rewind <- user ()
                 trap' 1 OnRes do
-                    restoreBackup backup
+                    replaceWith rewind
                     void $ spendSharingans 2
           ]
         , Skill.end       =
