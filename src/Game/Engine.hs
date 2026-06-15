@@ -113,8 +113,7 @@ clearControl = void $ runMaybeT do
     Ninja{channels} <- P.nUser
     let controls = filter ((== ID.fromOwner skillID) . ID.from) channels
     guard . not $ null controls
-    ninjas <- P.ninjas
-    guard . not $ any (controlled skillID) ninjas
+    guard . not . any (controlled skillID) =<< P.ninjas
     P.modify user $ Ninjas.cancelChannel skillID
     mapM_ (runSkillEnd user) controls
   where
@@ -166,9 +165,7 @@ doDoneBombs ninjas = zipWithM_ doEach ninjas =<< P.ninjas
         getStatuses Ninja{statuses} = filter includeStatus statuses
 
 doDoneTrap :: ∀ m. (MonadGame m, MonadRandom m) => Trap -> m ()
-doDoneTrap trap = P.withContext (getContext trap) clearControl
-  where
-    getContext Trap{effect} = Runnable.target $ effect 0
+doDoneTrap trap = P.withContext (Trap.context trap) clearControl
 
 doDoneTraps :: ∀ m. (MonadGame m, MonadRandom m) => Vector Ninja -> m ()
 doDoneTraps ninjas = zipWithM_ doEach ninjas =<< P.ninjas
