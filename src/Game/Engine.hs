@@ -79,7 +79,7 @@ processTurn runner = do
     game@Game{playing = player} <- P.game
     Hook.turnStart game initial
     runner
-    channels <- concatMap getChannels . filter N.alive <$> P.allies player
+    channels <- getChannels <$> P.allies player
     mapM_ Action.act channels
     Traps.runTurn initial
     doSkillEnds
@@ -96,15 +96,17 @@ processTurn runner = do
     yieldVictor
     Hook.turnEnd player initial =<< P.ninjas
   where
-    getChannels n = mapMaybe (fromChannel n) $ N.channels n
-    fromChannel n Channel{skill, target, new, dur}
-      | new || TurnBased.expiring dur = Nothing
-      | otherwise = Just Context { new       = False
-                                 , user      = N.slot n
-                                 , skill     = Skills.change n skill
-                                 , continues = False
-                                 , target
-                                 }
+    getChannels ns =
+        [ Context { new       = False
+                  , user      = N.slot n
+                  , skill     = Skills.change n skill
+                  , continues = False
+                  , target
+                  } | n <- ns,
+                      N.alive n,
+                      Channel{skill, target, new, dur} <- N.channels n,
+                      not $ new || TurnBased.expiring dur
+                  ]
 
 clearControl :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
 clearControl = void $ runMaybeT do

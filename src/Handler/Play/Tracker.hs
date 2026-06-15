@@ -44,12 +44,6 @@ import           Mission.Objective (Objective(..), Span(..))
 import           Mission.Progress (Progress(Progress), Store)
 import           Util ((!!))
 
-missionKeys :: Text -> Mission -> [Int -> Progress]
-
-missionKeys name Mission{char, goals} =
-    [ Progress char i | (i, goal) <- zip [0..] $ toList goals,
-                        Goal.belongsTo name goal ]
-
 data Track s = Track
     { slot     :: Slot
     , key      :: [(Int -> Progress)]
@@ -152,7 +146,7 @@ new Ninja{character = character@Character{ident}, slot} = do
     progress <- MVector.replicate (length objectives) 0
     return $ foldl' go Track
         { slot
-        , key      = concatMap (missionKeys ident) missions
+        , key      = missionKeys
         , actions  = MultiMap.empty
         , chakras  = MultiMap.empty
         , stores   = MultiMap.empty
@@ -160,17 +154,21 @@ new Ninja{character = character@Character{ident}, slot} = do
         , triggers = MultiMap.empty
         , turns    = mempty
         , consecs  = mempty
-        , goals    = fromList goals
+        , goals    = fromList allGoals
         , skills
         , store
         , progress
         } objectives
   where
+    missionKeys =
+        [ Progress char i | Mission{char, goals} <- missions,
+                            (i, goal) <- zip [0..] $ toList goals,
+                            Goal.belongsTo ident goal ]
     missions   = Missions.characterMissions character
-    goals      = [ x | mission <- missions,
-                       x       <- toList $ Goal.goals mission,
-                       Goal.belongsTo ident x ]
-    objectives = zip [0..] $ Goal.objective <$> goals
+    allGoals   = [ x | mission <- missions,
+                        x      <- toList $ Goal.goals mission,
+                        Goal.belongsTo ident x ]
+    objectives = zip [0..] $ Goal.objective <$> allGoals
 
     go x (i, Consecutive _ skills) =
         x { consecs = (i, skills) : consecs x }

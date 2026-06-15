@@ -347,7 +347,7 @@ instance Display Effect where
           displayAmt amt x ++ " additional damage taken from "
           ++ list classes ++ " skills."
       | otherwise =
-          "Reduces " ++ list classes ++  " damage received by "
+          "Reduces " ++ list classes ++ " damage received by "
           ++ displayAmt amt (-x) ++ "."
 
     display (Bless x) =

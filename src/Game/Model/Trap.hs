@@ -28,7 +28,8 @@ isExpiringMatch triggerID a = TurnBased.expiring a && ID.from a == triggerID
 isExpiring :: Ninja -> Trap -> Bool
 isExpiring Ninja{health = 0} Trap{trigger = OnBreak _} = True
 isExpiring Ninja{barrier, defense} Trap{trigger = OnBreak destrID} =
-    any (isExpiringMatch destrID) $ barrier ++ defense
+    any (isExpiringMatch destrID) barrier
+    || any (isExpiringMatch destrID) defense
 isExpiring _ _ = False
 
 context :: Trap -> Context

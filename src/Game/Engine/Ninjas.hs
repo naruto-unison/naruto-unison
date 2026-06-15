@@ -129,9 +129,13 @@ processEffects n@Ninja{barrier, defense, statuses} =
       , N.face    = Face.new <$> find ((Face ∈) . Status.effects) statuses
       }
   where
-    flatten Status{effects, amount} = concatMap (replicate amount) effects
-    allEffects = (concatMap Destructible.effects $ barrier ++ defense)
-                 ++ (concatMap flatten statuses)
+    destrEffects  = [ effect | destructibles <- [barrier, defense],
+                               Destructible{effects} <- destructibles,
+                               effect <- effects ]
+    statusEffects = [ effect | Status{effects, amount} <- statuses,
+                               oneEffect <- effects,
+                               effect <- replicate amount oneEffect ]
+    allEffects = destrEffects ++ statusEffects
 
     hasEffect ef = ef ∈ allEffects
     hasNoIgnore  = hasEffect NoIgnore

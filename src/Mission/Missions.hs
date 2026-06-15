@@ -48,17 +48,10 @@ characterMissions :: Character -> [Mission]
 characterMissions Character{ident} =
     filter (any (Goal.belongsTo ident) . Goal.goals) list
 
--- | List of 'Character.ident's paired with 'WinConsecutive' indices within
--- their missions.
-consecWins :: Mission -> [(Text, Int)]
-consecWins x = (Goal.char x, ) . fst <$> filter consec indices
-  where
-    indices = zip [0..] . toList $ Goal.goals x
-    consec (_, Reach{objective = Win WinConsecutive _}) = True
-    consec _                                            = False
-
 -- | All 'Character.ident's in 'list' paired with 'WinConsecutive' indices
 -- within their missions.
 consecutiveWins :: [(Text, Int)]
-consecutiveWins = concatMap consecWins list
+consecutiveWins = [ (char, i) | Mission{char, goals} <- list,
+                                (i, Reach{objective = Win WinConsecutive _})
+                                    <- zip [0..] $ toList goals ]
 {-# NOINLINE consecutiveWins #-}
