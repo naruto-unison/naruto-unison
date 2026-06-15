@@ -47,11 +47,11 @@ killWith name player user target target' store = (store, ) . fromEnum
 -- Resets to 0 if they lose the @Status@.
 maintain :: Text -> TurnHook
 maintain name player user@Ninja{slot} _ target@Ninja{slot = targetSlot} store
-  | slot /= targetSlot             = (store, 0)
-  | not $ N.alive target           = (store, Progress.resetToZero)
-  | N.numStacks statusID user == 0 = (store, Progress.resetToZero)
-  | allied player user             = (store, 1)
-  | otherwise                      = (store, 0)
+  | slot /= targetSlot        = (store, 0)
+  | not $ N.alive target      = (store, Progress.resetToZero)
+  | not $ N.has statusID user = (store, Progress.resetToZero)
+  | allied player user        = (store, 1)
+  | otherwise                 = (store, 0)
   where
     statusID = toID name slot
 

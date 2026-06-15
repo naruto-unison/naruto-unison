@@ -14,8 +14,6 @@ module Handler.Play.Tracker
 
 import ClassyPrelude hiding (empty)
 
-import           Data.MultiMap (MultiMap, (!))
-import qualified Data.MultiMap as MultiMap
 import qualified Data.Vector as Vector
 import           Data.Vector.Mutable (MVector)
 import qualified Data.Vector.Mutable as MVector
@@ -32,29 +30,17 @@ import qualified Game.Model.Slot as Slot
 import           Game.Model.Trigger (Trigger)
 import           Handler.Play.GameInfo (GameInfo(GameInfo))
 import qualified Handler.Play.GameInfo
-import           Mission.Goal (Goal(Reach), Mission(Mission))
+import           Mission.Goal (Goal(Reach))
 import qualified Mission.Goal as Goal
-import           Mission.Hooks.Action (ActionHook)
-import           Mission.Hooks.Chakra (ChakraHook)
-import           Mission.Hooks.Store (StoreHook)
-import           Mission.Hooks.Trap (TrapHook, TriggerHook)
-import           Mission.Hooks.Turn (TurnHook)
-import qualified Mission.Missions as Missions
-import           Mission.Objective (Objective(..), Span(..))
+import           Mission.Hooks (Hooks(Hooks))
+import qualified Mission.Hooks as Hooks
+import           Mission.Objective (Span(..))
 import           Mission.Progress (Progress(Progress), Store)
-import           Util ((!!))
+import           Util ((!!), (!))
 
 data Track s = Track
     { slot     :: Slot
-    , key      :: [(Int -> Progress)]
-    , actions  :: MultiMap Text (Int, ActionHook)
-    , chakras  :: MultiMap Text (Int, ChakraHook)
-    , stores   :: MultiMap Text (Int, StoreHook)
-    , traps    :: MultiMap Text (Int, TrapHook)
-    , triggers :: MultiMap Trigger (Int, TriggerHook)
-    , turns    :: [(Int, TurnHook)]
-    , consecs  :: [(Int, [Text])]
-    , goals    :: Vector Goal
+    , hooks    :: Hooks
     , skills   :: STRef s [Text]
     , store    :: MVector s Store
     , progress :: MVector s Int
@@ -66,7 +52,7 @@ resetGoal Reach{reach} amt
   | otherwise   = amt
 
 reset :: ∀ m. PrimMonad m => Track (PrimState m) -> m ()
-reset Track{goals, progress} = mapM_ f . zip [0..] $ toList goals
+reset Track{hooks = Hooks{goals}, progress} = mapM_ f . zip [0..] $ toList goals
   where
     f (i, goal@(Reach Turn _ _ _)) = MVector.unsafeModify progress
                                          (resetGoal goal) i
@@ -74,7 +60,7 @@ reset Track{goals, progress} = mapM_ f . zip [0..] $ toList goals
 
 addProgress :: ∀ m. PrimMonad m => Track (PrimState m) -> Int -> Int -> m ()
 addProgress _ _ 0   = return ()
-addProgress Track{goals, progress} i amt = case goals !! i of
+addProgress Track{hooks = Hooks{goals}, progress} i amt = case goals !! i of
     Reach Moment amount _ _ | amt < amount -> return ()
     _ -> MVector.unsafeModify progress (max 0 . (+ amt)) i
 
@@ -87,12 +73,13 @@ trackStore x@Track{store} i f = do
 
 trackAction1 :: ∀ m. PrimMonad m
              => Text -> [(Ninja, Ninja)] -> Track (PrimState m) -> m ()
-trackAction1 skill ns track@Track { actions
-                                  , consecs
+trackAction1 skill ns track@Track { hooks = Hooks { actions
+                                                  , consecs
+                                                  , stores
+                                                  }
                                   , progress
                                   , skills
                                   , slot
-                                  , stores
                                   } = do
     sequence_ $ tracker <$> ns <*> actions ! skill
     sequence_ $ tracker' <$> ns <*> stores ! skill
@@ -110,20 +97,23 @@ trackAction1 skill ns track@Track { actions
 trackChakra1 :: ∀ m. PrimMonad m
              => Text -> (Chakras, Chakras) -> (Chakras, Chakras)
              -> Track (PrimState m) -> m ()
-trackChakra1 skill chaks chaks' x = sequence_ $ tracker <$> chakras x ! skill
+trackChakra1 skill chaks chaks' x@Track{hooks = Hooks{chakras}} =
+    sequence_ $ tracker <$> chakras ! skill
   where
     tracker (i, f) = addProgress x i $ f (swapOwned chaks) (swapOwned chaks')
     swapOwned = Parity.swap $ slot x
 
 trackTrap1 :: ∀ m. PrimMonad m
            => Text -> Slot -> Ninja -> Track (PrimState m) -> m ()
-trackTrap1 trap user n x = sequence_ $ tracker <$> traps x ! trap
+trackTrap1 trap user n x@Track{hooks = Hooks{traps}} =
+    sequence_ $ tracker <$> traps ! trap
   where
     tracker (i, f) = trackStore x i $ f user n
 
 trackTrigger1 :: ∀ m. PrimMonad m
               => Trigger -> Ninja -> Track (PrimState m) -> m ()
-trackTrigger1 trigger n x = sequence_ $ tracker <$> triggers x ! trigger
+trackTrigger1 trigger n x@Track{hooks = Hooks{triggers}} =
+    sequence_ $ tracker <$> triggers ! trigger
   where
     tracker (i, f)
       | f n       = addProgress x i 1
@@ -131,7 +121,7 @@ trackTrigger1 trigger n x = sequence_ $ tracker <$> triggers x ! trigger
 
 trackTurn1 :: ∀ m. PrimMonad m
            => Player -> [(Ninja, Ninja)] -> Track (PrimState m) -> m ()
-trackTurn1 p ns x@Track{skills, slot, turns} = do
+trackTurn1 p ns x@Track{skills, slot, hooks = Hooks{turns}} = do
       sequence_ $ tracker <$> ns <*> turns
       unless (Parity.allied p user) $ modifyRef' skills $ fromMaybe [] . initMay
       reset x
@@ -140,52 +130,20 @@ trackTurn1 p ns x@Track{skills, slot, turns} = do
     tracker (n, n') (i, f) = trackStore x i $ f p user n n'
 
 new :: ∀ m. PrimMonad m => Ninja -> m (Track (PrimState m))
-new Ninja{character = character@Character{ident}, slot} = do
+new Ninja{character = Character{ident}, slot} = do
     skills   <- newRef mempty
-    store    <- MVector.replicate (length objectives) mempty
-    progress <- MVector.replicate (length objectives) 0
-    return $ foldl' go Track
+    store    <- MVector.replicate storeSize mempty
+    progress <- MVector.replicate storeSize 0
+    return Track
         { slot
-        , key      = missionKeys
-        , actions  = MultiMap.empty
-        , chakras  = MultiMap.empty
-        , stores   = MultiMap.empty
-        , traps    = MultiMap.empty
-        , triggers = MultiMap.empty
-        , turns    = mempty
-        , consecs  = mempty
-        , goals    = fromList allGoals
+        , hooks
         , skills
         , store
         , progress
-        } objectives
+        }
   where
-    missionKeys =
-        [ Progress char i | Mission{char, goals} <- missions,
-                            (i, goal) <- zip [0..] $ toList goals,
-                            Goal.belongsTo ident goal ]
-    missions   = Missions.characterMissions character
-    allGoals   = [ x | mission <- missions,
-                        x      <- toList $ Goal.goals mission,
-                        Goal.belongsTo ident x ]
-    objectives = zip [0..] $ Goal.objective <$> allGoals
-
-    go x (i, Consecutive _ skills) =
-        x { consecs = (i, skills) : consecs x }
-    go x (i, HookAction _ skill func) =
-        x { actions = MultiMap.insert skill (i, func) $ actions x }
-    go x (i, HookChakra _ skill func) =
-        x { chakras = MultiMap.insert skill (i, func) $ chakras x }
-    go x (i, HookStore _ skill func) =
-        x { stores = MultiMap.insert skill (i, func) $ stores x }
-    go x (i, HookTrap _ trap func) =
-        x { traps = MultiMap.insert trap (i, func) $ traps x }
-    go x (i, HookTrigger _ trigger func) =
-        x { triggers = MultiMap.insert trigger (i, func) $ triggers x }
-    go x (i, HookTurn _ func) =
-        x { turns = (i, func) : turns x }
-    go x (_, Win{}) =
-        x
+    hooks = Hooks.forCharacter ident
+    storeSize = length $ Hooks.goals hooks
 
 newtype Tracker s = Tracker (Vector (Track s))
 
@@ -198,8 +156,8 @@ gFreeze :: ∀ m. PrimMonad m
         -> Tracker (PrimState m) -> m [Progress]
 gFreeze freezer (Tracker xs) = concat <$> mapM freezeTrack xs
   where
-    freezeTrack Track{key, progress} = (zipWith ($) key) . toList
-                                       <$> freezer progress
+    freezeTrack Track{progress, hooks = Hooks{key}} =
+        (zipWith ($) key) . toList <$> freezer progress
 
 -- | The mutable elements of the Tracker may not be used after this operation.
 freeze :: ∀ m. PrimMonad m => Tracker (PrimState m) -> m [Progress]

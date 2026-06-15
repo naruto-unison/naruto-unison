@@ -34,7 +34,7 @@ check f _ x y z = fromEnum $ f x y z
 cure :: ActionHook
 cure _ user target target' = fromEnum
     $ allied user target
-    && N.numHelpful target' < N.numHelpful target
+    && N.numHelpful target' > N.numHelpful target
 
 -- | Damage received by the target after an action.
 damage :: ActionHook
@@ -102,7 +102,7 @@ killDuring name _ user@Ninja{slot} target target' = fromEnum
     $ not (allied user target)
     && N.alive target
     && not (N.alive target')
-    && N.numStacks (toID name slot) user /= 0
+    && N.has (toID name slot) user
 
 -- | Number of target's 'N.channels' canceled due to an action.
 interrupt :: ActionHook
@@ -121,7 +121,7 @@ use _ _ _ _ = 1
 -- otherwise 0.
 useDuring :: Text -> ActionHook
 useDuring name _ user@Ninja{slot} _ _ = fromEnum
-                                      $ N.numStacks (toID name slot) user /= 0
+                                      $ N.has (toID name slot) user
 
 -- | Number of user's stacks of a @Status@ after an action.
 useDuringStacks :: Text -> ActionHook

@@ -44,7 +44,6 @@ library:
   - monad-loops
   - mono-traversable
   - mtl
-  - multimap
   - mwc-random
   - persistent
   - persistent-postgresql

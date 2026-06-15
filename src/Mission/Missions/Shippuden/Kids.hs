@@ -118,8 +118,8 @@ missions =
 
     , Reach Career 100
       "Provide 100 destructible defense with [Eight Trigrams Sixty-Four Palms]." $
-      HookAction "Hinata Hyūga" "Eight Trigrams Sixty-Four Palms"
-      defend
+      HookTrigger "Hinata Hyūga" OnDefend $
+      used "Eight Trigrams Sixty-Four Palms"
 
     , Reach Match 8
       "In a single match, deplete 8 chakra with [Gentle Fist]." $
@@ -265,8 +265,8 @@ missions =
 
     , Reach Match 160
       "In a single match, apply 160 destructible defense with [Sand Armor]." $
-      HookAction "Gaara" "Sand Armor"
-      defend
+      HookTrigger "Gaara" OnDefend $
+      used "Sand Armor"
     ]
 
   , Mission

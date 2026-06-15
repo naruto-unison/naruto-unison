@@ -67,7 +67,7 @@ killUniqueDuring name = compareUnique \_ user@Ninja{slot} target target' ->
     not (allied user target)
     && N.alive target
     && not (N.alive target')
-    && N.numStacks (toID name slot) user /= 0
+    && N.has (toID name slot) user
 
 -- | Stun an enemy.
 stunUnique :: StoreHook
