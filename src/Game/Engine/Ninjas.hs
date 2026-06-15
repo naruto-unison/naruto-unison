@@ -15,6 +15,7 @@ module Game.Engine.Ninjas
   , sacrifice
   , setHealth
   , kill
+  , bury
 
   , addTrap
   , addStatus
@@ -50,6 +51,7 @@ import ClassyPrelude
 import qualified Data.Sequence as Seq
 
 import           Class.Classed (Classed)
+import qualified Class.Classed as Classed
 import qualified Class.Parity as Parity
 import           Class.Stackable ((.:))
 import           Class.TurnBased (TurnBased)
@@ -374,6 +376,16 @@ kill :: Bool -- ^ Can be prevented by 'Endure'.
 kill endurable n
   | endurable = setHealth 0 n
   | otherwise = clearTraps OnRes $ n { N.health = 0 }
+
+-- | Cleans up effects on a ninja who has died.
+bury :: Ninja -> Ninja
+bury n
+  | N.alive n = n
+  | otherwise = modifyAll onlyNecromancy
+                n { N.channels = onlyNecromancy $ N.channels n }
+  where
+    onlyNecromancy :: ∀ o. (IsSequence o, Classed (Element o)) => o -> o
+    onlyNecromancy = filter $ (Necromancy ∈) . Classed.classes
 
 -- | Extends the duration of matching 'statuses'.
 prolong :: Duration -- ^ Added to 'Status.dur'.

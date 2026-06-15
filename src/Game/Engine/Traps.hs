@@ -69,11 +69,9 @@ getOf user trigger Ninja{traps} = run user
 
 runTriggers :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> Ninja -> m ()
-runTriggers user n@Ninja{traps, triggers}
-  | not $ N.alive n = return ()
-  | otherwise       = do
-        mapM_ (`Hook.trigger` n) triggers
-        mapM_ (run user) traps'
+runTriggers user n@Ninja{traps, triggers} = do
+    mapM_ (`Hook.trigger` n) triggers
+    mapM_ (run user) traps'
   where
       traps' = filter ((∈ triggers) . Trap.trigger) traps
 

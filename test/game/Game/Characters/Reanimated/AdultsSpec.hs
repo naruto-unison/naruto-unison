@@ -89,6 +89,7 @@ spec = parallel do
                 damaged <- measureDamage $ Sim.as Enemy $ return ()
                 damaged `shouldBe` 2 * 35
             it "adds Spirit Words" do
+                apply Permanent "protect" [Reduce [All] Percent 90]
                 replicateM_ testStacks Sim.act
                 Sim.as Enemy $ return ()
                 stacks <- target numStacks "Spirit Word"

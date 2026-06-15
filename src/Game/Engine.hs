@@ -161,6 +161,7 @@ doDeaths = mapM_ doEach Slot.all
                     users = foldl' (\acc ID{owner} -> insertSet owner acc)
                             mempty ended
                 forM_ users \user -> P.modify user $ endControl ended
+            P.modify slot Ninjas.bury
 
         else do
             P.modify slot $ Ninjas.setHealth 1 . Ninjas.clearTraps OnRes
