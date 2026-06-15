@@ -555,8 +555,8 @@ complements effectA effectB amount (Positive dmg) val = atk effects === atk []
     effect x = x [All] amount
 
 getSkill :: [Effect] -> Skill
-getSkill effects = headEx . N.skills
-                          $ Ninjas.processSkills ninja { effects = effects }
+getSkill effects = unsafeHead . N.skills
+                 $ Ninjas.processSkills ninja { effects = effects }
   where
     targets = (`To` return ()) <$> [minBound..maxBound]
     ninja   = Blank.ninjaWithSkill Skill.new { Skill.effects = targets }

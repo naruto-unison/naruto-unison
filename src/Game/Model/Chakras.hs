@@ -341,13 +341,13 @@ instance IsSequence Chakras where
     groupBy _  (Chakras 0 0 0 0 0) = []
     groupBy eq xs                  = ys : groupBy eq zs
       where
-        x        = headEx xs
+        x        = unsafeHead xs
         (ys, zs) = span (eq x) xs
 
     groupAllOn _ (Chakras 0 0 0 0 0) = []
     groupAllOn f xs                  = ys : groupAllOn f zs
       where
-        x        = headEx xs
+        x        = unsafeHead xs
         (ys, zs) = partition ((== f x) . f) xs
 
     index (Chakras b g n t r) i
