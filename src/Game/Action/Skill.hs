@@ -20,7 +20,6 @@ import qualified Data.Vector as Vector
 
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
-import           Game.Action.Status (applyWith)
 import           Game.Engine (unSoulbound)
 import qualified Game.Engine.Cooldown as Cooldown
 import qualified Game.Engine.Ninjas as Ninjas
@@ -35,6 +34,7 @@ import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
+import qualified Game.Model.Status as Status
 import           Game.Model.Trigger (Trigger(..))
 import           Util ((!?))
 
@@ -75,22 +75,35 @@ userSkills = getSkills <$> P.nUser
 setAlternates :: ∀ m. MonadPlay m
           => NonNull Vector Int -- ^ Index offsets.
           -> m () -- ^ Recalculates every alternate of a target @Ninja@.
-setAlternates loadout = applyWith alternateClasses Permanent "loadout"
-    . catMaybes . toList
-    . zipWith load loadout =<< userSkills
+setAlternates loadout = P.uncopied do
+    Context{user, skill} <- P.context
+    Ninja{character = Character{skills}} <- P.nUser
+    P.modify user $ Ninjas.addStatus $ status user skill skills
   where
+    status user skill skills = Status.addClasses alternateClasses
+        $ (Status.new user Permanent skill)
+        { Status.name = "$loadout"
+        , Status.effects = catMaybes . toList $ zipWith load loadout skills
+        }
     load alt (x:|xs) = Alternate (Skill.name x) . Skill.name <$> xs !? (alt - 1)
 
 -- | Cycles a skill through its list of alternates.
 -- | Uses 'Ninjas.nextAlternate' internally.
 nextAlternate :: ∀ m. MonadPlay m => Text -> m ()
 nextAlternate name = do
-    Context{skill} <- P.context
+    Context{user, skill} <- P.context
     let name' = Skill.provideName skill name
     nUser <- P.nUser
-    forM_ (Ninjas.nextAlternate name' nUser) \alt -> P.with Context.reflect
-        $ applyWith alternateClasses 1 "nextAlternate"
-                [ Alternate name' alt ]
+    case Ninjas.nextAlternate name' nUser of
+        Just alt -> P.modify user $ Ninjas.addStatus
+                  $ status user skill name' alt
+        Nothing  -> return ()
+  where
+    status user skill name' alt = Status.addClasses alternateClasses
+        $ (Status.new user 1 skill)
+        { Status.name    = "$nextAlternate"
+        , Status.effects = [Alternate name' alt]
+        }
 
 -- | Copies all @Skill@s from the target into the user's 'N.copies'.
 -- Uses 'Ninjas.copyAll' internally.

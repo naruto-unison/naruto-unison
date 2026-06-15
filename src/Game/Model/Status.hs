@@ -2,11 +2,14 @@ module Game.Model.Status
   ( Status(..)
   , Bomb(..)
   , new
+  , addClasses
   , remove, removeEffect
   ) where
 
 import ClassyPrelude
 
+import           Data.Enum.Set (EnumSet)
+import           Game.Model.Class (Class)
 import           Game.Model.Duration (Duration)
 import           Game.Model.Effect (Effect)
 import           Game.Model.ID (ID)
@@ -27,6 +30,10 @@ new user dur skill@Skill{classes, name} = Status
     , maxDur  = succ dur
     , dur     = succ dur
     }
+
+addClasses :: EnumSet Class -> Status -> Status
+addClasses classes status@Status{classes = classes'} =
+    status { classes = classes ++ classes' }
 
 remove :: Int -- ^ 'amount'
        -> ID -- ^ 'name'
