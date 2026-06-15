@@ -10,6 +10,7 @@ module Game.Engine
 
 import ClassyPrelude
 
+import Control.Monad.Trans.Maybe (MaybeT(..))
 import Data.List (deleteFirstsBy)
 import Data.Vector (zipWithM_)
 
@@ -54,7 +55,6 @@ import           Game.Model.Trap (Trap(Trap))
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
 import           Util ((∈), (∉))
-import Control.Monad.Trans.Maybe (MaybeT(..))
 
 -- | The game engine's main function.
 -- Performs 'Act's and 'Model.Channel.Channel's;

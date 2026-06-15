@@ -10,6 +10,7 @@ import Database.Persist
 
 import           Control.Monad.Error.Class (MonadError(..))
 import           Control.Monad.Loops (untilJust)
+import           Control.Monad.Trans.Maybe (MaybeT(..))
 import qualified Data.HashTable as HashTable
 import           Data.Time.Clock.System (SystemTime(..), getSystemTime)
 import           System.Random.MWC (createSystemRandom)
@@ -40,7 +41,6 @@ import           Handler.Queue.UserInfo (UserInfo(UserInfo))
 import qualified Handler.Queue.UserInfo as UserInfo
 import qualified Handler.Play.War as War
 import           Handler.Play.Wrapper (Wrapper)
-import Control.Monad.Trans.Maybe (MaybeT(..))
 
 -- | Queue section.
 data Section
