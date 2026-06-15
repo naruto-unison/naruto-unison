@@ -35,8 +35,8 @@ opponent = not . even
 {-# INLINE opponent #-}
 
 -- | If 'even', takes the first half. Otherwise, drops the first half.
-half :: ∀ o p. (IsSequence o, Int ~ Index o, Parity p) => p -> o -> o
-half p xs = splitHalf (length xs `quot` 2) xs
+half :: ∀ o p. (IsSequence o, Parity p) => p -> o -> o
+half p xs = splitHalf (lengthIndex xs `quot` 2) xs
   where
     splitHalf
       | even p    = take

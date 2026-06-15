@@ -18,7 +18,7 @@ import System.Random.MWC.Distributions (uniformShuffle)
 import System.Random.Stateful (Uniform(..), UniformRange(..))
 import Yesod.WebSockets (WebSocketsT)
 
-import Util (Lift)
+import Util ((!?), Lift)
 
 -- | A monad capable of nondeterministic behavior.
 class Monad m => MonadRandom m where
@@ -68,8 +68,8 @@ instance (MonadRandom m, Monoid w) => MonadRandom (AccumT w m)
 
 -- | Randomly selects an element from a finite list.
 -- Returns @Nothing@ on an empty list.
-choose :: ∀ o m. (MonadRandom m, Int ~ Index o, IsSequence o)
+choose :: ∀ o m. (MonadRandom m, IsSequence o, UniformRange (Index o))
        => o -> m (Maybe (Element o))
 choose xs
   | null xs   = return Nothing
-  | otherwise = index xs <$> range (0, length xs - 1)
+  | otherwise = (xs !?) <$> range (0, lengthIndex xs - 1)

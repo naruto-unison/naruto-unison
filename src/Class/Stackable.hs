@@ -65,10 +65,10 @@ instance Stackable Status where
             } = (user, owner, name, skillName)
 
 isContinuing :: ∀ a. Classed a => a -> Bool
-isContinuing x = Continues ∈ Classed.classes x
+isContinuing (Classed.classes -> clas) = Continues ∈ clas
 
 isNonStack :: ∀ a. Classed a => a -> Bool
-isNonStack x = Nonstacking ∈ Classed.classes x && Hidden ∉ Classed.classes x
+isNonStack (Classed.classes -> clas) = Nonstacking ∈ clas && Hidden ∉ clas
 
 addNonStacking :: ∀ a. Stackable a => a -> [a] -> [a]
 addNonStacking x xs = x : filter f xs
