@@ -294,6 +294,7 @@ characters =
           [ To XAlly $ whenM (channeling skillName) do
                 factory
                 tag Permanent skillName
+                cancelChannel skillName -- just in case
           ]
         , Skill.changes   = withMode \m -> setCost [m, m, m]
         }
@@ -816,7 +817,7 @@ characters =
         { Skill.name    = "Curse Mark Release"
         , Skill.desc    = "By giving an ally a curse mark, Orochimaru uses their body as an anchor for his soul after death. If the target's health reaches 25 or lower while Orochimaru is dead, Orochimaru will be resurrected into their body with full health and all status effects removed, and will become invulnerable to bane skills. Cannot be used while active. If Orochimaru acquires a new body, this skill becomes [Regeneration][g][n]."
         , Skill.require = UserHas 0 "curse mark release"
-        , Skill.classes = [Physical, Unremovable, Bypassing, Uncounterable, Unreflectable, Invisible, Melee]
+        , Skill.classes = [Physical, Unremovable, Bypassing, Uncounterable, Unreflectable, Invisible, Melee, Atemporal]
         , Skill.cost    = [Blood, Nin]
         , Skill.effects =
           [ To Ally do

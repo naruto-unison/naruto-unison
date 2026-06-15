@@ -148,7 +148,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Reciprocal Round-Robin"
         , Skill.desc      = "Minato prepares to switch places with an ally. If enemies use skills on Minato next turn, the skills will be reflected onto the target, and Minato's skills next turn will bypass invulnerability, counters, reflects, and damage reduction. If enemies use skills on the target next turn, the skills will be reflected onto Minato, and the target's skills next turn will bypass invulnerability, counters, reflects, and damage reduction."
-        , Skill.classes   = [Chakra, Ranged, Invisible, Unremovable]
+        , Skill.classes   = [Chakra, Ranged, Invisible, Unreflectable, Unremovable, Atemporal]
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
@@ -414,7 +414,7 @@ characters =
         { Skill.name      = "Steaming Danger Tyranny Boy"
         , Skill.desc      = "Gengetsu isolates an enemy by repeatedly blasting the rest of their team back with a childlike figure of himself. For 2 turns, Gengetsu and his target are invulnerable to everyone else and cannot use skills on anyone else. At the start of the duel, both participants have their health set to 30. When the duel ends, they are restored to their health before the duel if still alive."
         , Skill.require   = UserHas 0 "Steaming Danger Tyranny Boy"
-        , Skill.classes   = [Chakra, Ranged, Bypassing, Unremovable]
+        , Skill.classes   = [Chakra, Ranged, Bypassing, Unreflectable, Unremovable, Atemporal]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
@@ -448,7 +448,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Major Summoning: Ibuse"
         , Skill.desc      = "Hanzō summons his fabled salamander to the battlefield. Ibuse starts with 30 health and redirects half of all damage against Hanzō to itself until it dies. While active, this skill becomes [Poison Fog][b][b]."
-        , Skill.classes   = [Summon, Unreflectable, Unremovable]
+        , Skill.classes   = [Summon, Unremovable]
         , Skill.cost      = [Rand, Rand, Rand]
         , Skill.cooldown  = 6
         , Skill.effects   =

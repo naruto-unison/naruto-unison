@@ -251,7 +251,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Lightning Fang"
         , Skill.desc      = "Bolts of lightning cascade across the battlefield, applying 2 turns of Electricity to all enemies. Whenever someone affected by Electricity uses a skill, Electricity on them is refreshed to its maximum duration, and everyone affected by Electricity receives 5 affliction damage that bypasses invulnerability. Reapplying Electricity extends its duration instead of stacking."
-        , Skill.classes   = [Bane, Chakra, Ranged, Extending]
+        , Skill.classes   = [Bane, Chakra, Ranged, Extending, Atemporal]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
@@ -264,7 +264,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Depth Charge"
         , Skill.desc      = "Ameyuri surrounds herself with lightning and electrocutes an opponent, dealing 30 damage. Deals affliction damage if the target is affected by Electricity. Enemies who use a skill on Ameyuri next turn will have 1 turn of Electricity applied to them."
-        , Skill.classes   = [Bane, Chakra, Melee, Extending]
+        , Skill.classes   = [Bane, Chakra, Melee, Extending, Atemporal]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy do
@@ -279,7 +279,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Thunder Gate"
         , Skill.desc      = "With the twin blades of Baki plunged into the ground, Ameyuri calls down lightning from the sky to incinerate the battlefield around an enemy, dealing 30 piercing damage to them. Deals 10 additional damage per enemy affected by Electricity. Removes 1 turn of Electricity from all enemies."
-        , Skill.classes   = [Chakra, Ranged]
+        , Skill.classes   = [Chakra, Ranged, Atemporal]
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 4
         , Skill.effects   =
@@ -300,7 +300,7 @@ characters =
         { Skill.name      = "Needle Stitching"
         , Skill.desc      = "Nuibari skewers an enemy and pulls a wire through them, dealing 20 piercing damage and preventing them from affecting him for 1 turn. Deals 5 additional damage per person affected by [Needle Stitching] and extends its duration on them by 1 turn. Cannot be used on an enemy already affected by this skill."
         , Skill.require   = TargetHas 0 "Needle Stitching"
-        , Skill.classes   = [Physical, Melee]
+        , Skill.classes   = [Physical, Melee, Atemporal]
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do

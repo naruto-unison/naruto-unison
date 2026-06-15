@@ -18,6 +18,8 @@ import           Control.Monad.Trans.Maybe (MaybeT(..))
 import           Data.Enum.Set (EnumSet)
 import qualified Data.Vector as Vector
 
+import           Class.Classed (Classed)
+import qualified Class.Classed as Classed
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import           Game.Engine (unSoulbound)
@@ -36,7 +38,7 @@ import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import qualified Game.Model.Status as Status
 import           Game.Model.Trigger (Trigger(..))
-import           Util ((!?))
+import           Util ((!?), (∉), (∈))
 
 -- | Changes the 'Skill.cooldown' of a @Skill@ by 'Skill.name'.
 -- Uses 'Cooldown.alter' internally.
@@ -147,4 +149,13 @@ factory = do
 
 -- | Restores a target to an earlier state. Charges are preserved.
 replaceWith :: ∀ m. MonadPlay m => Ninja -> m ()
-replaceWith n = P.toTarget \n' -> n { N.charges = N.charges n' }
+replaceWith n = P.toTarget \n' ->
+    n { N.defense = replace N.defense n n' }
+      { N.barrier = replace N.barrier n n' }
+      { N.statuses = replace N.statuses n n' }
+      { N.traps = replace N.traps n n' }
+  where
+    replace :: ∀ a. Classed a => (Ninja -> [a]) -> Ninja -> Ninja -> [a]
+    replace getter old current =
+        filter ((Atemporal ∈) . Classed.classes) (getter current)
+        ++ filter ((Atemporal ∉) . Classed.classes) (getter old)

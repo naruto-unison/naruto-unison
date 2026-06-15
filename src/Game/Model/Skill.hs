@@ -26,6 +26,7 @@ import           Game.Model.Internal (Channeling(..), Key(..), Skill(..), Requir
 import           Game.Model.Internal.Skill (key)
 import qualified Game.Model.Runnable as Runnable
 import qualified Game.Model.Slot as Slot
+import           Util ((∈))
 
 -- | Default values.
 new :: Skill
@@ -113,7 +114,9 @@ restrict = changeEffects $ mapMaybe f
 
 -- | Affects enemies instead of allies and allies instead of enemies.
 swap :: Skill -> Skill
-swap = retarget f
+swap skill
+  | Unreflectable ∈ classes skill = skill
+  | otherwise                     = retarget f skill
   where
     f Self     = Self
     f Ally     = REnemy

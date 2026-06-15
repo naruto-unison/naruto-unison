@@ -1080,13 +1080,12 @@ characters =
         , Skill.cooldown  = 1
         , Skill.dur       = Action 2
         , Skill.start     =
-          [ To Enemy $ trap 1 (OnAction All) do
+          [ To Enemy $ trap 1 (OnAction All) $
                 removeTrap skillName
-                hide 1 skillName []
           ]
         , Skill.effects   =
           [ To Enemy $ whenM (channeling skillName) do
-                bonus <- 15 `bonusIf` target has "rasengan"
+                bonus <- 15 `bonusIf` (not <$> target has' traps skillName)
                 damage (25 + bonus)
                 cancelChannel skillName -- just in case
           ]

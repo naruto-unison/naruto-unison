@@ -63,7 +63,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Kotoamatsukami"
         , Skill.desc      = "Using his Mangekyō Sharingan, Shisui traps an enemy in a powerful genjutsu. The next time they use a skill, their team will lose 1 random chakra. Until they use a skill, Shisui can use this skill with no chakra cost to transfer Kotoamatsukami to a different enemy."
-        , Skill.classes   = [Mental, Ranged, Invisible]
+        , Skill.classes   = [Mental, Ranged, Invisible, Unremovable, Unreflectable, Atemporal]
         , Skill.cost      = [Blood, Gen]
         , Skill.effects   =
           [ To Enemy do
@@ -260,7 +260,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Izanagi"
         , Skill.desc      = "Danzō gains 10 Sharingan and loses 1 every turn. If his health reaches 0, his condition is completely restored to its state at the start of the turn and he loses an extra Sharingan. While active, he can use this skill again with no cost to pause its effect. When he has no Sharingan remaining, this skill becomes [Reverse Tetragram Sealing][r][r][r]."
-        , Skill.classes   = [Mental, Resource]
+        , Skill.classes   = [Mental, Resource, Atemporal]
         , Skill.cost      = [Blood]
         , Skill.dur       = Passive
         , Skill.start     =
@@ -270,19 +270,15 @@ characters =
                 ]
           ]
         , Skill.effects   =
-          let
-            spendSharingans i = do
-                removeStacks "Sharingan" i
+          [ To Self $ unlessM (user has "paused") do
+                removeStack "Sharingan"
                 anyLeft <- user has "Sharingan"
-                unless anyLeft $
+                if anyLeft then do
+                    rewind <- user ()
+                    trap' 1 OnRes $
+                        replaceWith rewind
+                else
                     cancelChannel skillName
-                return anyLeft
-          in
-          [ To Self $ unlessM (user has "paused") $ whenM (spendSharingans 1) do
-                rewind <- user ()
-                trap' 1 OnRes do
-                    replaceWith rewind
-                    void $ spendSharingans 2
           ]
         , Skill.end       =
           [ To Self $ hide Permanent skillName

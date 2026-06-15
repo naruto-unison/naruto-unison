@@ -103,7 +103,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Major Summoning: Gamabunta"
         , Skill.desc      = "Jiraiya summons the great toad Gamabunta, who deals 25 affliction damage to all enemies. Once used, this skill becomes [Toad Oil Bomb][n][r]. Every turn that Jiraiya is alive, Gamabunta causes all enemies to receive 5 additional damage from affliction skills."
-        , Skill.classes   = [Bane, Summon, Ranged, Unreflectable, Unremovable]
+        , Skill.classes   = [Bane, Summon, Ranged, Unreflectable]
         , Skill.cost      = [Blood, Gen, Tai]
         , Skill.dur       = Ongoing Permanent
         , Skill.start     =
@@ -163,7 +163,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Major Summoning: Katsuyu"
         , Skill.desc      = "Tsunade summons the great slug Katsuyu, who heals her team for 35 health. Once used, this skill becomes [Slug Division][n]. Every turn that Tsunade is alive, Katsuyu restores 5 health to her team."
-        , Skill.classes   = [Summon, Unremovable, Unreflectable]
+        , Skill.classes   = [Summon, Unreflectable]
         , Skill.cost      = [Blood, Gen, Nin]
         , Skill.dur       = Ongoing Permanent
         , Skill.start     =
@@ -211,7 +211,7 @@ characters =
         { Skill.name      = "Reaper Death Seal"
         , Skill.desc      = "Hiruzen unleashes the God of Death upon an enemy in exchange for his soul. Each turn, the God of Death deals 40 affliction damage to the target and 20 affliction damage to Hiruzen. Both are permanently stunned, and the target cannot reduce damage or become invulnerable."
         , Skill.require   = UserHas 0 "Reaper Death Seal"
-        , Skill.classes   = [Ranged, Unreflectable, Unremovable, Soulbound, Bypassing]
+        , Skill.classes   = [Ranged, Unreflectable, Unremovable, Soulbound, Bypassing, Atemporal]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy $ apply Permanent skillName
@@ -229,7 +229,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Major Summoning: Enma"
         , Skill.desc      = "Hiruzen summons the great monkey Enma, who makes his team invulnerable for 1 turn. Once used, this skill becomes [Adamantine Prison][n]. Every turn that Hiruzen is alive, Enma deals 5 damage to all enemies and provides 5 points of damage reduction to Hiruzen's team."
-        , Skill.classes   = [Summon, Melee, Unreflectable, Unremovable]
+        , Skill.classes   = [Summon, Melee, Unreflectable]
         , Skill.cost      = [Gen, Nin, Tai]
         , Skill.dur       = Ongoing Permanent
         , Skill.start     =

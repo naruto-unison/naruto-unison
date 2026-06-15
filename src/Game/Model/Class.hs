@@ -41,6 +41,7 @@ data Class
     | Resource -- ^ Display stacks separately
     | Nonstacking
     | Extending
+    | Atemporal -- ^ Unaffected by Izanagi
     -- Fake (don't put these in Skill.classes manually)
     | All
     | Affliction

@@ -374,7 +374,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Self-Sacrifice"
         , Skill.desc      = "Asuma continually protects one ally. All skills that enemies use on the target will be reflected to Asuma. This skill can be used again with no chakra cost to cancel its effect."
-        , Skill.classes   = [Physical, Melee, Soulbound, Unremovable, Unreflectable]
+        , Skill.classes   = [Physical, Melee, Soulbound, Unremovable, Unreflectable, Atemporal]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To XAlly do
@@ -391,7 +391,7 @@ characters =
       , Skill.new
         { Skill.name      = "Self-Sacrifice"
         , Skill.desc      = "Ends the effect of [Self-Sacrifice]."
-        , Skill.classes   = [Physical, Melee, Unreflectable]
+        , Skill.classes   = [Physical, Melee]
         , Skill.effects   =
           [ To Self $ targeting Everyone $ remove skillName ]
         }

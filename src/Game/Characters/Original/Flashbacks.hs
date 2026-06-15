@@ -32,21 +32,20 @@ characters =
     , [ Skill.new
         { Skill.name      = "Life Link"
         , Skill.desc      = "Kushina binds her life-force to that of an enemy. For 4 turns, if either dies, the other will die as well. Effect cannot be avoided, prevented, or removed. While active, this skill becomes [Life Transfer][r]."
-        , Skill.classes   = [Mental, Ranged, Nonstacking, Bypassing, Unremovable, Uncounterable, Unreflectable]
+        , Skill.classes   = [Mental, Ranged, Nonstacking, Bypassing, Unremovable, Uncounterable, Unreflectable, Atemporal]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
           [ To Enemy do
-                tag 4 skillName
                 trap 4 OnDeath $
                     targeting Self killHard
                 targeting Self do
-                    apply 4 skillName
+                    hide 4 skillName
                         [ Alternate "Life Link"
                                     "Life Transfer"
                         ]
                     trap 4 OnDeath $ targeting Everyone $
-                        whenM (target has skillName)
+                        whenM (target has' traps skillName)
                             killHard
           ]
         }
@@ -359,13 +358,13 @@ characters =
     , [ Skill.new
         { Skill.name      = "Sharingan"
         , Skill.desc      = "Obito targets an ally. For 4 turns, Obito gains 15 points of damage reduction, and if Obito dies, the ally will gain 5 points of damage reduction and deal 5 additional non-affliction damage."
-        , Skill.classes   = [Mental, Unremovable]
+        , Skill.classes   = [Mental, Unreflectable, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To XAlly do
                 targeting Allies $ remove skillName -- in case cooldown resets
-                tag 4 skillName
+                tagWith [Atemporal] 4 skillName
           ,  To Self do
                 apply 4 skillName [Reduce [All] Flat 15]
                 trap 4 OnDeath $ targeting Everyone $

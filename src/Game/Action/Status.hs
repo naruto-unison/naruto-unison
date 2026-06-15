@@ -2,7 +2,7 @@
 module Game.Action.Status
   ( -- * Applying statuses
     apply, applyWith
-  , tag
+  , tag, tagWith
   , flag
   , hide
   , addStack, addStacks, addStacks', applyStacks
@@ -101,7 +101,12 @@ flag name =
 -- | Applies a @Status@ with no effects, used as a marker for other
 -- 'Skill.Skill's.
 tag :: ∀ m. MonadPlay m => Duration -> Text -> m ()
-tag dur name = applyWith (setFromList [Unremovable, Nonstacking]) dur name []
+tag = tagWith mempty
+-- | 'tag' with extra classes.
+tagWith :: ∀ m. MonadPlay m => EnumSet Class -> Duration -> Text -> m ()
+tagWith classes dur name = applyWith (classes ++ extraClasses) dur name []
+  where
+    extraClasses = setFromList [Unremovable, Nonstacking]
 
 -- | Applies a 'Hidden' and 'Unremovable' @Status@.
 hide :: ∀ m. MonadPlay m => Duration -> Text -> [Effect] -> m ()

@@ -15,7 +15,6 @@ import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
-import           Game.Model.Channel (Channeling(..))
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
@@ -132,7 +131,6 @@ makeStatus StatusParams
     baseClasses = classes ++ Skill.classes skill
     noremove    = null effects && Bane ∉ baseClasses
                   || Hidden ∈ baseClasses
-                  || dur == 1 && Skill.dur skill /= Instant
                   || user == target && any (not . Effect.helpful) effects
     extra       = setFromList $ fst <$> filter snd
                   [ (Soulbound,   any bind effects)

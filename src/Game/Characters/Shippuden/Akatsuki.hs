@@ -200,12 +200,12 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Kazekage Puppet Summoning"
         , Skill.desc      = "Sasori summons his most prized puppet, gaining 15 permanent destructible defense and enabling his other skills. Once used, this skill becomes [Iron Sand: World Order][b][n]. Every turn, Sasori gains a stack of Iron Sand."
-        , Skill.classes   = [Physical]
+        , Skill.classes   = [Physical, Unremovable]
         , Skill.dur       = Ongoing Permanent
         , Skill.start     =
           [ To Self $ defend Permanent 15 ]
         , Skill.effects   =
-          [ To Self $ applyWith [Unremovable] Permanent "Iron Sand"
+          [ To Self $ apply Permanent "Iron Sand"
                 [ Alternate "Kazekage Puppet Summoning"
                             "Iron Sand: World Order"
                 ]
@@ -291,7 +291,7 @@ characters =
         { Skill.name      = "Jashin Sigil"
         , Skill.require   = UserHas 0 "Jashin Sigil"
         , Skill.desc      = "Hidan prepares for his ritual by drawing an insignia on the ground in blood. Once used, this skill becomes [First Blood][r]."
-        , Skill.classes   = [Physical, Unremovable, Uncounterable, Unreflectable]
+        , Skill.classes   = [Physical, Unremovable, Uncounterable]
         , Skill.effects   =
           [ To Self $ apply Permanent skillName
                 [ Alternate "Jashin Sigil"
@@ -302,7 +302,7 @@ characters =
       , Skill.new
         { Skill.name      = "First Blood"
         , Skill.desc      = "Searching for a victim to join him in his ritual of death, Hidan deals 5 damage to an opponent and marks them for 2 turns. While they are marked, this skill becomes [Blood Curse][g]."
-        , Skill.classes   = [Bane, Physical, Unreflectable]
+        , Skill.classes   = [Bane, Physical, Unreflectable, Atemporal]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
@@ -320,7 +320,7 @@ characters =
         { Skill.name      = "Blood Curse"
         , Skill.desc      = "Hidan begins his ritual by drinking the blood of [First Blood]'s target, instantly using [Prayer] and then linking himself to them for 3 turns. While active, skills used on Hidan and the target by their opponents are also reflected to each other, and this skill becomes [Death Blow][t][g]. Hidan ignores harmful status effects, although his target does not. Damage that Hidan deals to himself with his own skills while linked to a living target does not harm him."
         , Skill.require   = TargetHas 1 "First Blood"
-        , Skill.classes   = [Chakra, Soulbound, Uncounterable, Unreflectable, Unremovable]
+        , Skill.classes   = [Chakra, Soulbound, Uncounterable, Unreflectable, Unremovable, Atemporal]
         , Skill.cost      = [Gen]
         , Skill.effects   =
           [ To Self do
@@ -388,7 +388,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Prayer"
         , Skill.desc      = "Silently praying to Lord Jashin, Hidan prevents his health from dropping below 1 for 1 turn. Every time this skill is used, it costs 1 additional arbitrary chakra and its effect lasts 1 additional turn."
-        , Skill.classes   = [Mental, Uncounterable, Unreflectable, Unremovable, Nonstacking]
+        , Skill.classes   = [Mental, Uncounterable, Unremovable, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do
@@ -484,11 +484,12 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Thousand Hungry Sharks"
         , Skill.desc      = "A school of sharks erupts around Kisame. He gains ten stacks of [Hundred Hungry Sharks]. Every turn, the sharks deal 5 piercing damage to all enemies, spending one stack per enemy hit. The first enemy to use a skill on Kisame will be marked, causing the sharks to ignore other enemies until the target dies. Deals 5 additional damage during [Exploding Water Shockwave]. Once used, this skill becomes [Man-Eating Sharks][n]."
-        , Skill.classes   = [Chakra, Ranged, Unreflectable, Resource]
+        , Skill.classes   = [Chakra, Ranged, Unreflectable, Resource, Atemporal]
         , Skill.cost      = [Nin]
         , Skill.dur       = Ongoing Permanent
         , Skill.start     =
           [ To Self do
+                targeting Everyone $ remove "ignored" -- just in case
                 applyStacks "Hundred Hungry Sharks" 10
                     [ Alternate "Thousand Hungry Sharks"
                                 "Man-Eating Sharks"
@@ -855,7 +856,7 @@ characters =
         { Skill.name      = "Izanagi"
         , Skill.desc      = "Tobi sacrifices one of his eyes to take control of reality on a local scale, reversing the flow of time. In 4 turns, he will be restored to his condition at the moment of using this skill. Cannot be used while active."
         , Skill.require    = UserHas 0 "Izanagi"
-        , Skill.classes    = [Mental, Invisible, Unremovable]
+        , Skill.classes    = [Mental, Invisible, Unremovable, Atemporal]
         , Skill.cost       = [Blood, Blood]
         , Skill.charges    = 2
         , Skill.effects    =
@@ -938,7 +939,7 @@ characters =
                         cancelChannel skillName
           ]
         , Skill.effects   =
-          [ To Self $ targeting Enemies $
+          [ To Self $ targeting Everyone $
                 whenM (target has' barrier skillName) do
                     notStunned <- target has "chakra receiver"
                     if notStunned then
@@ -1019,7 +1020,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Guided Missile"
         , Skill.desc      = "Pain fires a slow-moving but devastating missile at a target. Over the next four turns, the cost of this skill is 1 chakra that cycles through the different types of chakra. Each turn, it has a different effect on the target. Using the skill again resets it."
-        , Skill.classes   = [Physical, Ranged, Bypassing, Invisible, Nonstacking]
+        , Skill.classes   = [Physical, Ranged, Bypassing, Invisible, Nonstacking, Atemporal]
         , Skill.dur       = Ongoing 4
         , Skill.start     =
           [ To Enemy $ tag 4 skillName ]
@@ -1156,7 +1157,7 @@ characters =
                 ]
           ]
         , Skill.end       =
-          [ To Self $ whenM (user alive) $ targeting Enemies $
+          [ To Self $ whenM (user alive) $ targeting Everyone $
                 whenM (target has' traps skillName) $
                     apply 1 "Giant Centipede Stun" [Stun All]
           ]
@@ -1203,7 +1204,8 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Allies $ trap -1 (OnHarmed All) $ targeting Self $
-                addStack skillName
+                whenM (channeling skillName) $
+                    addStack skillName
           , To Enemies do
                 stacks <- user numStacks skillName
                 damage (10 * bit stacks)
@@ -1221,7 +1223,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Chakra Shield"
         , Skill.desc      = "Pain creates a protective barrier around himself that absorbs chakra. Next turn, enemy skills used on him will be nullified, and Pain will gain chakra equal to the chakra cost of nullified skills."
-        , Skill.classes   = [Chakra, Ranged, Invisible, Nonstacking, Unreflectable]
+        , Skill.classes   = [Chakra, Ranged, Invisible, Nonstacking]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
