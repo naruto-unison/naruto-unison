@@ -11,6 +11,7 @@ import           Class.Parity (allied)
 import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja
 import           Game.Model.Slot (Slot)
+import           Mission.Hooks.Util (boolean)
 import           Mission.Progress (Store)
 import           Util ((∉))
 
@@ -26,7 +27,7 @@ type TriggerHook = Ninja -- ^ User.
 -- | Tallies the number of unique targets who trigger a trap.
 trapUnique :: TrapHook
 trapUnique _ Ninja{slot} store = ( insertSet slot store
-                                 , fromEnum $ slot ∉ store
+                                 , boolean $ slot ∉ store
                                  )
 
 -- | 'trapUnique' restricted to the user's team.

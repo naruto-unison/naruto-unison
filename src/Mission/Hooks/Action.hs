@@ -18,7 +18,7 @@ import ClassyPrelude
 import           Class.Parity (allied)
 import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
-import           Mission.Hooks.Util (hasFrom, toID)
+import           Mission.Hooks.Util (boolean, hasFrom, toID)
 
 type ActionHook = Text  -- ^ Skill name.
                -> Ninja -- ^ User.
@@ -28,11 +28,11 @@ type ActionHook = Text  -- ^ Skill name.
 
 -- | 1 if the condition holds true, otherwise 0.
 check :: (Ninja -> Ninja -> Ninja -> Bool) -> ActionHook
-check f _ x y z = fromEnum $ f x y z
+check f _ x y z = boolean $ f x y z
 
 -- | 1 if the user cured the target, otherwise 0.
 cure :: ActionHook
-cure _ user target target' = fromEnum
+cure _ user target target' = boolean
     $ allied user target
     && N.numHelpful target' > N.numHelpful target
 
@@ -81,7 +81,7 @@ heal _ user target target'
 
 -- | 1 if the target died after an action, otherwise 0.
 kill :: ActionHook
-kill _ user target target' = fromEnum
+kill _ user target target' = boolean
     $ not (allied user target)
     && N.alive target
     && not (N.alive target')
@@ -89,7 +89,7 @@ kill _ user target target' = fromEnum
 -- | 1 if the target died after an action while affected by a @Status@,
 -- otherwise 0.
 killAffected :: Text -> ActionHook
-killAffected name _ user target target' = fromEnum
+killAffected name _ user target target' = boolean
     $ not (allied user target)
     && N.alive target
     && not (N.alive target')
@@ -98,7 +98,7 @@ killAffected name _ user target target' = fromEnum
 -- | 1 if the target died after an action while the user had a @Status@,
 -- otherwise 0.
 killDuring :: Text -> ActionHook
-killDuring name _ user@Ninja{slot} target target' = fromEnum
+killDuring name _ user@Ninja{slot} target target' = boolean
     $ not (allied user target)
     && N.alive target
     && not (N.alive target')
@@ -120,7 +120,7 @@ use _ _ _ _ = 1
 -- | 1 if the action was used while the user was affected by a @Status@,
 -- otherwise 0.
 useDuring :: Text -> ActionHook
-useDuring name _ user@Ninja{slot} _ _ = fromEnum
+useDuring name _ user@Ninja{slot} _ _ = boolean
                                       $ N.has (toID name slot) user
 
 -- | Number of user's stacks of a @Status@ after an action.

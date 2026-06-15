@@ -13,7 +13,7 @@ import Class.Parity (allied)
 import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
-import           Mission.Hooks.Util (hasFrom, toID)
+import           Mission.Hooks.Util (boolean, hasFrom, toID)
 import           Mission.Progress (Store)
 import qualified Mission.Progress as Progress
 import           Util ((∈))
@@ -31,12 +31,12 @@ checkEnemyStatus :: Text -> TurnHook
 checkEnemyStatus name player user _ target store
   | not $ allied player user = (store, 0)
   | allied user target       = (store, 0)
-  | N.alive target           = (store, fromEnum $ hasFrom user name target)
+  | N.alive target           = (store, boolean $ hasFrom user name target)
   | otherwise                = (store, 0)
 
 -- | 1 if an enemy dies with a @Status@ at the end of the turn, otherwise 0.
 killWith :: Text -> TurnHook
-killWith name player user target target' store = (store, ) . fromEnum
+killWith name player user target target' store = (store, ) . boolean
     $ allied player user
     && not (allied user target)
     && N.alive target
@@ -61,7 +61,9 @@ maintainOnAlly name player user _ target@Ninja{slot} store
   | not $ allied user target       = (store, 0)
   | not $ N.alive target           = (deleteSet slot store, reset)
   | not $ hasFrom user name target = (deleteSet slot store, reset)
-  | otherwise = (insertSet slot store, fromEnum $ allied player user)
+  | otherwise                      = ( insertSet slot store
+                                     , boolean $ allied player user
+                                     )
   where
     reset
       | slot ∈ store = Progress.resetToZero

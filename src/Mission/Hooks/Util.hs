@@ -1,7 +1,8 @@
 {-# OPTIONS_HADDOCK prune #-}
 
 module Mission.Hooks.Util
-  ( hasFrom
+  ( boolean
+  , hasFrom
   , hasOwn
   , toID
   , used
@@ -16,6 +17,10 @@ import qualified Game.Model.Ninja as N
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
+
+-- | 1 if True, 0 if False.
+boolean :: Bool -> Int
+boolean = fromEnum
 
 --  | True if target has a 'Status' from the user with matching 'Status.name'.
 hasFrom :: Ninja -> Text -> Ninja -> Bool

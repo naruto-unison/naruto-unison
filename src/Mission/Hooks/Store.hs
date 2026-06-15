@@ -16,7 +16,7 @@ import           Class.Parity (allied)
 import qualified Game.Engine.Effects as Effects
 import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
-import           Mission.Hooks.Util (hasFrom, toID)
+import           Mission.Hooks.Util (boolean, hasFrom, toID)
 import           Mission.Progress (Store)
 import           Util ((∈), (∉))
 
@@ -79,5 +79,5 @@ stunUnique = checkUnique \name user target ->
 -- | Use an action on a target.
 useUnique :: StoreHook
 useUnique _ _ Ninja{slot} _ store = ( insertSet slot store
-                                    , fromEnum $ slot ∉ store
+                                    , boolean $ slot ∉ store
                                     )
