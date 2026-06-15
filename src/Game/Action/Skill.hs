@@ -76,11 +76,11 @@ setAlternates :: ∀ m. MonadPlay m
           => NonNull Vector Int -- ^ Index offsets.
           -> m () -- ^ Recalculates every alternate of a target @Ninja@.
 setAlternates loadout = P.uncopied do
-    Context{user, skill} <- P.context
+    context@Context{user} <- P.context
     Ninja{character = Character{skills}} <- P.nUser
-    P.modify user $ Ninjas.addStatus $ status user skill skills
+    P.modify user $ Ninjas.addStatus $ status context skills
   where
-    status user skill skills = Status.addClasses alternateClasses
+    status Context{user, skill} skills = Status.addClasses alternateClasses
         $ (Status.new user Permanent skill)
         { Status.name = "$loadout"
         , Status.effects = catMaybes . toList $ zipWith load loadout skills
@@ -91,15 +91,15 @@ setAlternates loadout = P.uncopied do
 -- | Uses 'Ninjas.nextAlternate' internally.
 nextAlternate :: ∀ m. MonadPlay m => Text -> m ()
 nextAlternate name = do
-    Context{user, skill} <- P.context
+    context@Context{user, skill} <- P.context
     let name' = Skill.provideName skill name
     nUser <- P.nUser
     case Ninjas.nextAlternate name' nUser of
         Just alt -> P.modify user $ Ninjas.addStatus
-                  $ status user skill name' alt
+                  $ status context name' alt
         Nothing  -> return ()
   where
-    status user skill name' alt = Status.addClasses alternateClasses
+    status Context{user, skill} name' alt = Status.addClasses alternateClasses
         $ (Status.new user 1 skill)
         { Status.name    = "$nextAlternate"
         , Status.effects = [Alternate name' alt]

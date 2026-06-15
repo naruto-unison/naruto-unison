@@ -189,7 +189,7 @@ characters =
         , Skill.dur       = Control Permanent
         , Skill.start     =
           [ To Enemy $ controlTrap Nullified $
-                cancelChannel skillName
+                removeTrap skillName
           ]
         , Skill.effects   =
           [ To Enemy $ damage 10 ]

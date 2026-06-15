@@ -46,11 +46,11 @@ import           Util ((∈), intersects)
 
 launch :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
        => Trap -> Runnable Context -> m ()
-launch trap runner
-  | not $ Trap.uncopied trap = P.launch runner
+launch trap (To context@Context{target} f)
+  | not $ Trap.uncopied trap = P.withContext context f
   | otherwise                = do
-    nTarget <- P.ninja . Context.target $ Runnable.target runner
-    P.launch runner
+    nTarget <- P.ninja target
+    P.withContext context f
     Hook.trap trap nTarget
 
 run :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)

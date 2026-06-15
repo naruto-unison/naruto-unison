@@ -2,8 +2,6 @@
 module Class.Play
   ( -- * Monads
     MonadGame(..), MonadPlay(..)
-    -- * Actions stored in data structures
-  , launch
     -- * Context
     -- ** From game
   , nUser, nTarget
@@ -25,7 +23,6 @@ import ClassyPrelude hiding (zipWith)
 
 import           Class.Parity (Parity)
 import qualified Class.Parity as Parity
-import           Class.Random (MonadRandom)
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import           Game.Model.Effect (Effect(..))
@@ -34,7 +31,6 @@ import qualified Game.Model.ID as ID
 import           Game.Model.Internal (MonadGame(..), MonadPlay(..))
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as N
-import           Game.Model.Runnable (Runnable(To))
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill
 import           Game.Model.Slot (Slot)
@@ -43,10 +39,6 @@ import           Game.Model.Trigger (Trigger(..))
 -- | Alters the focus of the environment to a new @Context@.
 withContext :: ∀ a m. Context -> ReaderT Context m a -> m a
 withContext ctx f = runReaderT f ctx
-
--- | Runs a @Runnable@ with its associated @Context@.
-launch :: ∀ m. (MonadGame m, MonadRandom m) => Runnable Context -> m ()
-launch (To runTarget run) = runReaderT run runTarget
 
 -- | The 'Game.ninja' indexed by 'user'.
 nUser :: ∀ m. MonadPlay m => m Ninja

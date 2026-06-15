@@ -1,5 +1,10 @@
 -- | 'Status' processing.
-module Game.Engine.Statuses (apply) where
+module Game.Engine.Statuses
+    ( apply
+    , triggerStatusApplied
+    , makeStatus
+    , StatusParams(..)
+    ) where
 
 import ClassyPrelude
 
@@ -28,38 +33,19 @@ import qualified Game.Model.Status as Status
 import           Game.Model.Trigger (Trigger(..))
 import           Util ((∈), (∉), intersects)
 
--- | Status engine.
--- Uses 'Ninjas.addStatus' internally.
-apply :: ∀ m. MonadPlay m
-          => Int -> EnumSet Class -> [Runnable Bomb] -> Duration -> Text
-          -> [Effect] -> m ()
-apply amount classes bombs unthrottled name effects = void $ runMaybeT do
-    context@Context{new, target, user} <- P.context
-    nUser   <- P.nUser
-    nTarget <- P.nTarget
-    dur     <- if not new || isChanneled then return unthrottled else
-                hoistMaybe $ Duration.throttle
-                (Effects.throttle effects nUser) unthrottled
-    let st   = makeStatus context amount nUser nTarget
-               classes bombs name dur effects
-        stID = ID.from st
-    if N.has stID nTarget && Extending ∈ Status.classes st then
-        P.modify target $ Ninjas.prolong (Status.dur st) stID
-    else do
-        let Status{effects = efs} = st
-        guard $ null effects || not (null efs)
-        P.modify target $ Ninjas.addStatus st
-        when (any isInvulnerable efs)
-            $ P.trigger target [OnInvulnerable]
-        when (any isReduce efs)
-            $ P.trigger user [OnReduce]
-        when (any Effect.isDisable efs) do
-            P.trigger user [OnStun]
-            P.trigger target [OnStunned]
-        when (any isHeal efs)
-            $ P.trigger user [OnHeal]
+triggerStatusApplied :: ∀ m. MonadPlay m => [Effect] -> m ()
+triggerStatusApplied effects = do
+    Context{user, target} <- P.context
+    when (any isInvulnerable effects)
+        $ P.trigger target [OnInvulnerable]
+    when (any isReduce effects)
+        $ P.trigger user [OnReduce]
+    when (any Effect.isDisable effects) do
+        P.trigger user [OnStun]
+        P.trigger target [OnStunned]
+    when (any isHeal effects)
+        $ P.trigger user [OnHeal]
   where
-    isChanneled = setFromList [Continues, Controlled] `intersects` classes
     isHeal (Heal x)   = x > 0
     isHeal _          = False
     isReduce Reduce{} = True
@@ -67,18 +53,72 @@ apply amount classes bombs unthrottled name effects = void $ runMaybeT do
     isInvulnerable Invulnerable{} = True
     isInvulnerable _              = False
 
-makeStatus :: Context -> Int -> Ninja -> Ninja
-           -> EnumSet Class -> [Runnable Bomb] -> Text -> Duration
-           -> [Effect] -> Status
-makeStatus Context{skill, user, continues, new, target}
-           amount nUser nTarget classes bombs name dur effects =
+-- | Status engine.
+-- Uses 'Ninjas.addStatus' internally.
+apply :: ∀ m. MonadPlay m
+          => Int -> EnumSet Class -> [Runnable Bomb] -> Duration -> Text
+          -> [Effect] -> m ()
+apply amount classes bombs unthrottled name effects = void $ runMaybeT do
+    context@Context{new, target} <- P.context
+    nUser   <- P.nUser
+    nTarget <- P.nTarget
+    dur     <- if not new || isChanneled then return unthrottled else
+                hoistMaybe $ Duration.throttle
+                (Effects.throttle effects nUser) unthrottled
+    let st   = status context nUser nTarget dur
+        stID = ID.from st
+    if N.has stID nTarget && Extending ∈ Status.classes st then
+        P.modify target $ Ninjas.prolong (Status.dur st) stID
+    else do
+        let Status{effects = efs} = st
+        guard $ null effects || not (null efs)
+        P.modify target $ Ninjas.addStatus st
+        triggerStatusApplied efs
+  where
+    isChanneled = setFromList [Continues, Controlled] `intersects` classes
+    status context nUser nTarget dur = makeStatus StatusParams
+        { context
+        , amount
+        , nUser
+        , nTarget
+        , classes
+        , bombs
+        , name
+        , dur
+        , effects
+        }
+
+data StatusParams = StatusParams
+    { context :: Context
+    , amount  :: Int
+    , nUser   :: Ninja
+    , nTarget :: Ninja
+    , classes :: EnumSet Class
+    , bombs   :: [Runnable Bomb]
+    , name    :: Text
+    , dur     :: Duration
+    , effects :: [Effect]
+    }
+
+makeStatus :: StatusParams -> Status
+makeStatus StatusParams
+    { context = Context{skill, user, continues, new, target}
+    , amount
+    , nUser
+    , nTarget
+    , classes
+    , bombs
+    , name
+    , dur
+    , effects
+    } =
     (Status.new user dur skill)
     { Status.name    = statusName
     , Status.effects = filterDmg . filter disable
                      $ Ninjas.apply nUser nTarget effects
     , Status.classes = modClasses $ extra ++ classes ++ Skill.classes skill
-    , Status.amount
-    , Status.bombs
+    , Status.amount  = amount
+    , Status.bombs   = bombs
     }
   where
     statusName

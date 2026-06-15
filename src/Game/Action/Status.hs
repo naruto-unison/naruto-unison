@@ -108,19 +108,33 @@ hide :: ∀ m. MonadPlay m => Duration -> Text -> [Effect] -> m ()
 hide = applyWith $ setFromList [Unremovable, Hidden]
 
 controlWith :: ∀ m. MonadPlay m => EnumSet Class -> [Effect] -> m ()
-controlWith classes efs = do
-    Context{skill = Skill{dur, name}} <- P.context
-    case dur of
-        Control i -> do
-
-            applyWith classes i name efs
-        _         -> return ()
+controlWith classes effects = P.unsilenced do
+    context@Context{target} <- P.context
+    nUser   <- P.nUser
+    nTarget <- P.nTarget
+    case status nUser nTarget context of
+        Just st -> P.modify target $ Ninjas.addStatus st
+        Nothing -> return ()
+  where
+    status nUser nTarget context@Context{skill = Skill{dur = Control i}} = Just
+        $ Statuses.makeStatus Statuses.StatusParams
+            { context
+            , amount = 1
+            , nUser
+            , nTarget
+            , classes = Controlled `insertSet` classes
+            , name = ""
+            , dur = i
+            , effects
+            , bombs = mempty
+            }
+    status _ _ _ = Nothing
 
 control :: ∀ m. MonadPlay m => [Effect] -> m ()
-control = controlWith $ singleton Controlled
+control = controlWith mempty
 
 control' :: ∀ m. MonadPlay m => [Effect] -> m ()
-control' = controlWith $ setFromList [Controlled, Hidden]
+control' = controlWith $ setFromList [Hidden, Unremovable]
 
 -- | Adds a @Status@ with 'Status.bombs' to 'N.statuses'.
 -- @Bomb@s apply an effect when the @Status@ ends. If the @Bomb@ type is
