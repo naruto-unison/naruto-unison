@@ -116,10 +116,10 @@ defend dur amount = defend' dur amount []
 -- Destructible defense can be temporary or permanent.
 defend' :: ∀ m. MonadPlay m => Duration -> Int -> [Effect] -> m ()
 defend' dur amount effects = do
-    P.toTarget . Ninjas.addDefense =<< Combat.build dur amount effects
-    when (amount > 0) do
-        Context{user} <- P.context
-        P.trigger user [OnDefend]
+    Context{user, target} <- P.context
+    P.modify target . Ninjas.addDefense =<< Combat.build dur amount effects
+    when (amount > 0)
+        $ P.trigger user [OnDefend]
 
 -- | Kills the target if their health is below a threshold.
 -- The target can survive if it has the 'Endure' effect.
