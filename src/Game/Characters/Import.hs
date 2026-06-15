@@ -79,8 +79,9 @@ skillName :: Text
 skillName = ""
 
 orSkillName :: ∀ m. MonadPlay m => Text -> m Text
-orSkillName ""   = Skill.name . Context.skill <$> P.context
-orSkillName name = return name
+orSkillName name
+  | null name = Skill.name . Context.skill <$> P.context
+  | otherwise = return name
 
 targeting :: ∀ m. (MonadPlay m, MonadRandom m) => Target -> m () -> m ()
 targeting t f = do

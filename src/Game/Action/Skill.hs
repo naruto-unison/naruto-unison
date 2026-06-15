@@ -85,8 +85,8 @@ setAlternates loadout = applyWith alternateClasses Permanent "loadout"
 -- | Uses 'Ninjas.nextAlternate' internally.
 nextAlternate :: ∀ m. MonadPlay m => Text -> m ()
 nextAlternate name = do
-    Context{skill = Skill{name = skillName}} <- P.context
-    let name' = if null name then skillName else name
+    Context{skill} <- P.context
+    let name' = Skill.provideName skill name
     nUser <- P.nUser
     forM_ (Ninjas.nextAlternate name' nUser) \alt -> P.with Context.reflect
         $ applyWith alternateClasses 1 "nextAlternate"

@@ -3,6 +3,7 @@ module Game.Model.Skill
   , Target(..)
   , Key(..), key
   , targets
+  , provideName
   -- Mutators
   , addClass, addClasses, removeClass
   , addDesc
@@ -57,6 +58,11 @@ targets :: Skill -> EnumSet Target
 targets Skill{effects, start} = addTargets (addTargets mempty start) effects
   where
     addTargets = foldl' \acc (To target _) -> insertSet target acc
+
+provideName :: Skill -> Text -> Text
+provideName Skill{name} nameOrEmpty
+  | null nameOrEmpty = name
+  | otherwise        = nameOrEmpty
 
 -- Mutators
 

@@ -84,11 +84,10 @@ addStacks = addStacks' Permanent
 -- Uses 'Ninjas.addStatus' internally.
 addStacks' :: ∀ m. MonadPlay m => Duration -> Text -> Int -> m ()
 addStacks' dur name i = do
-    Context{skill = skill@Skill{name = skillName}, target, user} <- P.context
+    Context{skill, target, user} <- P.context
     let st    = Status.new user dur skill
-        name' = if null name then skillName else name
     P.modify target $ Ninjas.addStatus
-        st { Status.name    = name'
+        st { Status.name    = Skill.provideName skill name
            , Status.amount  = i
            , Status.user    = user
            , Status.classes = deleteSet Nonstacking . deleteSet Continues

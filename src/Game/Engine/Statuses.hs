@@ -74,7 +74,6 @@ makeStatus Context{skill, user, continues, new, target}
            amount nUser nTarget classes bombs name dur effects =
     (Status.new user dur skill)
     { Status.name    = statusName
-    , Status.user
     , Status.effects = filterDmg . filter disable
                      $ Ninjas.apply nUser nTarget effects
     , Status.classes = modClasses $ extra ++ classes ++ Skill.classes skill

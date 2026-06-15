@@ -105,8 +105,9 @@ toUser f = do
     modify user f
 
 createID :: ∀ m. MonadPlay m => Text -> m ID
-createID ""   = ID.from <$> context
-createID name = ID.withName name . ID.from <$> context
+createID name
+  | null name = ID.from <$> context
+  | otherwise = ID.withName name . ID.from <$> context
 
 -- | Applies a @Ninja@ transformation to the 'target', passing it the 'user' as
 -- an argument.
