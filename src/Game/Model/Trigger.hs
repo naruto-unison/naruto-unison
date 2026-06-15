@@ -24,19 +24,20 @@ data Trigger
     | Countered Class
     | Nullified
     | OnAction Class
-    | OnNoAction
     | OnBreak ID
     | OnChakra
     | OnDamage
     | OnDamaged Class
     | OnDeath
     | OnDefend
+    | OnExecute
     | OnHarm
     | OnHarmed Class
     | OnHeal
     | OnHelp
     | OnHelped
     | OnInvulnerable
+    | OnNoAction
     | OnReduce
     | OnReflect
     | OnRes
@@ -80,6 +81,7 @@ instance Display Trigger where
     display (OnDamaged cla)    = "Trigger: Receive " ++ lower cla ++ " damage."
     display OnDeath            = "Trigger: Die."
     display OnDefend           = "Trigger: Provide destructible defense."
+    display OnExecute          = "Trigger: Execute an enemy with an instant-kill effect."
     display OnHarm             = "Trigger: Use a skill on an enemy."
     display (OnHarmed All)     = "Trigger: Be affected by a new skill from an enemy."
     display (OnHarmed cla)     = "Trigger: Be affected by a new " ++ lower cla ++ " skill from an enemy."

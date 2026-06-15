@@ -7,7 +7,6 @@ module Mission.Hooks.Action
   , damage, damageDuringStacks, damageWithStacks
   , defend
   , demolish
-  , execute
   , heal
   , kill, killAffected, killDuring
   , interrupt
@@ -73,14 +72,6 @@ demolish :: ActionHook
 demolish _ user target target'
   | allied user target = 0
   | otherwise          = max 0 $ N.totalDefense target - N.totalDefense target'
-
--- | 1 if the user killed the target with an instant-kill effect, otherwise 0.
-execute :: ActionHook
-execute _ user target target' = fromEnum
-    $ not (allied user target)
-    && N.alive target
-    && not (N.alive target')
-    && hasFrom user "executed" target'
 
 -- | Healing received by a target after an action.
 heal :: ActionHook

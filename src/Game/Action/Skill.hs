@@ -73,17 +73,17 @@ userSkills = getSkills <$> P.nUser
 
 -- | Adjusts all 'N.alternates' at once.
 setAlternates :: ∀ m. MonadPlay m
-          => NonNull Vector Int -- ^ Index offsets.
+          => [Int] -- ^ Index offsets.
           -> m () -- ^ Recalculates every alternate of a target @Ninja@.
 setAlternates loadout = P.uncopied do
     context@Context{user} <- P.context
     Ninja{character = Character{skills}} <- P.nUser
-    P.modify user $ Ninjas.addStatus $ status context skills
+    P.modify user $ Ninjas.addStatus $ status context $ toList skills
   where
     status Context{user, skill} skills = Status.addClasses alternateClasses
         $ (Status.new user Permanent skill)
         { Status.name = "$loadout"
-        , Status.effects = catMaybes . toList $ zipWith load loadout skills
+        , Status.effects = catMaybes $ zipWith load loadout skills
         }
     load alt (x:|xs) = Alternate (Skill.name x) . Skill.name <$> xs !? (alt - 1)
 

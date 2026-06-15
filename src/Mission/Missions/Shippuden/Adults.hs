@@ -23,8 +23,8 @@ missions =
 
     , Reach Career 10
       "Kill 10 enemies with the instant-kill effect of [Lightning Blade]." $
-      HookAction "Kakashi Hatake" "Lightning Blade"
-      execute
+      HookTrigger "Kakashi Hatake" OnExecute $
+      used "Lightning Blade"
     ]
 
   , Mission

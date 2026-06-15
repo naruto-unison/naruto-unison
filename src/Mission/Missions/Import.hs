@@ -20,7 +20,7 @@ import Mission.Hooks.Store as Import
 import Mission.Hooks.Trap as Import
 import Mission.Hooks.Turn as Import
 import Mission.Objective as Import
-import Mission.Hooks.Util as Import (hasOwn)
+import Mission.Hooks.Util as Import (hasOwn, used)
 
 import Class.Display (Display(..), buildStrict, commas)
 

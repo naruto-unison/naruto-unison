@@ -162,8 +162,8 @@ missions =
 
     , Reach Career 10
       "Kill 10 enemies with the instant-kill effect of [Butterfly Bombing]." $
-      HookAction "Chōji Akimichi" "Butterfly Bombing"
-      execute
+      HookTrigger "Chōji Akimichi" OnExecute $
+      used "Butterfly Bombing"
     ]
 
   , Mission

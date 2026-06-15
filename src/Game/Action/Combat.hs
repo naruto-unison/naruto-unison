@@ -17,6 +17,9 @@ module Game.Action.Combat
 
 import ClassyPrelude
 
+import Control.Monad.Trans.Maybe (MaybeT(..))
+
+import qualified Class.Parity as Parity
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import qualified Game.Engine.Combat as Combat
@@ -34,8 +37,6 @@ import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
-import           Game.Model.Status (Status(Status))
-import qualified Game.Model.Status
 import           Game.Model.Trigger (Trigger(..))
 
 -- | Deals damage that ignores 'Reduce' effects, 'N.barrier',
@@ -130,23 +131,13 @@ executeAt threshold = whenM (shouldExecute <$> P.nTarget) kill
     shouldExecute Ninja{health} = health > 0 && health <= threshold
 
 killFull :: ∀ m. MonadPlay m => Bool -> m ()
-killFull endure = whenM (N.alive <$> P.nTarget) do
-    Context{target, user, skill} <- P.context
+killFull endure = void $ runMaybeT do
+    guard . N.alive =<< P.nTarget
+    Context{target, user} <- P.context
     P.modify target $ Ninjas.kill endure
-    unlessM (N.alive <$> P.nTarget) do
-        P.modify target . Ninjas.addStatus $ executed user skill
-  where
-    executed user skill = Status
-        { amount = 1
-        , name   = "executed"
-        , user
-        , skill
-        , effects = mempty
-        , classes = setFromList [Unremovable, Hidden]
-        , bombs   = mempty
-        , maxDur  = 1
-        , dur     = 1
-        }
+    guard . not $ Parity.allied user target
+    guard . not . N.alive =<< P.nTarget
+    P.trigger user [OnExecute]
 
 -- | Kills the target. The target can survive if it has the 'Endure' effect.
 -- Uses 'Ninjas.kill' internally.
