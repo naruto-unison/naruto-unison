@@ -15,6 +15,7 @@ $forall category <- categories
         <aside>
           <img .char.head src=/img/ninja/#{ident}/icon.jpg>
         <div>
-          <h4><a href=@{CharacterR char}>#{name}
+          <h4>
+            <a href=@{CharacterR char}>#{name}
           <p>
             #{richText bio}
