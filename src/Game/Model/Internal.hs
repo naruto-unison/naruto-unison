@@ -20,8 +20,7 @@ import Text.Blaze (ToMarkup(..))
 import Yesod.Core.Dispatch (PathPiece(..))
 import Yesod.WebSockets (WebSocketsT)
 
-import           Class.Classed (Classed)
-import qualified Class.Classed as Classed
+import           Class.Classed (Classed(..))
 import           Class.Parity (Parity)
 import qualified Class.Parity as Parity
 import           Class.Random (MonadRandom)
@@ -82,7 +81,7 @@ data Channel = Channel
 instance ToJSON Channel
 
 instance Classed Channel where
-    classes Channel{skill = Skill{classes}} = classes
+    getClasses Channel{skill = Skill{classes}} = classes
 
 instance HasID Channel where
     from Channel{skill = Skill{owner, name}} = ID { user = owner, owner, name }
@@ -146,7 +145,7 @@ data Copy = Copy
 instance ToJSON Copy
 
 instance Classed Copy where
-    classes (Copy Skill{classes} _) = classes
+    getClasses (Copy Skill{classes} _) = classes
 
 instance HasID Copy where
     from (Copy Skill{name, owner} _) = ID { user = owner, owner, name }
@@ -164,7 +163,7 @@ data Destructible = Destructible
 instance ToJSON Destructible
 
 instance Classed Destructible where
-    classes Destructible{skill = Skill{classes}} = classes
+    getClasses Destructible{skill = Skill{classes}} = classes
 
 instance HasID Destructible where
     from Destructible{user, skill = Skill{name, owner}} = ID { user
@@ -331,7 +330,7 @@ instance ToJSON Skill where
         ]
 
 instance Classed Skill where
-    classes Skill{classes} = classes
+    getClasses Skill{classes} = classes
 
 instance HasID Skill where
     from Skill{owner, name} = ID { user = owner, owner, name }
@@ -353,7 +352,7 @@ data Status = Status
 instance ToJSON Status
 
 instance Classed Status where
-    classes Status{classes} = classes
+    getClasses Status{classes} = classes
 
 instance HasID Status where
     from Status{name, user, skill = Skill{owner}} = ID { user, owner, name }
@@ -415,7 +414,7 @@ instance ToJSON Trap where
         ]
 
 instance Classed Trap where
-    classes Trap{classes} = classes
+    getClasses Trap{classes} = classes
 
 instance HasID Trap where
     from Trap{user, name, skill = Skill{owner}} = ID { user, owner, name }
@@ -441,7 +440,7 @@ data Context = Context
 instance ToJSON Context
 
 instance Classed Context where
-    classes Context{skill = Skill{classes}} = classes
+    getClasses Context{skill = Skill{classes}} = classes
 
 instance HasID Context where
     from Context{user, skill = Skill{owner, name}} = ID { user, owner, name }

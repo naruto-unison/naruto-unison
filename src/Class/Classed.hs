@@ -9,12 +9,12 @@ import Game.Model.Class (Class(..))
 
 -- | A type with 'Class'es.
 class Classed a where
-    classes :: a -> EnumSet Class
+    getClasses :: a -> EnumSet Class
 
 instance Classed (Base.EnumSet Word64 Class) where
-    classes = id
-    {-# INLINE classes #-}
+    getClasses = id
+    {-# INLINE getClasses #-}
 
 instance Classed [Class] where
-    classes = setFromList
-    {-# INLINE classes #-}
+    getClasses = setFromList
+    {-# INLINE getClasses #-}

@@ -50,8 +50,7 @@ import ClassyPrelude
 
 import qualified Data.Sequence as Seq
 
-import           Class.Classed (Classed)
-import qualified Class.Classed as Classed
+import           Class.Classed (Classed(..))
 import qualified Class.Parity as Parity
 import           Class.Stackable ((.:))
 import           Class.TurnBased (TurnBased)
@@ -389,7 +388,7 @@ bury n
                 n { N.channels = onlyNecromancy $ N.channels n }
   where
     onlyNecromancy :: ∀ o. (IsSequence o, Classed (Element o)) => o -> o
-    onlyNecromancy = filter $ (Necromancy ∈) . Classed.classes
+    onlyNecromancy = filter $ (Necromancy ∈) . getClasses
 
 -- | Extends the duration of matching 'statuses'.
 prolong :: Duration -- ^ Added to 'Status.dur'.

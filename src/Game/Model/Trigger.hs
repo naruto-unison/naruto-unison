@@ -10,8 +10,7 @@ import ClassyPrelude
 
 import Data.Aeson (ToJSON(..))
 
-import           Class.Classed (Classed)
-import qualified Class.Classed
+import           Class.Classed (Classed(..))
 import           Class.Display (Display(..))
 import           Game.Model.Class (Class(..), lower)
 import           Game.Model.ID (ID(ID))
@@ -53,13 +52,13 @@ instance ToJSON Trigger where
     toJSON = toJSON . display'
 
 instance Classed Trigger where
-    classes (Counter cla)      = singleton cla
-    classes (CounterAll cla)   = singleton cla
-    classes (Countered cla)    = singleton cla
-    classes (OnAction cla)     = singleton cla
-    classes (OnDamaged cla)    = singleton cla
-    classes (OnHarmed cla)     = singleton cla
-    classes _                  = mempty
+    getClasses (Counter cla)      = singleton cla
+    getClasses (CounterAll cla)   = singleton cla
+    getClasses (Countered cla)    = singleton cla
+    getClasses (OnAction cla)     = singleton cla
+    getClasses (OnDamaged cla)    = singleton cla
+    getClasses (OnHarmed cla)     = singleton cla
+    getClasses _                  = mempty
 
 instance Display Trigger where
     display (Counter Uncounterable)    = "Next skill received from an enemy will be negated."

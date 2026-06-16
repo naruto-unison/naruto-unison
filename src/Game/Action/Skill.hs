@@ -18,8 +18,7 @@ import           Control.Monad.Trans.Maybe (MaybeT(..))
 import           Data.Enum.Set (EnumSet)
 import qualified Data.Vector as Vector
 
-import           Class.Classed (Classed)
-import qualified Class.Classed as Classed
+import           Class.Classed (Classed(..))
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import           Game.Engine (unSoulbound)
@@ -157,5 +156,5 @@ replaceWith n = P.toTarget \n' ->
   where
     replace :: ∀ a. Classed a => (Ninja -> [a]) -> Ninja -> Ninja -> [a]
     replace getter old current =
-        filter ((Atemporal ∈) . Classed.classes) (getter current)
-        ++ filter ((Atemporal ∉) . Classed.classes) (getter old)
+        filter ((Atemporal ∈) . getClasses) (getter current)
+        ++ filter ((Atemporal ∉) . getClasses) (getter old)

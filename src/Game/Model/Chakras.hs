@@ -26,8 +26,7 @@ import qualified Text.Blaze.Html5 as HTML
 import qualified Text.Blaze.Html5.Attributes as HTML
 import           Yesod.Core.Dispatch (PathPiece(..))
 
-import           Class.Classed (Classed)
-import qualified Class.Classed
+import           Class.Classed (Classed(..))
 import           Class.Display (Display(..), buildStrict)
 import           Class.Parse (Parse)
 import qualified Class.Parse as Parse
@@ -425,7 +424,7 @@ instance Display Chakra where
     display Rand  = "random"
 
 instance Classed Chakras where
-    classes chakras = setFromList $ chakraClass <$> toNormalizedList chakras
+    getClasses chakras = setFromList $ chakraClass <$> toNormalizedList chakras
       where
         chakraClass Blood = Bloodline
         chakraClass Gen   = Genjutsu

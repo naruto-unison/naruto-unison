@@ -8,8 +8,7 @@ import ClassyPrelude
 import Data.Aeson (ToJSON)
 import Data.Enum.Set (EnumSet)
 
-import           Class.Classed (Classed)
-import qualified Class.Classed as Classed
+import           Class.Classed (Classed(..))
 import qualified Class.Parity as Parity
 import           Game.Model.Chakras (Chakras)
 import           Game.Model.Class (Class(..))
@@ -81,12 +80,12 @@ censorNinja revealed n@Ninja{slot} =
     reveal user = user ∈ revealed
     censorChannels
       | reveal slot = id
-      | otherwise   = filter $ (Invisible ∉) . Classed.classes
+      | otherwise   = filter $ (Invisible ∉) . getClasses
     censorAll
       | reveal slot = id
       | otherwise   = const mempty
     hide :: ∀ a. (Classed a, HasID a) => a -> Bool
     hide x = Hidden ∈ classes || (Invisible ∈ classes && not (reveal user))
       where
-        classes = Classed.classes x
+        classes = getClasses x
         user    = ID.user $ ID.from x

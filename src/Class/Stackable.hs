@@ -6,8 +6,7 @@ import ClassyPrelude hiding (deleteBy)
 
 import Data.List (deleteBy)
 
-import           Class.Classed (Classed)
-import qualified Class.Classed as Classed
+import           Class.Classed (Classed(..))
 import           Class.TurnBased (TurnBased)
 import qualified Class.TurnBased as TurnBased
 import           Game.Model.Class (Class(..))
@@ -65,10 +64,10 @@ instance Stackable Status where
             } = (user, owner, name, skillName)
 
 isContinuing :: ∀ a. Classed a => a -> Bool
-isContinuing (Classed.classes -> clas) = Continues ∈ clas
+isContinuing (getClasses -> clas) = Continues ∈ clas
 
 isNonStack :: ∀ a. Classed a => a -> Bool
-isNonStack (Classed.classes -> clas) = Nonstacking ∈ clas && Hidden ∉ clas
+isNonStack (getClasses -> clas) = Nonstacking ∈ clas && Hidden ∉ clas
 
 addNonStacking :: ∀ a. Stackable a => a -> [a] -> [a]
 addNonStacking x xs = x : filter f xs

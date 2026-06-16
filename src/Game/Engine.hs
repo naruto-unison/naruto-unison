@@ -14,8 +14,7 @@ import Control.Monad.Trans.Maybe (MaybeT(..))
 import Data.List (deleteFirstsBy)
 import Data.Vector (zipWithM_)
 
-import           Class.Classed (Classed)
-import qualified Class.Classed as Classed
+import           Class.Classed (Classed(..))
 import           Class.Hook (MonadHook)
 import qualified Class.Hook as Hook
 import qualified Class.Parity as Parity
@@ -120,7 +119,7 @@ clearControl = void $ runMaybeT do
     mapM_ (runSkillEnd user) controls
   where
     isControl :: ∀ a. (Classed a, HasID a) => ID -> a -> Bool
-    isControl skillID item@(Classed.classes -> classes) =
+    isControl skillID item@(getClasses -> classes) =
         Controlled ∈ classes && Hidden ∉ classes && skillID == ID.from item
     controlled skillID@ID{user} n@Ninja{slot, statuses, traps} =
         N.alive n && user /= slot
@@ -216,8 +215,7 @@ unSoulbound user n = Ninjas.modifyAll (filter notSoulbound)
     n { N.copies = filter (maybe True notSoulbound) $ N.copies n }
   where
     notSoulbound :: ∀ a. (Classed a, HasID a) => a -> Bool
-    notSoulbound x = Soulbound ∉ Classed.classes x
-                     || (ID.user $ ID.from x) /= user
+    notSoulbound x = Soulbound ∉ getClasses x || (ID.user $ ID.from x) /= user
 
 doExpiredBombs :: ∀ m. (MonadGame m, MonadRandom m) => Vector Ninja -> m ()
 doExpiredBombs ninjas = mapM_ doEach ninjas

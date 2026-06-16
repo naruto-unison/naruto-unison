@@ -12,8 +12,7 @@ import ClassyPrelude hiding ((<|))
 import Control.Monad.Trans.Maybe (MaybeT(..))
 import Data.Enum.Set (EnumSet, AsEnumSet(..))
 
-import           Class.Classed (Classed)
-import qualified Class.Classed as Classed
+import           Class.Classed (Classed(..))
 import           Class.Hook (MonadHook)
 import qualified Class.Hook as Hook
 import qualified Class.Parity as Parity
@@ -313,7 +312,7 @@ runInterruptions user Channel{dur, target, skill = skill@Skill{end, name}} = do
                       || any interrupted defense
                       || any interrupted barrier
     interrupted :: ∀ a. (Classed a, HasID a, TurnBased a) => a -> Bool
-    interrupted a = Controlled ∈ Classed.classes a && ID.from a == channelID
+    interrupted a = Controlled ∈ getClasses a && ID.from a == channelID
     uninterrupted :: ∀ a. (Classed a, HasID a, TurnBased a) => a -> Bool
     uninterrupted = not . interrupted
     uninterruptedTrap :: Trap -> Bool

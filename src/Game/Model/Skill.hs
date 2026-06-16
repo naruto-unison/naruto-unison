@@ -17,7 +17,7 @@ import ClassyPrelude hiding (swap)
 
 import Data.Enum.Set (EnumSet)
 
-import qualified Class.Classed as Classed
+import           Class.Classed (Classed(..))
 import           Class.Display (Display(..), buildStrict)
 import           Game.Model.Chakras (Chakras)
 import           Game.Model.Class (Class(..))
@@ -52,7 +52,7 @@ new = Skill
 -- to the 'classes' of a @Skill@ if they are included in its 'cost'.
 chakraClasses :: Skill -> Skill
 chakraClasses skill@Skill{classes, cost} =
-    skill { classes = Classed.classes cost ++ classes }
+    skill { classes = getClasses cost ++ classes }
 
 -- | All targets that a @Skill@ effects.
 targets :: Skill -> EnumSet Target
