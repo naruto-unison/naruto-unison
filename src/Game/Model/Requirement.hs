@@ -2,7 +2,6 @@ module Game.Model.Requirement
   ( Requirement(..)
   , targetable
   , usable
-  , succeed
   , targets
   ) where
 
@@ -12,6 +11,7 @@ import Data.Enum.Set (EnumSet)
 
 import qualified Class.Parity as Parity
 import qualified Game.Engine.Effects as Effects
+import           Game.Model.Channel (Channeling(..))
 import qualified Game.Model.Channel as Channel
 import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Effect(..))
@@ -25,33 +25,39 @@ import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import           Util ((∈), (∉), (?), intersects)
 
+isStunned :: Ninja -> Skill -> Bool
+isStunned _ Skill{dur = Passive}   = False
+isStunned _ Skill{dur = Ongoing{}} = False
+isStunned n Skill{classes}         = classes `intersects` Effects.stun n
+
+isUserHas :: Requirement -> Bool
+isUserHas UserHas{} = True
+isUserHas _         = False
+
 -- | Processes 'Skill.require'.
 usable :: Bool -- ^ New.
        -> Ninja -> Skill -> Skill
-usable new n@Ninja{slot} x@Skill{charges, cooldown, classes, dur, owner}
-  | not new                                  = x'
-  | cooldown /= 0 && N.cooldowns `atLeast` 1 = unusable
-  | charges == 0                             = x'
-  | N.charges `atLeast` charges              = unusable
-  | otherwise                                = x'
+usable False n skill@Skill{require}
+  | isStunned n skill = fulfilled { Skill.effects = mempty }
+  | otherwise         = fulfilled
   where
-    getter `atLeast` limit = case getter n ? key of
-                                Just value -> value >= limit
-                                Nothing    -> False
-    key      = Skill.key x
-    unusable = x { Skill.require = Unusable }
-    required = x { Skill.require = isUsable $ Skill.require x }
-    x'
-      | Channel.isControl dur && n `is` Silence   = unusable
-      | Channel.ignoreStun $ Skill.dur x          = required
-      | not $ classes `intersects` Effects.stun n = required
-      | new                                       = unusable
-      | otherwise = required { Skill.effects = mempty }
-    isUsable req@UserHas{}
-      | not new                  = Usable
-      | succeed owner req slot n = Usable
-      | otherwise                = Unusable
-    isUsable y = y
+    fulfilled
+      | isUserHas require = skill { Skill.require = Usable }
+      | otherwise         = skill
+
+usable True n@Ninja{slot} skill@Skill{charges, cooldown, dur, require}
+  | isUncastable            = skill { Skill.require = Unusable }
+  | not $ isUserHas require = skill
+  | succeed skill slot n    = skill { Skill.require = Usable }
+  | otherwise               = skill { Skill.require = Unusable }
+  where
+    isUncastable = cooldown /= 0 && N.cooldowns `atLeast` 1
+        || charges /= 0 && N.charges `atLeast` charges
+        || Channel.isControl dur && n `is` Silence
+        || isStunned n skill
+    getter `atLeast` limit = case getter n ? Skill.key skill of
+        Just value -> value >= limit
+        Nothing    -> False
 
 meetStatusRequirements :: Int -> ID -> Ninja -> Bool
 meetStatusRequirements 0 statusID n = not $ N.has statusID n
@@ -59,53 +65,53 @@ meetStatusRequirements 1 statusID n = N.has statusID n
 meetStatusRequirements i statusID n = N.numStacks statusID n >= i
 
 -- | Checks whether a user passes the 'Skill.require' of a 'Skill'.
-succeed :: Slot -> Requirement -> Slot -> Ninja -> Bool
-succeed _     Usable      _ _ = True
-succeed _     Unusable    _ _ = False
-succeed owner (UserHas i name) user n@Ninja{slot = target}
-  | user /= target = True
-  | otherwise      = meetStatusRequirements i ID { user, owner, name } n
-succeed owner (TargetHas i name) user n@Ninja{slot = target}
-  | user == target = True
-  | otherwise      = meetStatusRequirements i ID { user, owner, name } n
-succeed _     (UserHealth i) user Ninja{health, slot = target}
-  | user /= target = True
-  | otherwise      = health <= i
-succeed _     (TargetHealth i) user Ninja{health, slot = target}
-  | user == target = True
-  | otherwise      = health <= i
-succeed owner (UserChannel expected name) user n@Ninja{slot = target}
-  | user /= target = True
-  | otherwise      = expected == N.isChanneling ID { user, owner, name } n
-succeed owner (UserDefense i name) user n@Ninja{slot = target}
-  | user /= target = True
-  | i > 0          = N.defenseAmount ID { user, owner, name } n >= i
-  | otherwise      = not $ N.hasDefense ID { user, owner, name } n
-succeed owner (UserTrap expected name) user n@Ninja{slot = target}
-  | user /= target = True
-  | otherwise      = expected == N.hasTrap ID { user, owner, name } n
+succeed :: Skill -> Slot -> Ninja -> Bool
+succeed Skill{require = Usable} _ _   = True
+succeed Skill{require = Unusable} _ _ = False
+succeed Skill{require = UserHas i name, owner} user n@Ninja{slot}
+  | user /= slot = True
+  | otherwise    = meetStatusRequirements i ID { user, owner, name } n
+succeed Skill{require = TargetHas i name, owner} user n@Ninja{slot}
+  | user == slot = True
+  | otherwise    = meetStatusRequirements i ID { user, owner, name } n
+succeed Skill{require = UserHealth i} user Ninja{health, slot}
+  | user /= slot = True
+  | otherwise    = health <= i
+succeed Skill{require = TargetHealth i} user Ninja{health, slot}
+  | user == slot = True
+  | otherwise    = health <= i
+succeed Skill{require = UserChannel expected name, owner} user n@Ninja{slot}
+  | user /= slot = True
+  | otherwise    = expected == N.isChanneling ID { user, owner, name } n
+succeed Skill{require = UserDefense i name, owner} user n@Ninja{slot}
+  | user /= slot = True
+  | i > 0        = N.defenseAmount ID { user, owner, name } n >= i
+  | otherwise    = not $ N.hasDefense ID { user, owner, name } n
+succeed Skill{require = UserTrap expected name, owner} user n@Ninja{slot}
+  | user /= slot = True
+  | otherwise    = expected == N.hasTrap ID { user, owner, name } n
 
 -- | Checks whether a @Skill@ can be used on a target.
 targetable :: Skill -- ^ @Skill@ to check.
            -> Ninja -- ^ User.
            -> Ninja -- ^ Target.
            -> Bool
-targetable Skill{classes, owner, require} n@Ninja{slot = user} nt@Ninja{slot = target}
-  | not $ succeed owner require user nt = False
-  | user == target                      = True
+targetable skill@Skill{classes} n@Ninja{slot = user} nt@Ninja{slot = target}
+  | not $ succeed skill user nt    = False
+  | user == target                 = True
   | not (N.alive nt) && Necromancy ∉ classes = False
-  | harm && n `is` BlockEnemies         = False
-  | not harm && n `is` BlockAllies      = False
-  | harm && invuln && not bypass        = False
-  | not harm && nt `is` Alone           = False
-  | user `notIn` Effects.duel nt        = False
-  | target `notIn` Effects.taunt n      = False
-  | target ∈ Effects.block n            = False
-  | otherwise                           = True
+  | harm && n `is` BlockEnemies    = False
+  | not harm && n `is` BlockAllies = False
+  | harm && invuln && not bypass   = False
+  | not harm && nt `is` Alone      = False
+  | user `notIn` Effects.duel nt   = False
+  | target `notIn` Effects.taunt n = False
+  | target ∈ Effects.block n       = False
+  | otherwise                      = True
   where
-    harm         = not $ Parity.allied user target
-    invuln       = classes `intersects` Effects.invulnerable nt
-    bypass       = Bypassing ∈ classes || n `is` Bypass
+    harm   = not $ Parity.allied user target
+    invuln = classes `intersects` Effects.invulnerable nt
+    bypass = Bypassing ∈ classes || n `is` Bypass
     a `notIn` xs = not (null xs) && a ∉ xs
 
 -- | All targets that a @Skill@ from a a specific 'Ninja' affects.

@@ -3,7 +3,6 @@ module Game.Model.Channel
   , interruptible
   , Channeling(..)
   , isControl
-  , ignoreStun
   ) where
 
 import ClassyPrelude
@@ -24,9 +23,3 @@ interruptible _                       = False
 isControl :: Channeling -> Bool
 isControl Control{} = True
 isControl _         = False
-
--- | 'Passive' and 'Ongoing' effects are not affected by 'Model.Effect.Stun'.
-ignoreStun :: Channeling -> Bool
-ignoreStun Passive   = True
-ignoreStun Ongoing{} = True
-ignoreStun _         = False
