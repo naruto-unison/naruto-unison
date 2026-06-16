@@ -2,12 +2,15 @@ module Class.Parse
     ( Parse(..)
     , Parsed(..)
     , Parser
-    , parseOnly
+    , parseOnly, parseOnly'
     , parseToEnd
     , module Data.Attoparsec.Combinator
+    , module Char8Import
     ) where
 
 import ClassyPrelude
+
+import Data.Attoparsec.ByteString.Char8 as Char8Import (isDigit, isDigit_w8, isAlpha_iso8859_15, isAlpha_ascii, isSpace, isSpace_w8, inClass, notInClass)
 
 import qualified Data.Attoparsec.ByteString.Char8 as Char8
 import qualified Data.Attoparsec.ByteString as BS
@@ -115,29 +118,29 @@ class Parse a where
 class Parseable i where
     type ParseBacking i
     type ParseBacking i = i
-    gParseOnly :: ∀ a. Parser (ParseBacking i) a -> i -> Either String a
+    parseOnly' :: ∀ a. Parser (ParseBacking i) a -> i -> Either String a
 
 instance Parseable ByteString where
-    gParseOnly = BS.parseOnly
+    parseOnly' = BS.parseOnly
 
 instance Parseable LByteString where
     type ParseBacking LByteString = ByteString
-    gParseOnly = LBS.parseOnly
+    parseOnly' = LBS.parseOnly
 
 instance Parseable Text where
-    gParseOnly = T.parseOnly
+    parseOnly' = T.parseOnly
 
 instance Parseable LText where
     type ParseBacking LText = Text
-    gParseOnly = LT.parseOnly
+    parseOnly' = LT.parseOnly
 
 parseOnly :: ∀ a i. (Parse a, Parseable i, Parsed (ParseBacking i))
           => i -> Either String a
-parseOnly = gParseOnly $ parser @a @(ParseBacking i)
+parseOnly = parseOnly' $ parser @a @(ParseBacking i)
 
 parseToEnd :: ∀ a i. (Parse a, Parseable i, Parsed (ParseBacking i))
            => i -> Either String a
-parseToEnd = gParseOnly $ parser <* endOfInput
+parseToEnd = parseOnly' $ parser <* endOfInput
 
 instance Parse Char where
     parser = anyChar

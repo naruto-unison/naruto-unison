@@ -123,6 +123,10 @@ data Character = Character
 
 instance ToJSON Character
 
+instance ToMarkup Character where
+    toMarkup Character{name, category} = HTML.toMarkup name
+                                         ++ HTML.toMarkup category
+
 instance Show Character where
     showsPrec i Character{ident} = showsPrec i ident
 

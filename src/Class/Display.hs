@@ -8,6 +8,7 @@ module Class.Display
 import ClassyPrelude
 
 import           Data.Attoparsec.Text (notInClass)
+import           Data.Builder (builderToLazy)
 import qualified Data.Text.Lazy as Lazy
 import qualified Data.Text.Lazy.Builder as TextBuilder
 import qualified Data.Text.Lazy.Builder.Int as IntBuilder

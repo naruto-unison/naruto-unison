@@ -14,7 +14,8 @@ module ClassyPrelude
   ) where
 
 import "classy-prelude" ClassyPrelude as CP hiding
-    ( group, groupBy
+    ( builderToLazy
+    , group, groupBy
     , maybeToList
     , NonNull(..)
     , fromNullable
