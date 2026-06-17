@@ -252,13 +252,15 @@ spec = parallel do
     describe "Expose" do
         it "prevents target from becoming invulnerable" $ simAt Enemy do
             apply Permanent skillName [Expose]
-            Sim.as Enemy $ targeting Self $ apply Permanent skillName [Invulnerable All]
+            Sim.as Enemy $ targeting Self
+                $ apply Permanent skillName [Invulnerable All]
             canTarget
 
         it "prevents target from reducing damage" $ simAt Enemy do
-            apply Permanent skillName [ Reduce [All] Flat 100
-                            , Expose
-                            ]
+            apply Permanent skillName
+                [ Reduce [All] Flat 100
+                , Expose
+                ]
             damaged <- measureDamage $ damage 1
             return $ damaged `shouldBe` 1
 
@@ -266,11 +268,12 @@ spec = parallel do
 
     describe "Focus" do
         it "ignores stuns" $ simAt Enemy do
-            targeting Self $ apply Permanent skillName [ Focus
-                                             , Disable (Only Reveal)
-                                             , Silence
-                                             , Stun All
-                                             ]
+            targeting Self $ apply Permanent skillName
+                [ Focus
+                , Disable (Only Reveal)
+                , Silence
+                , Stun All
+                ]
             apply Permanent skillName [Reveal]
             target (`is` Reveal)
 
@@ -301,10 +304,11 @@ spec = parallel do
 
     describe "NoIgnore" do
         it "ignores ignores" $ simAt Enemy do
-            apply Permanent skillName [ Focus
-                            , NoIgnore
-                            , Stun All
-                            ]
+            apply Permanent skillName
+                [ Focus
+                , NoIgnore
+                , Stun All
+                ]
             targetStunned <- target Effects.stun
             return $ targetStunned `shouldBe` [All]
 
@@ -322,9 +326,10 @@ spec = parallel do
     describe "Plague" do
         it "blocks healing" $ simAt Enemy do
             setHealth 1
-            apply Permanent skillName [ Plague
-                            , Heal 100
-                            ]
+            apply Permanent skillName
+                [ Plague
+                , Heal 100
+                ]
             healed <- measureHealing $ heal 100
             return $ healed `shouldBe` 0
 
@@ -473,10 +478,11 @@ spec = parallel do
 
     describe "Uncounter" do
         it "ignores own counters and reflects" $ simAt Enemy do
-            apply Permanent skillName [ Reflect
-                            , ReflectAll All
-                            , Uncounter
-                            ]
+            apply Permanent skillName
+                [ Reflect
+                , ReflectAll All
+                , Uncounter
+                ]
             trap Permanent (Counter All) $ return ()
             trap Permanent (CounterAll All) $ return ()
             canTarget
