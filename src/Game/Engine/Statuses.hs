@@ -62,29 +62,28 @@ apply amount classes bombs unthrottled name effects = void $ runMaybeT do
     nUser   <- P.nUser
     nTarget <- P.nTarget
     dur     <- if not new || isChanneled then return unthrottled else
-                hoistMaybe $ Duration.throttle
-                (Effects.throttle effects nUser) unthrottled
-    let st   = status context nUser nTarget dur
-        stID = ID.from st
-    if N.has stID nTarget && Extending ∈ st.classes then
-        P.modify target $ Ninjas.prolong st.dur stID
+               hoistMaybe $ Duration.throttle
+               (Effects.throttle effects nUser) unthrottled
+    let status = makeStatus StatusParams
+                    { context
+                    , amount
+                    , nUser
+                    , nTarget
+                    , classes
+                    , bombs
+                    , name
+                    , dur
+                    , effects
+                    }
+        stID = ID.from status
+    if N.has stID nTarget && Extending ∈ status.classes then
+        P.modify target $ Ninjas.prolong status.dur stID
     else do
-        guard $ null effects || not (null st.effects)
-        P.modify target $ Ninjas.addStatus st
-        triggerStatusApplied st.effects
+        guard $ null effects || not (null status.effects)
+        P.modify target $ Ninjas.addStatus status
+        triggerStatusApplied status.effects
   where
     isChanneled = setFromList [Continues, Controlled] `intersects` classes
-    status context nUser nTarget dur = makeStatus StatusParams
-        { context
-        , amount
-        , nUser
-        , nTarget
-        , classes
-        , bombs
-        , name
-        , dur
-        , effects
-        }
 
 data StatusParams = StatusParams
     { context :: Context

@@ -19,6 +19,7 @@ module Game.Action.Status
 
 import ClassyPrelude
 
+import Control.Monad.Trans.Maybe (MaybeT(..))
 import Data.Enum.Set (EnumSet)
 
 import           Class.Play (MonadPlay)
@@ -118,18 +119,11 @@ hide :: ∀ m. MonadPlay m => Duration -> Text -> [Effect] -> m ()
 hide = applyWith $ setFromList [Unremovable, Hidden]
 
 controlWith :: ∀ m. MonadPlay m => EnumSet Class -> [Effect] -> m ()
-controlWith classes effects = P.unsilenced do
-    context@Context{target} <- P.context
+controlWith classes effects = P.unsilenced $ void $ runMaybeT do
+    context@Context{target, skill = Skill{dur = Control i}} <- P.context
     nUser   <- P.nUser
     nTarget <- P.nTarget
-    case status nUser nTarget context of
-        Just st -> do
-            P.modify target $ Ninjas.addStatus st
-            Statuses.triggerStatusApplied st.effects
-        Nothing -> return ()
-  where
-    status nUser nTarget context@Context{skill = Skill{dur = Control i}} = Just
-        $ Statuses.makeStatus Statuses.StatusParams
+    let status = Statuses.makeStatus Statuses.StatusParams
             { context
             , amount = 1
             , nUser
@@ -140,7 +134,8 @@ controlWith classes effects = P.unsilenced do
             , effects
             , bombs = mempty
             }
-    status _ _ _ = Nothing
+    P.modify target $ Ninjas.addStatus status
+    Statuses.triggerStatusApplied status.effects
 
 control :: ∀ m. MonadPlay m => [Effect] -> m ()
 control = controlWith mempty

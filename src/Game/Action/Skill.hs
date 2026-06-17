@@ -77,34 +77,31 @@ setAlternates :: ∀ m. MonadPlay m
           => [Int] -- ^ Index offsets.
           -> m () -- ^ Recalculates every alternate of a target @Ninja@.
 setAlternates loadout = P.uncopied do
-    context@Context{user} <- P.context
+    Context{user, skill} <- P.context
     skills <- userSkills
-    P.modify user $ Ninjas.addStatus $ status context $ toList skills
-  where
-    status Context{user, skill} skills = Status.addClasses alternateClasses
-        $ (Status.new user Permanent skill)
+    P.modify user . Ninjas.addStatus $ Status.addClasses alternateClasses
+        (Status.new user Permanent skill)
         { Status.name = "$loadout"
-        , Status.effects = catMaybes $ zipWith load loadout skills
+        , Status.effects = catMaybes $ zipWith load loadout $ toList skills
         }
+  where
     load alt (x:|xs) = Alternate x.name . Skill.name <$> xs !? (alt - 1)
 
 -- | Cycles a skill through its list of alternates.
 -- | Uses 'Ninjas.nextAlternate' internally.
 nextAlternate :: ∀ m. MonadPlay m => Text -> m ()
 nextAlternate name = do
-    context@Context{user, skill} <- P.context
+    Context{user, skill} <- P.context
     let name' = Skill.provideName skill name
     nUser <- P.nUser
     case Ninjas.nextAlternate name' nUser of
-        Just alt -> P.modify user $ Ninjas.addStatus
-                  $ status context name' alt
         Nothing  -> return ()
-  where
-    status Context{user, skill} name' alt = Status.addClasses alternateClasses
-        $ (Status.new user 1 skill)
-        { Status.name    = "$nextAlternate"
-        , Status.effects = [Alternate name' alt]
-        }
+        Just alt -> P.modify user . Ninjas.addStatus
+                  $ Status.addClasses alternateClasses
+                        (Status.new user 1 skill)
+                        { Status.name    = "$nextAlternate"
+                        , Status.effects = [Alternate name' alt]
+                        }
 
 -- | Copies all @Skill@s from the target into the user's 'N.copies'.
 -- Uses 'Ninjas.copyAll' internally.
