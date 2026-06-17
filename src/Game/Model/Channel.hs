@@ -18,7 +18,7 @@ name Channel{skill = Skill{name = skillName}} = skillName
 interruptible :: Channel -> Bool
 interruptible Channel{dur = Control{}} = True
 interruptible Channel{dur = Action{}}  = True
-interruptible _                       = False
+interruptible _                        = False
 
 isControl :: Channeling -> Bool
 isControl Control{} = True

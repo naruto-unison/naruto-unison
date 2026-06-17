@@ -56,11 +56,11 @@ get Rand  = rand
 {-# INLINE get #-}
 
 modify :: (Int -> Int) -> Chakra -> Chakras -> Chakras
-modify f Blood xs = xs { blood = f $ blood xs }
-modify f Gen   xs = xs { gen   = f $ gen xs }
-modify f Nin   xs = xs { nin   = f $ nin xs }
-modify f Tai   xs = xs { tai   = f $ tai xs }
-modify f Rand  xs = xs { rand  = f $ rand xs }
+modify f Blood xs = xs { blood = f (blood xs) }
+modify f Gen   xs = xs { gen   = f (gen   xs) }
+modify f Nin   xs = xs { nin   = f (nin   xs) }
+modify f Tai   xs = xs { tai   = f (tai   xs) }
+modify f Rand  xs = xs { rand  = f (rand  xs) }
 {-# INLINE modify #-}
 
 set :: Chakra -> Int -> Chakras -> Chakras

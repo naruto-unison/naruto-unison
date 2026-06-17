@@ -709,7 +709,7 @@ characters =
                     remove skillName
           ]
         , Skill.changes   = \n x -> if health n < 50 then
-                                preta { Skill.owner = Skill.owner x }
+                                preta { Skill.owner = x.owner }
                             else
                                 x
         }

@@ -39,8 +39,7 @@ skill :: Text -> Category -> Text -> App.Widget
 skill charName category skillName = case Characters.lookup ident of
       Nothing -> error
         $ "Link.skill: character " ++ unpack ident ++ " not found"
-      Just char@Character{skills}
-        | any (any $ (==) skillName . Skill.name) skills ->
+      Just char | any (any $ (==) skillName . Skill.name) char.skills ->
           $(widgetFile "widgets/link/skill")
       Just _ -> error
         $ "Link.skill: skill " ++ unpack skillName ++ " not found for "

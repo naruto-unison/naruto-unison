@@ -31,7 +31,6 @@ import qualified Game.Model.ID as ID
 import           Game.Model.Internal (MonadGame(..), MonadPlay(..))
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as N
-import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill
 import           Game.Model.Slot (Slot)
 import           Game.Model.Trigger (Trigger(..))
@@ -82,7 +81,7 @@ unsilenced = whenM (isUnsilenced =<< context)
 uncopied :: ∀ m. MonadPlay m => m () -> m ()
 uncopied = whenM (isUncopied <$> context)
   where
-    isUncopied Context{user, skill = Skill{owner}} = owner == user
+    isUncopied Context{user, skill} = skill.owner == user
 
 -- | Applies a @Ninja@ transformation to the 'target'.
 toTarget :: ∀ m. MonadPlay m => (Ninja -> Ninja) -> m ()

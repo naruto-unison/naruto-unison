@@ -21,7 +21,7 @@ class HasID a where
     from :: a -> ID
 
 fromOwner :: ID -> ID
-fromOwner someID@ID{owner} = someID { user = owner }
+fromOwner someID = someID { user = someID.owner }
 
 withName :: Text -> ID -> ID
 withName name someID = someID { name = name }

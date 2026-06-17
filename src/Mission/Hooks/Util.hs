@@ -28,7 +28,7 @@ hasFrom Ninja{slot} name = N.has $ toID name slot
 
 --  | True if user has a 'Status' from the user with matching 'Status.name'.
 hasOwn :: Text -> Ninja -> Bool
-hasOwn name n@Ninja{slot} = N.has (toID name slot) n
+hasOwn name n = N.has (toID name n.slot) n
 
 used :: Text -> Ninja -> Bool
 used skillName Ninja{N.lastSkill = Just Skill{name}} = skillName == name

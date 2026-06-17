@@ -78,7 +78,7 @@ setAlternates :: ∀ m. MonadPlay m
           -> m () -- ^ Recalculates every alternate of a target @Ninja@.
 setAlternates loadout = P.uncopied do
     context@Context{user} <- P.context
-    Ninja{character = Character{skills}} <- P.nUser
+    skills <- userSkills
     P.modify user $ Ninjas.addStatus $ status context $ toList skills
   where
     status Context{user, skill} skills = Status.addClasses alternateClasses
@@ -149,10 +149,10 @@ factory = do
 -- | Restores a target to an earlier state. Charges are preserved.
 replaceWith :: ∀ m. MonadPlay m => Ninja -> m ()
 replaceWith n = P.toTarget \n' ->
-    n { N.defense = replace N.defense n n' }
-      { N.barrier = replace N.barrier n n' }
+    n { N.defense  = replace N.defense  n n' }
+      { N.barrier  = replace N.barrier  n n' }
       { N.statuses = replace N.statuses n n' }
-      { N.traps = replace N.traps n n' }
+      { N.traps    = replace N.traps    n n' }
   where
     replace :: ∀ a. Classed a => (Ninja -> [a]) -> Ninja -> Ninja -> [a]
     replace getter old current =

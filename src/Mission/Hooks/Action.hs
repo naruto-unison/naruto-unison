@@ -45,26 +45,26 @@ damage _ user target target'
 -- | Damage received by the target after an action while the user has some
 -- number of stacks of a @Status@.
 damageDuringStacks :: Text -> ActionHook
-damageDuringStacks name _ user@Ninja{slot} target target'
+damageDuringStacks name _ user target target'
   | allied user target              = 0
   | target'.health >= target.health = 0
-  | otherwise = N.numStacks (toID name slot) user
+  | otherwise = N.numStacks (toID name user.slot) user
 
 -- | Damage received by the target after an action while the target has some
 -- number of stacks of a @Status@.
 damageWithStacks :: Text -> ActionHook
-damageWithStacks name _ user@Ninja{slot} target target'
+damageWithStacks name _ user target target'
   | allied user target              = 0
   | target'.health >= target.health = 0
-  | otherwise = N.numStacks (toID name slot) target
+  | otherwise = N.numStacks (toID name user.slot) target
 
 -- | 'N.defense' added to the target after an action.
 defend :: ActionHook
-defend name Ninja{slot} target target'
+defend name user target target'
   | N.alive target = max 0 addedDefense
   | otherwise      = 0
   where
-    getDefense   = N.defenseAmount $ toID name slot
+    getDefense   = N.defenseAmount $ toID name user.slot
     addedDefense = getDefense target' - getDefense target
 
 -- | 'N.defense' destroyed after an action.
@@ -98,11 +98,11 @@ killAffected name _ user target target' = boolean
 -- | 1 if the target died after an action while the user had a @Status@,
 -- otherwise 0.
 killDuring :: Text -> ActionHook
-killDuring name _ user@Ninja{slot} target target' = boolean
+killDuring name _ user target target' = boolean
     $ not (allied user target)
     && N.alive target
     && not (N.alive target')
-    && N.has (toID name slot) user
+    && N.has (toID name user.slot) user
 
 -- | Number of target's 'N.channels' canceled due to an action.
 interrupt :: ActionHook
@@ -120,9 +120,8 @@ use _ _ _ _ = 1
 -- | 1 if the action was used while the user was affected by a @Status@,
 -- otherwise 0.
 useDuring :: Text -> ActionHook
-useDuring name _ user@Ninja{slot} _ _ = boolean
-                                      $ N.has (toID name slot) user
+useDuring name _ user _ _ = boolean $ N.has (toID name user.slot) user
 
 -- | Number of user's stacks of a @Status@ after an action.
 useDuringStacks :: Text -> ActionHook
-useDuringStacks name _ user@Ninja{slot} _ _ = N.numStacks (toID name slot) user
+useDuringStacks name _ user _ _ = N.numStacks (toID name user.slot) user

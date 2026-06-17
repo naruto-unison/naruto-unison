@@ -17,7 +17,7 @@ import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Effect as Effect
 import           Game.Model.ID (HasID, ID)
 import qualified Game.Model.ID as ID
-import           Game.Model.Internal (Destructible(..), Ninja(..), Channel(Channel), Character(Character), Skill(Skill), Status(Status))
+import           Game.Model.Internal (Destructible(..), Ninja(..), Channel(Channel), Character, Skill(Skill), Status(Status))
 import qualified Game.Model.Internal
 import qualified Game.Model.Internal.Character as Character
 import qualified Game.Model.Internal.Destructible as Destructible
@@ -27,17 +27,17 @@ import           Util ((∈), (∉))
 
 -- | Constructs a @Ninja@ with starting values from a character and an index.
 new :: Slot -> Character -> Ninja
-new slot c@Character{skills} = Ninja
+new slot c = Ninja
     { slot
     , health     = 100
-    , character  = c { Character.skills = skills' }
+    , character  = c { Character.skills = (own <$>) <$> c.skills }
     , defense    = mempty
     , barrier    = mempty
     , statuses   = mempty
     , charges    = mempty
     , cooldowns  = mempty
-    , skills     = toNullable $ head <$> skills'
-    , copies     = replicate skillSize Nothing
+    , skills     = toNullable $ head <$> c.skills
+    , copies     = replicate (length c.skills) Nothing
     , channels   = mempty
     , traps      = mempty
     , lastSkill  = Nothing
@@ -47,9 +47,7 @@ new slot c@Character{skills} = Ninja
     , acted      = False
     }
   where
-    skills'   = (own <$>) <$> skills
-    own x     = x { Skill.owner = slot }
-    skillSize = length skills
+    own x = x { Skill.owner = slot }
 
 -- | @alive n = health n > 0@
 alive :: Ninja -> Bool
@@ -97,9 +95,8 @@ hasTrap = has' traps
 destructibleAmount :: (Ninja -> [Destructible]) -- ^ Getter.
                    -> ID -- ^ 'Destructible.name'.
                    -> Ninja -> Int
-destructibleAmount getter destrID n = sum
-    [ amount | d@Destructible{amount} <- getter n,
-               ID.from d == destrID ]
+destructibleAmount getter destrID n = sum [ d.amount | d <- getter n,
+                                                       ID.from d == destrID ]
 
 -- | Sums 'Destructible.amount' of all matching 'barrier'.
 barrierAmount :: ID -- ^ 'Destructible.name'.
@@ -127,16 +124,14 @@ totalBarrier Ninja{barrier} = sum $ Destructible.amount <$> barrier
 -- | Number of stacks of matching 'statuses'.
 numStacks :: ID -- ^ 'Status.name'.
           -> Ninja -> Int
-numStacks statusID Ninja{statuses} = sum
-    [ amount | st@Status{amount} <- statuses,
-               ID.from st == statusID ]
+numStacks statusID Ninja{statuses} = sum [ st.amount | st <- statuses,
+                                                       ID.from st == statusID ]
 
 -- | Number of stacks of matching 'statuses' from any source.
 numAnyStacks :: Text -- ^ 'Status.name'.
              -> Ninja -> Int
-numAnyStacks statusName Ninja{statuses} = sum
-    [ amount | Status{amount, name} <- statuses,
-               name == statusName ]
+numAnyStacks name Ninja{statuses} = sum [ st.amount | st <- statuses,
+                                                      st.name == name ]
 
 -- | Counts all 'Effect.helpful' effects in 'statuses' from allies.
 -- Does not include self-applied or 'Hidden' 'Status.Status'es.

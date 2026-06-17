@@ -14,26 +14,25 @@ import           Game.Model.Duration (Duration)
 import           Game.Model.Effect (Effect)
 import           Game.Model.ID (ID)
 import qualified Game.Model.ID as ID
-import           Game.Model.Internal (Bomb(..), Skill(Skill), Status(..))
+import           Game.Model.Internal (Bomb(..), Skill, Status(..))
 import qualified Game.Model.Internal
 import           Game.Model.Slot (Slot)
 
 new :: Slot -> Duration -> Skill -> Status
-new user dur skill@Skill{classes, name} = Status
+new user dur skill = Status
     { amount  = 1
-    , name
+    , name    = skill.name
     , user
     , skill
     , effects = mempty
-    , classes
+    , classes = skill.classes
     , bombs   =  mempty
     , maxDur  = succ dur
     , dur     = succ dur
     }
 
 addClasses :: EnumSet Class -> Status -> Status
-addClasses classes status@Status{classes = classes'} =
-    status { classes = classes ++ classes' }
+addClasses classes status = status { classes = classes ++ status.classes }
 
 remove :: Int -- ^ 'amount'
        -> ID -- ^ 'name'
@@ -51,9 +50,8 @@ removeEffect :: Effect -> [Status] -> [Status]
 removeEffect ef = mapMaybe f
   where
     f st
-      | null before = Just st
-      | null after  = Nothing
-      | otherwise   = Just st { effects = after }
+      | null st.effects = Just st
+      | null filtered   = Nothing
+      | otherwise       = Just st { effects = filtered }
       where
-        before = effects st
-        after  = filter (/= ef) before
+        filtered  = filter (/= ef) st.effects

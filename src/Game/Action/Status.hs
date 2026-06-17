@@ -33,7 +33,6 @@ import qualified Game.Model.Context as Context
 import           Game.Model.Duration (Duration(..))
 import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Effect as Effect
-import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
 import           Game.Model.Runnable (Runnable)
 import           Game.Model.Skill (Skill(Skill))
@@ -215,15 +214,15 @@ removeStacks name i = P.toTargetFromUser (Ninjas.removeStacks i) name
 -- | Steals all of the target's 'Effect.helpful' 'Effect's.
 commandeer :: ∀ m. MonadPlay m => m ()
 commandeer = P.unsilenced do
-    nUser@Ninja{slot = user}     <- P.nUser
-    nTarget@Ninja{slot = target} <- P.nTarget
+    nUser   <- P.nUser
+    nTarget <- P.nTarget
 
-    P.modify user $ Ninjas.modifyStatuses
+    P.modify nUser.slot $ Ninjas.modifyStatuses
         (mapMaybe gainHelpful nTarget.statuses ++) . \n ->
             n { N.defense = nTarget.defense .++ n.defense
               , N.barrier = mempty
               }
-    P.modify target $ Ninjas.modifyStatuses
+    P.modify nTarget.slot $ Ninjas.modifyStatuses
         (mapMaybe loseHelpful) . \n ->
             n { N.defense = mempty
               , N.barrier = nUser.barrier

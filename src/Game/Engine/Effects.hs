@@ -208,8 +208,8 @@ afflictClasses = setFromList [Affliction, All]
 -- | 'Afflict' sum.
 afflict :: ∀ o. IsNinjaSequence o => o -> Player -> Ninja -> Int
 afflict ninjas player n@Ninja{slot, statuses} = sum
-    [ aff st | st@Status{user} <- statuses,
-               user == slot
+    [ aff st | st <- statuses,
+               st.user == slot
                || not (afflictClasses `intersects` invulnerable n) ]
   where
     aff = afflict1 ninjas player slot

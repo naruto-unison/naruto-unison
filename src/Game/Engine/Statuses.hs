@@ -27,7 +27,7 @@ import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Runnable (Runnable)
 import qualified Game.Model.Skill as Skill
-import           Game.Model.Status (Bomb(..), Status(Status))
+import           Game.Model.Status (Bomb(..), Status)
 import qualified Game.Model.Status as Status
 import           Game.Model.Trigger (Trigger(..))
 import           Util ((∈), (∉), intersects)
@@ -69,10 +69,9 @@ apply amount classes bombs unthrottled name effects = void $ runMaybeT do
     if N.has stID nTarget && Extending ∈ st.classes then
         P.modify target $ Ninjas.prolong st.dur stID
     else do
-        let Status{effects = efs} = st
-        guard $ null effects || not (null efs)
+        guard $ null effects || not (null st.effects)
         P.modify target $ Ninjas.addStatus st
-        triggerStatusApplied efs
+        triggerStatusApplied st.effects
   where
     isChanneled = setFromList [Continues, Controlled] `intersects` classes
     status context nUser nTarget dur = makeStatus StatusParams

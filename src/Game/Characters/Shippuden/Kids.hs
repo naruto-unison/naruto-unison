@@ -545,15 +545,15 @@ characters =
     let
         caloricCost n skill = skill { Skill.cost = baseCost ++ caloric }
           where
-            statusID = ID { user  = slot n
-                          , owner = Skill.owner skill
+            statusID = ID { user  = n.slot
+                          , owner = skill.owner
                           , name  = "calories"
                           }
             skillID = statusID { ID.name = "Butterfly Mode" }
-            baseCost = filter (/= Rand) $ Skill.cost skill
+            baseCost = filter (/= Rand) skill.cost
             calories
-              | not $ isChanneling skillID n = 2
-              | otherwise = numStacks statusID n
+              | isChanneling skillID n = numStacks statusID n
+              | otherwise              = 2
             caloric = replicate calories Rand
 
         addCalories i = replicateM_ i $ hide Permanent "calories" []
@@ -619,9 +619,7 @@ characters =
         , Skill.changes   = caloricCost
         }
       ]
-    , [ (invuln "Block" "Chōji" [Physical]) { Skill.cost = [Rand, Rand] }
-      , invuln "Block" "Chōji" [Physical]
-      ]
+    , [ (invuln "Block" "Chōji" [Physical]) { Skill.changes = caloricCost } ]
     ]
   , Character
     "Rock Lee" 0

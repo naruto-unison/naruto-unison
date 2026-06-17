@@ -63,11 +63,11 @@ killUnique = compareUnique \_ user target target' ->
 
 -- | Kill an enemy while the user is affected by a @Status@.
 killUniqueDuring :: Text -> StoreHook
-killUniqueDuring name = compareUnique \_ user@Ninja{slot} target target' ->
+killUniqueDuring name = compareUnique \_ user target target' ->
     not (allied user target)
     && N.alive target
     && not (N.alive target')
-    && N.has (toID name slot) user
+    && N.has (toID name user.slot) user
 
 -- | Stun an enemy.
 stunUnique :: StoreHook

@@ -51,8 +51,7 @@ new = Skill
 -- 'Model.Class.Ninjutsu', 'Model.Class.Taijutsu', and 'Model.Class.Random'
 -- to the 'classes' of a @Skill@ if they are included in its 'cost'.
 chakraClasses :: Skill -> Skill
-chakraClasses skill@Skill{classes, cost} =
-    skill { classes = getClasses cost ++ classes }
+chakraClasses skill = skill { classes = getClasses skill.cost ++ skill.classes }
 
 -- | All targets that a @Skill@ effects.
 targets :: Skill -> EnumSet Target
@@ -68,31 +67,27 @@ provideName Skill{name} nameOrEmpty
 -- Mutators
 
 changeEffects :: ([Runnable Target] -> [Runnable Target]) -> Skill -> Skill
-changeEffects f skill@Skill{always, effects, start, end} =
-    skill { always  = f always
-          , effects = f effects
-          , start   = f start
-          , end     = f end
+changeEffects f skill =
+    skill { always  = f skill.always
+          , effects = f skill.effects
+          , start   = f skill.start
+          , end     = f skill.end
           }
 
 retarget :: (Target -> Target) -> Skill -> Skill
 retarget f = changeEffects (Runnable.retarget f <$>)
 
 addClass :: Class -> Skill -> Skill
-addClass class' skill@Skill{classes} =
-    skill { classes = insertSet class' classes }
+addClass cla skill = skill { classes = insertSet cla skill.classes }
 
 addClasses :: EnumSet Class -> Skill -> Skill
-addClasses classes skill@Skill{classes = classes'} =
-    skill { classes = classes ++ classes' }
+addClasses classes skill = skill { classes = classes ++ skill.classes }
 
 removeClass :: Class -> Skill -> Skill
-removeClass class' skill@Skill{classes} =
-    skill { classes = deleteSet class' classes }
+removeClass cla skill = skill { classes = deleteSet cla skill.classes }
 
 addDesc :: TextBuilder -> Skill -> Skill
-addDesc add skill@Skill{desc} =
-    skill { desc = buildStrict $ display desc ++ add }
+addDesc add skill = skill { desc = buildStrict $ display skill.desc ++ add }
 
 setCooldown :: Duration -> Skill -> Skill
 setCooldown cooldown skill = skill { cooldown = cooldown }
@@ -114,9 +109,9 @@ restrict = changeEffects $ mapMaybe f
 
 -- | Affects enemies instead of allies and allies instead of enemies.
 swap :: Skill -> Skill
-swap skill
-  | Unreflectable ∈ classes skill = skill
-  | otherwise                     = retarget f skill
+swap skill@Skill{classes}
+  | Unreflectable ∈ classes = skill
+  | otherwise               = retarget f skill
   where
     f Self     = Self
     f Ally     = REnemy

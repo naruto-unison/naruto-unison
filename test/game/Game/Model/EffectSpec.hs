@@ -407,7 +407,7 @@ spec = parallel do
                         , continues = False
                         }
                 nCd     = Blank.ninjaWithSkill skill
-                nSnared = nCd { effects = [ Snare snare ] }
+                nSnared = nCd { effects = [Snare snare] }
             in
             simCooldown nSnared === max 0 (simCooldown nCd + 2 * snare)
 

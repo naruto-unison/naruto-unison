@@ -27,7 +27,6 @@ import           Game.Model.Effect (Amount(..), Effect(..))
 import qualified Game.Model.ID as ID
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as N
-import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Trigger (Trigger(..))
 
@@ -45,12 +44,12 @@ build dur amount effects = do
 
 adjustHealth :: ∀ m. MonadPlay m => (Int -> Int) -> m ()
 adjustHealth adjust = do
-    Context{target, user, skill = Skill{classes}} <- P.context
+    Context{target, user, skill} <- P.context
     health <- N.health <$> P.nTarget
     P.modify target $ Ninjas.adjustHealth adjust
     health' <- N.health <$> P.nTarget
     case health' `compare` health of
-        LT -> P.trigger target $ OnDamaged <$> toList classes
+        LT -> P.trigger target $ OnDamaged <$> toList skill.classes
         EQ -> return ()
         GT -> P.trigger user [OnHeal]
 
@@ -64,10 +63,10 @@ absorbDamage :: Int -> [Destructible] -> DamageAbsorb
 absorbDamage damage destructible = absorb $ DamageAbsorb [] damage destructible
   where
     absorb d@(DamageAbsorb _ _ []) = d
-    absorb (DamageAbsorb broken dmg (x@Destructible{amount}:xs))
-      | amount > dmg = DamageAbsorb broken 0 (damaged:xs)
-      | otherwise    = absorb $ DamageAbsorb (damaged:broken) (dmg - amount) xs
-      where damaged = x { Destructible.amount = max 0 $ amount - dmg }
+    absorb (DamageAbsorb broken dmg (x:xs))
+      | x.amount > dmg = DamageAbsorb broken 0 (damaged:xs)
+      | otherwise = absorb $ DamageAbsorb (damaged:broken) (dmg - x.amount) xs
+      where damaged = x { Destructible.amount = max 0 $ x.amount - dmg }
 
 userAdjust :: Attack -> EnumSet Class -> Ninja -> Float -> Float
 userAdjust atk classes nUser x = x
@@ -124,15 +123,15 @@ attack atk dmg
     nTarget <- P.nTarget
     guard . not $ nTarget `is` Invulnerable atkClass
 
-    Context{target, user, skill = skill@Skill{classes}} <- P.context
+    Context{target, user, skill} <- P.context
     nUser <- P.nUser
-    let classes'    = insertSet atkClass classes
+    let classes'    = insertSet atkClass skill.classes
         dmgCalc     = formula atk classes' nUser nTarget dmg
         fromBarrier = absorbDamage dmgCalc nUser.barrier
         fromDefense
-          | nTarget `is` Undefend = DamageAbsorb [] (overflow fromBarrier)
+          | nTarget `is` Undefend = DamageAbsorb [] fromBarrier.overflow
                                   nTarget.defense
-          | otherwise             = absorbDamage (overflow fromBarrier)
+          | otherwise             = absorbDamage fromBarrier.overflow
                                     nTarget.defense
 
     if atk > Attack.Afflict && nTarget `is` DamageToDefense then
@@ -149,20 +148,20 @@ attack atk dmg
 
     else do
         let setBarrier n = refreshEffects fromBarrier
-                           n { N.barrier = remaining fromBarrier }
+                           n { N.barrier = fromBarrier.remaining }
             setDefense n = refreshEffects fromDefense
-                           n { N.defense = remaining fromDefense }
+                           n { N.defense = fromDefense.remaining }
         P.modify user setBarrier
         if atk == Attack.Demolish || overflow fromDefense <= 0 then
             P.modify target setDefense
         else
             P.modify target
-                $ Ninjas.adjustHealth (- overflow fromDefense) . setDefense
+                $ Ninjas.adjustHealth (- fromDefense.overflow) . setDefense
 
     damaged <- (nTarget.health -) . (.health) <$> P.nTarget
 
-    P.trigger user $ OnBreak . ID.from <$> broken fromBarrier
-    P.trigger target $ OnBreak . ID.from <$> broken fromDefense
+    P.trigger user $ OnBreak . ID.from <$> fromBarrier.broken
+    P.trigger target $ OnBreak . ID.from <$> fromDefense.broken
 
     guard $ damaged > 0 && not (Parity.allied user target)
 
@@ -171,7 +170,7 @@ attack atk dmg
     P.modify target $ Traps.track PerDamaged damaged
   where
     refreshEffects destructibles n
-      | all (null . Destructible.effects) $ broken destructibles = n
+      | all (null . Destructible.effects) $ destructibles.broken = n
       | otherwise = Ninjas.processEffects n
     atkClass
       | atk == Attack.Afflict = Affliction

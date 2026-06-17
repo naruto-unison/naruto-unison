@@ -40,12 +40,12 @@ getNinja 5 = n5
 getNinja _ = error "out of range"
 
 modifyNinja :: Int -> (Ninja -> Ninja) -> Ninjas -> Ninjas
-modifyNinja 0 f ns = ns { n0 = f $ n0 ns }
-modifyNinja 1 f ns = ns { n1 = f $ n1 ns }
-modifyNinja 2 f ns = ns { n2 = f $ n2 ns }
-modifyNinja 3 f ns = ns { n3 = f $ n3 ns }
-modifyNinja 4 f ns = ns { n4 = f $ n4 ns }
-modifyNinja 5 f ns = ns { n5 = f $ n5 ns }
+modifyNinja 0 f ns = ns { n0 = f ns.n0 }
+modifyNinja 1 f ns = ns { n1 = f ns.n1 }
+modifyNinja 2 f ns = ns { n2 = f ns.n2 }
+modifyNinja 3 f ns = ns { n3 = f ns.n3 }
+modifyNinja 4 f ns = ns { n4 = f ns.n4 }
+modifyNinja 5 f ns = ns { n5 = f ns.n5 }
 modifyNinja _ _ _  = error "out of range"
 
 mapNinjas :: (Ninja -> Ninja) -> Ninjas -> Ninjas

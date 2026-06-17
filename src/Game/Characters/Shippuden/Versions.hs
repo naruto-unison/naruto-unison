@@ -243,7 +243,7 @@ characters =
           | isMode "Taijutsu Sage"  n = Tai
           | otherwise                 = Rand
           where
-            owner = slot n
+            owner = n.slot
             isMode name = isChanneling ID { user = owner, owner, name }
 
         withMode f n = f $ modeChakra n

@@ -66,26 +66,23 @@ addProgress Track{hooks = Hooks{goals}, progress} i amt = case goals !! i of
 
 trackStore :: ∀ m. PrimMonad m
            => Track (PrimState m) -> Int -> (Store -> (Store, Int)) -> m ()
-trackStore x@Track{store} i f = do
-    (store', progress') <- f <$> MVector.unsafeRead store i
-    MVector.unsafeWrite store i store'
-    addProgress x i progress'
+trackStore track i f = do
+    (store, progress) <- f <$> MVector.unsafeRead track.store i
+    MVector.unsafeWrite track.store i store
+    addProgress track i progress
 
 trackAction1 :: ∀ m. PrimMonad m
              => Text -> [(Ninja, Ninja)] -> Track (PrimState m) -> m ()
-trackAction1 skill ns track@Track { hooks = Hooks { actions
-                                                  , consecs
-                                                  , stores
-                                                  }
+trackAction1 skill ns track@Track { hooks
                                   , progress
                                   , skills
                                   , slot
                                   } = do
-    sequence_ $ tracker <$> ns <*> actions ! skill
-    sequence_ $ tracker' <$> ns <*> stores ! skill
-    modifyRef' (skills) (skill :)
-    used <- readRef $ skills
-    mapM_ (consec used) consecs
+    sequence_ $ tracker <$> ns <*> hooks.actions ! skill
+    sequence_ $ tracker' <$> ns <*> hooks.stores ! skill
+    modifyRef' skills (skill :)
+    used <- readRef skills
+    mapM_ (consec used) hooks.consecs
   where
     user = snd $ ns !! Slot.toInt slot
     consec used (i, match)
@@ -97,37 +94,39 @@ trackAction1 skill ns track@Track { hooks = Hooks { actions
 trackChakra1 :: ∀ m. PrimMonad m
              => Text -> (Chakras, Chakras) -> (Chakras, Chakras)
              -> Track (PrimState m) -> m ()
-trackChakra1 skill chaks chaks' x@Track{hooks = Hooks{chakras}} =
-    sequence_ $ tracker <$> chakras ! skill
+trackChakra1 skill chaks chaks' track@Track{hooks, slot} =
+    sequence_ $ tracker <$> hooks.chakras ! skill
   where
-    tracker (i, f) = addProgress x i $ f (swapOwned chaks) (swapOwned chaks')
-    swapOwned = Parity.swap $ slot x
+    tracker (i, f) = addProgress track i
+                   $ f (swapOwned chaks) (swapOwned chaks')
+    swapOwned = Parity.swap slot
 
 trackTrap1 :: ∀ m. PrimMonad m
            => Text -> Slot -> Ninja -> Track (PrimState m) -> m ()
-trackTrap1 trap user n x@Track{hooks = Hooks{traps}} =
-    sequence_ $ tracker <$> traps ! trap
+trackTrap1 trap user n track@Track{hooks} =
+    sequence_ $ tracker <$> hooks.traps ! trap
   where
-    tracker (i, f) = trackStore x i $ f user n
+    tracker (i, f) = trackStore track i $ f user n
 
 trackTrigger1 :: ∀ m. PrimMonad m
               => Trigger -> Ninja -> Track (PrimState m) -> m ()
-trackTrigger1 trigger n x@Track{hooks = Hooks{triggers}} =
-    sequence_ $ tracker <$> triggers ! trigger
+trackTrigger1 trigger n track@Track{hooks} =
+    sequence_ $ tracker <$> hooks.triggers ! trigger
   where
     tracker (i, f)
-      | f n       = addProgress x i 1
+      | f n       = addProgress track i 1
       | otherwise = return ()
 
 trackTurn1 :: ∀ m. PrimMonad m
            => Player -> [(Ninja, Ninja)] -> Track (PrimState m) -> m ()
-trackTurn1 p ns x@Track{skills, slot, hooks = Hooks{turns}} = do
-      sequence_ $ tracker <$> ns <*> turns
-      unless (Parity.allied p user) $ modifyRef' skills $ fromMaybe [] . initMay
-      reset x
+trackTurn1 p ns track@Track{skills, slot, hooks} = do
+      sequence_ $ tracker <$> ns <*> hooks.turns
+      unless (Parity.allied p user)
+        $ modifyRef' skills $ fromMaybe [] . initMay
+      reset track
   where
     user = snd $ ns !! Slot.toInt slot
-    tracker (n, n') (i, f) = trackStore x i $ f p user n n'
+    tracker (n, n') (i, f) = trackStore track i $ f p user n n'
 
 new :: ∀ m. PrimMonad m => Ninja -> m (Track (PrimState m))
 new Ninja{character = Character{ident}, slot} = do
@@ -156,8 +155,8 @@ gFreeze :: ∀ m. PrimMonad m
         -> Tracker (PrimState m) -> m [Progress]
 gFreeze freezer (Tracker xs) = concat <$> mapM freezeTrack xs
   where
-    freezeTrack Track{progress, hooks = Hooks{key}} =
-        (zipWith ($) key) . toList <$> freezer progress
+    freezeTrack Track{progress, hooks} =
+        (zipWith ($) hooks.key) . toList <$> freezer progress
 
 -- | The mutable elements of the Tracker may not be used after this operation.
 freeze :: ∀ m. PrimMonad m => Tracker (PrimState m) -> m [Progress]

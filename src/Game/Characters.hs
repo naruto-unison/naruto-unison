@@ -49,10 +49,9 @@ setIdent char@Character{category, name} =
     char { Character.ident = Character.identFrom category name }
 
 addGroups :: Character -> Character
-addGroups char@Character{groups, skills} =
-    char { Character.groups = added ++ groups }
+addGroups char = char { Character.groups = added ++ char.groups }
   where
-    chakras = concatMap Skill.cost $ join skills
+    chakras = concatMap Skill.cost $ join char.skills
     added = setFromList $ fst <$> filter ((∈ chakras) . snd)
                 [ (BloodlineUser, Blood)
                 , (GenjutsuUser, Gen)
@@ -61,8 +60,7 @@ addGroups char@Character{groups, skills} =
                 ]
 
 addClasses :: Character -> Character
-addClasses char@Character{skills} =
-    char { Character.skills = (addClass <$>) <$> skills }
+addClasses char = char { Character.skills = (addClass <$>) <$> char.skills }
 
 addClass :: Skill -> Skill
 addClass skill@Skill{classes} = skill { Skill.classes = added ++ classes }

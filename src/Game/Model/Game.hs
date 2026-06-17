@@ -60,12 +60,10 @@ inProgress :: Game -> Bool
 inProgress x = null x.victor
 
 setChakra :: ∀ a. Parity a => a -> Chakras -> Game -> Game
-setChakra p x game@Game{chakra} =
-    game { chakra = Parity.setOf p x chakra }
+setChakra p x game = game { chakra = Parity.setOf p x game.chakra }
 
 adjustChakra :: ∀ a. Parity a => a -> (Chakras -> Chakras) -> Game -> Game
-adjustChakra p f game@Game{chakra} =
-    game { chakra = Parity.modifyOf p f chakra }
+adjustChakra p f game = game { chakra = Parity.modifyOf p f game.chakra }
 
 addChakra :: ∀ a. Parity a => a -> Chakras -> Game -> Game
 addChakra p chakras game = adjustChakra p (++ chakras) game
@@ -77,15 +75,15 @@ setVendetta :: Maybe Slot -> Game -> Game
 setVendetta vendetta game = game { vendetta = vendetta }
 
 swapPlaying :: Game -> Game
-swapPlaying game@Game{playing} = game { playing = Player.opponent playing }
+swapPlaying game = game { playing = Player.opponent game.playing }
 
 incrementInactive :: Player -> Game -> Game
-incrementInactive player game@Game{inactive} =
-    game { inactive = Parity.modifyOf player (+1) inactive }
+incrementInactive player game =
+    game { inactive = Parity.modifyOf player (+1) game.inactive }
 
 resetInactive :: Player -> Game -> Game
-resetInactive player game@Game{inactive} =
-    game { inactive = Parity.setOf player 0 inactive }
+resetInactive player game =
+    game { inactive = Parity.setOf player 0 game.inactive }
 
 forfeit :: Player -> Game -> Game
 forfeit player game = game { victor    = singleton $ Player.opponent player

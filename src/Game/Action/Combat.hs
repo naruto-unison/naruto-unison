@@ -35,7 +35,6 @@ import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.ID as ID
 import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
-import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Trigger (Trigger(..))
 
@@ -163,8 +162,8 @@ heal hp
   | otherwise = P.unsilenced do
     nTarget <- P.nTarget
     unless (nTarget `is` Plague || not (N.alive nTarget)) do
-        nUser@Ninja{slot = user} <- P.nUser
-        let hp' = Effects.boost user nTarget * hp + Effects.bless nUser
+        nUser <- P.nUser
+        let hp' = Effects.boost nUser.slot nTarget * hp + Effects.bless nUser
         Combat.adjustHealth (+ hp')
 
 
@@ -180,14 +179,14 @@ leech' :: ∀ m. MonadPlay m => Int -> (Int -> m ()) -> m ()
 leech' hp f
   | hp <= 0   = return ()
   | otherwise = do
-    Context{target, user, skill = Skill{classes}} <- P.context
+    Context{target, user, skill} <- P.context
     hpBefore <- N.health <$> P.nTarget
     afflict hp
     damaged <- (hpBefore -) . N.health <$> P.nTarget
     when (damaged > 0) do
         f damaged
         P.trigger user [OnDamage]
-        P.trigger target $ OnDamaged <$> NonAffliction : toList classes
+        P.trigger target $ OnDamaged <$> NonAffliction : toList skill.classes
         P.modify target $ Traps.track PerDamaged damaged
 
 -- | Sacrifices some amount of the target's 'N.health' down to a minimum.

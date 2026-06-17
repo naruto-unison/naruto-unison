@@ -69,20 +69,17 @@ getOf user trigger Ninja{traps} = run user
 
 runTriggers :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> Ninja -> m ()
-runTriggers user n@Ninja{traps, triggers} = do
-    mapM_ (`Hook.trigger` n) triggers
-    mapM_ (run user) traps'
-  where
-      traps' = filter ((∈ triggers) . Trap.trigger) traps
+runTriggers user n = do
+    mapM_ (`Hook.trigger` n) n.triggers
+    mapM_ (run user) $ filter ((∈ n.triggers) . Trap.trigger) n.traps
 
 -- | Adds a value to 'Trap.tracker' of 'N.traps' with a certain @Trigger@.
 track :: Trigger -> Int -> Ninja -> Ninja
 track trigger amount n = n { N.traps = tracked <$> n.traps }
   where
     tracked trap
-      | Trap.trigger trap == trigger =
-          trap { Trap.tracker = amount + trap.tracker }
-      | otherwise = trap
+      | trap.trigger == trigger = trap { Trap.tracker = amount + trap.tracker }
+      | otherwise               = trap
 
 -- | Conditionally returns 'Trap.Trap's that accept a numeric value.
 getPer :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
@@ -91,10 +88,10 @@ getPer :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
        -> Int -- ^ Value to pass to 'Trap.effect'.
        -> Ninja -- 'N.traps' owner.
        -> [m ()]
-getPer False _  _   _ = mempty
-getPer True  tr amt Ninja{traps} =
-    [ launch trap $ effect amt | trap@Trap{effect, trigger} <- traps
-                               , trigger == tr ]
+getPer False _       _   _ = mempty
+getPer True  trigger amt Ninja{traps} =
+    [ launch trap $ trap.effect amt | trap <- traps
+                                    , trap.trigger == trigger ]
 
 -- | Tallies 'PerDamaged' traps.
 getTurnPer :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
@@ -114,9 +111,9 @@ getTurnPer player n n'
 getTurnNot :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
            => Ninja -- ^ 'N.flags' owner.
            -> [m ()]
-getTurnNot n@Ninja{acted, slot}
-  | acted     = mempty
-  | N.alive n = getOf slot OnNoAction n
+getTurnNot n
+  | n.acted   = mempty
+  | N.alive n = getOf n.slot OnNoAction n
   | otherwise = mempty
 
 -- | Processes and runs all 'Trap.Trap's at the end of a turn.
@@ -131,13 +128,13 @@ runTurn ninjas = do
 runExpirations :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => m ()
 runExpirations = mapM_ expire =<< P.ninjas
   where
-    expire n@Ninja{slot, traps}
+    expire n
       | null yays = return ()
       | otherwise = do
-            P.modify slot \n' -> n' { N.traps = nays }
-            mapM_ (run slot) yays
+            P.modify n.slot \n' -> n' { N.traps = nays }
+            mapM_ (run n.slot) yays
       where
-        (yays, nays) = partition (Trap.isExpiring n) traps
+        (yays, nays) = partition (Trap.isExpiring n) n.traps
 
 -- | Trap engine.
 apply :: ∀ m. MonadPlay m
@@ -160,19 +157,22 @@ apply direction classes unthrottled trigger f = void $ runMaybeT do
 
 makeTrap :: Context -> Trap.Direction -> EnumSet Class -> Duration
          -> Trigger -> IntRunConstraint () -> Trap
-makeTrap ctx direction classes dur trigger f = Trap
+makeTrap ctx@Context { continues
+                     , new
+                     , skill
+                     , user
+                     } direction classes dur trigger f = Trap
     { trigger
     , direction
     , skill   = skill'
     , user
     , name    = skill'.name
-    , effect  = \i -> To { target = context, run = f i }
+    , effect  = \i -> To context $ f i
     , classes = classes'
     , tracker = 0
     , dur     = succ dur
     }
   where
-    Context{continues, new, skill, user} = ctx
     setContinues
       | continues && dur <= 1 = insertSet Continues
       | continues || new      = deleteSet Continues

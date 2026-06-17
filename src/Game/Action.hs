@@ -36,7 +36,7 @@ import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game as Game
 import           Game.Model.ID (HasID, ID(ID))
 import qualified Game.Model.ID as ID
-import           Game.Model.Ninja (Ninja(Ninja), is)
+import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Requirement (Requirement(..))
 import qualified Game.Model.Requirement as Requirement
@@ -215,39 +215,31 @@ act :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Context -> m ()
 act context@Context { user
                     , new
                     , target
-                    , skill = skill@Skill { always
-                                          , charges
-                                          , cost
-                                          , classes
-                                          , dur
-                                          , effects
-                                          , require
-                                          , start
-                                          }
+                    , skill = skill@Skill{classes}
                     } = void $ runMaybeT do
     Game{chakra} <- P.game
     nUser   <- P.ninja user
     initial <- P.ninjas
 
-    guard $ N.alive nUser && require /= Unusable
+    guard $ N.alive nUser && skill.require /= Unusable
 
     lift $ P.withContext context do
         if not new then do
-            mainEffects <- targeted $ always ++ effects
+            mainEffects <- targeted $ skill.always ++ skill.effects
             P.withContinues $ run' (singleton Targeted) mainEffects
         else do
             P.modify user \n -> n { N.lastSkill = Just skill, N.acted = True }
             P.trigger user $ OnAction <$> toList classes
-            when (charges > 0)
+            when (skill.charges > 0)
                 . P.modify user $ Ninjas.spendCharge skill
-            startEffects <- targeted start
-            mainEffects  <- targeted $ always ++ effects
+            startEffects <- targeted skill.start
+            mainEffects  <- targeted $ skill.always ++ skill.effects
 
             let allEffects = startEffects ++ mainEffects
 
             countering  <- Counter.filterCounters allEffects <$> P.enemies user
             forM_ countering \n ->
-                when (n `is` Absorb) $ P.alterGame $ Game.addChakra n cost
+                when (n `is` Absorb) $ P.alterGame $ Game.addChakra n skill.cost
 
             let counters = Counter.userCounters (not $ null countering)
                            user classes nUser ++
@@ -258,13 +250,13 @@ act context@Context { user
                   || null counters
             then do
                 let countered = N.slot <$> countering
-                    uncounter n@Ninja{slot}
-                      | slot == user     = Counter.userUncounter classes n
-                      | slot ∈ countered = Counter.targetUncounter classes n
-                      | otherwise        = n
+                    uncounter n
+                      | n.slot == user     = Counter.userUncounter classes n
+                      | n.slot ∈ countered = Counter.targetUncounter classes n
+                      | otherwise          = n
                 P.modifyAll uncounter
                 sequence_ counters
-            else case dur of
+            else case skill.dur of
                 Instant -> run' (singleton Targeted) allEffects
                 _       -> do
                     P.modify user $ Ninjas.addChannels skill target
@@ -281,15 +273,15 @@ act context@Context { user
         P.modifyAll $ unreflect . \n -> n { N.triggers = mempty }
         breakControls
   where
-    unreflect n@Ninja{triggers}
-      | OnReflect ∈ triggers = Ninjas.modifyStatuses
-                               (Status.removeEffect Reflect) n
-      | otherwise            = n
+    unreflect n
+      | OnReflect ∈ n.triggers = Ninjas.modifyStatuses
+                                 (Status.removeEffect Reflect) n
+      | otherwise              = n
 
 -- | Effects to run when a channeled skill is canceled.
 runInterruptions :: ∀ m. (MonadGame m, MonadRandom m) => Slot -> Channel -> m ()
-runInterruptions user Channel{dur, target, skill = skill@Skill{end, name}} = do
-    P.withContext context $ runTargeted end
+runInterruptions user Channel{dur, target, skill} = do
+    P.withContext context $ runTargeted skill.end
     when (Channel.isControl dur)
         $ P.modifyAll removeInterrupted
   where
@@ -300,17 +292,17 @@ runInterruptions user Channel{dur, target, skill = skill@Skill{end, name}} = do
         , new = False
         , continues = False
         }
-    channelID = ID { user, owner = user, name }
+    channelID = ID { user, owner = user, name = skill.name }
     removeInterrupted :: Ninja -> Ninja
-    removeInterrupted n@Ninja{barrier, defense, statuses, traps}
+    removeInterrupted n
       | hasInterrupted = (Ninjas.modifyAll (filter uninterrupted) n)
-                           { N.traps = filter uninterruptedTrap traps }
+                           { N.traps = filter uninterruptedTrap n.traps }
       | otherwise      = n
       where
-        hasInterrupted = any interrupted statuses
-                      || any interrupted traps
-                      || any interrupted defense
-                      || any interrupted barrier
+        hasInterrupted = any interrupted n.statuses
+                      || any interrupted n.traps
+                      || any interrupted n.defense
+                      || any interrupted n.barrier
     interrupted :: ∀ a. (Classed a, HasID a, TurnBased a) => a -> Bool
     interrupted a = Controlled ∈ getClasses a && ID.from a == channelID
     uninterrupted :: ∀ a. (Classed a, HasID a, TurnBased a) => a -> Bool
@@ -325,15 +317,11 @@ runInterruptions user Channel{dur, target, skill = skill@Skill{end, name}} = do
 breakControls :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 breakControls = mapM_ breakN =<< P.ninjas
   where
-    breakN n@Ninja{channels, slot} =
-        mapM_ (breakControl slot $ Effects.stun n) channels
+    breakN n = mapM_ (breakControl n.slot $ Effects.stun n) n.channels
 
 breakControl :: ∀ m. (MonadGame m, MonadRandom m)
              => Slot -> EnumSet Class -> Channel -> m ()
-breakControl user stuns chan@Channel { dur   = Control{}
-                                     , skill = skill@Skill{classes, effects}
-                                     , target
-                                     } =
+breakControl user stuns chan@Channel{dur = Control{}, skill, target} =
     P.withContext context $ ifBroken do
         P.modify user $ Ninjas.cancelChannel $ ID.from skill
         runInterruptions user chan
@@ -356,9 +344,9 @@ breakControl user stuns chan@Channel { dur   = Control{}
         , XEnemies
         , Everyone
         ]
-    targets = filter ((∈ breakable) . Runnable.target) effects
+    targets = filter ((∈ breakable) . Runnable.target) skill.effects
     ifBroken
-        | stuns `intersects` classes = id
+        | stuns `intersects` skill.classes = id
         | null targets = const $ return ()
         | otherwise    = whenM $ all null <$> targeted targets
 

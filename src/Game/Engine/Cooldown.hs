@@ -9,12 +9,11 @@ import ClassyPrelude
 
 import qualified Game.Engine.Effects as Effects
 import           Game.Model.Channel (Channeling(..))
-import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character
 import           Game.Model.Duration (sync)
 import           Game.Model.ID (ID(ID))
 import qualified Game.Model.ID
-import           Game.Model.Ninja (Ninja(Ninja))
+import           Game.Model.Ninja (Ninja)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
@@ -48,14 +47,14 @@ reset skillID = modifyCooldowns $ insertMap (idKey skillID) 0
 
 -- | Sets all Instant 'N.cooldowns' to @mempty@.
 resetAll :: Ninja -> Ninja
-resetAll n@Ninja{character = Character{skills}} =
-    modifyCooldowns (filterWithKey isInstantCooldown) n
+resetAll n = modifyCooldowns (filterWithKey isInstantCooldown) n
   where
     isNonInstant Skill{dur = Instant} = False
     isNonInstant Skill{dur = Passive} = False
     isNonInstant _                    = True
     nonInstantSkills :: HashSet Skill.Key
-    nonInstantSkills = setFromList [ Skill.key sk | skill <- toList skills,
-                                                    sk    <- toList skill,
-                                                    isNonInstant sk ]
+    nonInstantSkills = setFromList
+        [ Skill.key sk | skill <- toList n.character.skills,
+                         sk    <- toList skill,
+                         isNonInstant sk ]
     isInstantCooldown key _ = key ∉ nonInstantSkills

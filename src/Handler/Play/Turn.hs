@@ -22,7 +22,7 @@ import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
 import qualified Game.Model.Requirement as Requirement
 import           Game.Model.Slot (Slot, SlotSet)
-import           Handler.Play.Snapshot (Snapshot(Snapshot))
+import           Handler.Play.Snapshot (Snapshot)
 import qualified Handler.Play.Snapshot as Snapshot
 import           Util ((∈), (∉))
 
@@ -59,8 +59,8 @@ new player ninjas snapshots Game{chakra, inactive, playing, victor} = Turn
       | otherwise              = replicate (length skills) []
 
 censorSnapshot :: Player -> Snapshot -> Snapshot
-censorSnapshot player snapshot@Snapshot{ninjas} =
-    snapshot { Snapshot.ninjas = censorNinjas player ninjas }
+censorSnapshot player snapshot =
+    snapshot { Snapshot.ninjas = censorNinjas player snapshot.ninjas }
 
 censorNinjas :: Player -> [Ninja] -> [Ninja]
 censorNinjas player ninjas = censorNinja revealed <$> ninjas
@@ -69,7 +69,7 @@ censorNinjas player ninjas = censorNinja revealed <$> ninjas
     revealed = setFromList $ N.slot <$> filter reveal ninjas
 
 censorNinja :: SlotSet -> Ninja -> Ninja
-censorNinja revealed n@Ninja{slot} =
+censorNinja revealed n =
     n { N.channels  = censorChannels n.channels
       , N.cooldowns = censorAll      n.cooldowns
       , N.charges   = censorAll      n.charges
@@ -78,14 +78,15 @@ censorNinja revealed n@Ninja{slot} =
       }
   where
     reveal user = user ∈ revealed
+    revealN = reveal n.slot
     censorChannels
-      | reveal slot = id
-      | otherwise   = filter $ (Invisible ∉) . getClasses
+      | revealN   = id
+      | otherwise = filter $ (Invisible ∉) . getClasses
     censorAll
-      | reveal slot = id
-      | otherwise   = const mempty
+      | revealN   = id
+      | otherwise = const mempty
     hide :: ∀ a. (Classed a, HasID a) => a -> Bool
     hide x = Hidden ∈ classes || (Invisible ∈ classes && not (reveal user))
       where
         classes = getClasses x
-        user    = ID.user $ ID.from x
+        user    = (ID.from x).user

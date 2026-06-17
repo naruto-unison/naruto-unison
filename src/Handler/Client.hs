@@ -30,7 +30,6 @@ import           Handler.Client.Data (addDataJS)
 import qualified Handler.Play as Play
 import qualified Handler.Play.War as War
 import qualified Mission
-import           Mission.Goal (Goal(Reach))
 import qualified Mission.Goal as Goal
 import           Util ((∈), (∉), fromMaybeM)
 
@@ -76,10 +75,10 @@ getMissionR Character{ident} = do
         Just m  -> unzipGoal <$> m
         Nothing -> mempty
   where
-    unzipGoal (goal@Reach{desc, reach}, progress) = ObjectiveProgress
+    unzipGoal (goal, progress) = ObjectiveProgress
         { character = Character.format <$> Goal.character goal
-        , goal      = reach
-        , desc
+        , goal      = goal.reach
+        , desc      = goal.desc
         , progress
         }
 

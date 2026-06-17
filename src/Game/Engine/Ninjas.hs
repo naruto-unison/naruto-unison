@@ -59,7 +59,6 @@ import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Skills as Skills
 import           Game.Model.Channel (Channel(Channel), Channeling(..))
 import qualified Game.Model.Channel as Channel
-import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
 import           Game.Model.Copy (Copy(Copy))
@@ -87,14 +86,14 @@ import           Game.Model.Trigger (Trigger(..))
 import           Util ((∈), (∉))
 
 processSkills :: Ninja -> Ninja
-processSkills n@Ninja{copies, slot, character = Character{skills}}
-    = n { N.skills = zipWith getSkill (toNullable skills) copies }
+processSkills n = n { N.skills = zipWith getSkill skills n.copies }
   where
+    skills = toNullable n.character.skills
     getSkill (base:|alts) mcopy = Requirement.usable True n
         . Skills.change n
         $ fromMaybe (own base) $ copied <|> (own <$> alternate)
       where
-        own x     = x { Skill.owner = slot }
+        own x     = x { Skill.owner = n.slot }
         copied    = Copy.skill <$> mcopy
         alternate = do
             alt <- Effects.alternate base.name n
@@ -102,8 +101,8 @@ processSkills n@Ninja{copies, slot, character = Character{skills}}
 
 -- | Cycles a skill through its list of alternates.
 nextAlternate :: Text -> Ninja -> Maybe Text
-nextAlternate baseName n@Ninja{character = Character{skills}} = do
-    _:|alts <- find ((== baseName) . Skill.name . head) skills
+nextAlternate baseName n = do
+    _:|alts <- find ((== baseName) . Skill.name . head) n.character.skills
     headMay . dropUntilAlt $ Skill.name <$> alts
   where
     dropUntilAlt alts = case Effects.alternate baseName n of
@@ -220,9 +219,9 @@ decrement n = processSkills $ processEffects
     setNotNew chan = chan { Channel.new = False }
 
 addTrap :: Trap -> Ninja -> Ninja
-addTrap trap n@Ninja{traps}
-  | any (conflicts trap) traps = n
-  | otherwise = n { N.traps = trap : traps }
+addTrap trap n
+  | any (conflicts trap) n.traps = n
+  | otherwise                    = n { N.traps = trap : n.traps }
   where
     conflicts = (==) `on` \Trap{user, direction, trigger, classes, dur, name} ->
         (user, direction, trigger, classes, dur, name)
@@ -232,8 +231,7 @@ checkEffects [] n = n
 checkEffects _  n = processEffects n
 
 addStatus :: Status -> Ninja -> Ninja
-addStatus st@Status{effects} n = checkEffects effects
-    $ n { N.statuses = st .: n.statuses }
+addStatus st n = checkEffects st.effects $ n { N.statuses = st .: n.statuses }
 
 checkDestructibleEffects :: [Destructible] -> Ninja -> Ninja
 checkDestructibleEffects xs n
@@ -243,16 +241,16 @@ checkDestructibleEffects xs n
    hasEffects Destructible{effects} = not $ null effects
 
 addBarrier :: Destructible -> Ninja -> Ninja
-addBarrier b@Destructible{amount, effects} n = case amount `compare` 0 of
-    LT -> n { N.defense = Destructible.negate b .: n.defense }
+addBarrier barrier n = case barrier.amount `compare` 0 of
+    LT -> n { N.defense = Destructible.negate barrier .: n.defense }
     EQ -> n
-    GT -> checkEffects effects n { N.barrier = b .: n.barrier }
+    GT -> checkEffects barrier.effects n { N.barrier = barrier .: n.barrier }
 
 addDefense :: Destructible -> Ninja -> Ninja
-addDefense b@Destructible{amount, effects} n = case amount `compare` 0 of
-    LT -> n { N.barrier = Destructible.negate b .: n.barrier }
+addDefense defense n = case defense.amount `compare` 0 of
+    LT -> n { N.barrier = Destructible.negate defense .: n.barrier }
     EQ -> n
-    GT -> checkEffects effects n { N.defense = b .: n.defense }
+    GT -> checkEffects defense.effects n { N.defense = defense .: n.defense }
 
 increaseDefense :: Int -- ^ 'Destructible.amount'.
                 -> ID -- ^ 'Destructible.name'.
@@ -263,7 +261,7 @@ increaseDefense amount defenseID n = n { N.defense = addFirst n.defense }
     addFirst (x:xs)
       | ID.from x == defenseID = addAmount x : xs
       | otherwise              = x : addFirst xs
-    addAmount x = x { Destructible.amount = amount + Destructible.amount x }
+    addAmount x = x { Destructible.amount = amount + x.amount }
 
 removeDefense :: ID -- ^ 'Destructible.name'.
               -> Ninja -> Ninja
@@ -271,12 +269,10 @@ removeDefense defenseID n = processEffects
     n { N.defense = filter ((/= defenseID) . ID.from) n.defense }
 
 clearBarrier :: Ninja -> Ninja
-clearBarrier n@Ninja{barrier} = checkDestructibleEffects barrier
-    $ n { N.barrier = mempty }
+clearBarrier n = checkDestructibleEffects n.barrier n { N.barrier = mempty }
 
 clearDefense :: Ninja -> Ninja
-clearDefense n@Ninja{defense} = checkDestructibleEffects defense
-    $ n { N.defense = mempty }
+clearDefense n = checkDestructibleEffects n.defense n { N.defense = mempty }
 
 -- | Deletes matching 'statuses'.
 clear :: ID -- ^ 'Status.name'.
@@ -286,8 +282,7 @@ clear statusID = modifyStatuses . filter $ (/= statusID) . ID.from
 -- | Deletes matching 'traps'.
 clearTrap :: ID -- ^ 'Trap.name'.
           -> Ninja -> Ninja
-clearTrap trapID n =
-    n { N.traps = filter ((/= trapID) . ID.from) n.traps }
+clearTrap trapID n = n { N.traps = filter ((/= trapID) . ID.from) n.traps }
 
 -- | Deletes 'traps' with matching 'Trap.trigger'.
 clearTraps :: Trigger -> Ninja -> Ninja
@@ -355,22 +350,22 @@ filterEffects predicate n = modifyStatuses (mapMaybe f) n
 
 -- | Removes harmful effects. Does not work if the target has 'Plague'.
 cure :: (Effect -> Bool) -> Ninja -> Ninja
-cure match n@Ninja{slot}
+cure match n
   | n `is` Plague = n
   | otherwise     = filterEffects keep n
   where
-    keep user effect = user == slot
+    keep user effect = user == n.slot
                     || Effect.helpful effect
                     || Effect.sticky effect
                     || not (match effect)
 
 -- | Cures 'Bane' 'statuses'.
 cureBane :: Ninja -> Ninja
-cureBane n@Ninja{slot}
+cureBane n
   | n `is` Plague = n
   | otherwise     = modifyStatuses (filter keep) n
   where
-    keep Status{classes, user} = slot == user
+    keep Status{classes, user} = n.slot == user
                                  || Bane ∉ classes
                                  || Unremovable ∈ classes
 
@@ -402,7 +397,7 @@ prolongControlled :: Duration -- ^ Added to 'Status.dur'.
         -> Ninja -> Ninja
 prolongControlled dur statusID = prolongIf matches dur
   where
-    matches st@Status{classes} = Controlled ∈ classes && ID.from st == statusID
+    matches st = Controlled ∈ st.classes && ID.from st == statusID
 
 prolongIf :: (Status -> Bool) -> Duration -> Ninja -> Ninja
 prolongIf condition dur n
@@ -436,9 +431,9 @@ prolongChannel :: Duration -> ID -> Ninja -> Ninja
 prolongChannel dur (ID.fromOwner -> channelID) n =
     n { N.channels = f <$> n.channels }
   where
-    f chan@Channel{dur = dur'}
-      | prolongs dur' && ID.from chan == channelID = TurnBased.addDur dur chan
-      | otherwise                                  = chan
+    f chan
+      | ID.from chan /= channelID || not (prolongs chan.dur) = chan
+      | otherwise = TurnBased.addDur dur chan
     prolongs (Ongoing (Duration i)) = i >= 0
     prolongs (Action  (Duration i)) = i >= 0
     prolongs _                      = False
@@ -447,7 +442,7 @@ renameChannels :: (Text -> Text) -> Ninja -> Ninja
 renameChannels rename n = n { N.channels = f <$> n.channels }
   where
     f chan@Channel{new = True} = chan
-    f chan@Channel{skill} = chan
+    f chan@Channel{skill}      = chan
         { Channel.skill = skill { Skill.name = rename skill.name } }
 
 -- | Removes all helpful effects.
