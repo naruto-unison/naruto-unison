@@ -274,8 +274,7 @@ instance ToJSON Range
 
 
 data Requirement
-    = Usable
-    | Unusable
+    = Unusable
     | UserHas Range Int Text
     | TargetHas Range Int Text
     | UserHealth Range Int
@@ -292,7 +291,7 @@ instance ToJSON Requirement
 data Skill = Skill
     { name      :: Text              -- ^ Name
     , desc      :: Text              -- ^ Description
-    , require   :: Requirement       -- ^ Defaults to 'Usable'
+    , require   :: [Requirement]     -- ^ Defaults to empty
     , classes   :: EnumSet Class     -- ^ Defaults to empty
     , cost      :: Chakras           -- ^ Defaults to empty
     , cooldown  :: Duration          -- ^ Defaults to @0@
@@ -310,7 +309,6 @@ instance ToJSON Skill where
     toJSON Skill
         { name
         , desc
-        , require
         , classes
         , cost
         , cooldown
@@ -324,7 +322,6 @@ instance ToJSON Skill where
         } = object
         [ "name"     .= name
         , "desc"     .= desc
-        , "require"  .= require
         , "classes"  .= classes
         , "cost"     .= cost
         , "cooldown" .= cooldown

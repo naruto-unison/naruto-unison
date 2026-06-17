@@ -33,7 +33,6 @@ import qualified Game.Model.Game
 import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
-import           Game.Model.Requirement (Requirement(..))
 import           Game.Model.Runnable (Runnable(To), IntRunConstraint)
 import qualified Game.Model.Runnable as Runnable
 import qualified Game.Model.Skill as Skill
@@ -183,7 +182,7 @@ makeTrap ctx@Context { continues
     classes' = insertSet Nonstacking . setContinues . setNecromancy
              $ classes ++ skill.classes
     skill'   = skill { Skill.classes = classes'
-                     , Skill.require = Usable
+                     , Skill.require = mempty
                      }
     context  = ctx { Context.skill     = skill'
                    , Context.continues = False

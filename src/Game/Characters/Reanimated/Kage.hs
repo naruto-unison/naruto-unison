@@ -187,7 +187,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Chakra-Arm Raijin"
         , Skill.desc      = "Minato and allies affected by [Space-Time Marking] become invulnerable for 1 turn."
-        , Skill.require   = TargetHas AtLeast 1 "Space-Time Marking"
+        , Skill.require   = [TargetHas AtLeast 1 "Space-Time Marking"]
         , Skill.classes   = [Chakra, Bypassing]
         , Skill.cooldown  = 4
         , Skill.effects   =
@@ -413,7 +413,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Steaming Danger Tyranny Boy"
         , Skill.desc      = "Gengetsu isolates an enemy by repeatedly blasting the rest of their team back with a childlike figure of himself. For 2 turns, Gengetsu and his target are invulnerable to everyone else and cannot use skills on anyone else. At the start of the duel, both participants have their health set to 30. When the duel ends, they are restored to their health before the duel if still alive."
-        , Skill.require   = UserHas AtMost 0 "Steaming Danger Tyranny Boy"
+        , Skill.require   = [UserHas AtMost 0 "Steaming Danger Tyranny Boy"]
         , Skill.classes   = [Chakra, Ranged, Bypassing, Unreflectable, Unremovable, Atemporal]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 3
@@ -480,7 +480,7 @@ characters =
       , Skill.new
         { Skill.name      = "Poison Fog"
         , Skill.desc      = "Ibuse opens its mouth to reveal a noxious cloud of deadly poison, dealing 10 affliction damage to all enemies until Ibuse dies. Cannot be used while active."
-        , Skill.require   = UserChannel False "Poison Fog"
+        , Skill.require   = [UserChannel False "Poison Fog"]
         , Skill.classes   = [Physical, Bane, Ranged, Unreflectable]
         , Skill.cost      = [Blood, Blood]
         , Skill.dur       = Ongoing Permanent

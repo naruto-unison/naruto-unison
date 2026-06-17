@@ -278,6 +278,24 @@ spec = parallel do
                 Sim.as Self $ apply Permanent skillName [Reveal]
                 target (`is` Reveal)
 
+        useOn Enemy "Final Explosion" do
+            it "can be used if enemy has Shadow Sewing and Expert Analysis" do
+                Sim.use "Expert Analysis"
+                Sim.use "Shadow Sewing"
+                Sim.as Enemy $ return ()
+                Sim.act
+                target $ not . alive
+            it "cannot be used if enemy does not have Shadow Sewing" do
+                Sim.use "Expert Analysis"
+                Sim.as Enemy $ return ()
+                Sim.act
+                target alive
+            it "cannot be used if enemy does not have Expert Analysis" do
+                Sim.use "Expert Analysis"
+                Sim.use "Shadow Sewing"
+                Sim.act
+                target alive
+
     describeCharacter "Chōji Akimichi" do
         useOn Self "Butterfly Mode" do
             it "alternates" do

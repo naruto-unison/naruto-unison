@@ -22,7 +22,7 @@ import           Class.Display (Display(..), buildStrict)
 import           Game.Model.Chakras (Chakras)
 import           Game.Model.Class (Class(..))
 import           Game.Model.Duration (Duration)
-import           Game.Model.Internal (Channeling(..), Key(..), Skill(..), Requirement(..), Runnable(To), Target(..))
+import           Game.Model.Internal (Channeling(..), Key(..), Skill(..), Runnable(To), Target(..))
 import           Game.Model.Internal.Skill (key)
 import qualified Game.Model.Runnable as Runnable
 import qualified Game.Model.Slot as Slot
@@ -33,7 +33,7 @@ new :: Skill
 new = Skill
     { name      = "Unnamed"
     , desc      = ""
-    , require   = Usable
+    , require   = mempty
     , classes   = singleton All
     , cost      = mempty
     , cooldown  = 0

@@ -73,7 +73,6 @@ import           Game.Model.ID (HasID, ID(ID))
 import qualified Game.Model.ID as ID
 import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
-import           Game.Model.Requirement (Requirement(..))
 import qualified Game.Model.Requirement as Requirement
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
@@ -295,7 +294,7 @@ addChannels skill@Skill{dur} target n = n { N.channels = chan : n.channels }
   where
     chan = Channel
         { target
-        , skill = skill { Skill.require = Usable }
+        , skill = skill { Skill.require = mempty }
         , dur   = TurnBased.increment dur
         , new   = True
         }

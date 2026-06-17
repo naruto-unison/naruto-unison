@@ -23,7 +23,6 @@ import Game.Model.Destructible (Destructible)
 import Game.Model.Duration (Duration)
 import Game.Model.Face (Face)
 import Game.Model.Player (Player(..))
-import Game.Model.Requirement (Range, Requirement)
 import Game.Model.Runnable (Runnable)
 import Game.Model.Skill (Target)
 import Game.Model.Slot (Slot)
@@ -58,7 +57,6 @@ data Ninja = Ninja
 data Skill = Skill
     { name      :: Text
     , desc      :: Text
-    , require   :: Requirement
     , classes   :: EnumSet Class
     , cost      :: Chakras
     , cooldown  :: Duration
@@ -194,8 +192,6 @@ main = writeFile "elm/src/Import/Model.elm" . fromString . trimAll $ "module Imp
     , DefineElm (Proxy :: Proxy ObjectiveProgress)
     , DefineElm (Proxy :: Proxy Player)
     , DefineElm (Proxy :: Proxy Privilege)
-    , DefineElm (Proxy :: Proxy Range)
-    , DefineElm (Proxy :: Proxy Requirement)
     , DefineElm (Proxy :: Proxy Reward)
     , DefineElm (Proxy :: Proxy Skill)
     , DefineElm (Proxy :: Proxy Snapshot)

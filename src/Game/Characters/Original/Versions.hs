@@ -32,7 +32,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Tailed Beast Chakra Arms"
         , Skill.desc      = "Naruto unleashes his tailed-beast chakra, dealing 15 damage to all enemies for 3 turns. Cannot be used during [Inner Chakra Mode]."
-        , Skill.require   = UserChannel False "Inner Chakra Mode"
+        , Skill.require   = [UserChannel False "Inner Chakra Mode"]
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Blood, Tai]
         , Skill.cooldown  = 3
@@ -44,7 +44,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Inner Chakra Mode"
         , Skill.desc      = "Naruto draws in his tailed-beast chakra, gaining 10 points of damage reduction and restoring 15 health for 5 turns. Cannot be used during [Tailed Beast Chakra Arms]."
-        , Skill.require   = UserChannel False "Tailed Beast Chakra Arms"
+        , Skill.require   = [UserChannel False "Tailed Beast Chakra Arms"]
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 5
@@ -182,7 +182,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Monstrous Sand Arm"
         , Skill.desc      = "Shukaku squeezes an enemy in a fist of sand, dealing 10 damage to them every turn. If they use a skill, the skill will be countered and this effect will end. During [Tailed Beast Form], this skill becomes [Wind Bullet][b][b]."
-        , Skill.require   = UserChannel False "Monstrous Sand Arm"
+        , Skill.require   = [UserChannel False "Monstrous Sand Arm"]
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
@@ -207,7 +207,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Sand Transformation"
         , Skill.desc      = "Shukaku gradually accumulates sand around Gaara's body, gaining 10 permanent destructible defense every turn for 5 turns. At the end of the 5 turns, Shukaku enters Tailed Beast Form for 3 turns. During [Tailed Beast Form], this skill becomes [Shukaku Full Release][b]."
-        , Skill.require   = UserChannel False "Sand Transformation"
+        , Skill.require   = [UserChannel False "Sand Transformation"]
         , Skill.classes   = [Mental]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 6
@@ -271,7 +271,7 @@ characters =
       , Skill.new
         { Skill.name      = "Giant Sand Burial"
         , Skill.desc      = "Demolishes Gaara's destructible barrier and the destructible defense of enemies affected by [Sand Burial Prison], then deals 40 piercing damage to them."
-        , Skill.require   = TargetHas AtLeast 1 "Sand Burial Prison"
+        , Skill.require   = [TargetHas AtLeast 1 "Sand Burial Prison"]
         , Skill.classes   = [Physical, Ranged, Unreflectable]
         , Skill.cost      = [Blood, Nin]
         , Skill.effects   =

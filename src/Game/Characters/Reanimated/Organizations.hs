@@ -16,7 +16,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Rivalry"
         , Skill.desc      = "Jirōbō picks out an enemy as his rival. If they use a skill on Jirōbō or his allies next turn, they will be countered and forced to target Jirōbō. Effect ends if Jirōbō uses a skill on a different enemy or uses this skill again. Cannot be used during [Summoning: Earth Prison Golem]."
-        , Skill.require   = UserChannel False "Summoning: Earth Prison Golem"
+        , Skill.require   = [UserChannel False "Summoning: Earth Prison Golem"]
         , Skill.classes   = [Mental, Melee, Invisible, Soulbound]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
@@ -64,7 +64,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Summoning: Earth Prison Golem"
         , Skill.desc      = "Jirōbō spends two Scattered Rocks to summon a golem, gaining 35 destructible defense for 2 turns. While Jirōbō has destructible defense from this skill, all enemies are his Rivals and can only target him. The first enemy to use a skill on him each turn is instantly affected by [Earth Dome Prison]."
-        , Skill.require   = UserHas AtLeast 2 "Scattered Rock"
+        , Skill.require   = [UserHas AtLeast 2 "Scattered Rock"]
         , Skill.classes   = [Summon, Soulbound]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 4
@@ -155,7 +155,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Acupuncture"
         , Skill.desc      = "Haku alters the flow of energy in an enemy by sticking a needle into one of their vital points, disabling the non-damage effects of their skills on allies and enemies for 2 turns. Bypasses invulnerability and targets all enemies during [Crystal Ice Mirrors]."
-        , Skill.require   = TargetHas AtMost 0 "Acupuncture"
+        , Skill.require   = [TargetHas AtMost 0 "Acupuncture"]
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
@@ -168,7 +168,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Crystal Ice Mirrors"
         , Skill.desc      = "Disorienting crystalline mirrors form all around the battlefield, providing 20 permanent destructible defense to Haku. For 3 turns, if Haku loses all destructible defense from this skill, he will gain destructible defense equal to how much health he lost during the same turn. Cannot be used while Haku still has destructible defense from this skill."
-        , Skill.require   = UserDefense AtMost 0 "Crystal Ice Mirrors"
+        , Skill.require   = [UserDefense AtMost 0 "Crystal Ice Mirrors"]
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 6
@@ -209,7 +209,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Blood Harvest"
         , Skill.desc      = "Kubikiribōchō drinks up the blood it has spilled and uses the iron to reinforce itself, draining 10 health from a target marked by [Executioner's Butchering] to provide permanent destructible defense equal to the damage dealt. Extends the duration of [Demon Shroud] by 1 turn if active."
-        , Skill.require   = TargetHas AtLeast 1 "Executioner's Butchering"
+        , Skill.require   = [TargetHas AtLeast 1 "Executioner's Butchering"]
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
@@ -222,7 +222,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Executioner's Butchering"
         , Skill.desc      = "Zabuza's sword carves into an enemy like the edge of a guillotine, dealing 30 piercing damage and marking them for 1 turn. Cannot be used during [Demon Shroud]."
-        , Skill.require   = UserChannel False "Demon Shroud"
+        , Skill.require   = [UserChannel False "Demon Shroud"]
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
@@ -299,7 +299,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Needle Stitching"
         , Skill.desc      = "Nuibari skewers an enemy and pulls a wire through them, dealing 20 piercing damage and preventing them from affecting him for 1 turn. Deals 5 additional damage per person affected by [Needle Stitching] and extends its duration on them by 1 turn. Cannot be used on an enemy already affected by this skill."
-        , Skill.require   = TargetHas AtMost 0 "Needle Stitching"
+        , Skill.require   = [TargetHas AtMost 0 "Needle Stitching"]
         , Skill.classes   = [Physical, Melee, Atemporal]
         , Skill.cost      = [Tai]
         , Skill.effects   =
@@ -334,7 +334,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Wire Crucifixion"
         , Skill.desc      = "Kushimaru stitches up his victims and suspends them in air, dealing 15 damage to all enemies affected by [Needle Stitching] and stunning them for 1 turn. While active, targets cannot reduce damage or become invulnerable. Costs 1 arbitrary chakra per [Needle Stitching] active."
-        , Skill.require   = TargetHas AtLeast 1 "Needle Stitching"
+        , Skill.require   = [TargetHas AtLeast 1 "Needle Stitching"]
         , Skill.classes   = [Physical, Ranged]
         , Skill.cooldown  = 2
         , Skill.effects   =
@@ -668,7 +668,7 @@ characters =
       , Skill.new
         { Skill.name      = "Naraka Path"
         , Skill.desc      = "Judging the target of [Human Path] unworthy, the King of Hell absorbs 20 of their health and converts it into destructible defense."
-        , Skill.require   = TargetHas AtLeast 1 "Human Path"
+        , Skill.require   = [TargetHas AtLeast 1 "Human Path"]
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =

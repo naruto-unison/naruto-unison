@@ -173,7 +173,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Venom Explosion"
         , Skill.desc      = "Torune detonates all Venom Beetles on an enemy, depleting 1 random chakra for each Venom Beetle destroyed."
-        , Skill.require   = TargetHas AtLeast 1 "Venom Beetle"
+        , Skill.require   = [TargetHas AtLeast 1 "Venom Beetle"]
         , Skill.classes   = [Bane, Melee]
         , Skill.cost      = [Blood, Blood, Rand]
         , Skill.cooldown  = 2
@@ -550,7 +550,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Kirin"
         , Skill.desc      = "A pillar of lightning strikes an enemy, dealing 60 piercing damage. Requires 3 [Thunder Cloud]s. Spends all [Thunder Cloud]s."
-        , Skill.require   = UserHas AtLeast 3 "Thunder Cloud"
+        , Skill.require   = [UserHas AtLeast 3 "Thunder Cloud"]
         , Skill.classes   = [Chakra, Ranged, Bypassing, Uncounterable, Unreflectable]
         , Skill.effects   =
           [ To Enemy $ pierce 60

@@ -221,7 +221,7 @@ act context@Context { user
     nUser   <- P.ninja user
     initial <- P.ninjas
 
-    guard $ N.alive nUser && skill.require /= Unusable
+    guard $ N.alive nUser && Unusable ∉ skill.require
 
     lift $ P.withContext context do
         if not new then do
