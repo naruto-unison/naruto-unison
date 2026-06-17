@@ -8,7 +8,7 @@ module Game.Characters
 
 import ClassyPrelude hiding (link, lookup, map)
 
-import           Game.Model.Character (Character(Character))
+import           Game.Model.Character (Character)
 import qualified Game.Model.Character as Character
 import           Game.Model.Chakras (Chakra(..))
 import           Game.Model.Class (Class(..))
@@ -25,7 +25,7 @@ import qualified Game.Characters.Reanimated
 import qualified Game.Characters.Shippuden
 
 list :: [Character]
-list = setIdent . addGroups . addClasses <$>
+list = processCharacter <$>
 #ifdef DEVELOPMENT
     Game.Characters.Development.characters ++
 #endif
@@ -44,26 +44,23 @@ lookup k = map ? k
 lookupAll :: [Text] -> [Character]
 lookupAll ks = mapMaybe lookup ks
 
-setIdent :: Character -> Character
-setIdent char@Character{category, name} =
-    char { Character.ident = Character.identFrom category name }
-
-addGroups :: Character -> Character
-addGroups char = char { Character.groups = added ++ char.groups }
+processCharacter :: Character -> Character
+processCharacter char =
+    char { Character.ident  = Character.identFrom char.category char.name
+         , Character.groups = groups ++ char.groups
+         , Character.skills = (processSkill <$>) <$> char.skills
+         }
   where
     chakras = concatMap Skill.cost $ join char.skills
-    added = setFromList $ fst <$> filter ((∈ chakras) . snd)
+    groups  = setFromList $ fst <$> filter ((∈ chakras) . snd)
                 [ (BloodlineUser, Blood)
                 , (GenjutsuUser, Gen)
                 , (NinjutsuUser, Nin)
                 , (TaijutsuUser,  Tai)
                 ]
 
-addClasses :: Character -> Character
-addClasses char = char { Character.skills = (addClass <$>) <$> char.skills }
-
-addClass :: Skill -> Skill
-addClass skill@Skill{classes} = skill { Skill.classes = added ++ classes }
+processSkill :: Skill -> Skill
+processSkill skill@Skill{classes} = skill { Skill.classes = added ++ classes }
   where
     added = setFromList $ fst <$> filter snd
             [ (All,       True)
