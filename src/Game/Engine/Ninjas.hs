@@ -97,7 +97,7 @@ processSkills n@Ninja{copies, slot, character = Character{skills}}
         own x     = x { Skill.owner = slot }
         copied    = Copy.skill <$> mcopy
         alternate = do
-            alt <- Effects.alternate (Skill.name base) n
+            alt <- Effects.alternate base.name n
             find ((== alt) . Skill.name) alts
 
 -- | Cycles a skill through its list of alternates.
@@ -172,24 +172,24 @@ processEffects n@Ninja{barrier, defense, statuses} =
 
 -- | Alters 'statuses' and then calls 'processEffects'.
 modifyStatuses :: ([Status] -> [Status]) -> Ninja -> Ninja
-modifyStatuses f n = processEffects n { N.statuses = f $ N.statuses n }
+modifyStatuses f n = processEffects n { N.statuses = f n.statuses }
 
 modifyAll :: (∀ a. (Classed a, HasID a, TurnBased a) => [a] -> [a])
           -> Ninja -> Ninja
-modifyAll f n = processEffects n { N.defense  = f $ N.defense n
-                                 , N.barrier  = f $ N.barrier n
-                                 , N.statuses = f $ N.statuses n
-                                 , N.traps    = f $ N.traps n
+modifyAll f n = processEffects n { N.defense  = f n.defense
+                                 , N.barrier  = f n.barrier
+                                 , N.statuses = f n.statuses
+                                 , N.traps    = f n.traps
                                  }
 
 -- | Factory resets a @Ninja@ to its starting values.
 factory :: Ninja -> Ninja
-factory n = N.new (N.slot n) $ N.character n
+factory n = N.new n.slot n.character
 
 -- | Modifies 'health', restricting the value within [0, 100].
 adjustHealth :: (Int -> Int) -> Ninja -> Ninja
 adjustHealth f n =
-    n { N.health = min 100 . max minHealth . f $ N.health n }
+    n { N.health = min 100 . max minHealth $ f n.health }
   where
     minHealth
       | n `is` Endure = 1
@@ -207,13 +207,13 @@ sacrifice minhp hp = adjustHealth $ max minhp . (- hp)
 -- types.
 decrement :: Ninja -> Ninja
 decrement n = processSkills $ processEffects
-    n { N.defense   = mapMaybe TurnBased.decrement $ N.defense n
-      , N.statuses  = mapMaybe TurnBased.decrement $ N.statuses n
-      , N.barrier   = mapMaybe TurnBased.decrement $ N.barrier n
-      , N.channels  = mapMaybe (TurnBased.decrement . setNotNew) $ N.channels n
-      , N.traps     = mapMaybe TurnBased.decrement $ N.traps n
-      , N.copies    = (TurnBased.decrement =<<) <$> N.copies n
-      , N.cooldowns = (max 0 . subtract 1) <$> N.cooldowns n
+    n { N.defense   = mapMaybe TurnBased.decrement n.defense
+      , N.statuses  = mapMaybe TurnBased.decrement n.statuses
+      , N.barrier   = mapMaybe TurnBased.decrement n.barrier
+      , N.channels  = mapMaybe (TurnBased.decrement . setNotNew) n.channels
+      , N.traps     = mapMaybe TurnBased.decrement n.traps
+      , N.copies    = (TurnBased.decrement =<<) <$> n.copies
+      , N.cooldowns = (max 0 . subtract 1) <$> n.cooldowns
       , N.acted     = False
       }
   where
@@ -233,7 +233,7 @@ checkEffects _  n = processEffects n
 
 addStatus :: Status -> Ninja -> Ninja
 addStatus st@Status{effects} n = checkEffects effects
-    $ n { N.statuses = st .: N.statuses n }
+    $ n { N.statuses = st .: n.statuses }
 
 checkDestructibleEffects :: [Destructible] -> Ninja -> Ninja
 checkDestructibleEffects xs n
@@ -244,20 +244,20 @@ checkDestructibleEffects xs n
 
 addBarrier :: Destructible -> Ninja -> Ninja
 addBarrier b@Destructible{amount, effects} n = case amount `compare` 0 of
-    LT -> n { N.defense = Destructible.negate b .: N.defense n }
+    LT -> n { N.defense = Destructible.negate b .: n.defense }
     EQ -> n
-    GT -> checkEffects effects n { N.barrier = b .: N.barrier n }
+    GT -> checkEffects effects n { N.barrier = b .: n.barrier }
 
 addDefense :: Destructible -> Ninja -> Ninja
 addDefense b@Destructible{amount, effects} n = case amount `compare` 0 of
-    LT -> n { N.barrier = Destructible.negate b .: N.barrier n }
+    LT -> n { N.barrier = Destructible.negate b .: n.barrier }
     EQ -> n
-    GT -> checkEffects effects n { N.defense = b .: N.defense n }
+    GT -> checkEffects effects n { N.defense = b .: n.defense }
 
 increaseDefense :: Int -- ^ 'Destructible.amount'.
                 -> ID -- ^ 'Destructible.name'.
                 -> Ninja -> Ninja
-increaseDefense amount defenseID n = n { N.defense = addFirst $ N.defense n }
+increaseDefense amount defenseID n = n { N.defense = addFirst n.defense }
   where
     addFirst [] = []
     addFirst (x:xs)
@@ -268,7 +268,7 @@ increaseDefense amount defenseID n = n { N.defense = addFirst $ N.defense n }
 removeDefense :: ID -- ^ 'Destructible.name'.
               -> Ninja -> Ninja
 removeDefense defenseID n = processEffects
-    n { N.defense = filter ((/= defenseID) . ID.from) $ N.defense n }
+    n { N.defense = filter ((/= defenseID) . ID.from) n.defense }
 
 clearBarrier :: Ninja -> Ninja
 clearBarrier n@Ninja{barrier} = checkDestructibleEffects barrier
@@ -287,16 +287,16 @@ clear statusID = modifyStatuses . filter $ (/= statusID) . ID.from
 clearTrap :: ID -- ^ 'Trap.name'.
           -> Ninja -> Ninja
 clearTrap trapID n =
-    n { N.traps = filter ((/= trapID) . ID.from) $ N.traps n }
+    n { N.traps = filter ((/= trapID) . ID.from) n.traps }
 
 -- | Deletes 'traps' with matching 'Trap.trigger'.
 clearTraps :: Trigger -> Ninja -> Ninja
-clearTraps tr n = n { N.traps = filter ((/= tr) . Trap.trigger) $ N.traps n }
+clearTraps tr n = n { N.traps = filter ((/= tr) . Trap.trigger) n.traps }
 
 -- | Adds channels with a specific target.
 addChannels :: Skill -> Slot -> Ninja -> Ninja
 addChannels Skill{dur = Instant} _ n = n
-addChannels skill@Skill{dur} target n = n { N.channels = chan : N.channels n }
+addChannels skill@Skill{dur} target n = n { N.channels = chan : n.channels }
   where
     chan = Channel
         { target
@@ -309,13 +309,13 @@ addChannels skill@Skill{dur} target n = n { N.channels = chan : N.channels n }
 cancelChannel :: ID -- ^ 'Skill.name'.
               -> Ninja -> Ninja
 cancelChannel(ID.fromOwner -> channelID) n =
-    n { N.channels = filter ((/= channelID) . ID.from) $ N.channels n }
+    n { N.channels = filter ((/= channelID) . ID.from) n.channels }
 
 -- | Deletes matching 'channels' if they are not 'Channel.new'.
 cancelOldChannel :: ID -- ^ 'Skill.name'.
               -> Ninja -> Ninja
 cancelOldChannel (ID.fromOwner -> channelID) n =
-    n { N.channels = filter retain $ N.channels n }
+    n { N.channels = filter retain n.channels }
   where
     retain Channel{new = True} = True
     retain channel = channelID /= ID.from channel
@@ -339,7 +339,7 @@ copy :: Duration -- ^ 'Copy.dur'.
 copy dur slots skill n =
     n { N.copies = fromList . toList $ foldl' go seqCopies slots }
   where
-    seqCopies = fromList . toList $ N.copies n
+    seqCopies = fromList $ toList n.copies
     go acc slot = Seq.update slot (Just Copy { skill, dur }) acc
 
 filterEffects :: (Slot -> Effect -> Bool) -> Ninja -> Ninja
@@ -385,7 +385,7 @@ bury :: Ninja -> Ninja
 bury n
   | N.alive n = n
   | otherwise = modifyAll onlyNecromancy
-                n { N.channels = onlyNecromancy $ N.channels n }
+                n { N.channels = onlyNecromancy n.channels }
   where
     onlyNecromancy :: ∀ o. (IsSequence o, Classed (Element o)) => o -> o
     onlyNecromancy = filter $ (Necromancy ∈) . getClasses
@@ -409,7 +409,7 @@ prolongIf condition dur n
   | dur < 0 = processEffects n'
   | otherwise = n'
   where
-    n' = n { N.statuses = mapMaybe doProlong $ N.statuses n }
+    n' = n { N.statuses = mapMaybe doProlong n.statuses }
     doProlong st
       | condition st = prolong' dur st
       | otherwise    = Just st
@@ -423,18 +423,18 @@ prolong' (Duration dur) st
   | statusDur' < 0 = Nothing
   | otherwise      = Just
         st { Status.dur    = statusDur'
-           , Status.maxDur = max (Status.maxDur st) statusDur'
+           , Status.maxDur = max st.maxDur statusDur'
            }
     where
-      statusDur' = Status.dur st + Duration dur'
+      statusDur' = st.dur + Duration dur'
       dur'
-        | odd $ sync (Status.dur st) + dur = dur
-        | dur < 0                          = dur + 1
-        | otherwise                        = dur - 1
+        | odd $ sync st.dur + dur = dur
+        | dur < 0                 = dur + 1
+        | otherwise               = dur - 1
 
 prolongChannel :: Duration -> ID -> Ninja -> Ninja
 prolongChannel dur (ID.fromOwner -> channelID) n =
-    n { N.channels = f <$> N.channels n }
+    n { N.channels = f <$> n.channels }
   where
     f chan@Channel{dur = dur'}
       | prolongs dur' && ID.from chan == channelID = TurnBased.addDur dur chan
@@ -444,11 +444,11 @@ prolongChannel dur (ID.fromOwner -> channelID) n =
     prolongs _                      = False
 
 renameChannels :: (Text -> Text) -> Ninja -> Ninja
-renameChannels rename n = n { N.channels = f <$> N.channels n }
+renameChannels rename n = n { N.channels = f <$> n.channels }
   where
     f chan@Channel{new = True} = chan
     f chan@Channel{skill} = chan
-        { Channel.skill = skill { Skill.name = rename $ Skill.name skill } }
+        { Channel.skill = skill { Skill.name = rename skill.name } }
 
 -- | Removes all helpful effects.
 purge :: Ninja -> Ninja
@@ -459,10 +459,10 @@ purge = filterEffects keep
 -- | Resets the duration of matching 'statuses' to their 'Status.maxDur'.
 refresh :: ID -- ^ 'Status.name'.
         -> Ninja -> Ninja
-refresh statusID n = n { N.statuses = f <$> N.statuses n }
+refresh statusID n = n { N.statuses = f <$> n.statuses }
   where
     f st
-      | ID.from st == statusID = st { Status.dur = Status.maxDur st }
+      | ID.from st == statusID = st { Status.dur = st.maxDur }
       | otherwise              = st
 
 -- | Replicates 'removeStack'.
@@ -477,11 +477,11 @@ rechargeAll n = n { N.charges = mempty }
 
 -- | Resets an element in 'charges'.
 recharge :: ID -> Ninja -> Ninja
-recharge ID{name, owner} n = n { N.charges = deleteMap key $ N.charges n }
+recharge ID{name, owner} n = n { N.charges = deleteMap key n.charges }
   where
     key = Skill.Key name owner
 
 -- | 'update's a corresponding @Ninja@ when they use a new @Skill@.
 spendCharge :: Skill -> Ninja -> Ninja
 spendCharge skill n =
-    n { N.charges = insertWith (+) (Skill.key skill) 1 $ N.charges n }
+    n { N.charges = insertWith (+) (Skill.key skill) 1 n.charges }

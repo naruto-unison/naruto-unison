@@ -19,7 +19,7 @@ spec = traverse_ mission Missions.list
 lookupChar :: Text -> (Character -> SpecWith ()) -> SpecWith ()
 lookupChar name f = case Characters.lookup name of
     Nothing   -> describe (unpack name) $ it "exists in the database" False
-    Just char -> describe (unpack $ Character.name char) $ f char
+    Just char -> describe (unpack char.name) $ f char
 
 defaultPredicate :: Character -> SpecWith ()
 defaultPredicate = const $ return ()
@@ -44,6 +44,6 @@ goal Reach{desc, objective} = describe (unpack desc) $ f objective
 hasSkills :: [Text] -> Character -> SpecWith ()
 hasSkills skills char = traverse_ hasSkill skills
   where
-    allSkills  = Skill.name <$> join (Character.skills char)
+    allSkills  = Skill.name <$> join char.skills
     hasSkill :: Text -> SpecWith ()
     hasSkill x = it ("has [" ++ unpack x ++ "]") $ x ∈ allSkills

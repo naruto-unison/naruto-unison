@@ -62,7 +62,7 @@ is Ninja{effects} ef = ef ∈ effects
 -- | Searches 'channels'.
 isChanneling :: ID -- ^ 'Skill.name'.
              -> Ninja -> Bool
-isChanneling (ID.fromOwner -> skillID) n = any matches $ channels n
+isChanneling (ID.fromOwner -> skillID) n = any matches n.channels
   where
     matches chan@Channel{new = False} = ID.from chan == skillID
     matches _ = False
@@ -142,10 +142,10 @@ numAnyStacks statusName Ninja{statuses} = sum
 -- Does not include self-applied or 'Hidden' 'Status.Status'es.
 -- Each status counts for @(number of helpful effects) * (Status.amount)@.
 numHelpful :: Ninja -> Int
-numHelpful n = sum
-    [ amount | Status{amount, classes, effects, user} <- statuses n,
-               slot n /= user,
-               Parity.allied n user,
+numHelpful Ninja{slot, statuses} = sum
+    [ amount | Status{amount, classes, effects, user} <- statuses,
+               slot /= user,
+               Parity.allied slot user,
                Hidden ∉ classes,
                ef <- effects,
                Effect.helpful ef ]
@@ -154,9 +154,9 @@ numHelpful n = sum
 -- Does not include self-applied or 'Hidden' 'Status.Status'es.
 -- Each status counts for @(number of harmful effects) * (Status.amount)@.
 numHarmful :: Ninja -> Int
-numHarmful n = sum
-    [ amount | Status{amount, classes, effects, user} <- statuses n,
-               slot n /= user,
+numHarmful Ninja{slot, statuses} = sum
+    [ amount | Status{amount, classes, effects, user} <- statuses,
+               slot /= user,
                Hidden ∉ classes,
                ef <- effects,
                not $ Effect.helpful ef ]

@@ -128,12 +128,12 @@ attack atk dmg
     nUser <- P.nUser
     let classes'    = insertSet atkClass classes
         dmgCalc     = formula atk classes' nUser nTarget dmg
-        fromBarrier = absorbDamage dmgCalc $ N.barrier nUser
+        fromBarrier = absorbDamage dmgCalc nUser.barrier
         fromDefense
           | nTarget `is` Undefend = DamageAbsorb [] (overflow fromBarrier)
-                                  $ N.defense nTarget
+                                  nTarget.defense
           | otherwise             = absorbDamage (overflow fromBarrier)
-                                  $ N.defense nTarget
+                                    nTarget.defense
 
     if atk > Attack.Afflict && nTarget `is` DamageToDefense then
         P.modify target $ Ninjas.addDefense Destructible
@@ -159,7 +159,7 @@ attack atk dmg
             P.modify target
                 $ Ninjas.adjustHealth (- overflow fromDefense) . setDefense
 
-    damaged <- (N.health nTarget -) . N.health <$> P.nTarget
+    damaged <- (nTarget.health -) . (.health) <$> P.nTarget
 
     P.trigger user $ OnBreak . ID.from <$> broken fromBarrier
     P.trigger target $ OnBreak . ID.from <$> broken fromDefense

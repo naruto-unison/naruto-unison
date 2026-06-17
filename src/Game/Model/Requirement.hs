@@ -119,7 +119,7 @@ targets :: ∀ o. (IsSequence o, Ninja ~ Element o)
         => o -> Ninja -> Skill -> o
 targets ns n@Ninja{slot = user} skill = filter filt ns
   where
-    filt nt = targetSlot (N.slot nt) && targetable skill n nt
+    filt nt = targetSlot nt.slot && targetable skill n nt
     ts      = Skill.targets skill
     targetSlot t
       | Everyone ∈ ts                = True

@@ -52,6 +52,7 @@ import qualified Game.Model.Character as Character
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
 import           Game.Model.ID (ID)
+import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
 import qualified Game.Model.Skill as Skill
 import           Util ((∈))
@@ -106,7 +107,7 @@ channeling name = N.isChanneling <$> P.createID name <*> P.nUser
 
 -- | True if 'N.character' has a 'Group'.
 inGroup :: Group -> Ninja -> Bool
-inGroup x n = x ∈ Character.groups (N.character n)
+inGroup x Ninja{character = Character{groups}} = x ∈ groups
 
 -- | Number of users affected by a 'Model.Game.Status.Status'.
 anyoneHas :: ∀ m. MonadPlay m => Text -> m Bool

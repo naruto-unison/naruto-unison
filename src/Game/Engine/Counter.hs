@@ -55,7 +55,7 @@ userCounters harmed = getCounters (f . Trap.trigger)
 -- | Removes 'Countered' traps matching the specified @Class@es.
 userUncounter :: EnumSet Class -> Ninja -> Ninja
 userUncounter classes n =
-    n { N.traps = filter (keep . Trap.trigger) $ N.traps n }
+    n { N.traps = filter (keep . Trap.trigger) n.traps }
   where
     keep (Countered cla) = cla ∉ classes
     keep _               = True
@@ -76,7 +76,7 @@ targetUncounter :: EnumSet Class -> Ninja -> Ninja
 targetUncounter classes n
   | n `is` Uncounter = n
   | otherwise        =
-    n { N.traps = filter (keep . Trap.trigger) $ N.traps n }
+    n { N.traps = filter (keep . Trap.trigger) n.traps }
   where
     keep (Counter cla) = cla ∉ classes
     keep _             = True

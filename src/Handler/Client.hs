@@ -87,7 +87,7 @@ getMissionR Character{ident} = do
 getReanimateR :: Character -> App.Handler Value
 getReanimateR Character{ident, price} = do
     (who, user) <- Auth.requireAuthPair
-    when (User.dna user < price)
+    when (user.dna < price)
         $ invalidArgs ["Unaffordable"]
     unlocks <- Mission.unlocked
     when (ident ∈ unlocks)
@@ -97,7 +97,7 @@ getReanimateR Character{ident, price} = do
     runDB do
         insertUnique $ Unlocked who charID
         user' <- updateGet who [ UserDna -=. price ]
-        returnJson $ User.dna user'
+        returnJson user'.dna
 
 -- | Renders the gameplay client.
 getPlayR :: App.Handler Html

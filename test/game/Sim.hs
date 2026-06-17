@@ -56,7 +56,7 @@ describeCategory category name specs =
         Nothing   -> it "exists in the database" False
         Just char -> before (return char) $ parallel specs
   where
-    matchChar x = Character.name x == name && Character.category x == category
+    matchChar x = x.name == name && x.category == category
 
 use :: ∀ m. (HasCallStack, MonadHook m, MonadPlay m, MonadRandom m)
     => Text -> m ()
@@ -165,7 +165,7 @@ withClass cla = withClasses $ singleton cla
 withClasses :: ∀ m. MonadPlay m => EnumSet Class -> m () -> m ()
 withClasses classes = P.with ctx
   where
-    ctx context  = context { Context.skill = withSkill $ Context.skill context }
+    ctx context  = context { Context.skill = withSkill context.skill }
     withSkill sk = sk { Skill.classes = insertSet All classes }
 
 statusDur :: Text -> Ninja -> Duration

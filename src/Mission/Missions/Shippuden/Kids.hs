@@ -40,8 +40,8 @@ missions =
       HookAction "Sakura Haruno" "Healing Technique" $
       check \user target target' ->
           allied user target
-          && health target < 30
-          && health target' >= 30
+          && target.health < 30
+          && target'.health >= 30
 
     , Reach Match 8
       "Maintain [Inner Sakura] for 8 consecutive turns." .

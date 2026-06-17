@@ -25,7 +25,7 @@ import           Control.Monad.Logger (LogSource)
 import           Control.Monad.Trans.Maybe (MaybeT(..), hoistMaybe)
 import           Data.Bimap (Bimap)
 import           Data.Cache (Cache)
-import qualified Data.CaseInsensitive as CaseInsensitive
+import qualified Data.CaseInsensitive
 import           Data.HashTable (HashTable)
 import qualified Data.Time.Format as Format
 import           Database.Persist.Sql (ConnectionPool, SqlBackend, SqlPersistT, runSqlPool)
@@ -191,7 +191,7 @@ instance Yesod App where
 
     defaultLayout :: Widget -> Handler Html
     defaultLayout widget = do
-        manalytics       <- getsYesod $ Settings.analytics . settings
+        manalytics       <- getsYesod \app -> app.settings.analytics
         mmsg             <- getMessage
         mcurrentRoute    <- getCurrentRoute
         (title, parents) <- breadcrumbs
@@ -204,15 +204,14 @@ instance Yesod App where
             widgetToPageContent do
                 setTitle . toHtml $ title ++ " - Naruto Unison"
                 $(combineStylesheets 'StaticR [ Static.css_include_main_css
-                                            , Static.css_include_normalize_css
-                                            ])
+                                              , Static.css_include_normalize_css
+                                              ])
                 $(widgetFile "default-layout/default-layout")
         withUrlRenderer
           $(hamletFile "templates/default-layout/default-layout-wrapper.hamlet")
       where
         cookieName     = decodeUtf8 defaultCsrfCookieName
-        csrfHeaderName = decodeUtf8 $ CaseInsensitive.foldedCase
-            defaultCsrfHeaderName
+        csrfHeaderName = decodeUtf8 defaultCsrfHeaderName.foldedCase
 
     authRoute :: App -> Maybe (Route App)
     authRoute _ = Just $ AuthR Auth.LoginR
@@ -233,7 +232,7 @@ instance Yesod App where
         -> LByteString -- ^ The contents of the file
         -> Handler (Maybe (Either Text (Route App, [(Text, Text)])))
     addStaticContent ext mime content = do
-        staticDir <- getsYesod $ Settings.staticDir . settings
+        staticDir <- getsYesod \app -> app.settings.staticDir
         YesodUtil.addStaticContentExternal
             Jasmine.minifym
             genFileName
@@ -248,7 +247,7 @@ instance Yesod App where
     shouldLogIO :: App -> LogSource -> LogLevel -> IO Bool
     shouldLogIO _ _ LevelWarn  = return True
     shouldLogIO _ _ LevelError = return True
-    shouldLogIO app _ _        = return . Settings.shouldLogAll $ settings app
+    shouldLogIO app _ _        = return app.settings.shouldLogAll
 
     makeLogger :: App -> IO Logger
     makeLogger = return . logger
@@ -308,8 +307,7 @@ instance YesodAuth App where
     authPlugins app = AuthEmail.authEmail : extraAuthPlugins
       where
         -- Enable authDummy login if enabled.
-        extraAuthPlugins =
-            [Dummy.authDummy | Settings.authDummyLogin $ settings app]
+        extraAuthPlugins = [Dummy.authDummy | app.settings.authDummyLogin]
 
 isAuthenticated :: Privilege -> Handler AuthResult
 isAuthenticated level = authenticated <$> Auth.maybeAuthPair

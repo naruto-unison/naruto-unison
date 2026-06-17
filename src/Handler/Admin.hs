@@ -32,7 +32,7 @@ import qualified Mission.UsageRate as UsageRate
 adminR :: (App.Widget, Enctype) -> App.Handler Html
 adminR (newsForm, enctype) = do
     App.unchanged304
-    port <- getsYesod $ Settings.port . App.settings
+    port <- getsYesod \app -> app.settings.port
     liftIO createSystemRandom >>= runReaderT Play.gameSocket
     defaultLayout do
         $(widgetFile "admin/admin")
@@ -63,8 +63,8 @@ getUsageR = do
     compareRates x y = comparing nanToNegInf y x
       where
         nanToNegInf rate
-            | isNaN $ UsageRate.winRate rate = rate { UsageRate.winRate = -1/0 }
-            | otherwise                      = rate
+            | isNaN $ rate.winRate = rate { UsageRate.winRate = -1/0 }
+            | otherwise            = rate
 
     showRate :: Float -> String
     showRate x

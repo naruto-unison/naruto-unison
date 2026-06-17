@@ -40,22 +40,22 @@ cure _ user target target' = boolean
 damage :: ActionHook
 damage _ user target target'
   | allied user target = 0
-  | otherwise          = max 0 $ N.health target - N.health target'
+  | otherwise          = max 0 $ target.health - target'.health
 
 -- | Damage received by the target after an action while the user has some
 -- number of stacks of a @Status@.
 damageDuringStacks :: Text -> ActionHook
 damageDuringStacks name _ user@Ninja{slot} target target'
-  | allied user target                  = 0
-  | N.health target' >= N.health target = 0
+  | allied user target              = 0
+  | target'.health >= target.health = 0
   | otherwise = N.numStacks (toID name slot) user
 
 -- | Damage received by the target after an action while the target has some
 -- number of stacks of a @Status@.
 damageWithStacks :: Text -> ActionHook
 damageWithStacks name _ user@Ninja{slot} target target'
-  | allied user target                  = 0
-  | N.health target' >= N.health target = 0
+  | allied user target              = 0
+  | target'.health >= target.health = 0
   | otherwise = N.numStacks (toID name slot) target
 
 -- | 'N.defense' added to the target after an action.
@@ -77,7 +77,7 @@ demolish _ user target target'
 heal :: ActionHook
 heal _ user target target'
   | not (N.alive target) || not (allied user target) = 0
-  | otherwise = max 0 $ N.health target' - N.health target
+  | otherwise = max 0 $ target'.health - target.health
 
 -- | 1 if the target died after an action, otherwise 0.
 kill :: ActionHook

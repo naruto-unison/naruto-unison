@@ -59,7 +59,7 @@ missions =
     , Reach Moment 1
       "Use [Sixth Gate Opening] with less than 40 health." .
       HookAction "Might Guy" "Sixth Gate Opening" $
-      check \user _ _ -> health user < 40
+      check \user _ _ -> user.health < 40
 
     , Reach Match 3
       "In a single match, counter all 3 enemies with [Counter Punch]." $

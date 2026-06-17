@@ -190,4 +190,5 @@ default-extensions:
 - OverloadedStrings
 # Here Be Dragons
 - ApplicativeDo
+- OverloadedRecordDot
 - StrictData

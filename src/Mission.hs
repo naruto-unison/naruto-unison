@@ -89,7 +89,7 @@ allUnlocked = keysSet Characters.map
 -- all Characters will always be returned.
 unlocked :: App.Handler Unlocks
 unlocked = cached $ fromMaybe allUnlocked <$> runMaybeT do
-    unlockAll <- getsYesod $ Settings.unlockAll . App.settings
+    unlockAll <- getsYesod \app -> app.settings.unlockAll
     guard unlockAll
     Just who  <- Auth.maybeAuthId
     privilege <- App.getPrivilege
@@ -290,7 +290,7 @@ awardDNA :: Queue.Section -> Outcome -> Maybe War -> App.Handler [Reward]
 awardDNA Queue.Private _     _   = return mempty
 awardDNA Queue.Quick outcome war = do
     (who, user)   <- Auth.requireAuthPair
-    dnaConf       <- getsYesod $ Settings.dnaConf . App.settings
+    dnaConf       <- getsYesod \app -> app.settings.dnaConf
     UTCTime day _ <- liftIO getCurrentTime
     let jDay       = Just day
         tallies    = tallyDNA Queue.Quick outcome war dnaConf jDay user
@@ -322,21 +322,21 @@ tallyDNA section outcome war dnaConf day User { latestGame
   where
     dailyGame
       | latestGame == day  = 0
-      | otherwise          = Settings.dailyGame dnaConf
+      | otherwise          = dnaConf.dailyGame
     dailyWin
       | outcome /= Victory = 0
       | latestWin == day   = 0
-      | otherwise          = Settings.dailyWin dnaConf
+      | otherwise          = dnaConf.dailyWin
     winStreak
       | outcome /= Victory = 0
       | streak < 1         = 0
-      | Settings.useStreak dnaConf = floor . sqrt @Float
+      | dnaConf.useStreak  = floor . sqrt @Float
                                    . fromIntegral $ streak - 1
       | otherwise          = 0
     warWin
       | outcome /= Victory = 0
       | isNothing war      = 0
-      | otherwise          = Settings.warWin dnaConf
+      | otherwise          = dnaConf.warWin
 
 -- | DNA rewards for completing games, as configured in
 --  [config/settings.yml](config.settings.yml).

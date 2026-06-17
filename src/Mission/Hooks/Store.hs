@@ -52,7 +52,7 @@ affectUniqueEnemy = checkUnique \name user target ->
 damageUnique :: StoreHook
 damageUnique = compareUnique \_ user target target' ->
     not (allied user target)
-    && N.health target' < N.health target
+    && target'.health < target.health
 
 -- | Kill an enemy.
 killUnique :: StoreHook

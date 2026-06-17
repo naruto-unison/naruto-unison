@@ -110,8 +110,8 @@ makeFoundation settings@Settings { databaseConf
         logFunc = messageLoggerSource tempFoundation logger
 
     pool <- flip Logger.runLoggingT logFunc $ Sql.createPostgresqlPool
-        (Sql.pgConnStr  databaseConf)
-        (Sql.pgPoolSize databaseConf)
+        databaseConf.pgConnStr
+        databaseConf.pgPoolSize
 
     charIDs <- Logger.runLoggingT (Sql.runSqlPool initDB pool) logFunc
     let foundation = mkFoundation charIDs pool
@@ -135,8 +135,8 @@ warpSettings :: App -> Warp.Settings
 warpSettings foundation@App{logger, settings = Settings{host, port}} =
     Warp.setPort port
         . Warp.setHost host
-        . Warp.setOnException exceptionHandler
-        $ Warp.defaultSettings
+        $ Warp.setOnException exceptionHandler
+          Warp.defaultSettings
   where
     exceptionHandler _req e = when (Warp.defaultShouldDisplayException e)
         $ messageLoggerSource foundation logger

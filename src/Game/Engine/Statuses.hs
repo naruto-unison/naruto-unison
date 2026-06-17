@@ -66,8 +66,8 @@ apply amount classes bombs unthrottled name effects = void $ runMaybeT do
                 (Effects.throttle effects nUser) unthrottled
     let st   = status context nUser nTarget dur
         stID = ID.from st
-    if N.has stID nTarget && Extending ∈ Status.classes st then
-        P.modify target $ Ninjas.prolong (Status.dur st) stID
+    if N.has stID nTarget && Extending ∈ st.classes then
+        P.modify target $ Ninjas.prolong st.dur stID
     else do
         let Status{effects = efs} = st
         guard $ null effects || not (null efs)
@@ -115,20 +115,20 @@ makeStatus StatusParams
     { Status.name    = statusName
     , Status.effects = filterDmg . filter disable
                      $ Ninjas.apply nUser nTarget effects
-    , Status.classes = modClasses $ extra ++ classes ++ Skill.classes skill
+    , Status.classes = modClasses $ extra ++ classes ++ skill.classes
     , Status.amount  = amount
     , Status.bombs   = bombs
     }
   where
     statusName
       | not $ null name  = name
-      | Hidden ∈ classes = toLower $ Skill.name skill
-      | otherwise        = Skill.name skill
+      | Hidden ∈ classes = toLower skill.name
+      | otherwise        = skill.name
     modClasses
       | continues && dur <= 1 = insertSet Continues
       | continues || new      = deleteSet Continues
       | otherwise             = deleteSet Continues . deleteSet Invisible
-    baseClasses = classes ++ Skill.classes skill
+    baseClasses = classes ++ skill.classes
     noremove    = null effects && Bane ∉ baseClasses
                   || Hidden ∈ baseClasses
                   || user == target && any (not . Effect.helpful) effects

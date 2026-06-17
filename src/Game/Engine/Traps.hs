@@ -77,11 +77,11 @@ runTriggers user n@Ninja{traps, triggers} = do
 
 -- | Adds a value to 'Trap.tracker' of 'N.traps' with a certain @Trigger@.
 track :: Trigger -> Int -> Ninja -> Ninja
-track trigger amount n = n { N.traps = tracked <$> N.traps n }
+track trigger amount n = n { N.traps = tracked <$> n.traps }
   where
     tracked trap
       | Trap.trigger trap == trigger =
-          trap { Trap.tracker = amount + Trap.tracker trap }
+          trap { Trap.tracker = amount + trap.tracker }
       | otherwise = trap
 
 -- | Conditionally returns 'Trap.Trap's that accept a numeric value.
@@ -108,7 +108,7 @@ getTurnPer player n n'
   | otherwise            = mempty
   where
     allied = Parity.allied player n'
-    hp   = N.health n - N.health n'
+    hp   = n.health - n'.health
 
 -- | Returns 'OnNoAction' 'Trap.Trap's.
 getTurnNot :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
@@ -165,7 +165,7 @@ makeTrap ctx direction classes dur trigger f = Trap
     , direction
     , skill   = skill'
     , user
-    , name    = Skill.name skill'
+    , name    = skill'.name
     , effect  = \i -> To { target = context, run = f i }
     , classes = classes'
     , tracker = 0
@@ -181,7 +181,7 @@ makeTrap ctx direction classes dur trigger f = Trap
       | Trigger.affectsDead trigger = insertSet Necromancy
       | otherwise                   = id
     classes' = insertSet Nonstacking . setContinues . setNecromancy
-             $ classes ++ Skill.classes skill
+             $ classes ++ skill.classes
     skill'   = skill { Skill.classes = classes'
                      , Skill.require = Usable
                      }

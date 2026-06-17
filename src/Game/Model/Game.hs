@@ -57,7 +57,7 @@ newWithChakras = do
 
 -- | The game has not yet ended.
 inProgress :: Game -> Bool
-inProgress x = null $ victor x
+inProgress x = null x.victor
 
 setChakra :: ∀ a. Parity a => a -> Chakras -> Game -> Game
 setChakra p x game@Game{chakra} =

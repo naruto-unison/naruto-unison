@@ -68,7 +68,7 @@ getHomeR = do
         $(widgetFile "home/home")
   where
     change = getChangelog False
-    withAuthor (Entity _ new) = (new, ) <$> get (News.author new)
+    withAuthor (Entity _ new) = (new, ) <$> get new.author
 
 data LogType
     = Balance

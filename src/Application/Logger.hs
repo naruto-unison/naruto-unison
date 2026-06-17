@@ -11,7 +11,7 @@ import qualified Network.Wai.Header as WaiHeader
 import qualified Network.Wai.Logger as WaiLogger
 import qualified Network.Wai.Middleware.RequestLogger as RequestLogger
 import qualified System.Log.FastLogger as FastLogger
-import qualified Yesod.Core.Types as YesodTypes
+import qualified Yesod.Core.Types
 
 import           Application.App (App(App))
 import qualified Application.App as App
@@ -31,8 +31,7 @@ makeLogWare :: App -> IO Wai.Middleware
 makeLogWare App{logger, settings = Settings{detailedRequestLogging = True}} =
     RequestLogger.mkRequestLogger RequestLogger.defaultRequestLoggerSettings
         { RequestLogger.outputFormat = RequestLogger.Detailed True
-        , RequestLogger.destination  = RequestLogger.Logger
-                                     $ YesodTypes.loggerSet logger
+        , RequestLogger.destination  = RequestLogger.Logger logger.loggerSet
         }
 
 makeLogWare App{logger, settings = Settings{ipFromHeader}} = do
@@ -43,7 +42,7 @@ makeLogWare App{logger, settings = Settings{ipFromHeader}} = do
     ipSrc
       | ipFromHeader = WaiLogger.FromFallback
       | otherwise    = WaiLogger.FromSocket
-    logger'   = YesodTypes.loggerSet logger
+    logger'   = logger.loggerSet
     flusher  = FastLogger.flushLogStr logger'
     callback = FastLogger.LogCallback (FastLogger.pushLogStr logger') flusher
 

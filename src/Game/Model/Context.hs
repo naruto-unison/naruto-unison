@@ -15,7 +15,7 @@ import qualified Game.Model.Internal.Skill as Skill
 
 fromStatus :: Status -> Context
 fromStatus Status{skill, user, classes} = Context
-    { skill     = skill { Skill.classes = Skill.classes skill ++ classes }
+    { skill     = skill { Skill.classes = skill.classes ++ classes }
     , user
     , target    = user
     , new       = False
@@ -23,8 +23,8 @@ fromStatus Status{skill, user, classes} = Context
     }
 
 reflect :: Context -> Context
-reflect context = context { target = user context }
+reflect context = context { target = context.user }
 
 -- | A 'Player' attempts to control a 'Ninja' not on their team.
 illegal :: Player -> Context -> Bool
-illegal p a = not . Parity.allied p $ user a
+illegal p Context{user} = not $ Parity.allied p user

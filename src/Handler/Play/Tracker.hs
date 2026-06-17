@@ -143,7 +143,7 @@ new Ninja{character = Character{ident}, slot} = do
         }
   where
     hooks = Hooks.forCharacter ident
-    storeSize = length $ Hooks.goals hooks
+    storeSize = length hooks.goals
 
 newtype Tracker s = Tracker (Vector (Track s))
 

@@ -56,11 +56,11 @@ updateUser player opponent outcome = updateRecord outcome
         Victory -> 1
         Defeat  -> 0
         Tie     -> 0.5
-    µ  = User.rating     player
-    φ  = User.deviation  player
-    σ  = User.volatility player
-    µ₁ = User.rating     opponent
-    φ₁ = User.deviation  opponent
+    µ  = player.rating
+    φ  = player.deviation
+    σ  = player.volatility
+    µ₁ = opponent.rating
+    φ₁ = opponent.deviation
 
     g = 1 / sqrt (1 + 3 * square φ₁ / square pi)
     e = 1 / (1 + exp (-g * (µ - µ₁)))

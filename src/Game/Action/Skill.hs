@@ -86,7 +86,7 @@ setAlternates loadout = P.uncopied do
         { Status.name = "$loadout"
         , Status.effects = catMaybes $ zipWith load loadout skills
         }
-    load alt (x:|xs) = Alternate (Skill.name x) . Skill.name <$> xs !? (alt - 1)
+    load alt (x:|xs) = Alternate x.name . Skill.name <$> xs !? (alt - 1)
 
 -- | Cycles a skill through its list of alternates.
 -- | Uses 'Ninjas.nextAlternate' internally.

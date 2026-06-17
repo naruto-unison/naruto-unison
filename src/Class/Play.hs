@@ -117,4 +117,4 @@ trigger :: ∀ m. MonadPlay m => Slot -> [Trigger] -> m ()
 trigger _ [] = return ()
 trigger i xs = whenM (Context.new <$> context)
     $ modify i \n ->
-        n { N.triggers = foldl' (flip insertSet) (N.triggers n) xs }
+        n { N.triggers = foldl' (flip insertSet) n.triggers xs }

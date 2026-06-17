@@ -33,8 +33,8 @@ trapUnique _ Ninja{slot} store = ( insertSet slot store
 -- | 'trapUnique' restricted to the user's team.
 trapUniqueAlly :: TrapHook
 trapUniqueAlly user target store
-  | not $ allied user target = (store, 0)
-  | otherwise                = trapUnique user target store
+  | allied user target = trapUnique user target store
+  | otherwise          = (store, 0)
 
 -- | 'trapUnique' restricted to the enemy's team.
 trapUniqueEnemy :: TrapHook

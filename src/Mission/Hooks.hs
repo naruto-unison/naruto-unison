@@ -75,18 +75,18 @@ addObjectives :: [Objective] -> Hooks -> Hooks
 addObjectives objectives track = foldl' go track $ zip [0..] objectives
   where
     go x (i, Consecutive _ skills) =
-        x { consecs = (i, skills) : consecs x }
+        x { consecs = (i, skills) : x.consecs }
     go x (i, HookAction _ skill func) =
-        x { actions = insertMultimap skill (i, func) $ actions x }
+        x { actions = insertMultimap skill (i, func) x.actions }
     go x (i, HookChakra _ skill func) =
-        x { chakras = insertMultimap skill (i, func) $ chakras x }
+        x { chakras = insertMultimap skill (i, func) x.chakras }
     go x (i, HookStore _ skill func) =
-        x { stores = insertMultimap skill (i, func) $ stores x }
+        x { stores = insertMultimap skill (i, func) x.stores }
     go x (i, HookTrap _ trap func) =
-        x { traps = insertMultimap trap (i, func) $ traps x }
+        x { traps = insertMultimap trap (i, func) x.traps }
     go x (i, HookTrigger _ trigger func) =
-        x { triggers = insertMultimap trigger (i, func) $ triggers x }
+        x { triggers = insertMultimap trigger (i, func) x.triggers }
     go x (i, HookTurn _ func) =
-        x { turns = (i, func) : turns x }
+        x { turns = (i, func) : x.turns }
     go x (_, Win{}) =
         x

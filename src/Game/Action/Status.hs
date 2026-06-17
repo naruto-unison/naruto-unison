@@ -91,7 +91,7 @@ addStacks' dur name i = do
            , Status.amount  = i
            , Status.user    = user
            , Status.classes = deleteSet Nonstacking . deleteSet Continues
-                            . insertSet Unremovable $ Status.classes st
+                            $ insertSet Unremovable st.classes
            }
 
 -- | Adds a hidden @Status@ with no effects that immediately expires.
@@ -120,7 +120,7 @@ controlWith classes effects = P.unsilenced do
     case status nUser nTarget context of
         Just st -> do
             P.modify target $ Ninjas.addStatus st
-            Statuses.triggerStatusApplied $ Status.effects st
+            Statuses.triggerStatusApplied st.effects
         Nothing -> return ()
   where
     status nUser nTarget context@Context{skill = Skill{dur = Control i}} = Just
@@ -219,14 +219,14 @@ commandeer = P.unsilenced do
     nTarget@Ninja{slot = target} <- P.nTarget
 
     P.modify user $ Ninjas.modifyStatuses
-        (mapMaybe gainHelpful (N.statuses nTarget) ++) . \n ->
-            n { N.defense = N.defense nTarget .++ N.defense n
+        (mapMaybe gainHelpful nTarget.statuses ++) . \n ->
+            n { N.defense = nTarget.defense .++ n.defense
               , N.barrier = mempty
               }
     P.modify target $ Ninjas.modifyStatuses
         (mapMaybe loseHelpful) . \n ->
             n { N.defense = mempty
-              , N.barrier = N.barrier nUser
+              , N.barrier = nUser.barrier
               }
   where
     stealable ef = Effect.helpful ef && not (Effect.sticky ef)

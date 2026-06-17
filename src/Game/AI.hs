@@ -33,9 +33,9 @@ targetOptions ns n@Ninja{skills} i =
   where
     makeOption skill target = Context
         { new       = True
-        , user      = N.slot n
+        , user      = n.slot
         , skill
-        , target    = N.slot target
+        , target    = target.slot
         , continues = False
         }
 

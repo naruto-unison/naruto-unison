@@ -26,7 +26,7 @@ idKey ID{name, owner} = Skill.Key name owner
 modifyCooldowns :: (HashMap Skill.Key Int -> HashMap Skill.Key Int)
                 -> Ninja
                 -> Ninja
-modifyCooldowns f n = n { N.cooldowns = f $ N.cooldowns n }
+modifyCooldowns f n = n { N.cooldowns = f n.cooldowns }
 
 -- | Adds to an element in 'N.cooldowns'.
 alter :: Int -> ID -> Ninja -> Ninja

@@ -139,7 +139,7 @@ gameSocket = Socket.withSocket \socket -> logErrors =<< runExceptT do
         whileM_ (Game.inProgress <$> P.game) do
             wrapper <- takeMVar mvar {-! BLOCKS !-}
 
-            if Game.inProgress $ Wrapper.game wrapper then do
+            if Game.inProgress wrapper.game then do
                 trySocket . Socket.sendJSONData socket
                           . Message.Play $ Wrapper.toTurn player wrapper
                 Wrapper.replace wrapper =<< ask

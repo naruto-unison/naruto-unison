@@ -22,7 +22,7 @@ import qualified Mission.Missions.Shippuden
 clean :: Mission -> Mission
 clean (Mission char goals) = Mission (Character.clean char) $ cleanup <$> goals
   where
-    cleanup goal = goal { Goal.objective = f $ Goal.objective goal }
+    cleanup goal = goal { Goal.objective = f goal.objective }
     f (Win winType idents)        = Win winType $ Character.clean <$> idents
     f (HookAction ident skill fn) = HookAction  (Character.clean ident) skill fn
     f (HookChakra ident skill fn) = HookChakra  (Character.clean ident) skill fn

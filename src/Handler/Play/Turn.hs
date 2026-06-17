@@ -70,11 +70,11 @@ censorNinjas player ninjas = censorNinja revealed <$> ninjas
 
 censorNinja :: SlotSet -> Ninja -> Ninja
 censorNinja revealed n@Ninja{slot} =
-    n { N.channels  = censorChannels $ N.channels n
-      , N.cooldowns = censorAll      $ N.cooldowns n
-      , N.charges   = censorAll      $ N.charges n
-      , N.statuses  = filter hide    $ N.statuses n
-      , N.traps     = filter hide    $ N.traps n
+    n { N.channels  = censorChannels n.channels
+      , N.cooldowns = censorAll      n.cooldowns
+      , N.charges   = censorAll      n.charges
+      , N.statuses  = filter hide    n.statuses
+      , N.traps     = filter hide    n.traps
       }
   where
     reveal user = user ∈ revealed

@@ -97,13 +97,13 @@ processTurn runner = do
   where
     getChannels ns =
         [ Context { new       = False
-                  , user      = N.slot n
+                  , user      = n.slot
                   , skill     = Skills.change n skill
                   , continues = False
                   , target
                   } | n <- ns,
                       N.alive n,
-                      Channel{skill, target, new, dur} <- N.channels n,
+                      Channel{skill, target, new, dur} <- n.channels,
                       not $ new || TurnBased.expiring dur
                   ]
 
@@ -154,7 +154,7 @@ doDoneBombs ninjas = zipWithM_ doEach ninjas =<< P.ninjas
   where
     doEach n n'
       | null stats = return ()
-      | otherwise  = sequence_ $ doBomb Done (N.slot n)
+      | otherwise  = sequence_ $ doBomb Done n.slot
                              <$> deleteFirstsBy ((==) `on` ID.from) stats stats'
       where
         stats  = getStatuses n
@@ -212,10 +212,10 @@ doDeaths = mapM_ doEach Slot.all
 -- | Removes 'Soulbound' effects. Applied when a Ninja dies or is factory-reset.
 unSoulbound :: Slot -> Ninja -> Ninja
 unSoulbound user n = Ninjas.modifyAll (filter notSoulbound)
-    n { N.copies = filter (maybe True notSoulbound) $ N.copies n }
+    n { N.copies = filter (maybe True notSoulbound) n.copies }
   where
     notSoulbound :: ∀ a. (Classed a, HasID a) => a -> Bool
-    notSoulbound x = Soulbound ∉ getClasses x || (ID.user $ ID.from x) /= user
+    notSoulbound x = Soulbound ∉ getClasses x || (ID.from x).user /= user
 
 doExpiredBombs :: ∀ m. (MonadGame m, MonadRandom m) => Vector Ninja -> m ()
 doExpiredBombs ninjas = mapM_ doEach ninjas
