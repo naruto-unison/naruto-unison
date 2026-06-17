@@ -48,7 +48,7 @@ damageDuringStacks :: Text -> ActionHook
 damageDuringStacks name _ user target target'
   | allied user target              = 0
   | target'.health >= target.health = 0
-  | otherwise = N.numStacks (toID name user.slot) user
+  | otherwise = N.amount (toID name user.slot) user
 
 -- | Damage received by the target after an action while the target has some
 -- number of stacks of a @Status@.
@@ -56,7 +56,7 @@ damageWithStacks :: Text -> ActionHook
 damageWithStacks name _ user target target'
   | allied user target              = 0
   | target'.health >= target.health = 0
-  | otherwise = N.numStacks (toID name user.slot) target
+  | otherwise = N.amount (toID name user.slot) target
 
 -- | 'N.defense' added to the target after an action.
 defend :: ActionHook
@@ -64,14 +64,14 @@ defend name user target target'
   | N.alive target = max 0 addedDefense
   | otherwise      = 0
   where
-    getDefense   = N.defenseAmount $ toID name user.slot
+    getDefense   = N.amount' N.defense $ toID name user.slot
     addedDefense = getDefense target' - getDefense target
 
 -- | 'N.defense' destroyed after an action.
 demolish :: ActionHook
 demolish _ user target target'
   | allied user target = 0
-  | otherwise          = max 0 $ N.totalDefense target - N.totalDefense target'
+  | otherwise = max 0 $ N.total N.defense target - N.total N.defense target'
 
 -- | Healing received by a target after an action.
 heal :: ActionHook
@@ -124,4 +124,4 @@ useDuring name _ user _ _ = boolean $ N.has (toID name user.slot) user
 
 -- | Number of user's stacks of a @Status@ after an action.
 useDuringStacks :: Text -> ActionHook
-useDuringStacks name _ user _ _ = N.numStacks (toID name user.slot) user
+useDuringStacks name _ user _ _ = N.amount (toID name user.slot) user

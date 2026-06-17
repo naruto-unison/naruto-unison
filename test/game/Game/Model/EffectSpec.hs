@@ -5,7 +5,7 @@ module Game.Model.EffectSpec (spec) where
 import Import hiding (it, shouldBe, shouldNotBe)
 
 import Data.Enum.Set (EnumSet)
-import Test.QuickCheck
+import Test.QuickCheck hiding (total)
 import Test.Hspec.QuickCheck
 import Test.Hspec (it, shouldBe)
 
@@ -37,10 +37,10 @@ import qualified Wrapper
 
 chunk :: ∀ a. (Int -> a) -> Int -> Int -> [a]
 chunk _ _ 0 = []
-chunk producer sizeSeed amount = producer r : replicate size (producer q)
+chunk producer sizeSeed i = producer r : replicate size (producer q)
   where
-    size   = 1 + rem (abs sizeSeed) amount
-    (q, r) = amount `quotRem` size
+    size   = 1 + rem (abs sizeSeed) i
+    (q, r) = i `quotRem` size
 
 spec :: Spec
 spec = parallel do
@@ -78,10 +78,10 @@ spec = parallel do
             tryAbsorb Ally (Chakras.each 1) `shouldBe` mempty
 
     describe "Afflict" do
-        prop "damages every turn" \amount (Positive turns) -> simAt Enemy do
-            apply Permanent skillName [Afflict amount]
+        prop "damages every turn" \i (Positive turns) -> simAt Enemy do
+            apply Permanent skillName [Afflict i]
             damaged <- measureDamage $ Sim.turns -turns
-            return $ damaged === healthBound (amount * turns)
+            return $ damaged === healthBound (i * turns)
 
     describe "Alone" do
         let tryTarget = apply Permanent skillName [Alone]
@@ -153,21 +153,21 @@ spec = parallel do
             simEffects [ Build i ] [] Ally do
                 barricade Permanent hp
                 if i + hp >= 0 then do
-                    amount <- target totalBarrier
-                    return $ amount === i + hp
+                    targetBarrier <- target total barrier
+                    return $ targetBarrier === i + hp
                 else do
-                    amount <- target totalDefense
-                    return $ amount === negate (i + hp)
+                    targetBarrier <- target total defense
+                    return $ targetBarrier === negate (i + hp)
 
         prop "adds to defense" \i (Positive hp) ->
             simEffects [ Build i ] [] Ally do
                 defend Permanent hp
                 if i + hp >= 0 then do
-                    amount <- target totalDefense
-                    return $ amount === i + hp
+                    targetDefense <- target total defense
+                    return $ targetDefense === i + hp
                 else do
-                    amount <- target totalBarrier
-                    return $ amount === negate (i + hp)
+                    targetDefense <- target total barrier
+                    return $ targetDefense === negate (i + hp)
 
     describe "Bypass" do
         it "makes all skills bypass" $ simAt Enemy do
@@ -187,7 +187,7 @@ spec = parallel do
         prop "converts into defense" \attackType (Positive dmg) ->
             simEffects [] [ DamageToDefense ] Enemy do
                 Combat.attack attackType dmg
-                targetDefense <- target totalDefense
+                targetDefense <- target total defense
                 return $ targetDefense === case attackType of
                     Attack.Afflict  -> 0
                     Attack.Demolish -> 0
@@ -297,10 +297,10 @@ spec = parallel do
         it "ignores affliction" . simAt Enemy $ ignore Affliction afflict
 
     describe "Limit" do
-        prop "limits damage" \attackType amount (Positive dmg) ->
-            attackAmount attackType dmg [] [Limit amount] === case attackType of
+        prop "limits damage" \attackType i (Positive dmg) ->
+            attackAmount attackType dmg [] [Limit i] === case attackType of
                 Attack.Afflict -> dmg
-                _              -> min amount dmg
+                _              -> min i dmg
 
     describe "NoIgnore" do
         it "ignores ignores" $ simAt Enemy do
@@ -547,18 +547,18 @@ attackAmount attackType dmg attacker defender =
 type Con = EnumSet Class -> Amount -> Int -> Effect
 
 isAdditive :: Con -> Amount -> Attack -> Positive Int -> Int -> Int -> Property
-isAdditive effect amount attackType (Positive dmg) size val =
+isAdditive effect i attackType (Positive dmg) size val =
     atk [reducer val] === atk (chunk reducer size val)
   where
     atk efs = attackAmount attackType dmg efs efs
-    reducer = effect [All] amount
+    reducer = effect [All] i
 
 complements :: Con -> Con -> Amount -> Positive Int -> Int -> Property
-complements effectA effectB amount (Positive dmg) val = atk effects === atk []
+complements effectA effectB i (Positive dmg) val = atk effects === atk []
   where
     effects  = [ effect effectA val, effect effectB val ]
     atk efs  = attackAmount Attack.Damage dmg efs efs
-    effect x = x [All] amount
+    effect x = x [All] i
 
 getSkill :: [Effect] -> Skill
 getSkill effects = unsafeHead . N.skills

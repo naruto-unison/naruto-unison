@@ -197,7 +197,7 @@ spec = parallel do
             it "adds a bonus stack during Rising Twin Dragons" do
                 Sim.use "Rising Twin Dragons"
                 Sim.act
-                stacks <- Sim.at XEnemies $ target numStacks "Unsealing Technique"
+                stacks <- Sim.at XEnemies $ target amount "Unsealing Technique"
                 stacks `shouldBe` 2
             it "spends Rising Twin Dragons" do
                 Sim.use "Rising Twin Dragons"

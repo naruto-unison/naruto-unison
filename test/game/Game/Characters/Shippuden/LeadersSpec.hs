@@ -33,7 +33,7 @@ spec = parallel do
         useOn Enemy "Toad Oil Bomb" do
             it "adds a stack" do
                 replicateM_ testStacks Sim.act
-                stacks <- target numStacks "Toad Oil Bomb"
+                stacks <- target amount "Toad Oil Bomb"
                 stacks `shouldBe` testStacks
 
         useOn Ally "Raging Lion's Mane" do
@@ -80,7 +80,7 @@ spec = parallel do
                 Sim.use "Strength of One Hundred Seal"
                 Sim.as Enemy $ defend Permanent 100
                 Sim.act
-                targetDefense <- target totalDefense
+                targetDefense <- target total defense
                 targetDefense `shouldBe` 0
             it "spends a Seal" do
                 Sim.use "Strength of One Hundred Seal"

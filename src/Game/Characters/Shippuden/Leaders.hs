@@ -67,7 +67,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                stacks <- target numStacks "Toad Oil Bomb"
+                stacks <- target amount "Toad Oil Bomb"
                 afflict (10 * stacks)
           , To Self $ hide Permanent skillName
                 [ Alternate "Giant Flame Bomb"
@@ -228,7 +228,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user numStacks skillName
+                stacks <- user amount skillName
                 pierce (20 + 10 * stacks)
           , To Self $ addStack skillName
           ]
@@ -318,13 +318,13 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.effects   =
           [ To Self do
-                stacks <- user numStacks "Harmony"
+                stacks <- user amount "Harmony"
                 remove "Harmony"
                 addStacks' 1 "Harmony"
                     if stacks < 3 then stacks + 1 else 1
           , To Enemies do
                 remove skillName
-                stacks <- user numStacks "Harmony"
+                stacks <- user amount "Harmony"
                 when (stacks == 3) $
                     apply 2 skillName [Stun All]
           ]

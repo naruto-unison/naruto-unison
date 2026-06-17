@@ -34,7 +34,7 @@ import Game.Model.Class as Import (Class(..))
 import Game.Model.Duration as Import (Duration(..))
 import Game.Model.Effect as Import (Amount(..), Constructor(..), Effect(..))
 import Game.Model.Group as Import (Group(..))
-import Game.Model.Ninja as Import (Ninja(barrier, defense, health, skills, slot, statuses, traps), alive, barrierAmount, defenseAmount, has, has', is, lastChakraSpent, numHelpful, numStacks, numAnyStacks)
+import Game.Model.Ninja as Import (Ninja(barrier, defense, health, skills, slot, statuses, traps), alive, total, amount, amount', amountFromAny, amountFromAny', has, has', is, lastChakraSpent, numHelpful)
 import Game.Model.Requirement as Import (Requirement(..))
 import Game.Model.Runnable as Import (IntRunConstraint, RunConstraint, Runnable(To))
 import Game.Model.Skill as Import (Skill, Target(..), addDesc, targetAll, restrict, addClasses, setCooldown, setDur, setCost)
@@ -96,9 +96,9 @@ trigger triggers = do
 
 -- | Returns the bonus if the monadic condition succeeds, otherwise returns 0.
 bonusIf :: ∀ a m. (MonadPlay m, Num a) => a -> m Bool -> m a
-bonusIf amount condition = getBonus <$> condition
+bonusIf bonus condition = getBonus <$> condition
   where
-    getBonus True  = amount
+    getBonus True  = bonus
     getBonus False = 0
 
 -- | True if user 'N.isChanneling'.
@@ -159,3 +159,8 @@ instance MonadPlay m => NinjaGetter m ((Ninja -> [b]) -> ID -> Ninja -> a) where
     type Getter m ((Ninja -> [b]) -> ID -> Ninja -> a) = (Ninja -> [b]) -> Text -> m a
     target f getter name = f getter <$> P.createID name <*> P.nTarget
     user   f getter name = f getter <$> P.createID name <*> P.nUser
+
+instance MonadPlay m => NinjaGetter m ((Ninja -> [b]) -> Ninja -> a) where
+    type Getter m ((Ninja -> [b]) -> Ninja -> a) = (Ninja -> [b]) -> m a
+    target f getter = f getter <$> P.nTarget
+    user   f getter = f getter <$> P.nUser

@@ -82,7 +82,7 @@ characters =
         , Skill.classes   = [Physical]
         , Skill.effects   =
           [ To Self do
-                stacks <- user numStacks "Umbrella"
+                stacks <- user amount "Umbrella"
                 apply 1 skillName [Reduce [All] Flat (stacks * 10)]
                 remove "Umbrella"
           ]
@@ -108,7 +108,7 @@ characters =
         , Skill.classes   = [Physical, Ranged]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user numStacks "Umbrella"
+                stacks <- user amount "Umbrella"
                 damage (15 * stacks)
           , To Self $ remove "Umbrella"
           ]

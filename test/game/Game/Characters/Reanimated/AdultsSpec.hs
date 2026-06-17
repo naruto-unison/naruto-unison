@@ -53,13 +53,13 @@ spec = parallel do
         useOn Enemy "Seven Stars Blade" do
             it "adds Spirit Words" do
                 replicateM_ testStacks Sim.act
-                stacks <- target numStacks "Spirit Word"
+                stacks <- target amount "Spirit Word"
                 stacks `shouldBe` testStacks
 
         useOn Enemy "Amber Purification Jar" do
             it "adds Spirit Words" do
                 replicateM_ testStacks Sim.act
-                stacks <- target numStacks "Spirit Word"
+                stacks <- target amount "Spirit Word"
                 stacks `shouldBe` testStacks
 
         useOn Enemy "Benihisago" do
@@ -69,18 +69,18 @@ spec = parallel do
                 damaged `shouldBe` 10 + 5 * testStacks
             it "adds Spirit Words" do
                 replicateM_ testStacks Sim.act
-                stacks <- target numStacks "Spirit Word"
+                stacks <- target amount "Spirit Word"
                 stacks `shouldBe` testStacks
             it "increases Scroll of Fire" do
                 replicateM_ testStacks Sim.act
-                stacks <- target numStacks "Scroll of Fire"
+                stacks <- target amount "Scroll of Fire"
                 stacks `shouldBe` testStacks
 
     describeCharacter "Kinkaku" do
         useOn Enemy "Leaf Fan" do
             it "adds Spirit Words" do
                 replicateM_ testStacks Sim.act
-                stacks <- target numStacks "Spirit Word"
+                stacks <- target amount "Spirit Word"
                 stacks `shouldBe` testStacks
 
         useOn Enemy "Gold Rope" do
@@ -92,13 +92,13 @@ spec = parallel do
                 apply Permanent "protect" [Reduce [All] Percent 90]
                 replicateM_ testStacks Sim.act
                 Sim.as Enemy $ return ()
-                stacks <- target numStacks "Spirit Word"
+                stacks <- target amount "Spirit Word"
                 stacks `shouldBe` testStacks
 
         useOn Enemies "Scroll of Fire" do
             it "adds Spirit Words" do
                 replicateM_ testStacks Sim.act
-                stacks <- target numStacks "Spirit Word"
+                stacks <- target amount "Spirit Word"
                 stacks `shouldBe` testStacks
             it "deals bonus damage from stacks" do
                 damagedWithout <- measureDamage Sim.act

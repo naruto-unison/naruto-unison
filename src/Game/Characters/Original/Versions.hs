@@ -120,14 +120,14 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To REnemy do
-                stacks <- user numStacks skillName
+                stacks <- user amount skillName
                 damage (20 + 5 * stacks)
           , To Self $ addStack skillName
           ]
         , Skill.changes   = changeWithChannel "Drunken Fist" \x -> x
                 { Skill.effects =
                   [ To Enemy do
-                        stacks <- user numStacks skillName
+                        stacks <- user amount skillName
                         damage (25 + 5 * stacks)
                     , To Self $ addStack skillName
                   ]
@@ -142,7 +142,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Ally $ trapFrom 1 (Counter Physical) do
-                stacks <- user numStacks "Unpredictable Assault"
+                stacks <- user amount "Unpredictable Assault"
                 damage (20 + 5 * stacks)
                 targeting Self $ addStack "Unpredictable Assault"
           ]

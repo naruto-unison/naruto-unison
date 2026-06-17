@@ -35,7 +35,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user numStacks skillName
+                stacks <- user amount skillName
                 damage (30 + 5 * stacks)
                 apply 1 skillName [Weaken [All] Flat 10]
           , To Self $ addStack skillName
@@ -51,10 +51,10 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user numStacks skillName
+                stacks <- user amount skillName
                 damage (15 + 5 * stacks)
           , To XEnemies do
-                stacks <- user numStacks skillName
+                stacks <- user amount skillName
                 damage (5 + 5 * stacks)
           , To Self $ addStack skillName
           ]

@@ -7,7 +7,7 @@ module Import
     ) where
 
 import Game.Characters.Import as Import'
-import Game.Model.Ninja as Import' (Ninja(Ninja, charges, cooldowns, effects), totalBarrier, totalDefense)
+import Game.Model.Ninja as Import' (Ninja(Ninja, charges, cooldowns, effects))
 import Test.Hspec as Import' hiding (context, it, shouldBe, shouldNotBe)
 import Sim as Import' (simAt, describeCategory, simOf)
 import SkillExample as Import'

@@ -132,7 +132,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemies do
-                stacks <- target numStacks "Burning Ash"
+                stacks <- target amount "Burning Ash"
                 afflict (10 * stacks)
           , To Self do
                 cancelChannel "Burning Ash"
@@ -171,7 +171,7 @@ characters =
                 if afterFirstTurn then
                     damage 10
                 else do
-                    stacks <- user numStacks "Single Gate Release"
+                    stacks <- user amount "Single Gate Release"
                     damage (10 + 5 * stacks)
           ]
         }
@@ -183,7 +183,7 @@ characters =
         , Skill.cost      = [Blood, Tai]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user numStacks "Single Gate Release"
+                stacks <- user amount "Single Gate Release"
                 damage (35 + 5 * stacks)
                 apply 1 skillName [Weaken [All] Flat 20]
           ]
@@ -216,7 +216,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 sacrifice 0 5
-                stacks <- user numStacks skillName
+                stacks <- user amount skillName
                 apply Permanent skillName $ Reduce [All] Flat 5 : case stacks of
                     5 -> [ Alternate "Fiery Kick"
                                      "Asakujaku"
@@ -694,7 +694,7 @@ characters =
                 trapFrom Permanent (OnHarmed All) do
                     stacks <- withTarget ally do
                         removeTrap skillName
-                        stacks <- target numStacks "Paper Bomb"
+                        stacks <- target amount "Paper Bomb"
                         remove skillName
                         return stacks
                     damage (20 * stacks)

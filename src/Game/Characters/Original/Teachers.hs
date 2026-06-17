@@ -279,7 +279,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Self do
-                stacks <- user numStacks "Illusion"
+                stacks <- user amount "Illusion"
                 defend Permanent (10 + 5 * stacks)
                 remove "Illusion"
           ]

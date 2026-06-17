@@ -178,7 +178,7 @@ spec = parallel do
             it "adds stacks when enemy acts" do
                 Sim.act
                 replicateM_ testStacks $ Sim.as Enemy $ return ()
-                stacks <- user numStacks "Sensory Radar"
+                stacks <- user amount "Sensory Radar"
                 stacks `shouldBe` testStacks
             it "alternates" do
                 Sim.act
@@ -193,7 +193,7 @@ spec = parallel do
             it "spends all Sensory Radar" do
                 addStacks "Sensory Radar" testStacks
                 Sim.act
-                stacks <- user numStacks "Sensory Radar"
+                stacks <- user amount "Sensory Radar"
                 stacks `shouldBe` 0
 
         useOn Enemy "Mental Invasion" do

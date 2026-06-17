@@ -64,7 +64,7 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user numStacks "Susanoo"
+                stacks <- user amount "Susanoo"
                 damage (30 + 5 * stacks)
           ]
         }
@@ -219,7 +219,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemies do
-                stacks <- user numStacks "Iron Sand"
+                stacks <- user amount "Iron Sand"
                 pierce (10 + 5 * stacks)
           ]
         }
@@ -324,7 +324,7 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.effects   =
           [ To Self do
-                stacks <- user numStacks "jashin"
+                stacks <- user amount "jashin"
                 apply (fromIntegral $ 1 + stacks) "Prayer" [Endure]
                 hide Permanent "jashin" []
           ,  To Enemy do
@@ -392,7 +392,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do
-                stacks <- user numStacks "jashin"
+                stacks <- user amount "jashin"
                 apply (fromIntegral $ 1 + stacks) skillName [Endure]
                 hide Permanent "jashin" []
           ]
@@ -524,7 +524,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user numStacks "Hundred Hungry Sharks"
+                stacks <- user amount "Hundred Hungry Sharks"
                 pierce (5 * stacks)
           , To Self do
                 remove "Hundred Hungry Sharks"
@@ -960,7 +960,7 @@ characters =
           [ To Enemy do
                 barricade' 3 80 [Alone, Invulnerable All]
                 onBreak do
-                    remaining <- target barrierAmount "Planetary Devastation"
+                    remaining <- target amount' barrier "Planetary Devastation"
                     when (remaining > 0) $
                         damage remaining
           ]
@@ -1207,7 +1207,7 @@ characters =
                 whenM (channeling skillName) $
                     addStack skillName
           , To Enemies do
-                stacks <- user numStacks skillName
+                stacks <- user amount skillName
                 damage (10 * bit stacks)
           ]
         , Skill.end       =
@@ -1290,7 +1290,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Ally do
-                defense <- user defenseAmount "Summoning: King of Hell"
+                defense <- user amount' defense "Summoning: King of Hell"
                 when (defense > 0) $
                     heal defense
           ]
@@ -1338,7 +1338,7 @@ characters =
         , Skill.dur       = Action -4
         , Skill.effects   =
           [ To Self do
-                controlStacks <- user numStacks "Control"
+                controlStacks <- user amount "Control"
                 let maxReduce = min 25 $ 10 + 5 * controlStacks
                 apply 1 skillName
                     [ Reduce [All] Flat maxReduce
@@ -1373,7 +1373,7 @@ characters =
         , Skill.effects   =
           [ To Self $ tag 1 skillName
           , To Enemy do
-                controlStacks <- user numStacks "Control"
+                controlStacks <- user amount "Control"
                 pierce (20 + 5 * controlStacks)
           ]
         , Skill.changes   = changeWithChannel "Summoning: Gedo Statue"

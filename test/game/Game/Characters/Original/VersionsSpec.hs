@@ -86,7 +86,7 @@ spec = parallel do
             it "defends user" do
                 Sim.act
                 Sim.turns 6
-                defense <- user totalDefense
+                defense <- user total defense
                 defense `shouldBe` 5 * 10
             it "alternates" do
                 Sim.act

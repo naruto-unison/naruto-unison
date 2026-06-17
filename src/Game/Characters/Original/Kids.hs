@@ -195,7 +195,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 absorb 1
-                stacks <- target numStacks "Parasite"
+                stacks <- target amount "Parasite"
                 afflict (20 + 5 * stacks)
           ]
         }
@@ -643,7 +643,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemies do
-                stacks <- target numStacks "Unsealing Technique"
+                stacks <- target amount "Unsealing Technique"
                 damage (5 + 10 * stacks)
                 bonus <- 1 `bonusIf` user has "Rising Twin Dragons"
                 apply (1 + bonus) skillName

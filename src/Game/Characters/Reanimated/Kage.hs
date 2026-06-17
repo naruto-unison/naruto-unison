@@ -179,7 +179,7 @@ characters =
         , Skill.effects   =
           [ To Enemy $ damage 20
           , To Enemies do
-                stacks <- target numStacks "Space-Time Marking"
+                stacks <- target amount "Space-Time Marking"
                 damage (20 * stacks)
           ]
         }
@@ -307,7 +307,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user numStacks "Hell Stab"
+                stacks <- user amount "Hell Stab"
                 targetHealth <- target health
                 damage (20 + 5 * stacks)
                 targetHealth' <- target health
@@ -459,7 +459,7 @@ characters =
                                 "Poison Fog"
                     ]
                 trapPer' Permanent PerDamaged \i -> do
-                    stacks <- user numStacks skillName
+                    stacks <- user amount skillName
                     if stacks > i then
                         removeStacks skillName i
                     else do

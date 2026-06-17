@@ -3,24 +3,24 @@ module Game.Model.Ninja
   , alive
   , is, isChanneling
   , has, has', hasBarrier, hasDefense, hasTrap
-  , numStacks, numAnyStacks, numHelpful, numHarmful
-  , barrierAmount, defenseAmount, totalDefense, totalBarrier
+  , total, amount, amount', amountFromAny', amountFromAny
+  , numHelpful, numHarmful
   , lastChakraSpent
   ) where
 
 import ClassyPrelude
 
 import qualified Class.Parity as Parity
+import           Class.Stackable (Stackable, getAmount)
 import           Game.Model.Chakras (Chakras)
 import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Effect as Effect
 import           Game.Model.ID (HasID, ID)
 import qualified Game.Model.ID as ID
-import           Game.Model.Internal (Destructible(..), Ninja(..), Channel(Channel), Character, Skill(Skill), Status(Status))
+import           Game.Model.Internal (Ninja(..), Channel(Channel), Character, Skill(Skill), Status(Status))
 import qualified Game.Model.Internal
 import qualified Game.Model.Internal.Character as Character
-import qualified Game.Model.Internal.Destructible as Destructible
 import qualified Game.Model.Internal.Skill as Skill
 import           Game.Model.Slot (Slot)
 import           Util ((∈), (∉))
@@ -69,7 +69,7 @@ has' :: ∀ a. HasID a
      => (Ninja -> [a])
      -> ID -- ^ 'Status.name'.
      -> Ninja -> Bool
-has' getter effectID n = any ((== effectID) . ID.from) $ getter n
+has' getter itemID n = any ((== itemID) . ID.from) $ getter n
 
 -- | Searches 'statuses'.
 has :: ID -- ^ 'Status.name'.
@@ -91,67 +91,53 @@ hasTrap :: ID -- ^ 'Trap.name'.
            -> Ninja -> Bool
 hasTrap = has' traps
 
--- | Sums 'Destructible.amount' of all matching 'barrier' or 'defense'.
-destructibleAmount :: (Ninja -> [Destructible]) -- ^ Getter.
-                   -> ID -- ^ 'Destructible.name'.
-                   -> Ninja -> Int
-destructibleAmount getter destrID n = sum [ d.amount | d <- getter n,
-                                                       ID.from d == destrID ]
-
--- | Sums 'Destructible.amount' of all matching 'barrier'.
-barrierAmount :: ID -- ^ 'Destructible.name'.
-              -> Ninja -> Int
-barrierAmount = destructibleAmount barrier
-
--- | Sums 'Destructible.amount' of all matching 'defense'.
-defenseAmount :: ID -- ^ 'Destructible.name'.
-              -> Ninja -> Int
-defenseAmount = destructibleAmount defense
-
 -- | Chakra spent on 'lastSkill'.
 lastChakraSpent :: Ninja -> Chakras
 lastChakraSpent Ninja{lastSkill = Just Skill{cost}} = cost
 lastChakraSpent _                                   = mempty
 
--- | Sums 'Destructible.amount' of all 'defense'.
-totalDefense :: Ninja -> Int
-totalDefense Ninja{defense} = sum $ Destructible.amount <$> defense
-
--- | Sums 'Destructible.amount' of all 'barrier'.
-totalBarrier :: Ninja -> Int
-totalBarrier Ninja{barrier} = sum $ Destructible.amount <$> barrier
-
 -- | Number of stacks of matching 'statuses'.
-numStacks :: ID -- ^ 'Status.name'.
+amount :: ID -- ^ 'Status.name'.
           -> Ninja -> Int
-numStacks statusID Ninja{statuses} = sum [ st.amount | st <- statuses,
-                                                       ID.from st == statusID ]
+amount = amount' statuses
+
+amount' :: ∀ a. (HasID a, Stackable a) => (Ninja -> [a]) -> ID -> Ninja -> Int
+amount' getter itemID n = sum [ getAmount item | item <- getter n,
+                                                 ID.from item == itemID ]
 
 -- | Number of stacks of matching 'statuses' from any source.
-numAnyStacks :: Text -- ^ 'Status.name'.
-             -> Ninja -> Int
-numAnyStacks name Ninja{statuses} = sum [ st.amount | st <- statuses,
-                                                      st.name == name ]
+amountFromAny :: Text -- ^ 'Status.name'.
+              -> Ninja -> Int
+amountFromAny = amountFromAny' statuses
+
+amountFromAny' :: ∀ a. (HasID a, Stackable a)
+               => (Ninja -> [a]) -> Text -> Ninja -> Int
+amountFromAny' getter name n = sum
+    [ getAmount item | item <- getter n,
+                       (ID.from item).name == name ]
+
+total :: ∀ a. Stackable a => (Ninja -> [a]) -> Ninja -> Int
+total getter n = sum $ getAmount <$> getter n
 
 -- | Counts all 'Effect.helpful' effects in 'statuses' from allies.
 -- Does not include self-applied or 'Hidden' 'Status.Status'es.
 -- Each status counts for @(number of helpful effects) * (Status.amount)@.
 numHelpful :: Ninja -> Int
 numHelpful Ninja{slot, statuses} = sum
-    [ amount | Status{amount, classes, effects, user} <- statuses,
-               slot /= user,
-               Parity.allied slot user,
-               Hidden ∉ classes,
-               ef <- effects,
-               Effect.helpful ef ]
+    [ stAmount | Status{amount = stAmount, classes, effects, user} <- statuses,
+                 slot /= user,
+                 Parity.allied slot user,
+                 Hidden ∉ classes,
+                 ef <- effects,
+                 Effect.helpful ef ]
 
 -- | Counts all non-'Effect.helpful' effects in 'statuses'.
 -- Does not include self-applied or 'Hidden' 'Status.Status'es.
 -- Each status counts for @(number of harmful effects) * (Status.amount)@.
 numHarmful :: Ninja -> Int
 numHarmful Ninja{slot, statuses} = sum
-    [ amount | Status{amount, classes, effects, user} <- statuses,
-               slot /= user,
-               Hidden ∉ classes,
-               ef <- effects,
-               not $ Effect.helpful ef ]
+    [ stAmount | Status{amount = stAmount, classes, effects, user} <- statuses,
+                 slot /= user,
+                 Hidden ∉ classes,
+                 ef <- effects,
+                 not $ Effect.helpful ef ]

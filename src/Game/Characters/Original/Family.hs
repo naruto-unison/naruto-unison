@@ -229,7 +229,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 targeting Everyone $ removeTrap "Sensory Radar"
-                stacks <- user numStacks "Sensory Radar"
+                stacks <- user amount "Sensory Radar"
                 gain $ replicate stacks Rand
                 remove "Sensory Radar"
                 cancelChannel "Sensory Radar"
@@ -289,7 +289,7 @@ characters =
           [ To Enemies do
                 bonus <- 10 `bonusIf` target has' traps "Black Spider Lily"
                 damage (20 + bonus)
-                bonusDur <- target numStacks "Ensnared"
+                bonusDur <- target amount "Ensnared"
                 apply (1 + fromIntegral bonusDur) skillName [Stun NonMental]
           ]
         }

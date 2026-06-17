@@ -65,7 +65,7 @@ spec = parallel do
             it "transfers health to stacks" do
                 Sim.as Enemy $ damage dmg
                 Sim.act
-                stacks <- user numStacks "Izumo's Health"
+                stacks <- user amount "Izumo's Health"
                 100 - stacks `shouldBe` dmg
             it "transfers health from stacks" do
                 Sim.as Enemy $ damage dmg
@@ -133,7 +133,7 @@ spec = parallel do
                 Sim.act
                 replicateM_ testStacks $ Sim.as Enemy $ damage 15
                 replicateM_ (testStacks * 2) $ Sim.as Enemy $ damage 10
-                stacks <- user numStacks "Payback"
+                stacks <- user amount "Payback"
                 stacks `shouldBe` testStacks
             it "alternates" do
                 Sim.act

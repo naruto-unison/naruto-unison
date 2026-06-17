@@ -13,7 +13,7 @@ spec = parallel do
             it "adds stacks" do
                 Sim.act
                 Sim.turns testStacks
-                stacks <- user numStacks "Susanoo"
+                stacks <- user amount "Susanoo"
                 stacks `shouldBe` 1 + testStacks
             it "alternates" do
                 Sim.act
@@ -22,8 +22,8 @@ spec = parallel do
                 Sim.act
                 Sim.turns testStacks
                 Sim.as Enemy demolishAll
-                defense <- user totalDefense
-                defense `shouldBe` 0
+                userDefense <- user total defense
+                userDefense `shouldBe` 0
 
         useOn Self "Teleportation Technique" do
             it "damages harm" do
@@ -48,7 +48,7 @@ spec = parallel do
             it "counters with defense" do
                 Sim.act
                 Sim.as Enemy $ return ()
-                targetDefense <- target totalDefense
+                targetDefense <- target total defense
                 targetDefense `shouldBe` 20
             it "damages countered" do
                 Sim.act
@@ -84,33 +84,33 @@ spec = parallel do
         useOn Enemy "Nano-Sized Venom Beetles" do
             it "does not defend user again" do
                 Sim.act
-                defense <- user totalDefense
+                userDefense <- user total defense
                 Sim.act
-                defense' <- user totalDefense
-                defense' `shouldBe` defense
+                userDefense' <- user total defense
+                userDefense' `shouldBe` userDefense
             it "applies a Venom Beetle" do
                 Sim.act
                 target has "Venom Beetle"
             it "applies a Venom Beetle to destroyer of defense" do
                 Sim.act
                 Sim.as Enemy demolishAll
-                stacks <- target numStacks "Venom Beetle"
+                stacks <- target amount "Venom Beetle"
                 stacks `shouldBe` 2
 
         useOn Enemies "Jar of Poison" do
             it "does not defend user again" do
                 Sim.act
-                defense <- user totalDefense
+                userDefense <- user total defense
                 Sim.act
-                defense' <- user totalDefense
-                defense' `shouldBe` defense
+                userDefense' <- user total defense
+                userDefense' `shouldBe` userDefense
             it "applies a Venom Beetle to targets" do
                 Sim.act
                 Sim.at XEnemies $ target has "Venom Beetle"
             it "applies a Venom Beetle to destroyer of defense" do
                 Sim.act
                 Sim.as Enemy demolishAll
-                stacks <- target numStacks "Venom Beetle"
+                stacks <- target amount "Venom Beetle"
                 stacks `shouldBe` 2
 
         useOn Enemy "Venom Explosion" do
@@ -123,7 +123,7 @@ spec = parallel do
             it "removes all stacks of Venom Beetle" do
                 addStacks "Venom Beetle" 2
                 Sim.act
-                stacks <- target numStacks "Venom Beetle"
+                stacks <- target amount "Venom Beetle"
                 stacks `shouldBe` 0
 
     describeCharacter "Fū Yamanaka" do

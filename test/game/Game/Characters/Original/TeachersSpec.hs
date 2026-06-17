@@ -112,20 +112,20 @@ spec = parallel do
         useOn Enemy "Demonic Illusion: Entrap" do
             it "adds stacks" do
                 replicateM_ testStacks Sim.act
-                stacks <- user numStacks "Illusion"
+                stacks <- user amount "Illusion"
                 stacks `shouldBe` testStacks
 
         useOn Self "Illusory Tree Meld" do
             it "adds destructible defense per Illusion" do
                 targeting Self $ addStacks "Illusion" testStacks
                 Sim.act
-                defense <- user totalDefense
+                defense <- user total defense
                 defense `shouldBe` 10 + 5 * testStacks
 
         useOn Enemy "Demonic Illusion: Sylvan Fetters" do
             it "adds stacks" do
                 replicateM_ testStacks Sim.act
-                stacks <- user numStacks "Illusion"
+                stacks <- user amount "Illusion"
                 stacks `shouldBe` testStacks
             it "alternates" do
                 Sim.act
@@ -177,7 +177,7 @@ spec = parallel do
         useOn Ally "Flak Jacket" do
             it "defends target" do
                 Sim.act
-                targetDefense <- target totalDefense
+                targetDefense <- target total defense
                 targetDefense `shouldBe` 50
             it "protects target from effects" do
                 Sim.as Enemy $ apply Permanent skillName [Plague]

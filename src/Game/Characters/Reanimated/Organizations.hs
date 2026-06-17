@@ -531,9 +531,9 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                stacksA <- target numStacks "Chakra Clay Trap"
-                stacksB <- target numStacks "Sonar Bat Bombs"
-                stacksC <- target numStacks "Jellyfish Explosives"
+                stacksA <- target amount "Chakra Clay Trap"
+                stacksB <- target amount "Sonar Bat Bombs"
+                stacksC <- target amount "Jellyfish Explosives"
                 pierce (20 + 5 * stacksA + 5 * stacksB + 10 * stacksC)
           , To Self $ apply 1 skillName [Invulnerable Mental]
           ]
@@ -643,7 +643,7 @@ characters =
           [ To Enemies do
                 barricade' 3 25 [Silence]
                 onBreak do
-                    remaining <- target barrierAmount "Deva Path"
+                    remaining <- target amount' barrier "Deva Path"
                     when (remaining > 0) $
                         damage remaining
           ]

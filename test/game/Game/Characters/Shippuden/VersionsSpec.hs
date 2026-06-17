@@ -97,7 +97,7 @@ spec = parallel do
         useOn Enemy "Sand Grasp" do
             it "adds Sand Bombs" do
                 replicateM_ testStacks Sim.act
-                stacks <- target numStacks "Sand Bomb"
+                stacks <- target amount "Sand Bomb"
                 stacks `shouldBe` testStacks
             it "deals damage per Sand Bomb" do
                 addStacks "Sand Bomb" testStacks
@@ -356,7 +356,7 @@ spec = parallel do
         useOn Enemy "Paper Shuriken" do
             it "adds a stack" do
                 replicateM_ testStacks Sim.act
-                stacks <- target numStacks "Paper Shuriken"
+                stacks <- target amount "Paper Shuriken"
                 stacks `shouldBe` testStacks
 
     describeCharacter "White Snake Orochimaru" do

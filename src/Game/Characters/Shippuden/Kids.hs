@@ -286,7 +286,7 @@ characters =
     let
         triggerGiganticBeetle :: SkillEffect
         triggerGiganticBeetle = do
-            stacks <- target numStacks "Gigantic Beetle Infestation"
+            stacks <- target amount "Gigantic Beetle Infestation"
             remove "Gigantic Beetle Infestation"
             remove "Chakra Leech"
             damage (25 * (stacks + 1))
@@ -365,7 +365,7 @@ characters =
           [ To Enemy do
                 bonus <- 10 `bonusIf` user has "Eight Trigrams Sixty-Four Palms"
                 damage (10 + bonus)
-                stacks <- target numStacks "Eight Trigrams Sixty-Four Palms"
+                stacks <- target amount "Eight Trigrams Sixty-Four Palms"
                 apply (fromIntegral $ 1 + stacks) skillName [Exhaust [All]]
                 remove "Eight Trigrams Sixty-Four Palms"
           ]
@@ -552,7 +552,7 @@ characters =
             skillID = statusID { ID.name = "Butterfly Mode" }
             baseCost = filter (/= Rand) skill.cost
             calories
-              | isChanneling skillID n = numStacks statusID n
+              | isChanneling skillID n = amount statusID n
               | otherwise              = 2
             caloric = replicate calories Rand
 
@@ -819,7 +819,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user numStacks skillName
+                stacks <- user amount skillName
                 damage (5 + 5 * stacks)
                 deplete 1
           , To Self do

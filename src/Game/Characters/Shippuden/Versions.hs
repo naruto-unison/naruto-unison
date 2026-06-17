@@ -96,7 +96,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- target numStacks "Sand Bomb"
+                stacks <- target amount "Sand Bomb"
                 damage (15 + 5 * stacks)
                 apply Permanent "Sand Bomb" []
           ]
@@ -123,7 +123,7 @@ characters =
         , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemies do
-                stacks <- target numStacks "Sand Bomb"
+                stacks <- target amount "Sand Bomb"
                 damage (15 + 5 * stacks)
                 apply 1 skillName [Exhaust [All]]
           , To Everyone $ remove "Sand Bomb"
@@ -366,7 +366,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user numStacks skillName
+                stacks <- user amount skillName
                 damage (20 + 20 * stacks)
                 apply 1 skillName
                     [ Alone
@@ -404,7 +404,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user numStacks skillName
+                stacks <- user amount skillName
                 pierce (50 + 25 * stacks)
                 apply 2 skillName
                     [ Seal
@@ -525,7 +525,7 @@ characters =
           ]
         , Skill.end       =
           [ To Enemy $ whenM (user alive) do
-                stacks <- user numStacks skillName
+                stacks <- user amount skillName
                 when (stacks > 0) $
                     damage (15 * stacks)
           , To Self do
@@ -563,7 +563,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user numStacks "Amaterasu"
+                stacks <- user amount "Amaterasu"
                 afflict (10 + 5 * stacks)
                 trap 1 (OnAction All) $
                     afflict 20
@@ -737,7 +737,7 @@ characters =
                             "Paper Shuriken"
                 ]
           , To Enemy do
-                stacks <- target numStacks "Paper Shuriken"
+                stacks <- target amount "Paper Shuriken"
                 damage (15 + 10 * stacks)
           ]
         }

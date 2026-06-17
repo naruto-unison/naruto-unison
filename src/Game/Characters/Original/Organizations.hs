@@ -80,7 +80,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 userHealth <- user health
-                tagHealth <- user numStacks "Kotetsu's Health"
+                tagHealth <- user amount "Kotetsu's Health"
                 setHealth if tagHealth == 0 then 100 else tagHealth
                 remove "Kotetsu's Health"
                 applyStacks "Izumo's Health" userHealth
@@ -90,7 +90,7 @@ characters =
                                 "Tag Team"
                     ]
                 trap' Permanent OnRes do
-                    tagHealth' <- user numStacks "Izumo's Health"
+                    tagHealth' <- user amount "Izumo's Health"
                     setHealth tagHealth'
                     remove "Izumo's Health"
                     hide Permanent "solo" []
@@ -105,12 +105,12 @@ characters =
         , Skill.effects   =
           [ To Self do
                 userHealth <- user health
-                tagHealth <- user numStacks "Izumo's Health"
+                tagHealth <- user amount "Izumo's Health"
                 setHealth if tagHealth == 0 then 100 else tagHealth
                 remove "Izumo's Health"
                 addStacks "Kotetsu's Health" userHealth
                 trap' Permanent OnRes do
-                    tagHealth' <- user numStacks "Kotetsu's Health"
+                    tagHealth' <- user amount "Kotetsu's Health"
                     setHealth tagHealth'
                     remove "Kotetsu's Health"
                     hide Permanent "solo" []
@@ -173,7 +173,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                stacks <- target numStacks "Scattering Crow Swarm"
+                stacks <- target amount "Scattering Crow Swarm"
                 damage (45 + 5 * stacks)
           ]
         }
@@ -207,7 +207,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user numStacks skillName
+                stacks <- user amount skillName
                 damage (15 + 5 * stacks)
           , To Self $ remove skillName
           ]
@@ -253,7 +253,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user numStacks "Moon Haze"
+                stacks <- user amount "Moon Haze"
                 damage (50 + 25 * stacks)
           , To Self $ remove "Moon Haze"
           ]

@@ -282,7 +282,7 @@ spec = parallel do
             it "defends user" do
                 Sim.act
                 Sim.turns testStacks
-                defense <- user totalDefense
+                defense <- user total defense
                 defense `shouldBe` 5 * (testStacks + 1)
             it "alternates A" do
                 Sim.act
@@ -559,23 +559,23 @@ spec = parallel do
         useOn Enemy "Judgment" do
             it "adds to Summoning: King of Hell defense" do
                 Sim.use "Summoning: King of Hell"
-                defense <- user totalDefense
+                userDefense <- user total defense
                 Sim.act
-                defense' <- user totalDefense
-                defense' - defense `shouldBe` 20
+                userDefense' <- user total defense
+                userDefense' - userDefense `shouldBe` 20
             it "does not add otherwise" do
                 Sim.use "Summoning: King of Hell"
                 targeting Self demolishAll
                 Sim.act
-                defense <- user totalDefense
-                defense `shouldBe` 0
+                userDefense <- user total defense
+                userDefense `shouldBe` 0
             it "deals bonus damage if target has Choke Hold" do
                 Sim.use "Summoning: King of Hell"
                 Sim.use "Choke Hold"
-                defense <- user totalDefense
+                userDefense <- user total defense
                 Sim.act
-                defense' <- user totalDefense
-                defense' - defense `shouldBe` 20 + 20
+                userDefense' <- user total defense
+                userDefense' - userDefense `shouldBe` 20 + 20
 
     describeCharacter "Nagato" do
         useOn Enemy "Summoning: Gedo Statue" do

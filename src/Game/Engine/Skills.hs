@@ -35,9 +35,9 @@ changeWith name f n
   | N.has (toID name n) n = f
   | otherwise             = id
 
--- | Applies a 'Transform' conditional upon 'N.numStacks'.
+-- | Applies a 'Transform' conditional upon 'N.amount'.
 changePer :: Text -> (Int -> Skill -> Skill) -> Transform
-changePer name f n = f $ N.numStacks (toID name n) n
+changePer name f n = f $ N.amount (toID name n) n
 
 -- | Applies a 'Transform' conditional upon 'N.isChanneling'.
 changeWithChannel :: Text -> (Skill -> Skill) -> Transform

@@ -62,7 +62,7 @@ usable True n@Ninja{slot} skill@Skill{charges, cooldown, dur, require}
 meetStatusRequirements :: Int -> ID -> Ninja -> Bool
 meetStatusRequirements 0 statusID n = not $ N.has statusID n
 meetStatusRequirements 1 statusID n = N.has statusID n
-meetStatusRequirements i statusID n = N.numStacks statusID n >= i
+meetStatusRequirements i statusID n = N.amount statusID n >= i
 
 -- | Checks whether a user passes the 'Skill.require' of a 'Skill'.
 succeed :: Skill -> Slot -> Ninja -> Bool
@@ -85,7 +85,7 @@ succeed Skill{require = UserChannel expected name, owner} user n@Ninja{slot}
   | otherwise    = expected == N.isChanneling ID { user, owner, name } n
 succeed Skill{require = UserDefense i name, owner} user n@Ninja{slot}
   | user /= slot = True
-  | i > 0        = N.defenseAmount ID { user, owner, name } n >= i
+  | i > 0        = N.amount' N.defense ID { user, owner, name } n >= i
   | otherwise    = not $ N.hasDefense ID { user, owner, name } n
 succeed Skill{require = UserTrap expected name, owner} user n@Ninja{slot}
   | user /= slot = True

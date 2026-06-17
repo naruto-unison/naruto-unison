@@ -51,14 +51,14 @@ spec = parallel do
             it "spends a Seal" do
                 targeting Self $ addStacks "Seal" testStacks
                 Sim.act
-                stacks <- user numStacks "Seal"
+                stacks <- user amount "Seal"
                 stacks `shouldBe` testStacks - 1
 
         useOn Self "Seal Release" do
             it "spends a Seal" do
                 targeting Self $ addStacks "Seal" testStacks
                 Sim.act
-                stacks <- user numStacks "Seal"
+                stacks <- user amount "Seal"
                 stacks `shouldBe` testStacks - 1
 
     describeCharacter "Sai" do
@@ -230,7 +230,7 @@ spec = parallel do
             it "tags harm" do
                 Sim.act
                 replicateM_ testStacks $ Sim.as Enemy $ return ()
-                stacks <- target numStacks "Eight Trigrams Sixty-Four Palms"
+                stacks <- target amount "Eight Trigrams Sixty-Four Palms"
                 stacks `shouldBe` testStacks
 
     describeCharacter "Shikamaru Nara" do
@@ -351,7 +351,7 @@ spec = parallel do
         useOn Self "Switch Loadout" do
             it "defends user" do
                 Sim.act
-                defense <- user totalDefense
+                defense <- user total defense
                 defense `shouldBe` 5
             it "alternates 1" do
                 Sim.act
@@ -365,7 +365,7 @@ spec = parallel do
         useOn Self "Switch Loadout " do
             it "defends user" do
                 Sim.act
-                defense <- user totalDefense
+                defense <- user total defense
                 defense `shouldBe` 5
             it "alternates 1" do
                 Sim.act
@@ -379,7 +379,7 @@ spec = parallel do
         useOn Self "Switch Loadout  " do
             it "defends user" do
                 Sim.act
-                defense <- user totalDefense
+                defense <- user total defense
                 defense `shouldBe` 5
             it "alternates 1" do
                 Sim.act
@@ -413,7 +413,7 @@ spec = parallel do
         useOn Enemy "Sand Summoning" do
             it "defends allies" do
                 Sim.act
-                targetDefense <- totalDefense <$> Sim.targets XAlly
+                targetDefense <- total defense <$> Sim.targets XAlly
                 targetDefense `shouldBe` 15
             it "triples damage" do
                 Sim.act

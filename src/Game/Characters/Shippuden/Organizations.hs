@@ -42,7 +42,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 damage 15
-                stacks <- user numStacks "Susanoo"
+                stacks <- user amount "Susanoo"
                 apply (fromIntegral stacks) skillName [Weaken [All] Flat 5]
           ]
         }
@@ -139,8 +139,8 @@ characters =
         applyVenomBeetle = apply 5 "Venom Beetle" [Afflict 5]
 
         applyBeetleDefense :: Int -> SkillEffect
-        applyBeetleDefense amount = unlessM (user has' defense skillName) do
-            defend Permanent amount
+        applyBeetleDefense i = unlessM (user has' defense skillName) do
+            defend Permanent i
             onBreakFrom applyVenomBeetle
     in
     [ [ Skill.new
@@ -179,7 +179,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy do
-                stacks <- target numStacks "Venom Beetle"
+                stacks <- target amount "Venom Beetle"
                 deplete stacks
                 remove "Venom Beetle"
           ]
