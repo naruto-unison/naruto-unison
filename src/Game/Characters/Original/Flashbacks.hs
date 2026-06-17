@@ -432,7 +432,7 @@ characters =
       ]
     , [ (invuln "Kamui Phase" "The masked man" [Chakra])
         { Skill.desc     = "The masked man becomes invulnerable for 1 turn. Cannot be used if any skills were used last turn."
-        , Skill.require  = UserHas 0 "Corporeal"
+        , Skill.require  = UserHas AtMost 0 "Corporeal"
         , Skill.cooldown = 0
         , Skill.effects  =
           [ To Self do

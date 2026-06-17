@@ -139,7 +139,7 @@ characters =
       , Skill.new
         { Skill.name      = "Twin Snake Sacrifice"
         , Skill.desc      = "Anko introduces a lethal poison through the wound she shares with the target of [Dual Pin], killing both."
-        , Skill.require   = TargetHas 1 "Dual Pin"
+        , Skill.require   = TargetHas AtLeast 1 "Dual Pin"
         , Skill.classes   = [Bane, Melee, Bypassing]
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 2
@@ -305,7 +305,7 @@ characters =
       , Skill.new
         { Skill.name      = "Sylvan Fetters Attack"
         , Skill.desc      = "Taking advantage of their immobility, Kurenai deals 30 piercing damage to the target of [Demonic Illusion: Sylvan Fetters]."
-        , Skill.require   = TargetHas 1 "Demonic Illusion: Sylvan Fetters"
+        , Skill.require   = TargetHas AtLeast 1 "Demonic Illusion: Sylvan Fetters"
         , Skill.classes   = [Mental, Melee]
         , Skill.cost      = [Rand]
         , Skill.effects   =
@@ -500,7 +500,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Poison Fog"
         , Skill.desc      = "Shizune spews forth a toxic cloud to poison an enemy, causing them to receive 10 affliction damage for 3 turns. Cannot be used on an enemy already affected by [Poison Fog]."
-        , Skill.require   = TargetHas 0 "Poison Fog"
+        , Skill.require   = TargetHas AtMost 0 "Poison Fog"
         , Skill.classes   = [Bane, Ranged]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1

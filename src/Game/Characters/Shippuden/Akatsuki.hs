@@ -182,7 +182,7 @@ characters =
       , Skill.new
         { Skill.name      = "C0: Ultimate Art"
         , Skill.desc      = "Deidara fills his veins with explosives and becomes art. He deals 35 affliction damage to all enemies and dies. Requires Deidara's health to be at or below 40."
-        , Skill.require   = UserHealth 40
+        , Skill.require   = UserHealth AtMost 40
         , Skill.classes   = [Chakra, Ranged, Bypassing, Uncounterable, Unreflectable]
         , Skill.cost      = [Blood, Nin, Nin]
         , Skill.effects   =
@@ -227,7 +227,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Poison Blade Assault"
         , Skill.desc      = "Sasori directs the Kazekage puppet to single out an enemy and gains 20 destructible defense for 2 turns. While Sasori has destructible defense from this skill, he deals 10 damage and 10 affliction damage to the target."
-        , Skill.require   = UserHas 1 "Iron Sand"
+        , Skill.require   = UserHas AtLeast 1 "Iron Sand"
         , Skill.classes   = [Bane, Physical, Melee]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
@@ -248,7 +248,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Thousand Arms"
         , Skill.desc      = "Countless concealed arms lash out from Sasori's Kazekage puppet and flail wildly for 1 turn, pinning down anyone they catch. Enemies who do not use skills on Sasori or his allies next turn will be pinned for 1 turn, unable to reduce damage or become invulnerable. Next turn, this skill becomes [Poison Gas][r][r]."
-        , Skill.require   = UserHas 1 "Iron Sand"
+        , Skill.require   = UserHas AtLeast 1 "Iron Sand"
         , Skill.classes   = [Physical, Melee, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
@@ -289,7 +289,7 @@ characters =
     [Akatsuki, Rogue, SRank]
     [ [ Skill.new
         { Skill.name      = "Jashin Sigil"
-        , Skill.require   = UserHas 0 "Jashin Sigil"
+        , Skill.require   = UserHas AtMost 0 "Jashin Sigil"
         , Skill.desc      = "Hidan prepares for his ritual by drawing an insignia on the ground in blood. Once used, this skill becomes [First Blood][r]."
         , Skill.classes   = [Physical, Unremovable, Uncounterable]
         , Skill.effects   =
@@ -319,7 +319,7 @@ characters =
       , Skill.new
         { Skill.name      = "Blood Curse"
         , Skill.desc      = "Hidan begins his ritual by drinking the blood of [First Blood]'s target, instantly using [Prayer] and then linking himself to them for 3 turns. While active, skills used on Hidan and the target by their opponents are also reflected to each other, and this skill becomes [Death Blow][t][g]. Hidan ignores harmful status effects, although his target does not. Damage that Hidan deals to himself with his own skills while linked to a living target does not harm him."
-        , Skill.require   = TargetHas 1 "First Blood"
+        , Skill.require   = TargetHas AtLeast 1 "First Blood"
         , Skill.classes   = [Chakra, Soulbound, Uncounterable, Unreflectable, Unremovable, Atemporal]
         , Skill.cost      = [Gen]
         , Skill.effects   =
@@ -463,13 +463,13 @@ characters =
     , [ Skill.new
         { Skill.name      = "Earth Grudge"
         , Skill.desc      = "Black thread-like tendrils tear the heart from an enemy whose health is at 20 or lower, killing the target and restoring 35 health to Kakuzu if successful."
-        , Skill.require   = TargetHealth 20
+        , Skill.require   = TargetHealth AtMost 20
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Enemy do
-                kill
+                executeAt 20
                 unlessM (target alive) $ targeting Self $
                     heal 35
           ]
@@ -760,7 +760,7 @@ characters =
       , Skill.new
         { Skill.name      = "Body Coating"
         , Skill.desc      = "Zetsu melts and flows over an enemy, taking control of their body. The next skill they use will target allies instead of enemies and enemies instead of allies. As White Zetsu, this skill becomes [Doppelgänger][t][r]."
-        , Skill.require   = TargetHas 0 "Body Coating"
+        , Skill.require   = TargetHas AtMost 0 "Body Coating"
         , Skill.classes   = [Mental, Melee, Invisible, Unremovable, Unreflectable]
         , Skill.cost      = [Blood, Gen]
         , Skill.cooldown  = 3
@@ -855,7 +855,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Izanagi"
         , Skill.desc      = "Tobi sacrifices one of his eyes to take control of reality on a local scale, reversing the flow of time. In 4 turns, he will be restored to his condition at the moment of using this skill. Cannot be used while active."
-        , Skill.require    = UserHas 0 "Izanagi"
+        , Skill.require    = UserHas AtMost 0 "Izanagi"
         , Skill.classes    = [Mental, Invisible, Unremovable, Atemporal]
         , Skill.cost       = [Blood, Blood]
         , Skill.charges    = 2
@@ -1044,7 +1044,7 @@ characters =
       , Skill.new
         { Skill.name      = "Genjutsu Missile"
         , Skill.desc      = "Prevents the target of [Guided Missile] from reducing damage or becoming invulnerable for 2 turns and deals 25 damage."
-        , Skill.require   = TargetHas 1 "Guided Missile"
+        , Skill.require   = TargetHas AtLeast 1 "Guided Missile"
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Gen]
         , Skill.effects   =
@@ -1057,7 +1057,7 @@ characters =
       , Skill.new
         { Skill.name      = "Ninjutsu Missile"
         , Skill.desc      = "Deals 25 damage to the target of [Guided Missile] and stuns them for 1 turn."
-        , Skill.require   = TargetHas 1 "Guided Missile"
+        , Skill.require   = TargetHas AtLeast 1 "Guided Missile"
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
@@ -1070,7 +1070,7 @@ characters =
       , Skill.new
         { Skill.name      = "Taijutsu Missile"
         , Skill.desc      = "Deals 30 piercing damage to the target of [Guided Missile]."
-        , Skill.require   = TargetHas 1 "Guided Missile"
+        , Skill.require   = TargetHas AtLeast 1 "Guided Missile"
         , Skill.classes   = [Physical, Ranged, Bypassing]
         , Skill.cost      = [Tai]
         , Skill.effects   =
@@ -1100,7 +1100,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Spirit Absorption"
         , Skill.desc      = "Pain draws out the lifeforce of an enemy affected by [Mind Invasion], stealing 20 health and absorbing 1 random chakra. Reveals invisible effects from the target and the target's cooldowns for 1 turn."
-        , Skill.require   = TargetHas 1 "Mind Invasion"
+        , Skill.require   = TargetHas AtLeast 1 "Mind Invasion"
         , Skill.classes   = [Mental, Melee, Unreflectable]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 2
@@ -1115,7 +1115,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Soul Rip"
         , Skill.desc      = "Pain pulls out the soul of an enemy affected by [Mind Invasion], stealing 30 health. If their health reaches 30 or lower, they die. If they survive, he absorbs 1 random chakra from them and stuns them for 1 turn. Reveals invisible effects from the target and the target's cooldowns for 1 turn."
-        , Skill.require   = TargetHas 1 "Mind Invasion"
+        , Skill.require   = TargetHas AtLeast 1 "Mind Invasion"
         , Skill.classes   = [Mental, Melee, Unreflectable]
         , Skill.cost      = [Gen, Tai]
         , Skill.cooldown  = 2

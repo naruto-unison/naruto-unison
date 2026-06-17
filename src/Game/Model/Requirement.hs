@@ -1,5 +1,6 @@
 module Game.Model.Requirement
   ( Requirement(..)
+  , Range(..)
   , targetable
   , usable
   , targets
@@ -10,14 +11,15 @@ import ClassyPrelude
 import Data.Enum.Set (EnumSet)
 
 import qualified Class.Parity as Parity
+import           Class.Stackable (Stackable)
 import qualified Game.Engine.Effects as Effects
 import           Game.Model.Channel (Channeling(..))
 import qualified Game.Model.Channel as Channel
 import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Effect(..))
-import           Game.Model.ID (ID(ID))
+import           Game.Model.ID (HasID, ID(ID))
 import qualified Game.Model.ID
-import           Game.Model.Internal (Requirement(..))
+import           Game.Model.Internal (Range(..), Requirement(..))
 import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Skill (Skill(Skill), Target(..))
@@ -59,34 +61,38 @@ usable True n@Ninja{slot} skill@Skill{charges, cooldown, dur, require}
         Just value -> value >= limit
         Nothing    -> False
 
-meetStatusRequirements :: Int -> ID -> Ninja -> Bool
-meetStatusRequirements 0 statusID n = not $ N.has statusID n
-meetStatusRequirements 1 statusID n = N.has statusID n
-meetStatusRequirements i statusID n = N.amount statusID n >= i
+inRange :: Range -> Int -> Int -> Bool
+inRange AtLeast minI i = i >= minI
+inRange AtMost  maxI i = i <= maxI
+
+requireAmount :: ∀ a. (HasID a, Stackable a)
+              => (Ninja -> [a]) -> Range -> Int -> ID -> Ninja -> Bool
+requireAmount getter AtMost  0 itemID n = not $ N.has' getter itemID n
+requireAmount getter AtLeast 1 itemID n = N.has' getter itemID n
+requireAmount getter r  i itemID n = inRange r i $ N.amount' getter itemID n
 
 -- | Checks whether a user passes the 'Skill.require' of a 'Skill'.
 succeed :: Skill -> Slot -> Ninja -> Bool
 succeed Skill{require = Usable} _ _   = True
 succeed Skill{require = Unusable} _ _ = False
-succeed Skill{require = UserHas i name, owner} user n@Ninja{slot}
+succeed Skill{require = UserHas r i name, owner} user n@Ninja{slot}
   | user /= slot = True
-  | otherwise    = meetStatusRequirements i ID { user, owner, name } n
-succeed Skill{require = TargetHas i name, owner} user n@Ninja{slot}
+  | otherwise    = requireAmount N.statuses r i ID { user, owner, name } n
+succeed Skill{require = TargetHas r i name, owner} user n@Ninja{slot}
   | user == slot = True
-  | otherwise    = meetStatusRequirements i ID { user, owner, name } n
-succeed Skill{require = UserHealth i} user Ninja{health, slot}
+  | otherwise    = requireAmount N.statuses r i ID { user, owner, name } n
+succeed Skill{require = UserHealth r i} user Ninja{health, slot}
   | user /= slot = True
-  | otherwise    = health <= i
-succeed Skill{require = TargetHealth i} user Ninja{health, slot}
+  | otherwise    = inRange r i health
+succeed Skill{require = TargetHealth r i} user Ninja{health, slot}
   | user == slot = True
-  | otherwise    = health <= i
+  | otherwise    = inRange r i health
 succeed Skill{require = UserChannel expected name, owner} user n@Ninja{slot}
   | user /= slot = True
   | otherwise    = expected == N.isChanneling ID { user, owner, name } n
-succeed Skill{require = UserDefense i name, owner} user n@Ninja{slot}
+succeed Skill{require = UserDefense r i name, owner} user n@Ninja{slot}
   | user /= slot = True
-  | i > 0        = N.amount' N.defense ID { user, owner, name } n >= i
-  | otherwise    = not $ N.hasDefense ID { user, owner, name } n
+  | otherwise    = requireAmount N.defense r i ID { user, owner, name } n
 succeed Skill{require = UserTrap expected name, owner} user n@Ninja{slot}
   | user /= slot = True
   | otherwise    = expected == N.hasTrap ID { user, owner, name } n

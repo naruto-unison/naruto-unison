@@ -271,7 +271,7 @@ characters =
       , Skill.new
         { Skill.name      = "Giant Sand Burial"
         , Skill.desc      = "Demolishes Gaara's destructible barrier and the destructible defense of enemies affected by [Sand Burial Prison], then deals 40 piercing damage to them."
-        , Skill.require   = TargetHas 1 "Sand Burial Prison"
+        , Skill.require   = TargetHas AtLeast 1 "Sand Burial Prison"
         , Skill.classes   = [Physical, Ranged, Unreflectable]
         , Skill.cost      = [Blood, Nin]
         , Skill.effects   =

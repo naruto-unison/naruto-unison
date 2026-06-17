@@ -56,7 +56,7 @@ characters = (\c -> c Original "") <$>
     , [ Skill.new
         { Skill.name    = "Dance Dance Resurrection"
         , Skill.desc    = "Revives a dead target to full health."
-        , Skill.require = TargetHealth 0
+        , Skill.require = TargetHealth AtMost 0
         , Skill.classes = [Necromancy, Bypassing, Uncounterable, Unreflectable]
         , Skill.effects =
           [ To Enemy factory

@@ -265,15 +265,23 @@ instance Parity Ninja where
     {-# INLINE even #-}
 
 
+data Range
+    = AtLeast
+    | AtMost
+    deriving (Bounded, Enum, Eq, Ord, Show, Generic)
+
+instance ToJSON Range
+
+
 data Requirement
     = Usable
     | Unusable
-    | UserHas Int Text
-    | TargetHas Int Text
-    | UserHealth Int
-    | TargetHealth Int
+    | UserHas Range Int Text
+    | TargetHas Range Int Text
+    | UserHealth Range Int
+    | TargetHealth Range Int
     | UserChannel Bool Text
-    | UserDefense Int Text
+    | UserDefense Range Int Text
     | UserTrap Bool Text
     deriving (Eq, Ord, Show, Generic)
 

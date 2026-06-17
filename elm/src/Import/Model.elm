@@ -491,15 +491,32 @@ jsonEncPrivilege  val =
 
 
 
+type Range  =
+    AtLeast
+    | AtMost
+
+jsonDecRange : Json.Decode.Decoder ( Range )
+jsonDecRange =
+    let jsonDecDictRange = Dict.fromList [("AtLeast", AtLeast), ("AtMost", AtMost)]
+    in  decodeSumUnaries "Range" jsonDecDictRange
+
+jsonEncRange : Range -> Value
+jsonEncRange  val =
+    case val of
+        AtLeast -> Json.Encode.string "AtLeast"
+        AtMost -> Json.Encode.string "AtMost"
+
+
+
 type Requirement  =
     Usable
     | Unusable
-    | UserHas Int String
-    | TargetHas Int String
-    | UserHealth Int
-    | TargetHealth Int
+    | UserHas Range Int String
+    | TargetHas Range Int String
+    | UserHealth Range Int
+    | TargetHealth Range Int
     | UserChannel Bool String
-    | UserDefense Int String
+    | UserDefense Range Int String
     | UserTrap Bool String
 
 jsonDecRequirement : Json.Decode.Decoder ( Requirement )
@@ -507,12 +524,12 @@ jsonDecRequirement =
     let jsonDecDictRequirement = Dict.fromList
             [ ("Usable", Json.Decode.lazy (\_ -> Json.Decode.succeed Usable))
             , ("Unusable", Json.Decode.lazy (\_ -> Json.Decode.succeed Unusable))
-            , ("UserHas", Json.Decode.lazy (\_ -> Json.Decode.map2 UserHas (Json.Decode.index 0 (Json.Decode.int)) (Json.Decode.index 1 (Json.Decode.string))))
-            , ("TargetHas", Json.Decode.lazy (\_ -> Json.Decode.map2 TargetHas (Json.Decode.index 0 (Json.Decode.int)) (Json.Decode.index 1 (Json.Decode.string))))
-            , ("UserHealth", Json.Decode.lazy (\_ -> Json.Decode.map UserHealth (Json.Decode.int)))
-            , ("TargetHealth", Json.Decode.lazy (\_ -> Json.Decode.map TargetHealth (Json.Decode.int)))
+            , ("UserHas", Json.Decode.lazy (\_ -> Json.Decode.map3 UserHas (Json.Decode.index 0 (jsonDecRange)) (Json.Decode.index 1 (Json.Decode.int)) (Json.Decode.index 2 (Json.Decode.string))))
+            , ("TargetHas", Json.Decode.lazy (\_ -> Json.Decode.map3 TargetHas (Json.Decode.index 0 (jsonDecRange)) (Json.Decode.index 1 (Json.Decode.int)) (Json.Decode.index 2 (Json.Decode.string))))
+            , ("UserHealth", Json.Decode.lazy (\_ -> Json.Decode.map2 UserHealth (Json.Decode.index 0 (jsonDecRange)) (Json.Decode.index 1 (Json.Decode.int))))
+            , ("TargetHealth", Json.Decode.lazy (\_ -> Json.Decode.map2 TargetHealth (Json.Decode.index 0 (jsonDecRange)) (Json.Decode.index 1 (Json.Decode.int))))
             , ("UserChannel", Json.Decode.lazy (\_ -> Json.Decode.map2 UserChannel (Json.Decode.index 0 (Json.Decode.bool)) (Json.Decode.index 1 (Json.Decode.string))))
-            , ("UserDefense", Json.Decode.lazy (\_ -> Json.Decode.map2 UserDefense (Json.Decode.index 0 (Json.Decode.int)) (Json.Decode.index 1 (Json.Decode.string))))
+            , ("UserDefense", Json.Decode.lazy (\_ -> Json.Decode.map3 UserDefense (Json.Decode.index 0 (jsonDecRange)) (Json.Decode.index 1 (Json.Decode.int)) (Json.Decode.index 2 (Json.Decode.string))))
             , ("UserTrap", Json.Decode.lazy (\_ -> Json.Decode.map2 UserTrap (Json.Decode.index 0 (Json.Decode.bool)) (Json.Decode.index 1 (Json.Decode.string))))
             ]
         jsonDecObjectSetRequirement = Set.fromList ["Usable", "Unusable"]
@@ -523,12 +540,12 @@ jsonEncRequirement  val =
     let keyval v = case v of
                     Usable  -> ("Usable", encodeValue (Json.Encode.list identity []))
                     Unusable  -> ("Unusable", encodeValue (Json.Encode.list identity []))
-                    UserHas v1 v2 -> ("UserHas", encodeValue (Json.Encode.list identity [Json.Encode.int v1, Json.Encode.string v2]))
-                    TargetHas v1 v2 -> ("TargetHas", encodeValue (Json.Encode.list identity [Json.Encode.int v1, Json.Encode.string v2]))
-                    UserHealth v1 -> ("UserHealth", encodeValue (Json.Encode.int v1))
-                    TargetHealth v1 -> ("TargetHealth", encodeValue (Json.Encode.int v1))
+                    UserHas v1 v2 v3 -> ("UserHas", encodeValue (Json.Encode.list identity [jsonEncRange v1, Json.Encode.int v2, Json.Encode.string v3]))
+                    TargetHas v1 v2 v3 -> ("TargetHas", encodeValue (Json.Encode.list identity [jsonEncRange v1, Json.Encode.int v2, Json.Encode.string v3]))
+                    UserHealth v1 v2 -> ("UserHealth", encodeValue (Json.Encode.list identity [jsonEncRange v1, Json.Encode.int v2]))
+                    TargetHealth v1 v2 -> ("TargetHealth", encodeValue (Json.Encode.list identity [jsonEncRange v1, Json.Encode.int v2]))
                     UserChannel v1 v2 -> ("UserChannel", encodeValue (Json.Encode.list identity [Json.Encode.bool v1, Json.Encode.string v2]))
-                    UserDefense v1 v2 -> ("UserDefense", encodeValue (Json.Encode.list identity [Json.Encode.int v1, Json.Encode.string v2]))
+                    UserDefense v1 v2 v3 -> ("UserDefense", encodeValue (Json.Encode.list identity [jsonEncRange v1, Json.Encode.int v2, Json.Encode.string v3]))
                     UserTrap v1 v2 -> ("UserTrap", encodeValue (Json.Encode.list identity [Json.Encode.bool v1, Json.Encode.string v2]))
     in encodeSumTaggedObject "tag" "contents" keyval val
 

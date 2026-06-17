@@ -374,7 +374,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Gentle Step Twin Lion Fists"
         , Skill.desc      = "Hinata creates two lions of pure chakra. The next 2 times an enemy uses a skill on Hinata or her allies, a chakra lion will attack them, dealing 30 damage and depleting 1 random chakra. Creates a third lion during [Eight Trigrams Sixty-Four Palms]. Cannot be used while active."
-        , Skill.require   = UserHas 0 "Chakra Lion"
+        , Skill.require   = UserHas AtMost 0 "Chakra Lion"
         , Skill.classes   = [Chakra, Melee, Bypassing, Soulbound, Resource]
         , Skill.cost      = [Blood, Nin]
         , Skill.effects   =
@@ -479,7 +479,7 @@ characters =
       , Skill.new
         { Skill.name      = "Shadow Sewing: Hold"
         , Skill.desc      = "Maintaining his connection, Shikamaru deals 20 damage to an enemy affected by [Shadow Sewing] and prolongs its stun effect by 1 turn."
-        , Skill.require   = TargetHas 1 "Shadow Sewing"
+        , Skill.require   = TargetHas AtLeast 1 "Shadow Sewing"
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen]
         , Skill.effects   =
@@ -512,7 +512,7 @@ characters =
       , Skill.new
         { Skill.name      = "Final Explosion"
         , Skill.desc      = "Bringing all his careful planning to fruition, Shikamaru deals 100 damage to an enemy affected by [Shadow Sewing] and [Expert Analysis]."
-        , Skill.require   = TargetHas 2 "final"
+        , Skill.require   = TargetHas AtLeast 2 "final"
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3

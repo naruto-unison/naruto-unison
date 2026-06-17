@@ -23,7 +23,7 @@ import Game.Model.Destructible (Destructible)
 import Game.Model.Duration (Duration)
 import Game.Model.Face (Face)
 import Game.Model.Player (Player(..))
-import Game.Model.Requirement (Requirement)
+import Game.Model.Requirement (Range, Requirement)
 import Game.Model.Runnable (Runnable)
 import Game.Model.Skill (Target)
 import Game.Model.Slot (Slot)
@@ -153,6 +153,7 @@ deriveElmDef defaultOptions ''GameInfo
 deriveElmDef defaultOptions ''Ninja
 deriveElmDef defaultOptions ''ObjectiveProgress
 deriveElmDef defaultOptions ''Player
+deriveElmDef defaultOptions ''Range
 deriveElmDef defaultOptions ''Requirement
 deriveElmDef defaultOptions ''Reward
 deriveElmDef defaultOptions ''Skill
@@ -193,6 +194,7 @@ main = writeFile "elm/src/Import/Model.elm" . fromString . trimAll $ "module Imp
     , DefineElm (Proxy :: Proxy ObjectiveProgress)
     , DefineElm (Proxy :: Proxy Player)
     , DefineElm (Proxy :: Proxy Privilege)
+    , DefineElm (Proxy :: Proxy Range)
     , DefineElm (Proxy :: Proxy Requirement)
     , DefineElm (Proxy :: Proxy Reward)
     , DefineElm (Proxy :: Proxy Skill)
