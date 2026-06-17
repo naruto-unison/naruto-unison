@@ -84,19 +84,25 @@ addStacks = addStacks' Permanent
 addStacks' :: ∀ m. MonadPlay m => Duration -> Text -> Int -> m ()
 addStacks' dur name i = do
     Context{skill, target, user} <- P.context
-    let st    = Status.new user dur skill
-    P.modify target $ Ninjas.addStatus
-        st { Status.name    = Skill.provideName skill name
-           , Status.amount  = i
-           , Status.user    = user
-           , Status.classes = deleteSet Nonstacking . deleteSet Continues
-                            $ insertSet Unremovable st.classes
-           }
+    P.modify target $ Ninjas.addStatus (Status.new user dur skill)
+        { Status.name    = Skill.provideName skill name
+        , Status.amount  = i
+        , Status.user    = user
+        , Status.classes = deleteSet Nonstacking . deleteSet Continues
+                        $ insertSet Unremovable skill.classes
+        }
 
 -- | Adds a hidden @Status@ with no effects that immediately expires.
 flag :: ∀ m. MonadPlay m => Text -> m ()
-flag name =
-    applyWith (setFromList [Hidden, Unremovable, Nonstacking]) -1 name []
+flag name = do
+    Context{skill, target, user} <- P.context
+    P.modify target $ Ninjas.addStatus (Status.new user 0 skill)
+        { Status.name    = if null name then toLower skill.name else name
+        , Status.classes = skill.classes ++ extraClasses
+        }
+  where
+    extraClasses = setFromList [Hidden, Unremovable, Nonstacking]
+
 -- | Applies a @Status@ with no effects, used as a marker for other
 -- 'Skill.Skill's.
 tag :: ∀ m. MonadPlay m => Duration -> Text -> m ()

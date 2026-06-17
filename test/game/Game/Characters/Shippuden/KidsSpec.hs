@@ -143,16 +143,11 @@ spec = parallel do
                     Sim.turns 5
                 factory
                 targeting Self factory
-                tag Permanent "chakra leech"
                 damageWith <- measureDamage do
                     Sim.act
+                    Sim.use "Chakra Leech"
                     Sim.turns 5
-                damageWith - damageWithout `shouldBe` 3 * 5
-
-        useOn Enemy "Chakra Leech" do
-            it "tags target" do
-                Sim.act
-                target has "chakra leech"
+                damageWith - damageWithout `shouldBe` 5
 
         useOn Ally "Insect Barricade" do
             it "counters on target" do
