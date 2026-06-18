@@ -945,8 +945,7 @@ characters =
                     if notStunned then
                         apply 1 skillName [Stun All]
                     else
-                        applyWith [Unremovable, Hidden, Nonstacking]
-                            1 "chakra receiver" []
+                        applyWith [Hidden, Nonstacking] 1 "chakra receiver" []
           ]
         }
       ]

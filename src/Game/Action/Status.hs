@@ -112,9 +112,9 @@ tagWith classes dur name = applyWith (classes ++ extraClasses) dur name []
   where
     extraClasses = setFromList [Unremovable, Nonstacking]
 
--- | Applies a 'Hidden' and 'Unremovable' @Status@.
+-- | Alias for 'applyWith [Hidden]'.
 hide :: ∀ m. MonadPlay m => Duration -> Text -> [Effect] -> m ()
-hide = applyWith $ setFromList [Unremovable, Hidden]
+hide = applyWith $ singleton Hidden
 
 controlWith :: ∀ m. MonadPlay m => EnumSet Class -> [Effect] -> m ()
 controlWith classes effects = P.unsilenced
