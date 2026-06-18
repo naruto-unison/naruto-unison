@@ -352,7 +352,7 @@ characters =
                     , Reduce [All] Percent 50
                     , Weaken [All] Flat 5
                     ]
-                trap 2 OnRes do
+                trap 2 Resurrect do
                     removeTrap skillName
                     setHealth 15
                     remove skillName

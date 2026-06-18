@@ -89,7 +89,7 @@ characters =
                     , Alternate "Tag Team"
                                 "Tag Team"
                     ]
-                trap' Permanent OnRes do
+                trap' Permanent Resurrect do
                     tagHealth' <- user amount "Izumo's Health"
                     setHealth tagHealth'
                     remove "Izumo's Health"
@@ -109,7 +109,7 @@ characters =
                 setHealth if tagHealth == 0 then 100 else tagHealth
                 remove "Izumo's Health"
                 addStacks "Kotetsu's Health" userHealth
-                trap' Permanent OnRes do
+                trap' Permanent Resurrect do
                     tagHealth' <- user amount "Kotetsu's Health"
                     setHealth tagHealth'
                     remove "Kotetsu's Health"
@@ -149,7 +149,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To XAlly $ trap 3 OnRes do
+          [ To XAlly $ trap 3 Resurrect do
                 setHealth 5
                 targetNumSkills <- target (length . skills)
                 teach 1 "Converging Murder" [0..targetNumSkills - 1]

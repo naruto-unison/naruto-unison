@@ -1109,7 +1109,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To XAlly $ trap 1 OnRes $
+          [ To XAlly $ trap 1 Resurrect $
                 setHealth 15
           ]
         }

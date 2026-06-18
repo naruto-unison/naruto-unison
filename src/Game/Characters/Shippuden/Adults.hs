@@ -350,7 +350,7 @@ characters =
         , Skill.cost      = [Blood, Nin]
         , Skill.charges   = 1
         , Skill.effects   =
-          [ To XAlly $ trap Permanent OnRes do
+          [ To XAlly $ trap Permanent Resurrect do
                 cureAll
                 setHealth 100
                 targeting Self $ setHealth 1

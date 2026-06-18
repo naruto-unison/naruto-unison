@@ -39,11 +39,11 @@ data Trigger
     | OnNoAction
     | OnReduce
     | OnReflect
-    | OnRes
     | OnSacrifice
     | OnStun
     | OnStunned
     | PerDamaged
+    | Resurrect
     deriving (Eq, Ord, Show, Generic)
 
 instance Hashable Trigger
@@ -91,16 +91,16 @@ instance Display Trigger where
     display OnNoAction         = "Trigger: Do not use a new skill."
     display OnReduce           = "Trigger: Apply damage reduction."
     display OnReflect          = "Trigger: Reflect a skill."
-    display OnRes              = "Trigger: Reach 0 health."
     display OnSacrifice        = "Trigger: Use a skill that sacrifices the user's health."
     display OnStun             = "Trigger: Apply a stun or disabling effect."
     display OnStunned          = "Trigger: Stunned."
     display PerDamaged         = "Trigger: Receive damage."
+    display Resurrect          = "Trigger: Reach 0 health."
 
 affectsDead :: Trigger -> Bool
-affectsDead OnDeath = True
-affectsDead OnRes   = True
-affectsDead _       = False
+affectsDead OnDeath   = True
+affectsDead Resurrect = True
+affectsDead _         = False
 
 isCounter :: Trigger -> Bool
 isCounter Counter{}    = True
@@ -109,7 +109,7 @@ isCounter Countered{}  = True
 isCounter _            = False
 
 isSingleUse :: Trigger -> Bool
-isSingleUse Counter{} = True
-isSingleUse OnBreak{} = True
-isSingleUse OnRes{}   = True
-isSingleUse _         = False
+isSingleUse Counter{}   = True
+isSingleUse OnBreak{}   = True
+isSingleUse Resurrect{} = True
+isSingleUse _           = False

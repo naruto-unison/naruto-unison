@@ -372,7 +372,7 @@ kill :: Bool -- ^ Can be prevented by 'Endure'.
      -> Ninja -> Ninja
 kill endurable n
   | endurable = setHealth 0 n
-  | otherwise = clearTraps OnRes $ n { N.health = 0 }
+  | otherwise = clearTraps Resurrect $ n { N.health = 0 }
 
 -- | Cleans up effects on a ninja who has died.
 bury :: Ninja -> Ninja

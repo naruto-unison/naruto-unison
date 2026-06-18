@@ -159,7 +159,7 @@ This function does exactly what it looks like: sums up all effects with the `Sna
 Another cool thing Haskell can do is define custom procedural contexts. Naruto Unison's `MonadPlay` monad typeclass is a purity-agnostic game-state transformation that provides the context of the current user and target. What that means in practice is that character implementations, even fairly complex ones, can be written very simply. For example, [Chiyo's Self-Sacrifice Reanimation](src/Game/Characters/Shippuden/Adults.hs) skill has the description, *"Chiyo prepares to use her forbidden healing technique on an ally. The next time their health reaches 0, their health is fully restored, they are cured of harmful effects, and Chiyo's health is reduced to 1."* This is its implementation:
 
 ```haskell
-trap 0 OnRes do
+trap 0 Resurrect do
     cureAll
     setHealth 100
     targeting Self $ setHealth 1

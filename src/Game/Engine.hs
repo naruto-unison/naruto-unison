@@ -191,7 +191,7 @@ doDeaths = mapM_ doEach Slot.all
         n <- P.ninja slot
         let res
               | n `is` Plague = mempty
-              | otherwise     = Traps.getOf slot OnRes n
+              | otherwise     = Traps.getOf slot Resurrect n
 
         if N.alive n then
             return ()
@@ -207,7 +207,7 @@ doDeaths = mapM_ doEach Slot.all
             P.modify slot Ninjas.bury
 
         else do
-            P.modify slot $ Ninjas.setHealth 1 . Ninjas.clearTraps OnRes
+            P.modify slot $ Ninjas.setHealth 1 . Ninjas.clearTraps Resurrect
             sequence_ res
 
 -- | Removes 'Soulbound' effects. Applied when a Ninja dies or is factory-reset.
