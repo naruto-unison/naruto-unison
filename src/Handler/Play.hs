@@ -49,23 +49,22 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2]
                        , UserPractice =. [a2, b2, c2]
                        ]
 
-    liftIO createSystemRandom >>= runReaderT do
-        rand     <- ask
-        game     <- runReaderT Game.newWithChakras rand
-        practice <- getsYesod App.practice
+    practice <- getsYesod App.practice
 
-        liftIO do
-            -- TODO: Move to a recurring timer?
-            Cache.purgeExpired practice
-            Cache.insert practice who $ Wrapper.new game ninjas
+    game <- liftIO do
+        game <- createSystemRandom >>= runReaderT Game.newWithChakras
+        -- TODO: Move to a recurring timer?
+        Cache.purgeExpired practice
+        Cache.insert practice who $ Wrapper.new game ninjas
+        return game
 
-        returnJson GameInfo { vsUser = Entity who bot
-                            , player = Player.A
-                            , war    = Nothing
-                            , game
-                            , ninjas
-                            , snapshots = mempty
-                            }
+    returnJson GameInfo { vsUser = Entity who bot
+                        , player = Player.A
+                        , war    = Nothing
+                        , game
+                        , ninjas
+                        , snapshots = mempty
+                        }
   where
     hasDuplicates a b c = a == b || a == c || b == c
     bot = (User.new "Bot" Nothing $ ModifiedJulianDay 0)
