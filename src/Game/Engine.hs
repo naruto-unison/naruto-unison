@@ -197,7 +197,6 @@ doDeaths = mapM_ doEach Slot.all
             return ()
 
         else if null res then do
-            P.modify slot $ Ninjas.clearTraps OnDeath
             sequence_ $ Traps.getOf slot OnDeath n
             mapM_ (doBomb Done slot)
                 $ filter ((Necromancy ∉) . Status.classes) n.statuses
@@ -207,7 +206,7 @@ doDeaths = mapM_ doEach Slot.all
             P.modify slot Ninjas.bury
 
         else do
-            P.modify slot $ Ninjas.setHealth 1 . Ninjas.clearTraps Resurrect
+            P.modify slot $ Ninjas.setHealth 1
             sequence_ res
 
 -- | Removes 'Soulbound' effects. Applied when a Ninja dies or is factory-reset.

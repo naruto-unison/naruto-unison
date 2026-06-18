@@ -111,5 +111,6 @@ isCounter _            = False
 isSingleUse :: Trigger -> Bool
 isSingleUse Counter{} = True
 isSingleUse OnBreak{} = True
+isSingleUse OnDeath   = True
 isSingleUse Resurrect = True
 isSingleUse _         = False

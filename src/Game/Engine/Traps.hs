@@ -9,7 +9,7 @@ module Game.Engine.Traps
   , apply
   ) where
 
-import ClassyPrelude hiding ((\\), toList)
+import ClassyPrelude hiding ((\\))
 
 import Control.Monad.Trans.Maybe (MaybeT(..), hoistMaybe)
 import Data.Enum.Set (EnumSet)
@@ -63,14 +63,22 @@ run _ trap@Trap{effect, tracker} = launch trap $ effect tracker
 
 getOf :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
       => Slot -> Trigger -> Ninja -> [m ()]
-getOf user trigger Ninja{traps} = run user
-    <$> filter ((== trigger) . Trap.trigger) traps
+getOf user trigger Ninja{slot, traps}
+  | null actions || not (Trigger.isSingleUse trigger) = actions
+  | otherwise = clearTrigger : actions
+  where
+    actions      = run user <$> filter ((== trigger) . Trap.trigger) traps
+    clearTrigger = P.modify slot $ Ninjas.clearTraps trigger
 
 runTriggers :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> Ninja -> m ()
-runTriggers user n = do
-    mapM_ (`Hook.trigger` n) n.triggers
-    mapM_ (run user) $ filter ((∈ n.triggers) . Trap.trigger) n.traps
+runTriggers user n@Ninja{slot, triggers, traps} = do
+    mapM_ (`Hook.trigger` n) triggers
+    unless (null singleUses)
+        $ P.modify slot $ Ninjas.clearAnyTraps singleUses
+    mapM_ (run user) $ filter ((∈ triggers) . Trap.trigger) traps
+  where
+    singleUses  = filterSet Trigger.isSingleUse triggers
 
 -- | Adds a value to 'Trap.tracker' of 'N.traps' with a certain @Trigger@.
 track :: Trigger -> Int -> Ninja -> Ninja
