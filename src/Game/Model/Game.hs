@@ -11,33 +11,16 @@ module Game.Model.Game
 
 import ClassyPrelude
 
-import Data.Enum.Set (EnumSet)
-
 import           Class.Parity (Parity)
 import qualified Class.Parity as Parity
 import           Class.Random (MonadRandom)
 import           Game.Model.Chakras (Chakras)
 import qualified Game.Model.Chakras as Chakras
+import           Game.Model.Internal.Game (Game(..))
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
-
--- | Game state.
-data Game = Game
-    { chakra    :: (Chakras, Chakras)
-    -- ^ Starts at @('Chakras' 0 0 0 0 0, 'Chakras' 0 0 0 0 0)@
-    , playing   :: Player
-    -- ^ Starts at 'Player.A'.
-    , victor    :: EnumSet Player
-    -- ^ Starts empty.
-    , inactive  :: (Int, Int)
-    -- ^ Starts at @(0, 0)@.
-    , forfeited :: Bool
-    -- ^ Starts at @False@.
-    , vendetta  :: Maybe Slot
-    -- ^ Used by AI.
-    } deriving (Eq, Show)
 
 new :: Game
 new = Game

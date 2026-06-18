@@ -30,7 +30,7 @@ import           Game.Model.Duration (Duration(..))
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.ID (HasID, ID(ID))
 import qualified Game.Model.ID
-import           Game.Model.Game (Game)
+import           Game.Model.Internal.Game (Game)
 import           Game.Model.Group (Group)
 import           Game.Model.Slot (Slot(..))
 import qualified Game.Model.Slot as Slot
