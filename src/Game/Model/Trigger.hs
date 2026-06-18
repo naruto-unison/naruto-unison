@@ -109,7 +109,7 @@ isCounter Countered{}  = True
 isCounter _            = False
 
 isSingleUse :: Trigger -> Bool
-isSingleUse Counter{}   = True
-isSingleUse OnBreak{}   = True
-isSingleUse Resurrect{} = True
-isSingleUse _           = False
+isSingleUse Counter{} = True
+isSingleUse OnBreak{} = True
+isSingleUse Resurrect = True
+isSingleUse _         = False
