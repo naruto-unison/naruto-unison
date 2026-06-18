@@ -106,7 +106,7 @@ processTurn runner = do
                       not $ new || TurnBased.expiring dur
                   ]
 
-clearControl :: ∀ m. (MonadPlay m, MonadRandom m) => m ()
+clearControl :: ∀ m. MonadPlay m => m ()
 clearControl = void $ runMaybeT do
     context@Context{user} <- P.context
     let skillID = ID.from context

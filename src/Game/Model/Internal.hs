@@ -499,7 +499,7 @@ class Monad m => MonadGame m where
 -- on. This context changes frequently, and temporary contexts may even be
 -- pushed and popped (e.g. if a skill is reflected), but the underlying
 -- @MonadGame@ instance stays the same.
-class MonadGame m => MonadPlay m where
+class (MonadGame m, MonadRandom m) => MonadPlay m where
     context :: m Context
     with    :: ∀ a. (Context -> Context) -> m a -> m a
 
@@ -508,17 +508,17 @@ class MonadGame m => MonadPlay m where
     context = lift context
     {-# INLINE context #-}
 
-instance MonadGame m => MonadPlay (ReaderT Context m) where
+instance (MonadGame m, MonadRandom m) => MonadPlay (ReaderT Context m) where
     context = ask
     {-# INLINE context #-}
     with    = local
     {-# INLINE with #-}
 
 -- | Impredicatively-typed monad constraint.
-type RunConstraint a = ∀ m. (MonadRandom m, MonadPlay m) => m a
+type RunConstraint a = ∀ m. MonadPlay m => m a
 
 -- | 'RunConstraint' with an argument.
-type IntRunConstraint a = ∀ m. (MonadRandom m, MonadPlay m) => Int -> m a
+type IntRunConstraint a = ∀ m. MonadPlay m => Int -> m a
 
 -- | Hides 'RunConstraint' behind a constructor so that only RankNTypes is
 -- needed.

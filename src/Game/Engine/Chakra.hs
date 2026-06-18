@@ -27,7 +27,7 @@ import           Util ((∈))
 -- | Removes some number of 'Chakra's from the opponent's team.
 -- 'Chakra's are chosen randomly from the available pool of 'Game.chakra'.
 -- Removed 'Chakra's are collected into a 'Chakras' object and returned.
-remove :: ∀ m. (MonadPlay m, MonadRandom m) => Int -> m Chakras
+remove :: ∀ m. MonadPlay m => Int -> m Chakras
 remove amount
   | amount <= 0 = return mempty
   | otherwise = do
@@ -45,7 +45,7 @@ remove amount
 -- 'Chakra's are chosen randomly from the available pool of 'Game.chakra', but
 -- only the ones passed in the parameter.
 -- Removed 'Chakra's are collected into a 'Chakras' object and returned.
-remove1 :: ∀ m. (MonadPlay m, MonadRandom m) => EnumSet Chakra -> m Chakras
+remove1 :: ∀ m. MonadPlay m => EnumSet Chakra -> m Chakras
 remove1 permitted = do
     Context{target, user} <- P.context
     P.trigger user [OnChakra]
@@ -60,7 +60,7 @@ remove1 permitted = do
 
 -- | Adds a finite amount of @Chakra@ to the 'Game.chakra' of the target's team.
 -- 'Rand's are replaced by other @Chakra@ types selected by 'Chakras.random'.
-gain :: ∀ m. (MonadPlay m, MonadRandom m) => Chakras -> m ()
+gain :: ∀ m. MonadPlay m => Chakras -> m ()
 gain chakras = do
     Context{user, target} <- P.context
     rand <- Chakras.random $ length rands

@@ -67,10 +67,10 @@ instance AsEnumSet Affected
 -- invincibility, usability, reflects, etc. all come into play.
 -- If an action is applied directly instead of passing it to this function,
 -- its exact effects will occur and nothing else.
-wrap :: ∀ m. (MonadPlay m, MonadRandom m) => m () -> m ()
+wrap :: ∀ m. MonadPlay m => m () -> m ()
 wrap = wrap' mempty
 
-wrap' :: ∀ m. (MonadPlay m, MonadRandom m) => EnumSet Affected -> m () -> m ()
+wrap' :: ∀ m. MonadPlay m => EnumSet Affected -> m () -> m ()
 wrap' affected f = void $ runMaybeT do
     Context{new, target, user, skill = skill@Skill{classes}} <- P.context
     nUser   <- P.nUser
@@ -115,7 +115,7 @@ wrap' affected f = void $ runMaybeT do
 
 -- | Transforms @Target@s into @Slot@s.
 -- 'REnemy', 'RAlly', and 'RXAlly' targets are chosen at random.
-targeted :: ∀ m. (MonadPlay m, MonadRandom m)
+targeted :: ∀ m. MonadPlay m
          => [Runnable Target] -> m [[Runnable Slot]]
 targeted targets = do
     Context{skill} <- P.context
@@ -130,7 +130,7 @@ targeted targets = do
 fromContext :: ∀ a m. MonadPlay m => (Context -> a) -> m a
 fromContext f = f <$> P.context
 
-chooseRandomTarget :: ∀ m. (MonadPlay m, MonadRandom m) => [Slot] -> m [Slot]
+chooseRandomTarget :: ∀ m. MonadPlay m => [Slot] -> m [Slot]
 chooseRandomTarget slots = do
     Context{skill, user} <- P.context
     ninjas <- P.ninjas
@@ -142,7 +142,7 @@ chooseRandomTarget slots = do
 
 -- | Transforms a @Target@ into @Slot@s.
 -- 'REnemy', 'RAlly', and 'RXAlly' targets are chosen at random.
-chooseTargets :: ∀ m. (MonadPlay m, MonadRandom m) => Target -> m [Slot]
+chooseTargets :: ∀ m. MonadPlay m => Target -> m [Slot]
 chooseTargets Self = fromContext \Context{user} ->
     singleton user
 
@@ -176,7 +176,7 @@ chooseTargets REnemy = chooseRandomTarget =<< chooseTargets Enemies
 chooseTargets Everyone = return Slot.all
 
 -- | Directs an effect tuple in a 'Skill' to a target. Uses 'wrap' internally.
-targetEffect :: ∀ m. (MonadPlay m, MonadRandom m)
+targetEffect :: ∀ m. MonadPlay m
              => EnumSet Affected -> m () -> m ()
 targetEffect affected f = do
     Context{target, user, skill = Skill{classes}} <- P.context
@@ -195,10 +195,10 @@ targetEffect affected f = do
         P.trigger target $ OnHarmed <$> toList classes
 
 -- | Handles effects in a 'Skill'. Uses 'targetEffect' internally.
-run :: ∀ m. (MonadPlay m, MonadRandom m) => [[Runnable Slot]] -> m ()
+run :: ∀ m. MonadPlay m => [[Runnable Slot]] -> m ()
 run = run' mempty
 
-run' :: ∀ m. (MonadPlay m, MonadRandom m)
+run' :: ∀ m. MonadPlay m
         => EnumSet Affected -> [[Runnable Slot]] -> m ()
 run' affected xs = do
     Context{skill} <- P.context
@@ -206,7 +206,7 @@ run' affected xs = do
         exec (To t r)   = P.with (local t) $ targetEffect affected r
     mapM_ (mapM_ exec) xs
 
-runTargeted :: ∀ m. (MonadPlay m, MonadRandom m) => [Runnable Target] -> m ()
+runTargeted :: ∀ m. MonadPlay m => [Runnable Target] -> m ()
 runTargeted effects = run =<< targeted effects
 
 -- | Performs an action, passing its effects to 'wrap' and activating any

@@ -13,7 +13,6 @@ import           Class.Hook (MonadHook)
 import qualified Class.Parity as Parity
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
-import           Class.Random (MonadRandom)
 import qualified Game.Action as Action
 import qualified Game.Engine.Combat as Combat
 import qualified Game.Engine.Effects as Effects
@@ -499,7 +498,7 @@ spec = parallel do
         prop "is additive"            $ isAdditive Weaken
         prop "complements Strengthen" $ Weaken `complements` Strengthen
 
-canTargetAs :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m)
+canTargetAs :: ∀ m. (MonadHook m, MonadPlay m)
             => Target -> m Bool
 canTargetAs t = do
     Sim.as t $ addStack fakeStatus
@@ -508,7 +507,7 @@ canTargetAs t = do
     slot = Sim.targetSlot t
     fakeStatus = "fake"
 
-canTarget :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m) => m Bool
+canTarget :: ∀ m. (MonadHook m, MonadPlay m) => m Bool
 canTarget = canTargetAs Self
 
 harmedWith :: Effect -> ReaderT Context WrapperM Ninja -> Bool

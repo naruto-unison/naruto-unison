@@ -56,7 +56,6 @@ import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
 import qualified Game.Model.Skill as Skill
 import           Util ((∈))
-import Class.Random (MonadRandom)
 
 type SkillEffect = RunConstraint ()
 
@@ -84,7 +83,7 @@ orSkillName name
   | null name = Skill.name . Context.skill <$> P.context
   | otherwise = return name
 
-targeting :: ∀ m. (MonadPlay m, MonadRandom m) => Target -> m () -> m ()
+targeting :: ∀ m. MonadPlay m => Target -> m () -> m ()
 targeting t f = do
     targets <- Action.chooseTargets t
     P.withTargets targets f

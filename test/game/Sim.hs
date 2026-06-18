@@ -58,7 +58,7 @@ describeCategory category name specs =
   where
     matchChar x = x.name == name && x.category == category
 
-use :: ∀ m. (HasCallStack, MonadHook m, MonadPlay m, MonadRandom m)
+use :: ∀ m. (HasCallStack, MonadHook m, MonadPlay m)
     => Text -> m ()
 use name = do
     ninjas <- P.ninjas
@@ -88,13 +88,13 @@ targetSlot Everyone = Slot.all !! 0
 targets :: ∀ m. MonadGame m => Target -> m Ninja
 targets target = P.ninja $ targetSlot target
 
-act :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m) => m ()
+act :: ∀ m. (MonadHook m, MonadPlay m) => m ()
 act = do
     Context{skill} <- P.context
     nUser <- P.nUser
     actWith $ Skills.change nUser skill
 
-actWith :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m) => Skill -> m ()
+actWith :: ∀ m. (MonadHook m, MonadPlay m) => Skill -> m ()
 actWith skill = do
     Context{user, target} <- P.context
     Game{playing = player} <- P.game
@@ -119,7 +119,7 @@ turns (fromIntegral -> i) = do
     Game{playing = player} <- P.game
     replicateM_ (sync i + 1 - fromEnum player) . Engine.processTurn $ return ()
 
-as :: ∀ m. (MonadPlay m, MonadHook m, MonadRandom m)
+as :: ∀ m. (MonadPlay m, MonadHook m)
    => Target -> RunConstraint () -> m ()
 as simUser f = P.with (createContext (targetSlot simUser) f) do
     Context{skill} <- P.context

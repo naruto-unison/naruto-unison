@@ -11,7 +11,6 @@ import Data.Enum.Set (EnumSet)
 
 import           Class.Hook (MonadHook)
 import           Class.Play (MonadPlay)
-import           Class.Random (MonadRandom)
 import qualified Game.Engine.Traps as Traps
 import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Effect(..))
@@ -34,7 +33,7 @@ filterCounters slots = filter $ (∈ targetSet) . N.slot
     targetSet :: SlotSet
     targetSet = setFromList $ Runnable.target <$> join slots
 
-getCounters :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m)
+getCounters :: ∀ m. (MonadHook m, MonadPlay m)
            => (Trigger -> Maybe Class) -> Slot -> EnumSet Class -> Ninja -> [m ()]
 getCounters f from classes Ninja{traps} = Traps.run from <$> filter include traps
   where
@@ -43,7 +42,7 @@ getCounters f from classes Ninja{traps} = Traps.run from <$> filter include trap
         _                        -> False
 
 -- | 'Countered' and 'Nullified' traps.
-userCounters :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m)
+userCounters :: ∀ m. (MonadHook m, MonadPlay m)
              => Bool -- ^ Enemies were targeted
              -> Slot -> EnumSet Class -> Ninja -> [m ()]
 userCounters harmed = getCounters f
@@ -60,7 +59,7 @@ userUncounter classes n = n { N.traps = filter (keep . Trap.trigger) n.traps }
     keep _               = True
 
 -- | 'CounterAll' and 'Counter' traps.
-targetCounters :: ∀ m. (MonadHook m, MonadPlay m, MonadRandom m)
+targetCounters :: ∀ m. (MonadHook m, MonadPlay m)
                => Slot -> EnumSet Class -> Ninja -> [m ()]
 targetCounters from classes n
   | n `is` Uncounter = mempty
