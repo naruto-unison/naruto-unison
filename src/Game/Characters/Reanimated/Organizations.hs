@@ -657,7 +657,7 @@ characters =
         , Skill.dur       = Control Permanent
         , Skill.start     =
           [ To Enemy $ control [Reveal]
-          , To Self $ control'
+          , To Self $ controlWith [Hidden]
                 [Alternate "Human Path"
                             "Naraka Path"
                 ]

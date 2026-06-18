@@ -6,9 +6,10 @@ module Game.Action.Status
   , flag
   , hide
   , addStack, addStacks, addStacks', applyStacks
-  , control, control'
     -- * Applying bombs
   , bomb, bombWith
+    -- * Control
+  , control, controlWith
   -- * Adjusting statuses
   , refresh, prolong, hasten
   -- * Removing statuses
@@ -19,7 +20,6 @@ module Game.Action.Status
 
 import ClassyPrelude
 
-import Control.Monad.Trans.Maybe (MaybeT(..))
 import Data.Enum.Set (EnumSet)
 
 import           Class.Play (MonadPlay)
@@ -27,7 +27,6 @@ import qualified Class.Play as P
 import           Class.Stackable ((.++))
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Statuses as Statuses
-import           Game.Model.Channel (Channeling(..))
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
@@ -36,7 +35,6 @@ import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Effect as Effect
 import qualified Game.Model.Ninja as N
 import           Game.Model.Runnable (Runnable)
-import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Status (Bomb(..), Status(Status))
 import qualified Game.Model.Status as Status
@@ -119,29 +117,12 @@ hide :: ∀ m. MonadPlay m => Duration -> Text -> [Effect] -> m ()
 hide = applyWith $ setFromList [Unremovable, Hidden]
 
 controlWith :: ∀ m. MonadPlay m => EnumSet Class -> [Effect] -> m ()
-controlWith classes effects = P.unsilenced $ void $ runMaybeT do
-    context@Context{target, skill = Skill{dur = Control i}} <- P.context
-    nUser   <- P.nUser
-    nTarget <- P.nTarget
-    let status = Statuses.makeStatus Statuses.StatusParams
-            { context
-            , amount = 1
-            , nUser
-            , nTarget
-            , classes = Controlled `insertSet` classes
-            , name = ""
-            , dur = i
-            , effects
-            , bombs = mempty
-            }
-    P.modify target $ Ninjas.addStatus status
-    Statuses.triggerStatusApplied status.effects
+controlWith classes effects = P.unsilenced
+    $ Statuses.control classes [] effects
 
 control :: ∀ m. MonadPlay m => [Effect] -> m ()
 control = controlWith mempty
 
-control' :: ∀ m. MonadPlay m => [Effect] -> m ()
-control' = controlWith $ setFromList [Hidden, Unremovable]
 
 -- | Adds a @Status@ with 'Status.bombs' to 'N.statuses'.
 -- @Bomb@s apply an effect when the @Status@ ends. If the @Bomb@ type is

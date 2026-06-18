@@ -1,9 +1,7 @@
 -- | 'Status' processing.
 module Game.Engine.Statuses
     ( apply
-    , triggerStatusApplied
-    , makeStatus
-    , StatusParams(..)
+    , control
     ) where
 
 import ClassyPrelude
@@ -15,6 +13,7 @@ import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
+import           Game.Model.Channel (Channeling(..))
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
@@ -26,6 +25,7 @@ import qualified Game.Model.ID as ID
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Runnable (Runnable)
+import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Status (Bomb(..), Status)
 import qualified Game.Model.Status as Status
@@ -85,7 +85,28 @@ apply amount classes bombs unthrottled name effects = void $ runMaybeT do
   where
     isChanneled = setFromList [Continues, Controlled] `intersects` classes
 
-data StatusParams = StatusParams
+control :: ∀ m. MonadPlay m => EnumSet Class -> [Runnable Bomb] -> [Effect] -> m ()
+control classes bombs effects = do
+    context@Context{target, skill = Skill{dur}} <- P.context
+    nUser   <- P.nUser
+    nTarget <- P.nTarget
+    let status = makeStatus StatusParams
+            { context
+            , amount = 1
+            , nUser
+            , nTarget
+            , classes = Controlled `insertSet` classes
+            , name = ""
+            , effects
+            , bombs
+            , dur = case dur of
+                Control i -> i
+                _         -> 1
+            }
+    P.modify target $ Ninjas.addStatus status
+    triggerStatusApplied status.effects
+
+data MakeStatusParams = StatusParams
     { context :: Context
     , amount  :: Int
     , nUser   :: Ninja
@@ -97,7 +118,7 @@ data StatusParams = StatusParams
     , effects :: [Effect]
     }
 
-makeStatus :: StatusParams -> Status
+makeStatus :: MakeStatusParams -> Status
 makeStatus StatusParams
     { context = Context{skill, user, continues, new, target}
     , amount

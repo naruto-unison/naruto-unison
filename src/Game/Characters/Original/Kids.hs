@@ -296,7 +296,7 @@ characters =
                 [ Stun All
                 , Expose
                 ]
-          , To Self $ control'
+          , To Self $ controlWith [Hidden]
                 [ Alternate "Mind Transfer"
                             "Art of the Valentine"
                 ]
@@ -734,7 +734,7 @@ characters =
                 [ Expose
                 , Stun NonMental
                 ]
-          , To Self $ control'
+          , To Self $ controlWith [Hidden]
                 [ Alternate "Sand Coffin"
                             "Sand Burial"
                 ]
