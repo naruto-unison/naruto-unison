@@ -84,7 +84,7 @@ wrap' affected f = void $ runMaybeT do
             || Requirement.targetable skill nUser nTarget
 
     guard $ user == target
-            || Targeted ∉ affected
+            || Targeted ∈ affected
             || N.alive nTarget
             || Necromancy ∈ classes
 
