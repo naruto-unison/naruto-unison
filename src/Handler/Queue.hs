@@ -35,7 +35,6 @@ import qualified Handler.Client.Message as Message
 import qualified Handler.Client.Socket as Socket
 import           Handler.Play.GameInfo (GameInfo(GameInfo))
 import qualified Handler.Play.GameInfo
-import           Handler.Queue.Message (Response(Response))
 import qualified Handler.Queue.Message as Message
 import           Handler.Queue.UserInfo (UserInfo(UserInfo))
 import qualified Handler.Queue.UserInfo as UserInfo
@@ -59,33 +58,34 @@ chunkPairs (x:y:xs) = (x, y) : chunkPairs xs
 chunkPairs _        = []
 
 getPairings :: Int -> SystemTime -> [(Key User, UserInfo)]
-            -> [((Key User, UserInfo), (Key User, UserInfo))]
+            -> [(UserInfo, UserInfo)]
 getPairings load (MkSystemTime time _) assocs = chunkPairs
                                               $ sortWith rate
-                                              $ filter ready assocs
+                                              . filter ready
+                                              $ snd <$> assocs
   where
-    ready (_, UserInfo{joined = MkSystemTime joined _}) = joined + delay < time
-    rate (_, (UserInfo User{rating} _ _ _)) = rating
+    ready UserInfo{joined = MkSystemTime joined _} = joined + delay < time
+    rate UserInfo {user = Entity _ User{rating}} = rating
     delay = truncate $ sqrt @Float $ fromIntegral load
 
 quickManager :: App -> IO ()
 quickManager App{quick} = forever do
     pairings <- getPairings <$> HashTable.readLoad quick
                             <*> getSystemTime
-                            <*> atomically (HashTable.readAssocs quick)
+                            <*> HashTable.readAssocsIO quick
     rand <- createSystemRandom
     mapM_ (runPair rand) pairings
   where
-    runPair rand ( (whoA, UserInfo userA teamA _ chanA)
-                 , (whoB, UserInfo userB teamB _ chanB)
+    runPair rand ( UserInfo userA teamA _ chanA
+                 , UserInfo userB teamB _ chanB
                  ) = do
         (mvar, gameA, gameB) <- runReaderT makeGame' rand
         putMVar chanA $ Message.Response mvar gameA -- this will not block
         putMVar chanB $ Message.Response mvar gameB -- this will not block
-        void $ HashTable.delete quick whoA
-        void $ HashTable.delete quick whoB
+        void $ HashTable.delete quick userA.entityKey
+        void $ HashTable.delete quick userB.entityKey
       where
-        makeGame' = makeGame whoA userA teamA whoB userB teamB
+        makeGame' = makeGame userA teamA userB teamB
 
 leave :: ∀ m. App.MonadHandler m => m ()
 leave = do
@@ -99,8 +99,8 @@ queue :: ∀ m. ( App.MonadHandler m
               ) => Socket.Connection -> Section -> [Character]
                 -> m Message.Response
 queue _ Quick team = do
-    (who, user) <- Auth.requireAuthPair
-    quick       <- getsYesod App.quick
+    user@(Entity who _) <- Auth.requireAuth
+    quick <- getsYesod App.quick
     liftIO do
         chan   <- newEmptyMVar
         joined <- getSystemTime
@@ -108,8 +108,8 @@ queue _ Quick team = do
         takeMVar chan {-! BLOCKS !-}
 
 queue socket Private team = do
-    (who, user)         <- Auth.requireAuthPair
-    Entity vsWho vsUser <- do
+    user@(Entity who _) <- Auth.requireAuth
+    vsUser@(Entity vsWho _) <- do
         vsName <- trySocket $ Socket.receiveData socket {-! BLOCKS !-}
         mVs    <- liftDB $ selectFirst [ UserName ==. toStrict (decodeUtf8 vsName) ] []
         case mVs of
@@ -133,14 +133,14 @@ queue socket Private team = do
         case msg of
             Message.Respond _ response -> return response
 
-            Message.Request vsWho' _who' vsTeam -> do
-              (mvar, gameA, gameB) <- makeGame who user team vsWho vsUser vsTeam
+            Message.Request vsWho' _ vsTeam -> do
+              (mvar, gameA, gameB) <- makeGame user team vsUser vsTeam
               atomically . writeTChan writer
                   $ Message.Respond vsWho' $ Message.Response mvar gameB
               return $ Message.Response mvar gameA
   where
-    users (Message.Respond who Response{info = GameInfo{vsWho}}) = (who, vsWho)
-    users (Message.Request vsWho who _)                          = (who, vsWho)
+    users (Message.Respond who response) = (who, response.info.vsUser.entityKey)
+    users (Message.Request vsWho who _)  = (who, vsWho)
     trySocket m = f =<< m
       where
         f (Left err)     = throwError $ Message.SocketError
@@ -148,10 +148,10 @@ queue socket Private team = do
         f (Right result) = return result
 
 makeGame :: ∀ m. (MonadRandom m, MonadIO m)
-         => Key User -> User -> [Character]
-         -> Key User -> User -> [Character]
+         => Entity User -> [Character]
+         -> Entity User -> [Character]
          -> m (MVar Wrapper, GameInfo, GameInfo)
-makeGame who user team vsWho vsUser vsTeam = do
+makeGame user team vsUser vsTeam = do
     player <- R.random
     game   <- Game.newWithChakras
     war    <- liftIO $ War.match team vsTeam <$> War.today
@@ -160,8 +160,7 @@ makeGame who user team vsWho vsUser vsTeam = do
             Player.A -> team ++ vsTeam
             Player.B -> vsTeam ++ team
         gameInfoA = GameInfo
-            { vsWho
-            , vsUser
+            { vsUser
             , player
             , war
             , game
@@ -169,8 +168,7 @@ makeGame who user team vsWho vsUser vsTeam = do
             , snapshots = mempty
             }
         gameInfoB = GameInfo
-            { vsWho  = who
-            , vsUser = user
+            { vsUser = user
             , player = Player.opponent player
             , war    = War.opponent <$> war
             , game

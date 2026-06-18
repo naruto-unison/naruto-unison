@@ -59,8 +59,7 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2]
             Cache.purgeExpired practice
             Cache.insert practice who $ Wrapper.new game ninjas
 
-        returnJson GameInfo { vsWho  = who
-                            , vsUser = bot
+        returnJson GameInfo { vsUser = Entity who bot
                             , player = Player.A
                             , war    = Nothing
                             , game

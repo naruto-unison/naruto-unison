@@ -114,8 +114,8 @@ gameSocket = Socket.withSocket \socket -> logErrors =<< runExceptT do
     settings <- getsYesod App.settings
     unlocked <- liftHandler Mission.unlocked
 
-    (section, team, Response mvar info@GameInfo{player, war, vsWho}) <-
-        untilJust $ handleFailures socket =<< runExceptT do
+    (section, team, Response mvar info) <- untilJust $ handleFailures socket =<<
+        runExceptT do
             message <- modifyError (Message.SocketError . displayException)
                      $ except =<< Socket.receiveData socket {-! BLOCKS !-}
             Team section team <- modifyError Message.InvalidTeam . except
@@ -129,6 +129,8 @@ gameSocket = Socket.withSocket \socket -> logErrors =<< runExceptT do
 
             queued <- Queue.queue socket section team {-! BLOCKS !-}
             return (section, teamNames, queued)
+
+    let GameInfo{player, war, vsUser = Entity vsWho _} = info
 
     trySocket . Socket.sendJSONData socket $ Message.Info info
 

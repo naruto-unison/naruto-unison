@@ -3,7 +3,7 @@ module Handler.Play.GameInfo (GameInfo(..)) where
 import ClassyPrelude
 
 import Data.Aeson ((.=), ToJSON(..), object)
-import Database.Persist (Key)
+import Database.Persist (Entity(..))
 
 import           Application.Model.User (User)
 import           Game.Model.Game (Game)
@@ -15,8 +15,7 @@ import qualified Handler.Play.Turn as Turn
 
 -- | Game state details. Sent at the start of games and during practice games.
 data GameInfo = GameInfo
-    { vsWho     :: Key User
-    , vsUser    :: User
+    { vsUser    :: Entity User
     , game      :: Game
     , ninjas    :: Vector Ninja
     , snapshots :: [Snapshot]
@@ -26,7 +25,7 @@ data GameInfo = GameInfo
 
 instance ToJSON GameInfo where
     toJSON GameInfo
-        { vsUser
+        { vsUser = Entity _ vsUser
         , game
         , ninjas
         , snapshots
