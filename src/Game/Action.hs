@@ -43,7 +43,7 @@ import qualified Game.Model.Requirement as Requirement
 import           Game.Model.Runnable (Runnable(To))
 import qualified Game.Model.Runnable as Runnable
 import           Game.Model.Skill (Skill(Skill), Target(..))
-import qualified Game.Model.Skill
+import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
 import qualified Game.Model.Status as Status
@@ -230,7 +230,7 @@ act context@Context { user
         else do
             P.modify user \n -> n { N.lastSkill = Just skill, N.acted = True }
             P.trigger user $ OnAction <$> toList classes
-            when (skill.charges > 0)
+            when (Skill.hasCharges skill)
                 . P.modify user $ Ninjas.spendCharge skill
             startEffects <- targeted skill.start
             mainEffects  <- targeted $ skill.always ++ skill.effects

@@ -1,5 +1,6 @@
 module Game.Model.Skill
   ( Skill(..), new, chakraClasses
+  , hasCharges, hasCooldown
   , Target(..)
   , Key(..), key
   , targets
@@ -46,6 +47,14 @@ new = Skill
     , changes   = const id
     , owner     = unsafeHead Slot.all
     }
+
+hasCharges :: Skill -> Bool
+hasCharges Skill{charges = 0} = False
+hasCharges _                  = True
+
+hasCooldown :: Skill -> Bool
+hasCooldown Skill{cooldown = 0} = False
+hasCooldown _                   = True
 
 -- | Adds 'Model.Class.Bloodline', 'Model.Class.Genjutsu',
 -- 'Model.Class.Ninjutsu', 'Model.Class.Taijutsu', and 'Model.Class.Random'

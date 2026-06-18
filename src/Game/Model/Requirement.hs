@@ -43,12 +43,12 @@ usable False n skill
     skip UserHas{} = True
     skip _         = False
 
-usable True n@Ninja{slot} skill@Skill{charges, cooldown, dur, owner}
+usable True n@Ninja{slot} skill@Skill{charges, dur, owner}
   | isUncastable = skill { Skill.require = [Unusable] }
   | otherwise    = skill { Skill.require = mapMaybe complete skill.require }
   where
-    isUncastable = cooldown /= 0 && N.cooldowns `atLeast` 1
-        || charges /= 0 && N.charges `atLeast` charges
+    isUncastable = Skill.hasCooldown skill && N.cooldowns `atLeast` 1
+        || Skill.hasCharges skill && N.charges `atLeast` charges
         || Channel.isControl dur && n `is` Silence
         || isStunned n skill
     getter `atLeast` limit = case getter n ? Skill.key skill of
