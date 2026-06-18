@@ -15,7 +15,7 @@ import           Game.Model.Class (Class(..))
 import           Game.Model.Group (Group(..))
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
-import           Util ((∈), (∉), (?), lazyMapFromKeyed)
+import           Util ((∈), (∉), (?), insertIf, lazyMapFromKeyed)
 
 #ifdef DEVELOPMENT
 import qualified Game.Characters.Development
@@ -52,19 +52,16 @@ processCharacter char =
          }
   where
     chakras = concatMap Skill.cost $ join char.skills
-    groups  = setFromList $ fst <$> filter ((∈ chakras) . snd)
-                [ (BloodlineUser, Blood)
-                , (GenjutsuUser, Gen)
-                , (NinjutsuUser, Nin)
-                , (TaijutsuUser,  Tai)
-                ]
+    groups  = insertIf (Blood ∈ chakras) BloodlineUser
+            . insertIf (Gen ∈ chakras) GenjutsuUser
+            . insertIf (Nin ∈ chakras) NinjutsuUser
+            $ insertIf (Tai ∈ chakras) TaijutsuUser
+              mempty
 
 processSkill :: Skill -> Skill
 processSkill skill@Skill{classes} = skill { Skill.classes = added ++ classes }
   where
-    added = setFromList $ fst <$> filter snd
-            [ (All,       True)
-            , (NonBane,   Bane ∉ classes)
-            , (NonMental, Mental ∉ classes)
-            , (NonRanged, Ranged ∉ classes)
-            ]
+    added = insertIf (Bane ∉ classes) NonBane
+          . insertIf (Mental ∉ classes) NonMental
+          . insertIf (Ranged ∉ classes) NonRanged
+          $ singleton All

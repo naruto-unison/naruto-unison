@@ -30,7 +30,7 @@ import qualified Game.Model.Skill as Skill
 import           Game.Model.Status (Bomb(..), Status)
 import qualified Game.Model.Status as Status
 import           Game.Model.Trigger (Trigger(..))
-import           Util ((∈), (∉), intersects)
+import           Util ((∈), (∉), insertIf, intersects)
 
 triggerStatusApplied :: ∀ m. MonadPlay m => [Effect] -> m ()
 triggerStatusApplied effects = do
@@ -130,10 +130,9 @@ makeStatus StatusParams
     noremove    = null effects && Bane ∉ baseClasses
                   || Hidden ∈ baseClasses
                   || user == target && any (not . Effect.helpful) effects
-    extra       = setFromList $ fst <$> filter snd
-                  [ (Soulbound,   any bind effects)
-                  , (Unremovable, noremove)
-                  ]
+    extra       = insertIf (any bind effects) Soulbound
+                $ insertIf noremove Unremovable
+                  mempty
     silenced = nUser `is` Silence
     disabled = Effects.disabled nUser
     disable x

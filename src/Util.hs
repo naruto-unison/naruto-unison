@@ -5,6 +5,7 @@ module Util
   , (<.$.>), (<.$), ($.>), (<.&.>)
   , Lift
   , epoch
+  , insertIf
   , intersects
   , setFromFoldable
   , lazyMapFromKeyed
@@ -88,6 +89,12 @@ infixl 1 <.&.>
 -- | @UTCTime 0 0@.
 epoch :: UTCTime
 epoch = UTCTime (ModifiedJulianDay 0) 0
+
+-- | Conditional 'insertSet'.
+insertIf :: ∀ o. IsSet o => Bool -> Element o -> o -> o
+insertIf True  = insertSet
+insertIf False = const id
+{-# INLINE insertIf #-}
 
 -- | True if any elements are shared by both collections.
 intersects :: ∀ a. SetContainer a => a -> a -> Bool
