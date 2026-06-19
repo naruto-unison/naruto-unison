@@ -2,13 +2,14 @@
 -- | The character database.
 -- Contains everything in the [Characters](src/Characters/) folder.
 module Game.Characters
-  ( list, map
-  , lookup, lookupAll
+  ( list, map, lookup
+  , siteList, siteMap, siteLookup
   ) where
 
 import ClassyPrelude hiding (link, lookup, map)
+import Data.Text (dropWhileEnd)
 
-import           Game.Model.Character (Character)
+import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
 import           Game.Model.Chakras (Chakra(..))
 import           Game.Model.Class (Class(..))
@@ -34,15 +35,23 @@ list = processCharacter <$>
     Game.Characters.Reanimated.characters
 {-# NOINLINE list #-}
 
+siteList :: [Character]
+siteList = dedupAlternates <$> list
+{-# NOINLINE siteList #-}
+
 map :: HashMap Text Character
 map = lazyMapFromKeyed (Character.ident, id) list
 {-# NOINLINE map #-}
 
+siteMap :: HashMap Text Character
+siteMap = lazyMapFromKeyed (Character.ident, id) siteList
+{-# NOINLINE siteMap #-}
+
 lookup :: Text -> Maybe Character
 lookup k = map ? k
 
-lookupAll :: [Text] -> [Character]
-lookupAll ks = mapMaybe lookup ks
+siteLookup :: Text -> Maybe Character
+siteLookup k = siteMap ? k
 
 processCharacter :: Character -> Character
 processCharacter char =
@@ -57,6 +66,19 @@ processCharacter char =
             . insertIf (Nin ∈ chakras) NinjutsuUser
             . insertIf (Tai ∈ chakras) TaijutsuUser
             $ mempty
+
+dedupAlternates :: Character -> Character
+dedupAlternates char@Character{skills}
+  | hasDups   = char { Character.skills = dedupedSkills }
+  | otherwise = char
+  where
+    hasDups = or $ zipWith ((/=) `on` length) skills dedupedSkills
+    dedupedSkills = dedup <$> skills
+    dedup xxs@(x:|xs)
+      | length deduped == length xs = xxs
+      | otherwise                   = x :| deduped
+      where
+        deduped = filter ((/= x.name) . dropWhileEnd (== ' ') . Skill.name) xs
 
 processSkill :: Skill -> Skill
 processSkill skill@Skill{classes} = skill { Skill.classes = added ++ classes }

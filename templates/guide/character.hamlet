@@ -17,7 +17,7 @@ $maybe mission <- mmission
 
 $forall skillGroup <- skills
   <section>
-    $forall Skill{charges, classes, cooldown, cost, desc, dur, name} <- separate skillGroup
+    $forall Skill{charges, classes, cooldown, cost, desc, dur, name} <- toList skillGroup
       <section>
         <aside>
           <img .char src=/img/ninja/#{ident}/#{shorten(name)}.jpg>

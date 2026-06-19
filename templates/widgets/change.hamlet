@@ -8,5 +8,5 @@ $if not long
       <img data-name=#{ident} .char.head src=/img/ninja/#{ident}/icon.jpg>
     $forall skillGroup <- skills
       <li>
-        $forall Skill{name} <- separate skillGroup
+        $forall Skill{name} <- toList skillGroup
           <span .skill data-name=#{ident}>#{name}

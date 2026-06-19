@@ -46,4 +46,4 @@ spec = withApp do
             get TeamBuildingR
             statusIs 200
   where
-    char = unsafeHead Characters.list
+    char = unsafeHead Characters.siteList

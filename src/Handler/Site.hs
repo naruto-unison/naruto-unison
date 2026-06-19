@@ -15,8 +15,6 @@ module Handler.Site
 import ClassyPrelude
 import Yesod
 
-import           Data.List (nubBy)
-import qualified Data.Text as Text
 import           Text.Blaze.Html (preEscapedToHtml)
 import qualified Yesod.Auth as Auth
 
@@ -84,11 +82,8 @@ logLabel False New     = "New:"
 logLabel True  Rework  = "Character rework:"
 logLabel False Rework  = "Rework:"
 
-separate :: NonNull Vector Skill -> [Skill]
-separate skills = nubBy ((==) `on` Text.strip . Skill.name) $ toList skills
-
 getChangelog :: Bool -> LogType -> Text -> Character.Category -> App.Widget
-getChangelog long logType name category = case Characters.lookup ident of
+getChangelog long logType name category = case Characters.siteLookup ident of
     Just char@Character{skills} -> $(widgetFile "widgets/change")
     Nothing   -> error
         $ "Site.getChangelog: character " ++ unpack ident ++ " not found"
@@ -97,7 +92,7 @@ getChangelog long logType name category = case Characters.lookup ident of
     ident = Character.identFrom category name
 
 getCharacter :: Text -> Character.Category -> App.Widget
-getCharacter name category = case Characters.lookup ident of
+getCharacter name category = case Characters.siteLookup ident of
     Just char@Character{skills} -> $(widgetFile "widgets/character")
     Nothing   -> error
         $ "Site.getChangelog: character " ++ unpack ident ++ " not found"
@@ -125,7 +120,7 @@ getCharactersR = do
     defaultLayout $(widgetFile "guide/characters")
   where
     categoryChars category = filter ((== category) . Character.category)
-                             Characters.list
+                             Characters.siteList
     categories             = [minBound..maxBound]
     heading :: Category -> Html
     heading Original   = "Original"

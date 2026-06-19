@@ -36,7 +36,7 @@ head char@Character{ident} = $(widgetFile "widgets/link/head")
 -- | Link to a character's skill. The character's name links to their detail
 -- page, and the skill name shows skill details when hovered over.
 skill :: Text -> Category -> Text -> App.Widget
-skill charName category skillName = case Characters.lookup ident of
+skill charName category skillName = case Characters.siteLookup ident of
       Nothing -> error
         $ "Link.skill: character " ++ unpack ident ++ " not found"
       Just char | any (any $ (==) skillName . Skill.name) char.skills ->

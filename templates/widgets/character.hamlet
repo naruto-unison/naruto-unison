@@ -6,5 +6,5 @@
     <ul>
       $forall skillGroup <- skills
         <li>
-          $forall Skill{name} <- separate skillGroup
+          $forall Skill{name} <- toList skillGroup
             <span .skill data-name=#{ident}>#{name}

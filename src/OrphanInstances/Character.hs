@@ -35,7 +35,7 @@ instance Parse Character where
 
 instance PathPiece Character where
     toPathPiece   = Character.ident
-    fromPathPiece = Characters.lookup
+    fromPathPiece = Characters.siteLookup
 
 instance Read Character where
     readPrec = tryCharacter . pack =<< readPrec

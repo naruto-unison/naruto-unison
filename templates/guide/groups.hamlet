@@ -1,5 +1,5 @@
 <h1>#{title}
 $forall group <- groups
   <h2>#{display' group}
-  $forall char <- filter (inGroup group) Characters.list
+  $forall char <- filter (inGroup group) Characters.siteList
     ^{Link.head char}

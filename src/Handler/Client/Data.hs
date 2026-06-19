@@ -21,7 +21,7 @@ import           Mission (freeChars)
 
 dataJS :: ByteString
 dataJS = buildStrict
-    $ "characters=" ++ encodeBytes Characters.list
+    $ "characters=" ++ encodeBytes Characters.siteList
     ++ ";\nvisibles=" ++ encodeBytes visibles
     ++ ";\navatars=" ++ encodeBytes avatars
     ++ ";\nalwaysUnlocked=" ++ encodeBytes freeChars
