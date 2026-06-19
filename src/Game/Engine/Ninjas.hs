@@ -186,10 +186,12 @@ factory n = N.new n.slot n.character
 -- | Modifies 'health', restricting the value within [0, 100].
 adjustHealth :: (Int -> Int) -> Ninja -> Ninja
 adjustHealth _ n@Ninja{health = 0} = n
-adjustHealth f n =
-    n { N.health = min 100 . max minHealth $ f n.health }
+adjustHealth f n = n { N.health = health' }
   where
-    minHealth
+    healthF = f n.health
+    health'
+      | healthF > 100 = 100
+      | healthF >   0 = healthF
       | n `is` Endure = 1
       | otherwise     = 0
 
