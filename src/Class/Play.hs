@@ -34,6 +34,7 @@ import qualified Game.Model.Ninja as N
 import qualified Game.Model.Skill
 import           Game.Model.Slot (Slot)
 import           Game.Model.Trigger (Trigger(..))
+import qualified Game.Model.Trigger as Trigger
 
 -- | Alters the focus of the environment to a new @Context@.
 withContext :: ∀ a m. Context -> ReaderT Context m a -> m a
@@ -114,6 +115,17 @@ toUserFromUser f name = toUser . f =<< createID name
 -- 'Context.new' is @True@.
 trigger :: ∀ m. MonadPlay m => Slot -> [Trigger] -> m ()
 trigger _ [] = return ()
-trigger i xs = whenM (Context.new <$> context)
-    $ modify i \n ->
-        n { N.triggers = foldl' (flip insertSet) n.triggers xs }
+trigger i xs = do
+    Context{new} <- context
+    if new then
+        modify i \n -> addNegatives
+            n { N.triggers = foldl' (flip insertSet) n.triggers xs }
+    else if not $ null negatives then
+        modify i addNegatives
+    else
+        return ()
+  where
+    negatives = setFromList $ mapMaybe Trigger.toNegative xs
+    addNegatives n
+      | null negatives = n
+      | otherwise = n { N.negatives = negatives ++ n.negatives }

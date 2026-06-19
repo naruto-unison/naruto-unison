@@ -34,7 +34,7 @@ import           Game.Model.Internal.Game (Game)
 import           Game.Model.Group (Group)
 import           Game.Model.Slot (Slot(..))
 import qualified Game.Model.Slot as Slot
-import           Game.Model.Trigger (Trigger(..))
+import           Game.Model.Trigger (Negative, Trigger)
 import           Util (Lift)
 
 -- | Applies actions when a 'Status' ends.
@@ -221,11 +221,11 @@ data Ninja = Ninja
     , channels   :: [Channel]           -- ^ Starts empty
     , traps      :: [Trap]              -- ^ Starts empty
     , lastSkill  :: Maybe Skill         -- ^ Starts at @Nothing@
-    , triggers   :: HashSet Trigger     -- ^ Empty at the start of each turn
+    , triggers   :: HashSet Trigger     -- ^ Empty at the start of each action
+    , negatives  :: EnumSet Negative    -- ^ Empty at the start of each turn
     , skills     :: ~(Vector Skill)     -- ^ Processed automatically
     , effects    :: ~[Effect]           -- ^ Processed automatically
     , face       :: ~(Maybe Face)       -- ^ Processed automatically
-    , acted      :: Bool                -- ^ False at the start of each turn
     }
 
 instance ToJSON Ninja where

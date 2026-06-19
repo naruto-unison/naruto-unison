@@ -228,7 +228,7 @@ act context@Context { user
             mainEffects <- targeted $ skill.always ++ skill.effects
             P.withContinues $ run' (singleton Targeted) mainEffects
         else do
-            P.modify user \n -> n { N.lastSkill = Just skill, N.acted = True }
+            P.modify user \n -> n { N.lastSkill = Just skill }
             P.trigger user $ OnAction <$> toList classes
             when (Skill.hasCharges skill)
                 . P.modify user $ Ninjas.spendCharge skill

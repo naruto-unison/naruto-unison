@@ -4,11 +4,15 @@ module Game.Model.Trigger
   , affectsDead
   , isCounter
   , isSingleUse
+  , Negative(..)
+  , duringSameTurn
+  , toNegative, fromNegative
   ) where
 
 import ClassyPrelude
 
 import Data.Aeson (ToJSON(..))
+import Data.Enum.Set (AsEnumSet)
 
 import           Class.Classed (Classed(..))
 import           Class.Display (Display(..))
@@ -37,6 +41,8 @@ data Trigger
     | OnHelped
     | OnInvulnerable
     | OnNoAction
+    | OnNoHarm
+    | OnNotDamaged
     | OnReduce
     | OnReflect
     | OnSacrifice
@@ -89,6 +95,8 @@ instance Display Trigger where
     display OnHelped           = "Trigger: Be affected by a new skill from an ally."
     display OnInvulnerable     = "Trigger: Become invulnerable."
     display OnNoAction         = "Trigger: Do not use a new skill."
+    display OnNoHarm           = "Trigger: Do not use a skill on an enemy."
+    display OnNotDamaged       = "Trigger: Do not receive any damage."
     display OnReduce           = "Trigger: Apply damage reduction."
     display OnReflect          = "Trigger: Reflect a skill."
     display OnSacrifice        = "Trigger: Use a skill that sacrifices the user's health."
@@ -114,3 +122,27 @@ isSingleUse OnBreak{} = True
 isSingleUse OnDeath   = True
 isSingleUse Resurrect = True
 isSingleUse _         = False
+
+data Negative
+    = NoAction
+    | NoHarm
+    | NotDamaged
+    deriving (Bounded, Enum, Eq, Ord, Show, Generic)
+
+instance AsEnumSet Negative
+
+toNegative :: Trigger -> Maybe Negative
+toNegative OnAction{}  = Just NoAction
+toNegative OnDamaged{} = Just NotDamaged
+toNegative OnHarm{}    = Just NoHarm
+toNegative _           = Nothing
+
+fromNegative :: Negative -> Trigger
+fromNegative NoAction   = OnNoAction
+fromNegative NoHarm     = OnNoHarm
+fromNegative NotDamaged = OnNotDamaged
+
+duringSameTurn :: Negative -> Bool
+duringSameTurn NoAction   = True
+duringSameTurn NoHarm     = True
+duringSameTurn NotDamaged = False

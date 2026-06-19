@@ -90,14 +90,8 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.start     =
-          [ To Self do
-                bomb -1 skillName
-                    []
-                    [ To Expire $
-                        apply -1 "Successful Ambush" [Invulnerable All]
-                    ]
-                trap -1 (OnDamaged All) $
-                    remove skillName
+          [ To Self $ trap -1 OnNotDamaged $
+                        apply 1 "Successful Ambush" [Invulnerable All]
           ]
         }
       ]

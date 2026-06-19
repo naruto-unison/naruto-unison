@@ -443,13 +443,16 @@ characters =
         , Skill.cooldown  = 5
         , Skill.dur       = Action 4
         , Skill.start     =
-          [ To Self $ trap' 4 (OnDamaged All) $
-                hide -1 "hair" []
-          ]
+          [ To Self replaceChannel ]
         , Skill.effects   =
-          [ To Self $ unlessM (user has "hair") $
-                heal 10
+          [ To Self do
+                trap' 1 OnNotDamaged $
+                    heal 10
+                trap' 1 OnDamage $
+                    apply Permanent skillName [Reduce [All] Flat 5]
           ]
+        , Skill.end       =
+          [ To Self $ removeTrap skillName ]
         }
       ]
     , [ Skill.new

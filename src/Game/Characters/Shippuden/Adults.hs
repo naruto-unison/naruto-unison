@@ -20,8 +20,11 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy do
-                trap' 1 (OnDamaged All) $ apply 1 skillName [Stun All]
+                targetHealth <- target health
                 pierce 25
+                targetHealth' <- target health
+                when (targetHealth' < targetHealth) $
+                    apply 1 skillName [Stun All]
           , To Self $ hide 1 skillName
                 [ Alternate "Lightning Beast Fang"
                             "Lightning Blade Finisher"

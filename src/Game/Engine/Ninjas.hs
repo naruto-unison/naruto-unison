@@ -214,7 +214,6 @@ decrement n = processSkills $ processEffects
       , N.traps     = mapMaybe TurnBased.decrement n.traps
       , N.copies    = (TurnBased.decrement =<<) <$> n.copies
       , N.cooldowns = (max 0 . subtract 1) <$> n.cooldowns
-      , N.acted     = False
       }
   where
     setNotNew chan = chan { Channel.new = False }

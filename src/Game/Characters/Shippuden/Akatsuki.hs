@@ -254,11 +254,8 @@ characters =
         , Skill.cooldown  = 3
         , Skill.start     =
           [ To Enemies do
-                bomb -1 skillName
-                    []
-                    [ To Expire $ apply 1 "Pinned" [Expose] ]
-                trap -1 OnHarm $
-                    remove skillName
+                trap -1 OnNoHarm $
+                    apply 1 "Pinned" [Expose]
           , To Self $ hide 1 skillName
                 [ Alternate "Thousand Arms"
                             "Poison Gas"

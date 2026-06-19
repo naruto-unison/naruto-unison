@@ -7,7 +7,7 @@ module Game.Engine.Traps
   , apply
   ) where
 
-import ClassyPrelude hiding ((\\))
+import ClassyPrelude
 
 import Control.Monad.Loops (iterateWhile)
 import Control.Monad.Trans.Maybe (MaybeT(..), hoistMaybe)
@@ -15,6 +15,7 @@ import Data.Enum.Set (EnumSet)
 
 import           Class.Hook (MonadHook)
 import qualified Class.Hook as Hook
+import           Class.Parity (Parity)
 import qualified Class.Parity as Parity
 import           Class.Play (MonadGame, MonadPlay)
 import qualified Class.Play as P
@@ -59,11 +60,6 @@ run user trap@Trap{direction = Trap.From, effect, tracker} =
     ctx context = context { Context.target = user }
 
 run _ trap@Trap{effect, tracker} = launch trap $ effect tracker
-
-getOf :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
-      => Slot -> Trigger -> Ninja -> [m ()]
-getOf user trigger Ninja{traps}
-    = run user <$> filter ((== trigger) . Trap.trigger) traps
 
 runTriggers :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> m ()
@@ -147,14 +143,25 @@ getTurnPer player n n'
     allied = Parity.allied player n'
     hp   = n.health - n'.health
 
+turnNegatives :: ∀ a b. (Parity a, Parity b) => a -> b -> EnumSet Trigger.Negative
+turnNegatives player n
+  | Parity.allied player n = sameTurn
+  | otherwise              = allNegatives \\ sameTurn
+  where
+    allNegatives = setFromList [minBound..maxBound]
+    sameTurn     = filterSet Trigger.duringSameTurn allNegatives
+
 -- | Returns 'OnNoAction' 'Trap.Trap's.
 getTurnNot :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
-           => Ninja -- ^ 'N.flags' owner.
+           => Player
+           -> Ninja -- ^ 'N.flags' owner.
            -> [m ()]
-getTurnNot n
-  | n.acted   = mempty
-  | N.alive n = getOf n.slot OnNoAction n
-  | otherwise = mempty
+getTurnNot player n
+  | null negatives = []
+  | otherwise      = run n.slot <$> filter ((∈ triggers) . Trap.trigger) n.traps
+  where
+    negatives = turnNegatives player n \\ n.negatives
+    triggers  = Trigger.fromNegative <$> toList negatives
 
 -- | Processes and runs all 'Trap.Trap's at the end of a turn.
 runTurn :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
@@ -163,7 +170,11 @@ runTurn ninjas = do
     Game{playing = player} <- P.game
     ninjas' <- P.ninjas
     mapM_ sequence_ $ zipWith (getTurnPer player) ninjas ninjas'
-    mapM_ sequence_ $ getTurnNot <$> Parity.half player ninjas'
+    mapM_ sequence_ $ getTurnNot player <$> ninjas'
+    P.modifyAll $ clearNegatives player
+  where
+    clearNegatives player n =
+        n { N.negatives = n.negatives `difference` turnNegatives player n }
 
 runExpirations :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => m ()
 runExpirations = mapM_ expire =<< P.ninjas

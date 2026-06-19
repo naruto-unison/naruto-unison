@@ -42,9 +42,9 @@ new slot c = Ninja
     , traps      = mempty
     , lastSkill  = Nothing
     , triggers   = mempty
+    , negatives  = mempty
     , effects    = mempty
     , face       = Nothing
-    , acted      = False
     }
   where
     own x = x { Skill.owner = slot }
