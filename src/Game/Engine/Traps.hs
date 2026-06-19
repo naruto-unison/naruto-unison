@@ -40,7 +40,7 @@ import           Game.Model.Trap (Trap(Trap))
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger(Trigger(..))
 import qualified Game.Model.Trigger as Trigger
-import           Util ((∈), (∉), intersects)
+import           Util ((∈), intersects)
 
 launch :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
        => Trap -> Runnable Context -> m ()
@@ -75,14 +75,9 @@ runTriggers user = do
     mapM_ (runTriggersOf user) =<< P.ninjas
     P.modifyAll clearTriggers
   where
-    clearTriggers n = n { N.triggers = mempty
-                        , N.traps    = filterTraps n.triggers n.traps
-                        }
-    filterTraps triggers traps
-      | null traps || null singleUses = traps
-      | otherwise = filter ((∉ singleUses) . Trap.trigger) traps
+    clearTriggers n = Ninjas.clearAnyTraps singleUses n { N.triggers = mempty }
       where
-        singleUses = filterSet Trigger.isSingleUse triggers
+        singleUses = filterSet Trigger.isSingleUse n.triggers
 
 runTriggersOf :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> Ninja -> m ()
