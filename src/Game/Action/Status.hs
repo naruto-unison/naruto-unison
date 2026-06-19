@@ -88,7 +88,7 @@ addStacks' dur name i = do
         , Status.amount  = i
         , Status.user    = user
         , Status.classes = deleteSet Nonstacking . deleteSet Continues
-                        $ insertSet Unremovable skill.classes
+                         $ insertSet Unremovable skill.classes
         }
 
 -- | Adds a hidden @Status@ with no effects that immediately expires.

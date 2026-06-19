@@ -134,15 +134,15 @@ makeStatus StatusParams
     { Status.name    = statusName
     , Status.effects = filterDmg . filter disable
                      $ Ninjas.apply nUser nTarget effects
-    , Status.classes = modClasses $ extra ++ classes ++ skill.classes
+    , Status.classes = modClasses $ extra ++ baseClasses
     , Status.amount  = amount
     , Status.bombs   = bombs
     }
   where
     statusName
-      | not $ null name  = name
-      | Hidden ∈ classes = toLower skill.name
-      | otherwise        = skill.name
+      | not $ null name      = name
+      | Hidden ∈ baseClasses = toLower skill.name
+      | otherwise            = skill.name
     modClasses
       | continues && dur <= 1 = insertSet Continues
       | continues || new      = deleteSet Continues
@@ -152,8 +152,8 @@ makeStatus StatusParams
                   || Hidden ∈ baseClasses
                   || user == target && any (not . Effect.helpful) effects
     extra       = insertIf (any bind effects) Soulbound
-                $ insertIf noremove Unremovable
-                  mempty
+                . insertIf noremove Unremovable
+                $ mempty
     silenced = nUser `is` Silence
     disabled = Effects.disabled nUser
     disable x

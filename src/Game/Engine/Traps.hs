@@ -40,7 +40,7 @@ import           Game.Model.Trap (Trap(Trap))
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger(Trigger(..))
 import qualified Game.Model.Trigger as Trigger
-import           Util ((∈), intersects)
+import           Util ((∈), intersects, insertIf)
 
 launch :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
        => Trap -> Runnable Context -> m ()
@@ -217,11 +217,13 @@ makeTrap ctx@Context { continues
       | continues && dur <= 1 = insertSet Continues
       | continues || new      = deleteSet Continues
       | otherwise             = deleteSet Continues . deleteSet Invisible
-    setNecromancy
-      | Trigger.affectsDead trigger = insertSet Necromancy
-      | otherwise                   = id
-    classes' = insertSet Nonstacking . setContinues . setNecromancy
-             $ classes ++ skill.classes
+    baseClasses = classes ++ skill.classes
+    extra = insertIf (Trigger.affectsDead trigger) Necromancy
+          . insertIf (Hidden ∈ baseClasses) Unremovable
+          . insertSet Nonstacking
+          . setContinues
+          $ mempty
+    classes' = baseClasses ++ extra
     skill'   = skill { Skill.classes = classes'
                      , Skill.require = mempty
                      }

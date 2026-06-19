@@ -55,8 +55,8 @@ processCharacter char =
     groups  = insertIf (Blood ∈ chakras) BloodlineUser
             . insertIf (Gen ∈ chakras) GenjutsuUser
             . insertIf (Nin ∈ chakras) NinjutsuUser
-            $ insertIf (Tai ∈ chakras) TaijutsuUser
-              mempty
+            . insertIf (Tai ∈ chakras) TaijutsuUser
+            $ mempty
 
 processSkill :: Skill -> Skill
 processSkill skill@Skill{classes} = skill { Skill.classes = added ++ classes }
