@@ -18,7 +18,7 @@ spec = parallel do
             it "damages target per stack" do
                 Sim.use "Two-Tailed Transformation"
                 replicateM_ testStacks Sim.act
-                setHealth 100
+                factory
                 damaged <- measureDamage Sim.act
                 damaged `shouldBe` 30 + 5 * testStacks
             it "weakens target" do

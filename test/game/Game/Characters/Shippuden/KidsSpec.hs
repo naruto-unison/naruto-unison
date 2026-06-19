@@ -320,10 +320,9 @@ spec = parallel do
         useOn Enemy "Leaf Rising Wind" do
             it "deals more damage with dead allies" do
                 damagedWithout <- measureDamage Sim.act
-                factory
+                targeting XAllies kill
                 targeting Self factory
-                targeting Allies kill
-                targeting Self $ setHealth 100
+                factory
                 damagedWith <- measureDamage Sim.act
                 damagedWith - damagedWithout `shouldBe` 2 * 10
 
@@ -333,10 +332,9 @@ spec = parallel do
                 damaged `shouldBe` 20
             it "deals more damage with dead allies" do
                 damagedWithout <- measureDamage Sim.act
-                factory
+                targeting XAllies kill
                 targeting Self factory
-                targeting Allies kill
-                targeting Self $ setHealth 100
+                factory
                 damagedWith <- measureDamage Sim.act
                 damagedWith - damagedWithout `shouldBe` 2 * 10
             it "damages more consecutively" do

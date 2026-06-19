@@ -95,7 +95,7 @@ runDeathTriggersOf user n@Ninja{slot, traps}
   | N.alive n = return False
   | not $ null resurrectTraps = do
         Hook.trigger Resurrect n
-        P.modify slot $ Ninjas.setHealth 1 . Ninjas.clearTraps Resurrect
+        P.modify slot \n' -> Ninjas.clearTraps Resurrect n' { N.health = 1 }
         mapM_ (run user) resurrectTraps
         return True
   | not $ null onDeathTraps = do

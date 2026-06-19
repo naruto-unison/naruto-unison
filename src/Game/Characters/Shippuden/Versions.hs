@@ -831,7 +831,7 @@ characters =
                         when (targetHealth > 0 && targetHealth <= 25) do
                             killHard
                             targeting Self do
-                                setHealth 100
+                                factory
                                 setAlternates [1, 1, 1, 1]
                                 apply Permanent skillName [Invulnerable Bane]
           ]
