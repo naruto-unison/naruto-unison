@@ -62,12 +62,8 @@ run _ trap@Trap{effect, tracker} = launch trap $ effect tracker
 
 getOf :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
       => Slot -> Trigger -> Ninja -> [m ()]
-getOf user trigger Ninja{slot, traps}
-  | null actions || not (Trigger.isSingleUse trigger) = actions
-  | otherwise = clearTrigger : actions
-  where
-    actions      = run user <$> filter ((== trigger) . Trap.trigger) traps
-    clearTrigger = P.modify slot $ Ninjas.clearTraps trigger
+getOf user trigger Ninja{traps}
+    = run user <$> filter ((== trigger) . Trap.trigger) traps
 
 runTriggers :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> m ()
@@ -111,10 +107,11 @@ runDeathTriggersOf user n@Ninja{slot, traps}
         Hook.trigger OnDeath n
         return False
   where
+    trapsOf trigger = filter ((== trigger) . Trap.trigger) traps
     resurrectTraps
       | N.alive n || n `is` Plague = mempty
-      | otherwise = filter ((== Resurrect) . Trap.trigger) traps
-    onDeathTraps = filter ((== OnDeath) . Trap.trigger) traps
+      | otherwise = trapsOf Resurrect
+    onDeathTraps = trapsOf OnDeath
 
 -- | Adds a value to 'Trap.tracker' of 'N.traps' with a certain @Trigger@.
 track :: Trigger -> Int -> Ninja -> Ninja
