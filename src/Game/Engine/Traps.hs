@@ -85,14 +85,14 @@ runTriggersOf user n@Ninja{traps, triggers}
 
 runDeaths :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Maybe Slot -> m ()
-runDeaths muser = void $ iterateWhile (any id) $ mapM doEach =<< P.ninjas
+runDeaths muser = void $ iterateWhile (any id)
+                $ mapM doEach . filter (not . N.alive) =<< P.ninjas
   where
     doEach n@Ninja{slot} = runDeathTriggersOf (fromMaybe slot muser) n
 
 runDeathTriggersOf :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> Ninja -> m Bool
 runDeathTriggersOf user n@Ninja{slot, traps}
-  | N.alive n = return False
   | not $ null resurrectTraps = do
         Hook.trigger Resurrect n
         P.modify slot \n' -> Ninjas.clearTraps Resurrect n' { N.health = 1 }
