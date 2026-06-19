@@ -268,9 +268,10 @@ act context@Context { user
             Game{chakra = chakra'} <- P.game
             Hook.chakra skill chakra chakra'
 
-        mapM_ (Traps.runTriggers user) =<< P.ninjas
+        Traps.runTriggers user
+        Traps.runDeaths $ Just user
 
-        P.modifyAll $ unreflect . \n -> n { N.triggers = mempty }
+        P.modifyAll unreflect
         breakControls
   where
     unreflect n

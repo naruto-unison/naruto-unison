@@ -288,7 +288,9 @@ clearTraps tr n = n { N.traps = filter ((/= tr) . Trap.trigger) n.traps }
 
 -- | Deletes 'traps' with matching 'Trap.trigger'.
 clearAnyTraps :: HashSet Trigger -> Ninja -> Ninja
-clearAnyTraps tr n = n { N.traps = filter ((∉ tr) . Trap.trigger) n.traps }
+clearAnyTraps trs n
+  | null trs  = n
+  | otherwise = n { N.traps = filter ((∉ trs) . Trap.trigger) n.traps }
 
 -- | Adds channels with a specific target.
 addChannels :: Skill -> Slot -> Ninja -> Ninja

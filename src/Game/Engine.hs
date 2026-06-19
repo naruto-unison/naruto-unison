@@ -33,12 +33,11 @@ import qualified Game.Model.Channel
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
-import           Game.Model.Effect (Effect(..))
 import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game as Game
 import           Game.Model.ID (HasID, ID)
 import qualified Game.Model.ID as ID
-import           Game.Model.Ninja (Ninja(Ninja), is)
+import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
 import qualified Game.Model.Player as Player
@@ -46,12 +45,10 @@ import           Game.Model.Runnable (Runnable(To))
 import qualified Game.Model.Runnable as Runnable
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
-import qualified Game.Model.Slot as Slot
 import           Game.Model.Status (Bomb(..), Status(Status))
 import qualified Game.Model.Status as Status
 import           Game.Model.Trap (Trap(Trap))
 import qualified Game.Model.Trap as Trap
-import           Game.Model.Trigger (Trigger(..))
 import           Util ((∈), (∉))
 
 -- | The game engine's main function.
@@ -183,31 +180,19 @@ doDoneTraps ninjas = zipWithM_ doEach ninjas =<< P.ninjas
                                     && Controlled ∈ classes
         getTraps Ninja{traps} = filter includeTrap traps
 
--- | Executes 'Trigger.death'.
+-- | Repeatedly executes 'Trigger.death'.
 doDeaths :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => m ()
-doDeaths = mapM_ doEach Slot.all
+doDeaths = do
+    Traps.runDeaths Nothing
+    mapM_ doEach . filter (not . N.alive) =<< P.ninjas
   where
-    doEach slot = do
-        n <- P.ninja slot
-        let res
-              | n `is` Plague = mempty
-              | otherwise     = Traps.getOf slot Resurrect n
-
-        if N.alive n then
-            return ()
-
-        else if null res then do
-            sequence_ $ Traps.getOf slot OnDeath n
-            mapM_ (doBomb Done slot)
-                $ filter ((Necromancy ∉) . Status.classes) n.statuses
-            mapM_ doDoneTrap
-                $ filter ((Necromancy ∉) . Trap.classes) n.traps
-            P.modifyAll $ unSoulbound slot
-            P.modify slot Ninjas.bury
-
-        else do
-            P.modify slot $ Ninjas.setHealth 1
-            sequence_ res
+    doEach n@Ninja{slot} = do
+        mapM_ (doBomb Done slot)
+            $ filter ((Necromancy ∉) . Status.classes) n.statuses
+        mapM_ doDoneTrap
+            $ filter ((Necromancy ∉) . Trap.classes) n.traps
+        P.modifyAll $ unSoulbound slot
+        P.modify slot Ninjas.bury
 
 -- | Removes 'Soulbound' effects. Applied when a Ninja dies or is factory-reset.
 unSoulbound :: Slot -> Ninja -> Ninja

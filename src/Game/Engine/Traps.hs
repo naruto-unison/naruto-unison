@@ -3,14 +3,13 @@ module Game.Engine.Traps
   ( run
   , track
     -- Performing 'Trap.Trap's
-  , runTurn, runExpirations
-    -- Collecting 'Trap.Trap's
-  , runTriggers, getOf
+  , runTriggers, runDeaths, runTurn, runExpirations
   , apply
   ) where
 
 import ClassyPrelude hiding ((\\))
 
+import Control.Monad.Loops (iterateWhile)
 import Control.Monad.Trans.Maybe (MaybeT(..), hoistMaybe)
 import Data.Enum.Set (EnumSet)
 
@@ -41,7 +40,7 @@ import           Game.Model.Trap (Trap(Trap))
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger(Trigger(..))
 import qualified Game.Model.Trigger as Trigger
-import           Util ((∈), intersects)
+import           Util ((∈), (∉), intersects)
 
 launch :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
        => Trap -> Runnable Context -> m ()
@@ -71,14 +70,56 @@ getOf user trigger Ninja{slot, traps}
     clearTrigger = P.modify slot $ Ninjas.clearTraps trigger
 
 runTriggers :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
-    => Slot -> Ninja -> m ()
-runTriggers user n@Ninja{slot, triggers, traps} = do
-    mapM_ (`Hook.trigger` n) triggers
-    unless (null singleUses)
-        $ P.modify slot $ Ninjas.clearAnyTraps singleUses
-    mapM_ (run user) $ filter ((∈ triggers) . Trap.trigger) traps
+    => Slot -> m ()
+runTriggers user = do
+    mapM_ (runTriggersOf user) =<< P.ninjas
+    P.modifyAll clearTriggers
   where
-    singleUses  = filterSet Trigger.isSingleUse triggers
+    clearTriggers n = n { N.triggers = mempty
+                        , N.traps    = filterTraps n.triggers n.traps
+                        }
+    filterTraps triggers traps
+      | null traps || null singleUses = traps
+      | otherwise = filter ((∉ singleUses) . Trap.trigger) traps
+      where
+        singleUses = filterSet Trigger.isSingleUse triggers
+
+runTriggersOf :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
+    => Slot -> Ninja -> m ()
+runTriggersOf user n@Ninja{traps, triggers}
+  | null triggers = return ()
+  | otherwise     = do
+    mapM_ (`Hook.trigger` n) triggers
+    mapM_ (run user) $ filter ((∈ triggers) . Trap.trigger) traps
+
+runDeaths :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
+    => Maybe Slot -> m ()
+runDeaths muser = void $ iterateWhile (any id) $ mapM doEach =<< P.ninjas
+  where
+    doEach n@Ninja{slot} = runDeathTriggersOf (fromMaybe slot muser) n
+
+runDeathTriggersOf :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
+    => Slot -> Ninja -> m Bool
+runDeathTriggersOf user n@Ninja{slot, traps}
+  | N.alive n = return False
+  | not $ null resurrectTraps = do
+        Hook.trigger Resurrect n
+        P.modify slot $ Ninjas.setHealth 1 . Ninjas.clearTraps Resurrect
+        mapM_ (run user) resurrectTraps
+        return True
+  | not $ null onDeathTraps = do
+        Hook.trigger OnDeath n
+        P.modify slot $ Ninjas.clearTraps OnDeath
+        mapM_ (run user) onDeathTraps
+        return True
+  | otherwise = do
+        Hook.trigger OnDeath n
+        return False
+  where
+    resurrectTraps
+      | N.alive n || n `is` Plague = mempty
+      | otherwise = filter ((== Resurrect) . Trap.trigger) traps
+    onDeathTraps = filter ((== OnDeath) . Trap.trigger) traps
 
 -- | Adds a value to 'Trap.tracker' of 'N.traps' with a certain @Trigger@.
 track :: Trigger -> Int -> Ninja -> Ninja
