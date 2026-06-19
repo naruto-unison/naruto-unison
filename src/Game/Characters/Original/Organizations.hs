@@ -80,8 +80,8 @@ characters =
         , Skill.effects   =
           [ To Self do
                 userHealth <- user health
-                tagHealth <- user amount "Kotetsu's Health"
-                setHealth if tagHealth == 0 then 100 else tagHealth
+                kotetsuHealth <- user amount "Kotetsu's Health"
+                setHealth if kotetsuHealth == 0 then 100 else kotetsuHealth
                 remove "Kotetsu's Health"
                 applyStacks "Izumo's Health" userHealth
                     [ Alternate "Devastate"
@@ -90,8 +90,8 @@ characters =
                                 "Tag Team"
                     ]
                 trap' Permanent Resurrect do
-                    tagHealth' <- user amount "Izumo's Health"
-                    setHealth tagHealth'
+                    izumoHealth <- user amount "Izumo's Health"
+                    setHealth izumoHealth
                     remove "Izumo's Health"
                     hide Permanent "solo" []
           ]
@@ -105,13 +105,13 @@ characters =
         , Skill.effects   =
           [ To Self do
                 userHealth <- user health
-                tagHealth <- user amount "Izumo's Health"
-                setHealth if tagHealth == 0 then 100 else tagHealth
+                izumoHealth <- user amount "Izumo's Health"
+                setHealth if izumoHealth == 0 then 100 else izumoHealth
                 remove "Izumo's Health"
                 addStacks "Kotetsu's Health" userHealth
                 trap' Permanent Resurrect do
-                    tagHealth' <- user amount "Kotetsu's Health"
-                    setHealth tagHealth'
+                    kotetsuHealth <- user amount "Kotetsu's Health"
+                    setHealth kotetsuHealth
                     remove "Kotetsu's Health"
                     hide Permanent "solo" []
                     hide Permanent skillName
