@@ -47,8 +47,6 @@ import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
 import qualified Game.Model.Status as Status
-import           Game.Model.Trap (Trap(Trap))
-import qualified Game.Model.Trap
 import           Game.Model.Trigger (Trigger(..))
 import           Util ((!!), (∈), (∉), intersects)
 
@@ -296,8 +294,7 @@ runInterruptions user Channel{dur, target, skill} = do
     channelID = ID { user, owner = user, name = skill.name }
     removeInterrupted :: Ninja -> Ninja
     removeInterrupted n
-      | hasInterrupted = (Ninjas.modifyAll (filter uninterrupted) n)
-                           { N.traps = filter uninterruptedTrap n.traps }
+      | hasInterrupted = Ninjas.modifyAll (filter uninterrupted) n
       | otherwise      = n
       where
         hasInterrupted = any interrupted n.statuses
@@ -308,9 +305,6 @@ runInterruptions user Channel{dur, target, skill} = do
     interrupted a = Controlled ∈ getClasses a && ID.from a == channelID
     uninterrupted :: ∀ a. (Classed a, HasID a, TurnBased a) => a -> Bool
     uninterrupted = not . interrupted
-    uninterruptedTrap :: Trap -> Bool
-    uninterruptedTrap Trap{trigger = OnDeath} = True
-    uninterruptedTrap x = uninterrupted x
 
 -- | Ends all Control channels without valid targets.
 -- For example, if a Control skill targets an enemy, the channel will end

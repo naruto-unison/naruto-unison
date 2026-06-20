@@ -35,6 +35,7 @@ import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
 import           Game.Model.Runnable (Runnable(To), IntRunConstraint)
 import qualified Game.Model.Runnable as Runnable
+import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import           Game.Model.Trap (Trap(Trap))
@@ -197,8 +198,8 @@ apply direction classes unthrottled trigger f = void $ runMaybeT do
     guard . not $ isCounter && nUser `is` Disable Counters
     dur   <- if not new || isChanneled then return unthrottled else
                 hoistMaybe $ throttle nUser
-    let trap = makeTrap context direction classes dur trigger f
-    P.modify target $ Ninjas.addTrap trap
+    P.modify target $ Ninjas.addTrap
+        $ makeTrap context direction classes dur trigger f
   where
     isChanneled = setFromList [Continues, Controlled] `intersects` classes
     isCounter = Trigger.isCounter trigger
@@ -210,14 +211,14 @@ makeTrap :: Context -> Trap.Direction -> EnumSet Class -> Duration
          -> Trigger -> IntRunConstraint () -> Trap
 makeTrap ctx@Context { continues
                      , new
-                     , skill
+                     , skill = skill@Skill{name}
                      , user
                      } direction classes dur trigger f = Trap
     { trigger
     , direction
     , skill   = skill'
     , user
-    , name    = skill'.name
+    , name
     , effect  = \i -> To context $ f i
     , classes = classes'
     , tracker = 0

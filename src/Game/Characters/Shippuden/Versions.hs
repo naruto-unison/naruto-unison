@@ -281,8 +281,7 @@ characters =
         , Skill.start     =
           let
             killShadow :: SkillEffect
-            killShadow = targeting Everyone $
-                whenM (target has skillName)
+            killShadow = targeting Everyone $ whenM (target has skillName)
                     killHard
           in
           [ To Self do
@@ -783,14 +782,15 @@ characters =
     , [ Skill.new
         { Skill.name      = "Immortality Transference"
         , Skill.desc      = "Orochimaru forces his soul on an enemy, dealing 15 damage to them for 3 turns and stunning their non-mental skills. If the target dies while affected by this skill, Orochimaru regains all lost health. If Orochimaru acquires a new body, this skill becomes [Eight-Headed Serpent][b][t]."
-        , Skill.classes   = [Physical, Melee]
+        , Skill.classes   = [Physical, Melee, Necromancy]
         , Skill.cost      = [Gen, Nin]
         , Skill.cooldown  = 3
         , Skill.dur       = Control 3
         , Skill.start     =
           [ To Enemy do
                 control [Stun NonMental]
-                controlTrap OnDeath $ targeting Self $
+                controlTrap OnDeath $ targeting Self do
+                    cancelChannel skillName
                     setHealth 100
           ]
         , Skill.effects   =
