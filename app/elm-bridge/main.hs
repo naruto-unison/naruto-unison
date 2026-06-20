@@ -151,8 +151,6 @@ deriveElmDef defaultOptions ''GameInfo
 deriveElmDef defaultOptions ''Ninja
 deriveElmDef defaultOptions ''ObjectiveProgress
 deriveElmDef defaultOptions ''Player
-deriveElmDef defaultOptions ''Range
-deriveElmDef defaultOptions ''Requirement
 deriveElmDef defaultOptions ''Reward
 deriveElmDef defaultOptions ''Skill
 deriveElmDef defaultOptions ''Snapshot

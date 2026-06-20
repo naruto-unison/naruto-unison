@@ -491,66 +491,6 @@ jsonEncPrivilege  val =
 
 
 
-type Range  =
-    AtLeast
-    | AtMost
-
-jsonDecRange : Json.Decode.Decoder ( Range )
-jsonDecRange =
-    let jsonDecDictRange = Dict.fromList [("AtLeast", AtLeast), ("AtMost", AtMost)]
-    in  decodeSumUnaries "Range" jsonDecDictRange
-
-jsonEncRange : Range -> Value
-jsonEncRange  val =
-    case val of
-        AtLeast -> Json.Encode.string "AtLeast"
-        AtMost -> Json.Encode.string "AtMost"
-
-
-
-type Requirement  =
-    Usable
-    | Unusable
-    | UserHas Range Int String
-    | TargetHas Range Int String
-    | UserHealth Range Int
-    | TargetHealth Range Int
-    | UserChannel Bool String
-    | UserDefense Range Int String
-    | UserTrap Bool String
-
-jsonDecRequirement : Json.Decode.Decoder ( Requirement )
-jsonDecRequirement =
-    let jsonDecDictRequirement = Dict.fromList
-            [ ("Usable", Json.Decode.lazy (\_ -> Json.Decode.succeed Usable))
-            , ("Unusable", Json.Decode.lazy (\_ -> Json.Decode.succeed Unusable))
-            , ("UserHas", Json.Decode.lazy (\_ -> Json.Decode.map3 UserHas (Json.Decode.index 0 (jsonDecRange)) (Json.Decode.index 1 (Json.Decode.int)) (Json.Decode.index 2 (Json.Decode.string))))
-            , ("TargetHas", Json.Decode.lazy (\_ -> Json.Decode.map3 TargetHas (Json.Decode.index 0 (jsonDecRange)) (Json.Decode.index 1 (Json.Decode.int)) (Json.Decode.index 2 (Json.Decode.string))))
-            , ("UserHealth", Json.Decode.lazy (\_ -> Json.Decode.map2 UserHealth (Json.Decode.index 0 (jsonDecRange)) (Json.Decode.index 1 (Json.Decode.int))))
-            , ("TargetHealth", Json.Decode.lazy (\_ -> Json.Decode.map2 TargetHealth (Json.Decode.index 0 (jsonDecRange)) (Json.Decode.index 1 (Json.Decode.int))))
-            , ("UserChannel", Json.Decode.lazy (\_ -> Json.Decode.map2 UserChannel (Json.Decode.index 0 (Json.Decode.bool)) (Json.Decode.index 1 (Json.Decode.string))))
-            , ("UserDefense", Json.Decode.lazy (\_ -> Json.Decode.map3 UserDefense (Json.Decode.index 0 (jsonDecRange)) (Json.Decode.index 1 (Json.Decode.int)) (Json.Decode.index 2 (Json.Decode.string))))
-            , ("UserTrap", Json.Decode.lazy (\_ -> Json.Decode.map2 UserTrap (Json.Decode.index 0 (Json.Decode.bool)) (Json.Decode.index 1 (Json.Decode.string))))
-            ]
-        jsonDecObjectSetRequirement = Set.fromList ["Usable", "Unusable"]
-    in  decodeSumTaggedObject "Requirement" "tag" "contents" jsonDecDictRequirement jsonDecObjectSetRequirement
-
-jsonEncRequirement : Requirement -> Value
-jsonEncRequirement  val =
-    let keyval v = case v of
-                    Usable  -> ("Usable", encodeValue (Json.Encode.list identity []))
-                    Unusable  -> ("Unusable", encodeValue (Json.Encode.list identity []))
-                    UserHas v1 v2 v3 -> ("UserHas", encodeValue (Json.Encode.list identity [jsonEncRange v1, Json.Encode.int v2, Json.Encode.string v3]))
-                    TargetHas v1 v2 v3 -> ("TargetHas", encodeValue (Json.Encode.list identity [jsonEncRange v1, Json.Encode.int v2, Json.Encode.string v3]))
-                    UserHealth v1 v2 -> ("UserHealth", encodeValue (Json.Encode.list identity [jsonEncRange v1, Json.Encode.int v2]))
-                    TargetHealth v1 v2 -> ("TargetHealth", encodeValue (Json.Encode.list identity [jsonEncRange v1, Json.Encode.int v2]))
-                    UserChannel v1 v2 -> ("UserChannel", encodeValue (Json.Encode.list identity [Json.Encode.bool v1, Json.Encode.string v2]))
-                    UserDefense v1 v2 v3 -> ("UserDefense", encodeValue (Json.Encode.list identity [jsonEncRange v1, Json.Encode.int v2, Json.Encode.string v3]))
-                    UserTrap v1 v2 -> ("UserTrap", encodeValue (Json.Encode.list identity [Json.Encode.bool v1, Json.Encode.string v2]))
-    in encodeSumTaggedObject "tag" "contents" keyval val
-
-
-
 type alias Reward  =
    { reason: String
    , amount: Int
@@ -574,7 +514,6 @@ jsonEncReward  val =
 type alias Skill  =
    { name: String
    , desc: String
-   , require: Requirement
    , classes: (Set String)
    , cost: Chakras
    , cooldown: Int
@@ -592,7 +531,6 @@ jsonDecSkill =
    Json.Decode.succeed Skill
    |> required "name" (Json.Decode.string)
    |> required "desc" (Json.Decode.string)
-   |> required "require" (jsonDecRequirement)
    |> required "classes" (decodeSet (Json.Decode.string))
    |> required "cost" (jsonDecChakras)
    |> required "cooldown" (Json.Decode.int)
@@ -609,7 +547,6 @@ jsonEncSkill  val =
    Json.Encode.object
    [ ("name", Json.Encode.string val.name)
    , ("desc", Json.Encode.string val.desc)
-   , ("require", jsonEncRequirement val.require)
    , ("classes", (encodeSet Json.Encode.string) val.classes)
    , ("cost", jsonEncChakras val.cost)
    , ("cooldown", Json.Encode.int val.cooldown)
