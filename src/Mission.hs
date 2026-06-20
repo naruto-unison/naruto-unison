@@ -90,7 +90,7 @@ allUnlocked = keysSet Characters.map
 unlocked :: App.Handler Unlocks
 unlocked = cached $ fromMaybe allUnlocked <$> runMaybeT do
     unlockAll <- getsYesod \app -> app.settings.unlockAll
-    guard unlockAll
+    guard $ not unlockAll
     Just who  <- Auth.maybeAuthId
     privilege <- App.getPrivilege
     guard $ privilege < Moderator
