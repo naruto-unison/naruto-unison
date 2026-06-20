@@ -27,30 +27,28 @@ import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import           Util ((∈), (∉), (?), intersects)
 
-isStunned :: Ninja -> Skill -> Bool
-isStunned _ Skill{dur = Passive}   = False
-isStunned _ Skill{dur = Ongoing{}} = False
-isStunned n Skill{classes}         = classes `intersects` Effects.stun n
-
 -- | Processes 'Skill.require'.
 usable :: Bool -- ^ New.
        -> Ninja -> Skill -> Skill
 usable False n skill
-  | isStunned n skill = skill' { Skill.effects = mempty }
-  | otherwise         = skill'
+  | isStunned skill = skill' { Skill.effects = mempty }
+  | otherwise       = skill'
   where
     skill' = skill { Skill.require = filter (not . skip) skill.require }
     skip UserHas{} = True
     skip _         = False
+    isStunned Skill{dur = Passive}   = False
+    isStunned Skill{dur = Ongoing{}} = False
+    isStunned Skill{classes}         = classes `intersects` Effects.stun n
 
-usable True n@Ninja{slot} skill@Skill{charges, dur, owner}
+usable True n@Ninja{slot} skill@Skill{charges, classes, dur, owner}
   | isUncastable = skill { Skill.require = [Unusable] }
   | otherwise    = skill { Skill.require = mapMaybe complete skill.require }
   where
     isUncastable = Skill.hasCooldown skill && N.cooldowns `atLeast` 1
         || Skill.hasCharges skill && N.charges `atLeast` charges
         || Channel.isControl dur && n `is` Silence
-        || isStunned n skill
+        || classes `intersects` Effects.stun n
     getter `atLeast` limit = case getter n ? Skill.key skill of
         Just value -> value >= limit
         Nothing    -> False
