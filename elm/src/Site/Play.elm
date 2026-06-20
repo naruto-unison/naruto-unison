@@ -50,6 +50,7 @@ type alias Model =
     , vs : User
     , characters : Characters
     , game : Turn
+    , inSnapshot : Bool
     , chakras : Chakras
     , randoms : Chakras
     , exchanged : Chakras
@@ -140,6 +141,7 @@ component ports =
             , vs = info.opponent
             , characters = flags.characters
             , game = info.turn
+            , inSnapshot = False
             , chakras = info.turn.chakra
             , randoms = Chakra.none
             , exchanged = Chakra.none
@@ -173,7 +175,7 @@ component ports =
                     { net | rand = 0 }
 
                 ownTurn =
-                    st.player == st.game.playing
+                    st.player == st.game.playing && not st.inSnapshot
 
                 rand =
                     Chakra.total st.randoms
@@ -351,7 +353,7 @@ component ports =
                             pure { st | error = printFailure failure }
 
                         Ok (Play game) ->
-                            ( st
+                            ( { st | inSnapshot = True }
                             , Cmd.batch <| runSnapshots 60000 game
                             )
 
@@ -393,8 +395,8 @@ component ports =
                             after fullDelay <|
                                 ReceivePractice (Ok [ y ])
                     in
-                    ( st
-                    , Cmd.batch <| afterFinish :: runSnapshots fullDelay x
+                    ( { st | inSnapshot = True }
+                    , Cmd.batch <| ports.progress 0 0 0 :: afterFinish :: runSnapshots fullDelay x
                     )
 
                 ReceivePractice (Ok [ y ]) ->
@@ -411,7 +413,7 @@ component ports =
                     pure { st | error = showErr err }
 
                 SetGame progress game ->
-                    setGameAnd game st <|
+                    setGameAnd game { st | inSnapshot = False } <|
                         case game.victor of
                             [ victor ] ->
                                 if victor == st.player then
