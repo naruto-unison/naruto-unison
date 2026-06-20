@@ -11,6 +11,8 @@ import Data.Enum.Set (EnumSet)
 import           Class.Classed (Classed(..))
 import qualified Class.Parity as Parity
 import           Game.Model.Chakras (Chakras)
+import           Game.Model.Channel (Channeling(..))
+import qualified Game.Model.Channel as Channel
 import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.Game (Game(Game))
@@ -73,20 +75,21 @@ censorNinja revealed n =
     n { N.channels  = censorChannels n.channels
       , N.cooldowns = censorAll      n.cooldowns
       , N.charges   = censorAll      n.charges
-      , N.statuses  = filter hide    n.statuses
-      , N.traps     = filter hide    n.traps
+      , N.statuses  = filter unhide  n.statuses
+      , N.traps     = filter unhide  n.traps
       }
   where
     reveal user = user ∈ revealed
     revealN = reveal n.slot
-    censorChannels
-      | revealN   = id
-      | otherwise = filter $ (Invisible ∉) . getClasses
+    censorChannels = filter censorChannel
+    censorChannel chan = chan.dur /= Passive
+                         && (revealN || Invisible ∉ getClasses chan)
     censorAll
       | revealN   = id
       | otherwise = const mempty
-    hide :: ∀ a. (Classed a, HasID a) => a -> Bool
-    hide x = Hidden ∈ classes || (Invisible ∈ classes && not (reveal user))
+    unhide :: ∀ a. (Classed a, HasID a) => a -> Bool
+    unhide x = not
+             $ Hidden ∈ classes || (Invisible ∈ classes && not (reveal user))
       where
         classes = getClasses x
         user    = (ID.from x).user
