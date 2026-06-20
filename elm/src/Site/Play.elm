@@ -852,6 +852,9 @@ renderCharacter :
     -> Html Msg
 renderCharacter characters acted toggle highlighted chakras turn onTeam b =
     let
+        alive =
+            b.ninja.health > 0
+
         render =
             renderDetail onTeam b.ninja.slot characters
 
@@ -862,18 +865,14 @@ renderCharacter characters acted toggle highlighted chakras turn onTeam b =
             else
                 "right"
 
-        live xs =
-            if b.ninja.health > 0 then
-                xs
+        channels =
+            if alive then
+                b.ninja.channels
+                    |> List.reverse
+                    >> List.map (Detail.channel b.ninja.slot >> render)
 
             else
                 []
-
-        channels =
-            b.ninja.channels
-                |> List.reverse
-                >> List.map (Detail.channel b.ninja.slot >> render)
-                >> live
 
         copies =
             []
@@ -886,12 +885,15 @@ renderCharacter characters acted toggle highlighted chakras turn onTeam b =
                >> live
         -}
         defenses =
-            renderDefense b.ninja.slot
-                anchor
-                b.ninja.health
-                (List.reverse b.ninja.barrier)
-                (List.reverse b.ninja.defense)
-                |> live
+            if alive then
+                renderDefense b.ninja.slot
+                    anchor
+                    b.ninja.health
+                    (List.reverse b.ninja.barrier)
+                    (List.reverse b.ninja.defense)
+
+            else
+                []
 
         details =
             Detail.get b.ninja
@@ -902,7 +904,6 @@ renderCharacter characters acted toggle highlighted chakras turn onTeam b =
                         identity
                    )
                 >> List.map render
-                >> live
 
         active =
             onTeam
@@ -975,7 +976,11 @@ renderCharacter characters acted toggle highlighted chakras turn onTeam b =
                                 ++ "%"
                         ]
                       <|
-                        live [ H.text <| String.fromInt b.ninja.health ]
+                        if alive then
+                            [ H.text <| String.fromInt b.ninja.health ]
+
+                        else
+                            []
                     ]
                         ++ defenses
                , H.aside [ A.class "statuses" ]
