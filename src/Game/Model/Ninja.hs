@@ -30,14 +30,14 @@ new :: Slot -> Character -> Ninja
 new slot c = Ninja
     { slot
     , health     = 100
-    , character  = c { Character.skills = (own <$>) <$> c.skills }
+    , character  = c { Character.skills = owned }
     , defense    = mempty
     , barrier    = mempty
     , statuses   = mempty
     , charges    = mempty
     , cooldowns  = mempty
-    , skills     = toNullable $ head <$> c.skills
-    , copies     = replicate (length c.skills) Nothing
+    , skills     = toNullable $ head <$> owned
+    , copies     = replicate (length owned) Nothing
     , channels   = mempty
     , traps      = mempty
     , lastSkill  = Nothing
@@ -48,7 +48,7 @@ new slot c = Ninja
     }
   where
     own x = x { Skill.owner = slot }
-
+    owned = (own <$>) <$> c.skills
 -- | @alive n = health n > 0@
 alive :: Ninja -> Bool
 alive Ninja{health} = health > 0
