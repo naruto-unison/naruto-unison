@@ -352,7 +352,7 @@ component ports =
 
                 Alternate slot i ->
                     withSound Sound.Click
-                        { st | alternates = List.updateAt slot (always i) st.alternates }
+                        { st | alternates = List.updateAt slot (\n -> n + i) st.alternates }
 
                 Team Add char ->
                     withSound Sound.Click <|
@@ -1129,34 +1129,29 @@ previewSkill visibles char slot skills i =
 
         Just skill ->
             let
-                findDifferent xs x =
-                    List.findIndices (\y -> y.name /= x.name) xs
-
                 vPrev =
-                    List.getAt i skills
-                        |> Maybe.andThen
-                            (List.last << findDifferent (List.take i skills))
-                        >> Maybe.map
-                            (\v ->
-                                H.a
-                                    [ A.class "prevSkill click"
-                                    , E.onClick <| Alternate slot v
-                                    ]
-                                    []
-                            )
+                    if i > 0 then
+                        Just <|
+                            H.a
+                                [ A.class "prevSkill click"
+                                , E.onClick <| Alternate slot -1
+                                ]
+                                []
+
+                    else
+                        Nothing
 
                 vNext =
-                    List.getAt i skills
-                        |> Maybe.andThen
-                            (List.head << findDifferent (List.drop i skills))
-                        >> Maybe.map
-                            (\v ->
-                                H.a
-                                    [ A.class "nextSkill click"
-                                    , E.onClick << Alternate slot <| v + i
-                                    ]
-                                    []
-                            )
+                    if i + 1 < List.length skills then
+                        Just <|
+                            H.a
+                                [ A.class "nextSkill click"
+                                , E.onClick <| Alternate slot 1
+                                ]
+                                []
+
+                    else
+                        Nothing
             in
             H.section []
                 [ H.div [] <|
