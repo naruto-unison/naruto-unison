@@ -192,7 +192,7 @@ trap x =
     in
     { name = x.name
     , desc = x.skill.desc
-    , classes = x.classes
+    , classes = Set.remove "Necromancy" x.classes
     , dur = x.dur
     , source = x.skill.owner
     , skillName = x.skill.name
