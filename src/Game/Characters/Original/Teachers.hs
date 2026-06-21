@@ -110,7 +110,7 @@ characters =
                 apply 1 skillName [Expose]
                 bonus <- 5 `bonusIf` target has "Dragon Flame"
                 damage (5 + bonus)
-          , To Self $ hide 1 skillName
+          , To Self $ apply 1 skillName
                 [ Alternate "Dragon Flame"
                             "Twin Snake Sacrifice"
                 ]
@@ -319,15 +319,15 @@ characters =
         , Skill.cost      = [Nin, Tai]
         , Skill.cooldown  = 2
         , Skill.dur       = Action 2
+        , Skill.start     =
+          [ To Self $ remove "Sharpen Blades" ]
         , Skill.always    =
-          [ To Self do
-                remove "Sharpen Blades"
-                hide 1 skillName
-                    [ Alternate "Flying Swallow"
-                                "Finishing Blow"
-                    , Alternate "Sharpen Blades"
-                                "Flying Kick"
-                    ]
+          [ To Self $ apply 1 skillName
+                [ Alternate "Flying Swallow"
+                            "Finishing Blow"
+                , Alternate "Sharpen Blades"
+                            "Flying Kick"
+                ]
           ]
         , Skill.effects   =
           [ To Enemies $ damage 15

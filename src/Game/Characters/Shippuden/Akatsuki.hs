@@ -102,7 +102,7 @@ characters =
           [ To Enemy do
                 damage 15
                 apply 4 skillName [Weaken [All] Flat 5]
-          , To Self $ hide Permanent skillName
+          , To Self $ apply Permanent skillName
                 [ Alternate "C1: Bird Bomb"
                             "C3: Megaton Sculpture"
                 ]
@@ -117,7 +117,7 @@ characters =
           [ To Enemies do
                 damage 20
                 apply 4 skillName [Weaken [All] Flat 5]
-          , To Self $ remove "c1: bird bomb"
+          , To Self $ remove "C1: Bird Bomb"
           ]
         }
       , Skill.new
@@ -173,7 +173,7 @@ characters =
                 [ Afflict 10
                 , Weaken [All] Flat 5
                 ]
-          , To Self $ hide Permanent skillName
+          , To Self $ apply Permanent skillName
                 [ Alternate "C4: Karura"
                             "C0: Ultimate Art"
                 ]
@@ -256,7 +256,7 @@ characters =
           [ To Enemies do
                 trap -1 OnNoHarm $
                     apply 1 "Pinned" [Expose]
-          , To Self $ hide 1 skillName
+          , To Self $ apply 1 skillName
                 [ Alternate "Thousand Arms"
                             "Poison Gas"
                 ]
@@ -426,7 +426,7 @@ characters =
                     [ Stun Chakra
                     , Stun Ranged
                     ]
-          , To Self $ hide Permanent skillName
+          , To Self $ apply Permanent skillName
                 [ Alternate "Pressure Damage"
                             "Searing Migraine"
                 ]
@@ -439,7 +439,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemies $ afflict 15
-          , To Self $ remove "pressure damage"
+          , To Self $ remove "Pressure Damage"
           ]
         }
       ]
@@ -450,7 +450,7 @@ characters =
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
           [ To Enemy $ pierce 30
-          , To Self $ hide Permanent skillName
+          , To Self $ apply Permanent skillName
                 [ Alternate "False Darkness"
                             "Blast Flames"
                 ]
@@ -464,7 +464,7 @@ characters =
         , Skill.effects   =
           [ To Enemy $ damage 35
           , To XEnemies $ damage 20
-          , To Self $ remove "false darkness"
+          , To Self $ remove "False Darkness"
           ]
         }
       ]
@@ -549,7 +549,7 @@ characters =
         , Skill.cooldown  = 4
         , Skill.dur       = Action 3
         , Skill.always    =
-          [ To Self $ hide 1 skillName
+          [ To Self $ apply 1 skillName
                 [ Alternate "Exploding Water Shockwave"
                             "Shark Dance"
                 , Face
@@ -608,7 +608,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 defend Permanent 5
-                hide 1 skillName
+                apply 1 skillName
                     [ Alternate "Susanoo"
                                 "Susanoo"
                     , Alternate "Amaterasu"
@@ -696,7 +696,7 @@ characters =
               [ To Self $ cancelChannel "White Zetsu" ]
             , Skill.effects   =
               [ To Self do
-                    hide 1 skillName
+                    apply 1 skillName
                         [ Alternate "Black Zetsu"
                                     "Underground Roots"
                         , Alternate "Doppelgänger / Body Coating"
@@ -719,7 +719,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 defend Permanent 5
-                hide 1 skillName
+                apply 1 skillName
                     [ Alternate "White Zetsu"
                                 "Black Zetsu"
                     , Alternate "Black Zetsu"
@@ -896,11 +896,9 @@ characters =
           ]
         , Skill.effects   =
           [ To Self do
-                push <- user has "almighty push"
-                let alt = if push then "Almighty Push" else "Universal Pull"
-                hide 1 "_" [Alternate "Almighty Push" alt]
-                unless (push) $
-                    hide 1 skillName []
+                pull <- user has "Deva Path: Universal Pull"
+                let alt = if pull then "Almighty Push" else "Universal Pull"
+                apply 1 ("Deva Path: " ++ alt) [Alternate "Almighty Push" alt]
           ]
         }
       , Skill.new
@@ -1005,7 +1003,7 @@ characters =
         , Skill.dur       = Action 2
         , Skill.start     =
           [ To Enemy purge
-          , To Self $ hide Permanent skillName
+          , To Self $ apply Permanent skillName
                 [ Alternate "Missile Salvo"
                             "Head Cannon"
                 ]
@@ -1021,7 +1019,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemies $ pierce 20
-          , To Self $ remove "missile salvo"
+          , To Self $ remove "Missile Salvo"
           ]
         }
       ]
@@ -1156,14 +1154,13 @@ characters =
         , Skill.start     =
           [ To Enemy $ trap 2 (OnAction All) $
                 removeTrap skillName
-          ]
-        , Skill.effects   =
-          [ To Enemy $ damage 15
-          , To Self $ hide 1 skillName
+          , To Self $ apply Permanent skillName
                 [ Alternate "Summoning: Giant Centipede"
                             "Summoning: Giant Crustacean"
                 ]
           ]
+        , Skill.effects   =
+          [ To Enemy $ damage 15 ]
         , Skill.end       =
           [ To Self $ whenM (user alive) $ targeting Everyone $
                 whenM (target has' traps skillName) $
@@ -1178,7 +1175,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.dur       = Ongoing 2
         , Skill.start     =
-          [ To Self $ remove "summoning: giant centipede" ]
+          [ To Self $ remove "Summoning: Giant Centipede" ]
         , Skill.effects   =
           [ To Enemies do
                 damage 10

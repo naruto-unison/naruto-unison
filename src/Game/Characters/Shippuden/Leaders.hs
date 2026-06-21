@@ -69,7 +69,7 @@ characters =
                 damage 20
                 stacks <- target amount "Toad Oil Bomb"
                 afflict (10 * stacks)
-          , To Self $ hide Permanent skillName
+          , To Self $ apply Permanent skillName
                 [ Alternate "Giant Flame Bomb"
                             "Toad Oil Bomb"
                 ]
@@ -85,7 +85,7 @@ characters =
                 afflict 10
                 interrupt
                 addStack skillName
-          , To Self $ remove "giant flame bomb"
+          , To Self $ remove "Giant Flame Bomb"
           ]
         }
       ]

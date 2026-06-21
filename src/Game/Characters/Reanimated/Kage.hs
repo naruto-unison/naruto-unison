@@ -23,7 +23,8 @@ characters =
           [ To Enemies $ damage 10
           , To Allies $ defend Permanent 5
           ]
-        , Skill.changes   = changeWith "Deep Forest Creation" $ setCooldown 0
+        , Skill.changes   = changeWithChannel "Deep Forest Creation"
+                          $ setCooldown 0
         }
       ]
     , [ Skill.new
@@ -55,7 +56,7 @@ characters =
                 [ Snare 1
                 , Exhaust [NonMental]
                 ]
-          , To Self $ hide 1 skillName
+          , To Self $ apply 1 skillName
                 [ Alternate "Deep Forest Creation"
                             "Deep Forest Flourishing"
                 ]
@@ -255,7 +256,7 @@ characters =
                 tag 1 skillName
           , To Self do
                 addStack "Hell Stab"
-                hide Permanent skillName
+                apply Permanent skillName
                     [ Alternate "Piercing Four-Fingered"
                                 "Three-Fingered Assault"
                     ]
@@ -271,7 +272,8 @@ characters =
                 addStack "Hell Stab"
                 trap Permanent (OnDamaged All) $
                     alterCooldown "Lightning Armor" -1
-                hide Permanent skillName
+                remove "Piercing Four-Fingered"
+                apply Permanent skillName
                     [ Alternate "Piercing Four-Fingered"
                                 "One-Fingered Assault"
                     ]
@@ -286,7 +288,12 @@ characters =
         , Skill.effects   =
           [ To Self do
                 addStack "Hell Stab"
-                apply Permanent skillName [Invulnerable Affliction]
+                remove "Three-Fingered Assault"
+                apply Permanent skillName
+                    [ Invulnerable Affliction
+                    , Alternate "Piercing Four-Fingered"
+                                "One-Fingered Assault"
+                    ]
           ]
         }
       ]

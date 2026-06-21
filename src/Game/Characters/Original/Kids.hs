@@ -296,7 +296,7 @@ characters =
                 [ Stun All
                 , Expose
                 ]
-          , To Self $ controlWith [Hidden]
+          , To Self $ control
                 [ Alternate "Mind Transfer"
                             "Art of the Valentine"
                 ]
@@ -384,7 +384,8 @@ characters =
         , Skill.start     =
           [ To Self do
                 sacrifice 1 5
-                setAlternates [1, 1, 1]
+                alternates <- getAlternates [1, 1, 1]
+                apply Permanent skillName alternates
           ]
         , Skill.effects   =
           [ To XAllies $ apply 1 "Protected" [Reduce [All] Flat 5] ]
@@ -434,8 +435,10 @@ characters =
         , Skill.start     =
           [ To Self do
                 cancelChannel "Spinach Pill"
+                remove "Spinach Pill"
                 sacrifice 1 15
-                setAlternates [2, 2, 2]
+                alternates <- getAlternates [2, 2, 2]
+                apply Permanent skillName alternates
           ]
         , Skill.effects   =
           [ To XAllies $ apply 1 "Protected" [Reduce [All] Flat 10] ]
@@ -496,11 +499,13 @@ characters =
                     cancelChannel "Curry Pill"
                 else
                     sacrifice 1 10
-                setAlternates [3, 3, 3, 1]
-                applyWith [Unremovable] Permanent skillName
+                remove "Spinach Pill"
+                remove "Curry Pill"
+                alternates <- getAlternates [3, 3, 3, 1]
+                applyWith [Unremovable] Permanent skillName $
                     [ Focus
                     , Face
-                    ]
+                    ] ++ alternates
           ]
         , Skill.always    =
           [ To Self $ unlessM (channeling "Chakra Wings") $
@@ -523,7 +528,8 @@ characters =
           [ To Self do
                 cancelChannel "Spinach Pill"
                 sacrifice 1 5
-                setAlternates [2, 2, 2]
+                alternates <- getAlternates [2, 2, 2]
+                apply Permanent skillName alternates
           ]
         , Skill.effects   =
           [ To XAllies $ apply 1 "Protected" [Reduce [All] Flat 10] ]
@@ -734,7 +740,7 @@ characters =
                 [ Expose
                 , Stun NonMental
                 ]
-          , To Self $ controlWith [Hidden]
+          , To Self $ control
                 [ Alternate "Sand Coffin"
                             "Sand Burial"
                 ]

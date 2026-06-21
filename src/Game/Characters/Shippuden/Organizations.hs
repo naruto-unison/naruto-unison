@@ -283,7 +283,7 @@ characters =
                     cancelChannel skillName
           ]
         , Skill.end       =
-          [ To Self $ hide Permanent skillName
+          [ To Self $ apply Permanent skillName
                 [ Alternate "Izanagi"
                             "Reverse Tetragram Sealing"
                 ]
@@ -320,7 +320,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $ hide Permanent skillName
+          [ To Self $ apply Permanent skillName
                 [ Alternate "Vacuum Bullets"
                             "Vacuum Blade"
                 ]
@@ -335,7 +335,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $ remove "vacuum bullets"
+          [ To Self $ remove "Vacuum Bullets"
           , To Enemy $ damage 15
           ]
         }
@@ -510,7 +510,7 @@ characters =
           [ To Self do
                 trapFrom 1 (CounterAll NonMental) $
                     afflict 10
-                hide Permanent skillName
+                apply Permanent skillName
                     [ Alternate "Chidori Stream"
                                 "Kusanagi"
                     ]
@@ -528,7 +528,7 @@ characters =
                     [ Stun Physical
                     , Stun Mental
                     ]
-          , To Self $ remove "chidori stream"
+          , To Self $ remove "Chidori Stream"
           ]
         }
       ]

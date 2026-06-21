@@ -83,7 +83,8 @@ characters =
                 kotetsuHealth <- user amount "Kotetsu's Health"
                 setHealth if kotetsuHealth == 0 then 100 else kotetsuHealth
                 remove "Kotetsu's Health"
-                applyStacks "Izumo's Health" userHealth
+                applyStacks "Izumo's Health" userHealth []
+                apply Permanent skillName
                     [ Alternate "Devastate"
                                 "Annihilate"
                     , Alternate "Tag Team"
@@ -93,6 +94,7 @@ characters =
                     izumoHealth <- user amount "Izumo's Health"
                     setHealth izumoHealth
                     remove "Izumo's Health"
+                    remove skillName
                     hide Permanent "solo" []
           ]
         }
@@ -108,13 +110,14 @@ characters =
                 izumoHealth <- user amount "Izumo's Health"
                 setHealth if izumoHealth == 0 then 100 else izumoHealth
                 remove "Izumo's Health"
+                remove skillName
                 addStacks "Kotetsu's Health" userHealth
                 trap' Permanent Resurrect do
                     kotetsuHealth <- user amount "Kotetsu's Health"
                     setHealth kotetsuHealth
                     remove "Kotetsu's Health"
                     hide Permanent "solo" []
-                    hide Permanent skillName
+                    apply Permanent skillName
                         [ Alternate "Devastate"
                                     "Annihilate"
                         , Alternate "Tag Team"
@@ -300,7 +303,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy $ apply 1 skillName [Stun NonMental]
-          , To Self $ hide 1 skillName
+          , To Self $ apply 1 skillName
                 [ Alternate "Chain Wrap"
                             "Chain Shred"
                 ]

@@ -299,7 +299,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.dur       = Action 3
         , Skill.always    =
-          [ To Self $ hide 1 skillName
+          [ To Self $ apply 1 skillName
                 [ Alternate "Insect Swarm"
                             "Chakra Leech"
                 ]
@@ -469,7 +469,7 @@ characters =
           [ To Enemy do
                 damage 35
                 apply 1 skillName [Stun NonMental]
-                targeting Self $ hide 1 skillName
+                targeting Self $ apply 1 skillName
                     [ Alternate "Shadow Sewing"
                                 "Shadow Sewing: Hold"
                     ]
@@ -485,7 +485,7 @@ characters =
           [ To Enemy do
                 damage 20
                 prolong 1 "Shadow Sewing"
-                targeting Self $ prolong 1 "shadow sewing"
+                targeting Self $ prolong 1 "Shadow Sewing"
           ]
         }
       ]
@@ -596,7 +596,7 @@ characters =
         , Skill.start     =
           [ To Self do
                 addCalories 3
-                hide Permanent skillName
+                apply Permanent skillName
                     [ Alternate "Butterfly Mode"
                                 "Super-Slam"
                     ]
@@ -741,7 +741,8 @@ characters =
         , Skill.effects   =
           [ To Self do
                 defend Permanent 5
-                setAlternates [1, 1, 1]
+                alternates <- getAlternates [1, 1, 1]
+                applyWith [Nonstacking] Permanent skillName alternates
           ]
         }
       , Skill.new
@@ -751,7 +752,8 @@ characters =
         , Skill.effects   =
           [ To Self do
                 defend Permanent 5
-                setAlternates [2, 2, 2]
+                alternates <- getAlternates [2, 2, 2]
+                applyWith [Nonstacking] Permanent "Switch Loadout" alternates
           ]
         }
       , Skill.new
@@ -761,7 +763,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 defend Permanent 5
-                setAlternates [0, 0, 0]
+                remove "Switch Loadout"
           ]
         }
       ]
@@ -805,7 +807,7 @@ characters =
         , Skill.effects   =
           [ To Enemies $ apply 2 skillName [Expose]
           , To Self $ trap 1 (CounterAll All) $
-                hide 1 skillName
+                apply -1 skillName
                     [ Alternate "Eight Trigrams Sixty-Four Palms"
                                 "Pressure Point Strike"
                     ]
@@ -926,7 +928,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.dur       = Action 3
         , Skill.always    =
-          [ To Self $ hide 1 skillName
+          [ To Self $ apply 1 skillName
                 [ Alternate "Sanshōuo Shield"
                             "Salamander Puppet"
                 ]

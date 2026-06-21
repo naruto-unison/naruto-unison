@@ -262,7 +262,7 @@ characters =
                 apply 1 skillName [Exhaust [NonMental]]
                 trap 1 (OnAction NonMental) $
                     remove skillName
-          , To Self $ hide 1 skillName
+          , To Self $ apply 1 skillName
                 [ Alternate "Sand Burial Prison"
                             "Giant Sand Burial"
                 ]

@@ -25,7 +25,7 @@ characters =
                 targetHealth' <- target health
                 when (targetHealth' < targetHealth) $
                     apply 1 skillName [Stun All]
-          , To Self $ hide 1 skillName
+          , To Self $ apply 1 skillName
                 [ Alternate "Lightning Beast Fang"
                             "Lightning Blade Finisher"
                 ]
@@ -94,7 +94,7 @@ characters =
           , To Self do
                 defend Permanent 40
                 tag 2 "Overheating"
-                hide 1 skillName
+                apply 1 skillName
                     [ Alternate "Thousand Hand Strike"
                                 "Kannon Strike"
                     ]
@@ -120,7 +120,7 @@ characters =
         , Skill.cost      = [Gen, Rand]
         , Skill.dur       = Action Permanent
         , Skill.always    =
-          [ To Self $ hide 1 skillName
+          [ To Self $ apply 1 skillName
                 [ Alternate "Burning Ash"
                             "Burning Ash: Ignite"
                 ]

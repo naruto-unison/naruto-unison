@@ -29,7 +29,7 @@ characters =
                     [ Stun Physical
                     , Stun Melee
                     ]
-          , To Self $ hide Permanent skillName
+          , To Self $ apply Permanent skillName
                 [ Alternate "Frog Kumite"
                             "Rasen Shuriken"
                 ]
@@ -44,7 +44,7 @@ characters =
           [ To Enemy do
                 pierce 50
                 apply Permanent skillName [Weaken [Chakra] Percent 10]
-          , To Self $ remove "frog kumite"
+          , To Self $ remove "Frog Kumite"
           ]
         }
       ]
@@ -65,7 +65,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemies $ apply 1 skillName [Disable Stuns]
-          , To Self $ hide Permanent skillName
+          , To Self $ apply Permanent skillName
                 [ Alternate "Natural Energy Assault"
                             "Rasengan Barrage"
                 ]
@@ -80,7 +80,7 @@ characters =
           [ To Self do
                 trapFrom 1 (Counter All) $
                     damage 30
-                remove "natural energy assault"
+                remove "Natural Energy Assault"
           ]
         }
       ]
@@ -145,7 +145,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.dur       = Action 3
         , Skill.always    =
-          [ To Self $ hide 1 skillName
+          [ To Self $ apply 1 skillName
                 [ Alternate "Sasori Surrogate"
                             "Hidden Coil Strike"
                 ]
@@ -180,7 +180,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 5
         , Skill.effects   =
-          [ To Self $ hide Permanent skillName
+          [ To Self $ apply Permanent skillName
                 [ Alternate "Kuroari Trap"
                             "Iron Maiden"
                 ]
@@ -204,7 +204,7 @@ characters =
             [ To Enemy do
                   bonus <- 40 `bonusIf` target has "Kuroari Ambush"
                   pierce (20 + bonus)
-            , To Self $ remove "kuroari trap"
+            , To Self $ remove "Kuroari Trap"
             ]
         }
       ]
@@ -305,17 +305,16 @@ characters =
                     targeting Everyone do
                         removeTrap skillName
                         remove skillName
-                    targeting Self do
-                        remove "reanimation scroll"
+                    targeting Self $
                         cancelChannel "Summoning: Reanimation"
-          , To Self $ hide Permanent skillName
+          , To Self $ apply Permanent skillName
                 [ Alternate "Reanimation Scroll"
                             "Summoning: Reanimation" ]
           ]
         }
       , Skill.new
         { Skill.name      = "Summoning: Reanimation"
-        , Skill.desc      = "Using the body of an injured enemy as a sacrificial vessel, Kabuto begins the reanimation ritual. If the enemy does not break free by taking an action during the next 3 turns, they will be sacrificed to resurrect the target of [Reanimation Scroll]. If their health reaches 0, the sacrifice will occur immediately. Reanimated allies regain 10 health after every turn in which they are not damaged, and they gain a random chakra after every turn in which they do not act."
+        , Skill.desc      = "Using the body of an injured enemy as a sacrificial vessel, Kabuto begins the reanimation ritual. If the enemy does not break free by taking an action during the next 3 turns, they will be sacrificed to resurrect the target of [Reanimation Scroll] and this skill will revert to [Reanimation Scroll]. If their health reaches 0, the sacrifice will occur immediately. Reanimated allies regain 10 health after every turn in which they are not damaged, and they gain a random chakra after every turn in which they do not act."
         , Skill.require   = [ UserChannel False "Sacrificial Reanimation"
                             , TargetHealth AtMost 99
                             , TargetHealth AtLeast 1
@@ -375,7 +374,7 @@ characters =
         , Skill.cost      = [Rand, Rand, Rand]
         , Skill.dur       = Ongoing Permanent
         , Skill.start     =
-          [ To Self $ hide Permanent skillName
+          [ To Self $ apply Permanent skillName
                 [ Alternate "Sage Transformation"
                             "DNA Transmission Shadow"
                 ]
@@ -717,7 +716,7 @@ characters =
                 apply 3 skillName [Afflict 5]
                 userSlot <- user slot
                 apply 1 skillName [Taunt userSlot]
-          , To Self $ hide Permanent skillName
+          , To Self $ apply Permanent skillName
                 [ Alternate "Poisonous Chain Skewer"
                             "Impale"
                 ]
@@ -729,7 +728,7 @@ characters =
         , Skill.classes   = [Bane, Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ To Self $ remove "poisonous chain skewer"
+          [ To Self $ remove "Poisonous Chain Skewer"
           ,  To Enemy do
                   pierce 15
                   apply 2 skillName [Afflict 5]
@@ -748,7 +747,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.dur       = Action 3
         , Skill.start     =
-          [ To Self $ hide Permanent skillName
+          [ To Self $ apply Permanent "Cutting Water Jets"
                 [ Alternate "Flamethrower Jets"
                             "Cutting Water Jets"
                 ]
@@ -780,7 +779,7 @@ characters =
           [ To Enemy do
                 bonus <- 10 `bonusIf` target has "Flamethrower Jets"
                 pierce (20 + bonus)
-          , To Self $ remove "flamethrower jets"
+          , To Self $ remove skillName
           ]
         }
       ]
@@ -851,7 +850,7 @@ characters =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Self $ hide Permanent skillName
+          [ To Self $ apply Permanent skillName
                 [ Alternate "Paper Bomb"
                             "Paper Shuriken"
                 ]
@@ -866,7 +865,7 @@ characters =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ To Self $ remove "paper bomb"
+          [ To Self $ remove "Paper Bomb"
           , To Enemy do
                 pierce 20
                 addStack skillName
@@ -955,8 +954,10 @@ characters =
                         killHard
                         targeting Self do
                             factory
-                            setAlternates [1, 1, 1, 1]
-                            apply Permanent skillName [Invulnerable Bane]
+                            alternates <- getAlternates [1, 1, 1, 1]
+                            apply Permanent skillName $
+                                [Invulnerable Bane]
+                                ++ alternates
           ]
         }
       , Skill.new

@@ -40,7 +40,7 @@ characters =
                 trap 4 OnDeath $
                     targeting Self killHard
                 targeting Self do
-                    hide 4 skillName
+                    apply 4 skillName
                         [ Alternate "Life Link"
                                     "Life Transfer"
                         ]

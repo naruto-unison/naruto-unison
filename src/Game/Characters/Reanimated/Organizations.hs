@@ -394,7 +394,7 @@ characters =
           [ To Self do
                 trapFrom 1 (OnHarmed All) $
                     apply Permanent skillName [Afflict 10]
-                hide 1 skillName
+                apply 1 skillName
                     [ Alternate "Scroll Unraveling"
                                 "Multiple Explosions of Death"
                     ]
@@ -564,7 +564,7 @@ characters =
           [ To Enemies do
                 afflict 10
                 addStack skillName
-          , To Self $ hide Permanent skillName
+          , To Self $ apply Permanent skillName
                 [ Alternate "Sonar Bat Bombs"
                             "Jellyfish Explosives"
                 ]
@@ -579,7 +579,7 @@ characters =
           [ To Enemy do
                 pierce 25
                 addStack skillName
-          , To Self $ remove "sonar bat bombs"
+          , To Self $ remove "Sonar Bat Bombs"
           ]
         }
       ]
@@ -660,7 +660,7 @@ characters =
         , Skill.dur       = Control Permanent
         , Skill.start     =
           [ To Enemy $ control [Reveal]
-          , To Self $ controlWith [Hidden]
+          , To Self $ control
                 [Alternate "Human Path"
                            "Naraka Path"
                 ]

@@ -6,7 +6,7 @@ module Game.Action.Skill
   -- * Copying
   , copyAll, copyLast, teach
   -- * Alternates
-  , setAlternates, nextAlternate
+  , getAlternates, nextAlternate
 
   -- * Other
   , factory, replaceWith
@@ -65,7 +65,7 @@ rechargeAll :: ∀ m. MonadPlay m => m ()
 rechargeAll = P.toTarget Ninjas.rechargeAll
 
 alternateClasses :: EnumSet Class
-alternateClasses = setFromList [Hidden, Nonstacking, Unremovable]
+alternateClasses = setFromList [Nonstacking, Unremovable]
 
 userSkills :: ∀ m. MonadPlay m => m (NonNull Vector (NonNull Vector Skill))
 userSkills = getSkills <$> P.nUser
@@ -73,17 +73,12 @@ userSkills = getSkills <$> P.nUser
     getSkills Ninja{character = Character{skills}} = skills
 
 -- | Adjusts all 'N.alternates' at once.
-setAlternates :: ∀ m. MonadPlay m
+getAlternates :: ∀ m. MonadPlay m
           => [Int] -- ^ Index offsets.
-          -> m () -- ^ Recalculates every alternate of a target @Ninja@.
-setAlternates loadout = P.uncopied do
-    Context{user, skill} <- P.context
+          -> m [Effect] -- ^ Recalculates every alternate of a target @Ninja@.
+getAlternates loadout = do
     skills <- userSkills
-    P.modify user . Ninjas.addStatus $ Status.addClasses alternateClasses
-        (Status.new user Permanent skill)
-        { Status.name = "$loadout"
-        , Status.effects = catMaybes $ zipWith load loadout $ toList skills
-        }
+    return $ catMaybes $ zipWith load loadout $ toList skills
   where
     load alt (x:|xs) = Alternate x.name . Skill.name <$> xs !? (alt - 1)
 
@@ -99,9 +94,7 @@ nextAlternate name = do
         Just alt -> P.modify user . Ninjas.addStatus
                   $ Status.addClasses alternateClasses
                         (Status.new user 1 skill)
-                        { Status.name    = "$nextAlternate"
-                        , Status.effects = [Alternate name' alt]
-                        }
+                        { Status.effects = [Alternate name' alt] }
 
 -- | Copies all @Skill@s from the target into the user's 'N.copies'.
 -- Uses 'Ninjas.copyAll' internally.

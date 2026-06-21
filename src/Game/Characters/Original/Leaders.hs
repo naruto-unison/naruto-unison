@@ -51,7 +51,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 gain [Rand]
-                hide 1 skillName
+                apply 1 skillName
                     [ Alternate "Major Summoning: Manda"
                                 "Paralyzing Bite"
                     ]
@@ -110,7 +110,7 @@ characters =
           [ To Enemies $ afflict 25 ]
         , Skill.effects   =
           [ To Enemies $ apply 1 skillName [Bleed [Affliction] Flat 5]
-          , To Self $ hide 1 skillName
+          , To Self $ apply 1 skillName
                 [ Alternate "Major Summoning: Gamabunta"
                             "Toad Oil Bomb"
                 ]
@@ -170,7 +170,7 @@ characters =
           [ To Allies $ heal 40 ]
         , Skill.effects   =
           [ To Allies $ heal 5
-          , To Self $ hide 1 skillName
+          , To Self $ apply 1 skillName
                 [ Alternate "Major Summoning: Katsuyu"
                             "Slug Division"
                 ]
@@ -237,7 +237,7 @@ characters =
         , Skill.effects   =
           [ To Enemies $ damage 5
           , To Allies $ apply 1 skillName [Reduce [All] Flat 5]
-          , To Self $ hide 1 skillName
+          , To Self $ apply 1 skillName
                 [ Alternate "Major Summoning: Enma"
                             "Adamantine Prison"
                 ]

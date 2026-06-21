@@ -206,12 +206,12 @@ characters =
           [ To Self do
                 sacrifice 1 5
                 defend Permanent 10
-                setAlternates [1, 0, 0, 0]
-                apply Permanent skillName
+                alternates <- getAlternates [1, 0, 0, 0]
+                apply Permanent skillName $
                     [ Reduce [All] Flat 10
                     , Plague
                     , Face
-                    ]
+                    ] ++ alternates
           ]
         }
       , Skill.new
@@ -221,17 +221,17 @@ characters =
         , Skill.cost      = [Blood, Rand]
         , Skill.effects   =
           [ To Self do
-                apply Permanent skillName
+                remove "Four-Tailed Transformation"
+                alternates <- getAlternates [2, 1, 1, 1]
+                apply Permanent skillName $
                     [ Reduce [All] Flat 20
                     , Plague
                     , Alone
                     , Enrage
                     , Face
-                    ]
-                remove "Four-Tailed Transformation"
+                    ] ++ alternates
                 sacrifice 1 10
                 defend Permanent 20
-                setAlternates [2, 1, 1, 1]
           ]
         }
       , Skill.new
@@ -241,17 +241,17 @@ characters =
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
           [ To Self do
-                apply Permanent skillName
+                remove "Six-Tailed Transformation"
+                alternates <- getAlternates [3, 2, 2, 2]
+                apply Permanent skillName $
                     [ Reduce [All] Flat 30
                     , Plague
                     , Alone
                     , Enrage
                     , Face
-                    ]
-                remove "Six-Tailed Transformation"
+                    ] ++ alternates
                 sacrifice 1 15
                 defend Permanent 30
-                setAlternates [3, 2, 2, 2]
           ]
         }
       , Skill.new

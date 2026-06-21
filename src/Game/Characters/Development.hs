@@ -27,7 +27,7 @@ characters = (\c -> c Original "") <$>
         , Skill.classes = [Bypassing, Uncounterable, Unreflectable]
         , Skill.effects =
           [ To Enemies $ apply Permanent skillName [Stun All]
-          , To Self $ hide Permanent skillName
+          , To Self $ apply Permanent skillName
                 [ Alternate "The Funk Wasn't With You"
                             "Could've Had a V8"
                 ]
@@ -38,9 +38,7 @@ characters = (\c -> c Original "") <$>
         , Skill.desc    = "Frees the enemy team from the effect of [The Funk Wasn't With You]. Once used, this skill becomes [The Funk Wasn't With You]."
         , Skill.classes = [Bypassing, Uncounterable, Unreflectable]
         , Skill.effects =
-          [ To Enemies $ remove "The Funk Wasn't With You"
-          , To Self $ remove "the funk wasn't with you"
-          ]
+          [ To Everyone $ remove "The Funk Wasn't With You" ]
         }
       ]
     , [ Skill.new

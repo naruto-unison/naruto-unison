@@ -209,14 +209,14 @@ characters =
     , [ Skill.new
         { Skill.name      = "Sensory Radar"
         , Skill.desc      = "Inoichi steps back and focuses on the tide of battle. Whenever an enemy uses a skill on Inoichi or his allies, Inoichi recovers 10 health and gains a stack of [Sensory Radar]. While active, this skill becomes [Sensory Radar: Collate][r]."
-        , Skill.classes   = [Mental, Ranged]
+        , Skill.classes   = [Mental, Ranged, Bypassing, Unreflectable, Unremovable]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ To Self $ hide Permanent skillName
+          [ To Self $ apply Permanent "Sensory Radar: Collate"
                 [ Alternate "Sensory Radar"
                             "Sensory Radar: Collate"
                 ]
-          , To Enemies $ trap Permanent OnHarm $ targeting Self do
+          , To Allies $ trap Permanent (OnHarmed All) $ targeting Self do
                 heal 10
                 addStack skillName
           ]
@@ -232,7 +232,7 @@ characters =
                 stacks <- user amount "Sensory Radar"
                 gain $ replicate stacks Rand
                 remove "Sensory Radar"
-                cancelChannel "Sensory Radar"
+                remove skillName
           ]
         }
       ]
@@ -273,7 +273,7 @@ characters =
                 control [Stun NonMental]
                 whenM (target has "Ensnared") $
                     prolong 1 skillName
-          , To Self $ hide 1 skillName
+          , To Self $ apply 1 skillName
                 [ Alternate "Shadow Possession"
                             "Shadow Dispersion"
                 ]
