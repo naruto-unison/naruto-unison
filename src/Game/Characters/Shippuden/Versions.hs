@@ -638,7 +638,7 @@ characters =
           [ To Enemy $ damage 15
           , To Self do
                 removeStack skillName
-                trap' 1 OnStunned $
+                trap 1 OnStunned $
                     cancelChannel skillName
           ]
         , Skill.end       =
@@ -752,17 +752,18 @@ characters =
                             "Cutting Water Jets"
                 ]
           ]
-        , Skill.effects   =
-          [ To Self do
-                apply 1 skillName [Enrage]
-                whenM (channeling "Flamethrower Jets") $
-                    trap' 1 (OnAction All) $
-                        cancelChannel skillName
+        , Skill.always    =
+          [ To Self $ whenM (channeling skillName) $
+                trap 1 (OnAction All) $
+                    cancelChannel skillName
           , To Enemy do
-                afflict 10
                 tag 1 skillName
                 targetSlot <- target slot
                 targeting Self $ apply 1 "Flame Blast" [Duel targetSlot]
+          ]
+        , Skill.effects   =
+          [ To Self $ apply 1 skillName [Enrage]
+          , To Enemy $ afflict 10
           ]
         , Skill.end       =
           [ To Self $ targeting Everyone do

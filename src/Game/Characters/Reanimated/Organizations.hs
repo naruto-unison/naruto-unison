@@ -196,7 +196,7 @@ characters =
         , Skill.cooldown  = 4
         , Skill.dur       = Action 2
         , Skill.effects   =
-          [ To Self $ apply 1 "Demon Shroud "
+          [ To Self $ apply 1 "Demon Shroud"
                 [ Reduce [All] Flat 10
                 , Focus
                 ]
@@ -425,13 +425,13 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.dur       = Action 2
-        , Skill.start     =
-          [ To Enemy $ trapFrom 2 OnHarm do
-                targetSlot <- target slot
-                apply 2 skillName [Taunt targetSlot]
-          ]
         , Skill.effects   =
-          [ To Enemy $ pierce 15 ]
+          [ To Enemy do
+                pierce 15
+                trapFrom 1 OnHarm do
+                    targetSlot <- target slot
+                    apply 2 skillName [Taunt targetSlot]
+          ]
         , Skill.changes   = changeWithChannel "Chakra Weave" $ setCost [Rand]
         }
       ]

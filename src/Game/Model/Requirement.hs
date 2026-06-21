@@ -32,7 +32,7 @@ import           Util ((∈), (∉), (?), intersects)
 usable :: Bool -- ^ New.
        -> Ninja -> Skill -> Skill
 usable False n skill
-  | isStunned skill = skill' { Skill.effects = mempty }
+  | isStunned skill = skill' { Skill.effects = skill.stunned }
   | otherwise       = skill'
   where
     skill' = skill { Skill.require = filter (not . skip) skill.require }

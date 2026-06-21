@@ -44,6 +44,7 @@ new = Skill
     , dur       = Instant
     , start     = mempty
     , always    = mempty
+    , stunned   = mempty
     , effects   = mempty
     , end       = mempty
     , changes   = const id

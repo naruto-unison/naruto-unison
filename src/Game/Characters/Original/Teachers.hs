@@ -321,7 +321,7 @@ characters =
         , Skill.dur       = Action 2
         , Skill.start     =
           [ To Self $ remove "Sharpen Blades" ]
-        , Skill.always    =
+        , Skill.stunned   =
           [ To Self $ apply 1 skillName
                 [ Alternate "Flying Swallow"
                             "Finishing Blow"
@@ -330,8 +330,15 @@ characters =
                 ]
           ]
         , Skill.effects   =
-          [ To Enemies $ damage 15
-          , To Allies $ apply 1 skillName [Reduce [All] Flat 15]
+          [ To Self $ apply 1 skillName
+                [ Alternate "Flying Swallow"
+                            "Finishing Blow"
+                , Alternate "Sharpen Blades"
+                            "Flying Kick"
+                , Reduce [All] Flat 15
+                ]
+          , To XAllies $ apply 1 skillName [Reduce [All] Flat 15]
+          , To Enemies $ damage 15
           ]
         , Skill.changes   = changePer "Sharpen Blades" \i ->
                                 setDur $ Action (2 + fromIntegral i)

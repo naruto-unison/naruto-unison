@@ -563,7 +563,7 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand, Rand]
         , Skill.dur       = Action -1
-        , Skill.effects   =
+        , Skill.start     =
           [ To Self do
                 apply 1 skillName [Enrage]
                 addCalories 2
@@ -579,12 +579,11 @@ characters =
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Rand, Rand]
         , Skill.dur       = Action 2
+        , Skill.always    =
+          [ To Self $ addCalories 1 ]
         , Skill.effects   =
           [ To Enemy $ damage 15
-          ,  To Self do
-                trap 1 (CounterAll NonMental) (return ())
-                addCalories 1
-          ]
+          ,  To Self $ trap 1 (CounterAll NonMental) (return ()) ]
         , Skill.changes   = caloricCost
         }
       ]
@@ -927,14 +926,20 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
         , Skill.dur       = Action 3
-        , Skill.always    =
+        , Skill.stunned   =
           [ To Self $ apply 1 skillName
                 [ Alternate "Sanshōuo Shield"
                             "Salamander Puppet"
                 ]
           ]
         , Skill.effects   =
-          [ To Allies $ apply 1 skillName
+          [ To Self $ apply 1 skillName
+                [ Alternate "Sanshōuo Shield"
+                            "Salamander Puppet"
+                , Reduce [All] Percent 25
+                , Invulnerable Affliction
+                ]
+          , To XAllies $ apply 1 skillName
                 [ Reduce [All] Percent 25
                 , Invulnerable Affliction
                 ]

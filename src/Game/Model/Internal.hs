@@ -301,6 +301,7 @@ data Skill = Skill
     , dur       :: Channeling        -- ^ Defaults to 'Instant'
     , start     :: [Runnable Target] -- ^ Defaults to empty
     , always    :: [Runnable Target] -- ^ Defaults to empty
+    , stunned   :: [Runnable Target] -- ^ Defaults to empty
     , effects   :: [Runnable Target] -- ^ Defaults to empty
     , end       :: [Runnable Target] -- ^ Defaults to empty
     , changes   :: Ninja -> Skill -> Skill -- ^ Defaults to 'id'
@@ -318,6 +319,7 @@ instance ToJSON Skill where
         , dur
         , start
         , always
+        , stunned
         , effects
         , end
         , owner
@@ -331,6 +333,7 @@ instance ToJSON Skill where
         , "dur"      .= dur
         , "start"    .= start
         , "always"   .= always
+        , "stunned"  .= stunned
         , "effects"  .= effects
         , "end"      .= end
         , "owner"    .= owner

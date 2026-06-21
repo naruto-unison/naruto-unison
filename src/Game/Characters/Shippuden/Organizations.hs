@@ -303,8 +303,6 @@ characters =
         , Skill.cost      = [Blood, Gen]
         , Skill.dur       = Action 2
         , Skill.charges   = 1
-        , Skill.start     =
-          [ To Self $ flag skillName ]
         , Skill.effects   =
           [ To Self $ whenM (channeling skillName)
                 killHard
@@ -391,11 +389,11 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 4
         , Skill.dur       = Action 2
-        , Skill.always    =
+        , Skill.stunned   =
           [ To Self $ hide 1 skillName [Face] ]
         , Skill.effects   =
           [ To Self do
-                apply 1 skillName [Invulnerable Mental]
+                apply 1 skillName [Face, Invulnerable Mental]
                 gain [Rand]
                 defend Permanent 10
           ]
@@ -473,11 +471,11 @@ characters =
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 4
         , Skill.dur       = Action 3
-        , Skill.always    =
+        , Skill.stunned   =
           [ To Self $ hide 1 skillName [Face] ]
         , Skill.effects   =
-          [ To REnemy $ pierce 25
-          , To Self $ apply 1 skillName [Reduce [All] Percent 75]
+          [ To Self $ apply 1 skillName [Face, Reduce [All] Percent 75]
+          , To REnemy $ pierce 25
           ]
         }
       ]

@@ -1341,6 +1341,12 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 4
         , Skill.dur       = Action -4
+        , Skill.stunned   =
+          [ To Self $ apply 1 skillName
+                [ Alternate "Summoning: Gedo Statue"
+                            "Control"
+                ]
+          ]
         , Skill.effects   =
           [ To Self do
                 controlStacks <- user amount "Control"
