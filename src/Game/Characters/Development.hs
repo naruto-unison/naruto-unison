@@ -59,8 +59,8 @@ characters = (\c -> c Original "") <$>
         , Skill.require = [TargetHealth AtMost 0]
         , Skill.classes = [Necromancy, Bypassing, Uncounterable, Unreflectable]
         , Skill.effects =
-          [ To Enemy factory
-          , To XAlly factory
+          [ To Enemy $ resurrect 100
+          , To Ally $ resurrect 100
           ]
         }
       ]

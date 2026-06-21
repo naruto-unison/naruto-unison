@@ -181,7 +181,13 @@ modifyAll f n = processEffects n { N.defense  = f n.defense
 
 -- | Factory resets a @Ninja@ to its starting values.
 factory :: Ninja -> Ninja
-factory n = N.new n.slot n.character
+factory n = processSkills $ modifyAll (filter $ (Atemporal ∈) . getClasses) n
+    { N.health    = 100
+    , N.charges   = mempty
+    , N.cooldowns = mempty
+    , N.copies    = Nothing <$ n.copies
+    , N.channels  = mempty
+    }
 
 -- | Modifies 'health', restricting the value within [0, 100].
 adjustHealth :: (Int -> Int) -> Ninja -> Ninja

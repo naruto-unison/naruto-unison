@@ -7,7 +7,7 @@ module Game.Action.Combat
   , defend, defend', increaseDefense, removeDefense
   , barricade, barricade'
     -- * Healing
-  , heal, setHealth
+  , heal, setHealth, resurrect
   , leech, leech'
     -- * Special effects
   , sacrifice
@@ -166,6 +166,13 @@ heal hp
         let hp' = Effects.boost nUser.slot nTarget * hp + Effects.bless nUser
         Combat.adjustHealth (+ hp')
 
+resurrect :: ∀ m. MonadPlay m => Int -> m ()
+resurrect (min 100 -> hp) = P.unsilenced do
+    Context{target, user} <- P.context
+    Ninja{health} <- P.nTarget
+    when (health < hp) do
+        P.modify target \n -> n { N.health = hp }
+        P.trigger user [OnHeal]
 
 -- | Damages the target and passes the amount of damage dealt to another action,
 -- retargeted toward the user. Typically paired with @'heal'@ to effectively

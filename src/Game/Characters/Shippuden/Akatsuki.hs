@@ -1378,7 +1378,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Rinne Rebirth"
-        , Skill.desc      = "Nagato draws on the strength of the Outer Path to infuse life into his comrades at the cost of his own. He restores 15 health to both living and dead allies for 3 turns, during which he cannot use his other skills. Resurrected allies are cleared of all effects and their cooldowns are reset. When this skill ends, Nagato dies."
+        , Skill.desc      = "Nagato draws on the strength of the Outer Path to infuse life into his comrades at the cost of his own. He restores 15 health to both living and dead allies for 3 turns, during which he cannot use his other skills. When this skill ends, Nagato dies."
         , Skill.classes   = [Mental, Necromancy]
         , Skill.cost      = [Blood, Gen, Nin]
         , Skill.dur       = Control 3
@@ -1388,9 +1388,8 @@ characters =
                 targetAlive <- target alive
                 if targetAlive then
                     heal 15
-                else do
-                    factory
-                    setHealth 15
+                else
+                    resurrect 15
           ]
         , Skill.end       =
           [ To Self killHard ]
