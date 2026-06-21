@@ -179,9 +179,6 @@ duration ifEmpty x =
         0 ->
             [ H.text ifEmpty ]
 
-        1 ->
-            [ H.text "1" ]
-
         _ ->
             [ H.text << String.fromInt <| x // 2 ]
 
