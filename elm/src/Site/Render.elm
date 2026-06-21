@@ -127,18 +127,22 @@ getReanimationName : String -> Set String -> Maybe String
 getReanimationName skillName skillClasses =
     if Set.member "Reanimation" skillClasses then
         (List.head <| String.indexes ":" skillName)
-            |> Maybe.map (\index -> clean (String.left index skillName) ++ "-(r)")
+            |> Maybe.map (\index -> String.left index skillName)
 
     else
         Nothing
+
+
+cleanReanimationName : String -> String
+cleanReanimationName reanimationName = clean reanimationName ++ "-(r)"
 
 
 skillIcon : Character -> Skill -> List (H.Attribute msg) -> Html msg
 skillIcon character skill =
     case getReanimationName skill.name skill.classes of
         Just reanimationName ->
-            iconBase reanimationName <|
-                String.dropLeft (String.length reanimationName - 3) skill.name
+            iconBase (cleanReanimationName reanimationName) <|
+                String.dropLeft (String.length reanimationName + 2) skill.name
 
         Nothing ->
             icon character skill.name
@@ -148,8 +152,11 @@ detailIcon : Character -> Detail -> List (H.Attribute msg) -> Html msg
 detailIcon character detail =
     case getReanimationName detail.skillName detail.classes of
         Just reanimationName ->
-            iconBase reanimationName detail.name
-
+            iconBase (cleanReanimationName reanimationName) <|
+                if String.startsWith reanimationName detail.name then
+                    String.dropLeft (String.length reanimationName + 2) detail.name
+                else
+                    detail.name
         Nothing ->
             icon character detail.name
 
