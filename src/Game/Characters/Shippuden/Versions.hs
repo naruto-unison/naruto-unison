@@ -9,7 +9,7 @@ import           Game.Model.Ninja (isChanneling)
 import           Game.Model.ID (ID(ID))
 import qualified Game.Model.ID
 import qualified Game.Model.Skill as Skill
-import           Game.Characters.Reanimation (clearReanimationReserves, reanimations, reanimationStatusName, reanimate, reserveReanimation)
+import           Game.Characters.Reanimation (reanimations, reanimationStatusName, reanimate)
 
 characters :: [Category -> Text -> Character]
 characters =
@@ -242,21 +242,52 @@ characters =
         , Skill.classes   = [Summon]
         , Skill.charges   = 1
         , Skill.dur       = Passive
-        , Skill.start     =
-          [ To Self $ trap' Permanent OnStunned clearReanimationReserves ]
         , Skill.effects   =
-          [ To Self $ reanimate 1 ]
-        } :| (setCharges 1 <$> reanimations)
+          [ To Self $ unlessM (user has "binding talisman") reanimate ]
+        } :| let
+                unbind = To Self do
+                    flag "unbind"
+                    cancelChannel "Binding Talisman"
+                customizeReanimation skill = skill
+                    { Skill.charges = 1
+                    , Skill.changes = changeWith "binding talisman"
+                                    $ setCharges 0
+                    , Skill.effects = unbind : skill.effects
+                    }
+              in
+              customizeReanimation <$> reanimations
     , [ Skill.new
         { Skill.name      = "Binding Talisman"
-        , Skill.desc      = "Kabuto directs chakra through a kunai-implanted talisman to take direct control of one of his reanimated pawns, forcing them to do his bidding. The next time he uses a skill from [Reanimated Army], the current skill from [Reanimated Army] will also trigger. This skill stacks, but all stacks are lost if Kabuto is stunned. Cannot be used during [Summoning: Reanimation]."
-        , Skill.require   = [ UserHas AtLeast 1 reanimationStatusName
-                            , UserChannel False "Summoning: Reanimation"
-                            ]
+        , Skill.desc      = "Kabuto directs chakra through a kunai-implanted talisman to take direct control of one of his reanimated pawns, forcing them to do his bidding. The current skill from [Reanimated Army] will not be replaced in subsequent turns, and its charge will not be expended when used. If Kabuto is stunned or this skill is interrupted, the reanimated ninja will break free of his control, removing them from his [Reanimated Army]. This skill can be used again with no chakra cost to cancel its effect."
+        , Skill.require   = [UserHas AtLeast 1 reanimationStatusName]
         , Skill.classes   = [Chakra, Ranged, Unremovable]
-        , Skill.cost      = [Rand]
+        , Skill.cost      = [Rand, Rand]
+        , Skill.dur       = Ongoing Permanent
         , Skill.effects   =
-          [ To Self reserveReanimation ]
+        [ To Self do
+            trap' 1 OnStunned $ cancelChannel skillName
+            hide 1 skillName
+                [ Alternate "Binding Talisman"
+                            "Binding Talisman"
+                ]
+        ]
+        , Skill.end       =
+          [ To Self do
+                remove "binding talisman"
+                removeTrap skillName
+                unlessM (user has "unbind") $
+                    remove reanimationStatusName
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Binding Talisman"
+        , Skill.desc      = "Ends the effect of [Binding Talisman], causing Kabuto's [Reanimated Army] skill to be replaced by a new skill next turn."
+        , Skill.classes   = [Chakra]
+        , Skill.effects   =
+        [ To Self do
+            flag "unbind"
+            cancelChannel skillName
+        ]
         }
       ]
     , [ Skill.new

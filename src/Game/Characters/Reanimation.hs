@@ -6,13 +6,11 @@ module Game.Characters.Reanimation
     , reanimate, reanimationStatusName
     , removeReanimation
     , reserveReanimation
-    , clearReanimationReserves
     ) where
 
 import ClassyPrelude
 
 import           Control.Monad.Trans.Maybe (MaybeT(..), hoistMaybe)
-import           Data.Enum.Set (EnumSet)
 import qualified Data.Sequence as Seq
 
 import           Class.Random (MonadRandom)
@@ -21,7 +19,6 @@ import qualified Class.Parity as Parity
 import           Class.Play (MonadGame, MonadPlay)
 import qualified Class.Play as P
 import qualified Class.Random as R
-import qualified Game.Action as Action
 import           Game.Action.Channel (cancelChannel)
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Model.Character as Character
@@ -33,13 +30,12 @@ import           Game.Model.Duration (Duration(..))
 import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Game as Game
 import qualified Game.Model.ID as ID
-import           Game.Model.Ninja (Ninja(Ninja))
+import           Game.Model.Ninja (Ninja)
 import qualified Game.Model.Ninja as N
-import           Game.Model.Runnable (RunConstraint, Runnable(To))
-import           Game.Model.Skill (Skill(Skill), Target(..))
+import           Game.Model.Runnable (Runnable(To))
+import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Status (Bomb(..))
-import           Game.Model.Status (Status(Status))
 import qualified Game.Model.Status as Status
 import           Util ((∈), (!!), (?), lazyMapFromKeyed)
 
@@ -66,18 +62,6 @@ chooseReanimation user mcurrent = runMaybeT do
         Just current -> Seq.update i current
         Nothing      -> Seq.deleteAt i
 
-hiddenClasses :: EnumSet Class
-hiddenClasses = [Hidden, Nonstacking, Unremovable]
-
-reanimate :: ∀ m. MonadPlay m => Duration -> m ()
-reanimate dur = P.uncopied do
-    Context{user, skill} <- P.context
-    P.modify user $ Ninjas.addStatus (Status.new user -1 skill)
-        { Status.name    = "$reanimateTimer"
-        , Status.classes = hiddenClasses
-        , Status.bombs   = [ To Done $ doReanimation dur ]
-        }
-
 getCurrent :: Ninja -> Maybe Skill
 getCurrent n = do
     skill@Skill{charges} <- find ((Reanimation ∈) . Skill.classes) n.skills
@@ -86,23 +70,23 @@ getCurrent n = do
         Nothing     -> True
     return skill
 
-doReanimation :: ∀ m. MonadPlay m => Duration -> m ()
-doReanimation dur = do
-    Context{user, skill} <- P.context
+reanimate :: ∀ m. MonadPlay m => m ()
+reanimate = do
+    Context{user, skill = skill@Skill{name = skillName}} <- P.context
     statusID <- P.createID reanimationStatusName
     mcurrent <- getCurrent <$> P.nUser
     reanimation <- chooseReanimation user $ identFromSkill <$> mcurrent
     case reanimation of
         Nothing -> do
             P.modify user $ Ninjas.clear statusID
-            cancelChannel skill.name
+            cancelChannel skillName
         Just alternate ->
             P.modify user
                 $ Ninjas.processSkills
-                . Ninjas.addStatus (Status.new user dur skill)
+                . Ninjas.addStatus (Status.new user Permanent skill)
                     { Status.name    = reanimationStatusName
-                    , Status.classes = hiddenClasses
-                    , Status.effects = [Alternate skill.name alternate]
+                    , Status.classes = [Hidden, Nonstacking, Unremovable]
+                    , Status.effects = [Alternate skillName alternate]
                     }
 
 removeReanimation :: ∀ m. MonadPlay m => m ()
@@ -120,40 +104,13 @@ reserveReanimation = void $ runMaybeT do
                                         | Skill.hasCharges skill ]
         }
 
-doReserves :: ∀ m. MonadPlay m => m ()
-doReserves = do
-    effects <- getReserves <$> P.nUser
-    unless (null effects) do
-        P.toUser clearReserves
-        Action.runTargeted effects
-
-getReserves :: Ninja -> [Runnable Target]
-getReserves Ninja{statuses} =
-    [ effect | Status { classes = ((Reanimation ∈) -> True)
-                      , skill   = Skill{effects = _:effects}
-                      } <- statuses,
-               effect <- effects ]
-
-clearReanimationReserves :: RunConstraint ()
-clearReanimationReserves = P.toUser clearReserves
-
-clearReserves :: Ninja -> Ninja
-clearReserves n = Ninjas.spendCharges skills n { N.statuses = nays }
-  where
-    (yays, nays) = partition ((Reanimation ∈) . Status.classes) n.statuses
-    skills       = filter Skill.hasCharges $ Status.skill <$> yays
-
 identFromSkill :: Skill -> Text
 identFromSkill Skill{name} = Character.identFrom Reanimated
                            $ takeWhile (/= ':') name
 
 toReanimation :: Skill -> Skill
 toReanimation skill = Skill.withExtraClasses
-    skill { Skill.classes = Reanimation `insertSet` skill.classes
-          , Skill.effects = before : skill.effects
-          }
-  where
-    before = To Self doReserves
+    $ Skill.addClass Reanimation skill
 
 reanimations :: Vector Skill
 reanimations = fromList reanimationList
