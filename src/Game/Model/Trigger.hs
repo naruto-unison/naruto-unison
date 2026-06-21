@@ -37,6 +37,7 @@ data Trigger
     | OnHarm
     | OnHarmed Class
     | OnHeal
+    | OnHealthMax Int
     | OnHelp
     | OnHelped
     | OnInvulnerable
@@ -91,6 +92,7 @@ instance Display Trigger where
     display (OnHarmed All)     = "Trigger: Be affected by a new skill from an enemy."
     display (OnHarmed cla)     = "Trigger: Be affected by a new " ++ lower cla ++ " skill from an enemy."
     display OnHeal             = "Trigger: Restore health."
+    display (OnHealthMax hp)   = "Trigger: Have at most " ++ display hp ++ " health."
     display OnHelp             = "Trigger: Use a skill on an ally."
     display OnHelped           = "Trigger: Be affected by a new skill from an ally."
     display OnInvulnerable     = "Trigger: Become invulnerable."
@@ -117,11 +119,12 @@ isCounter Countered{}  = True
 isCounter _            = False
 
 isSingleUse :: Trigger -> Bool
-isSingleUse Counter{} = True
-isSingleUse OnBreak{} = True
-isSingleUse OnDeath   = True
-isSingleUse Resurrect = True
-isSingleUse _         = False
+isSingleUse Counter{}     = True
+isSingleUse OnBreak{}     = True
+isSingleUse OnDeath       = True
+isSingleUse OnHealthMax{} = True
+isSingleUse Resurrect     = True
+isSingleUse _             = False
 
 data Negative
     = NoAction

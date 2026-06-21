@@ -374,7 +374,7 @@ spec = parallel do
                 userHealth `shouldBe` 100 - dmg
 
         useOn Ally "Curse Mark Release" do
-            let resurrect = do
+            let doResurrect = do
                     Sim.act
                     targeting Self kill
                     Sim.as XAlly $ setHealth 25
@@ -391,21 +391,21 @@ spec = parallel do
                 targetHealth <- target health
                 targetHealth `shouldBe` 25
             it "kills target to revive" do
-                resurrect
+                doResurrect
                 targetHealth <- target health
                 targetHealth `shouldBe` 0
             it "revives user" do
-                resurrect
+                doResurrect
                 userHealth <- user health
                 userHealth `shouldBe` 100
             it "alternates A" do
-                resurrect
+                doResurrect
                 user $ hasSkill "Kusanagi"
             it "alternates B" do
-                resurrect
+                doResurrect
                 user $ hasSkill "Eight-Headed Serpent"
             it "alternates C" do
-                resurrect
+                doResurrect
                 user $ hasSkill "Regeneration"
 
         useOn Enemies "Eight-Headed Serpent" do

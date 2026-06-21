@@ -782,6 +782,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Immortality Transference"
         , Skill.desc      = "Orochimaru forces his soul on an enemy, dealing 15 damage to them for 3 turns and stunning their non-mental skills. If the target dies while affected by this skill, Orochimaru regains all lost health. If Orochimaru acquires a new body, this skill becomes [Eight-Headed Serpent][b][t]."
+        , Skill.require   = [TargetHealth AtLeast 1]
         , Skill.classes   = [Physical, Melee, Necromancy]
         , Skill.cost      = [Gen, Nin]
         , Skill.cooldown  = 3
@@ -816,24 +817,26 @@ characters =
     , [ Skill.new
         { Skill.name    = "Curse Mark Release"
         , Skill.desc    = "By giving an ally a curse mark, Orochimaru uses their body as an anchor for his soul after death. If the target's health reaches 25 or lower while Orochimaru is dead, Orochimaru will be resurrected into their body with full health and all status effects removed, and will become invulnerable to bane skills. Cannot be used while active. If Orochimaru acquires a new body, this skill becomes [Regeneration][g][n]."
-        , Skill.require = [UserHas AtMost 0 "curse mark release"]
+        , Skill.require = [UserTrap False "Curse Mark Release"]
         , Skill.classes = [Physical, Unremovable, Bypassing, Uncounterable, Unreflectable, Invisible, Melee, Atemporal]
         , Skill.cost    = [Blood, Nin]
         , Skill.effects =
           [ To Ally do
-                targeting Self $ hide Permanent skillName []
+                targeting Everyone $ remove skillName
                 bomb Permanent skillName
                     []
-                    [ To Done $ targeting Self $ remove "curse mark release" ]
-                trap' Permanent (OnDamaged All) $
-                    unlessM (user alive) do
-                        targetHealth <- target health
-                        when (targetHealth > 0 && targetHealth <= 25) do
-                            killHard
-                            targeting Self do
-                                factory
-                                setAlternates [1, 1, 1, 1]
-                                apply Permanent skillName [Invulnerable Bane]
+                    [ To Done $ targeting Self $ removeTrap skillName ]
+          , To Self $ trap' Permanent OnDeath $ targeting Everyone $
+                whenM (target has skillName) $
+                    trap' Permanent (OnHealthMax 25) do
+                        targeting Everyone do
+                            remove skillName
+                            removeTrap skillName
+                        killHard
+                        targeting Self do
+                            factory
+                            setAlternates [1, 1, 1, 1]
+                            apply Permanent skillName [Invulnerable Bane]
           ]
         }
       , Skill.new

@@ -53,6 +53,11 @@ launch trap (To context@Context{target} f)
     P.withContext context f
     Hook.trap trap nTarget
 
+getHpTraps :: Ninja -> [Trap]
+getHpTraps Ninja{health, traps} =
+    [trap | trap@Trap{trigger = OnHealthMax hp} <- traps,
+            health <= hp]
+
 run :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> Trap -> m ()
 run user trap@Trap{direction = Trap.From, effect, tracker} =
@@ -74,11 +79,17 @@ runTriggers user = do
 
 runTriggersOf :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> Ninja -> m ()
-runTriggersOf user n@Ninja{traps, triggers}
+runTriggersOf user n@Ninja{slot, traps, triggers}
   | null triggers = return ()
   | otherwise     = do
     mapM_ (`Hook.trigger` n) triggers
     mapM_ (run user) $ filter ((∈ triggers) . Trap.trigger) traps
+    when (not $ null hpTraps) do
+        mapM_ (run user) hpTraps
+        P.modify slot
+            . Ninjas.clearAnyTraps . setFromList $ Trap.trigger <$> hpTraps
+  where
+    hpTraps = getHpTraps n
 
 runDeaths :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Maybe Slot -> m ()
@@ -90,6 +101,12 @@ runDeaths muser = void $ iterateWhile (any id)
 runDeathTriggersOf :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> Ninja -> m Bool
 runDeathTriggersOf user n@Ninja{slot, traps}
+  | alive && not (null hpTraps) = do
+        mapM_ (run user) hpTraps
+        P.modify slot
+            . Ninjas.clearAnyTraps . setFromList $ Trap.trigger <$> hpTraps
+        return True
+  | alive = return False
   | not $ null resurrectTraps = do
         Hook.trigger Resurrect n
         P.modify slot \n' -> Ninjas.clearTraps Resurrect n' { N.health = 1 }
@@ -104,7 +121,9 @@ runDeathTriggersOf user n@Ninja{slot, traps}
         Hook.trigger OnDeath n
         return False
   where
+    alive = N.alive n
     trapsOf trigger = filter ((== trigger) . Trap.trigger) traps
+    hpTraps = getHpTraps n
     resurrectTraps
       | N.alive n || n `is` Plague = mempty
       | otherwise = trapsOf Resurrect
