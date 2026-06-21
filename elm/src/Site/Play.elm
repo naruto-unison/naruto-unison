@@ -967,7 +967,7 @@ renderCharacter characters acted toggle highlighted chakras turn onTeam b =
                                 ++ "%"
                         ]
                       <|
-                        if alive then
+                        if b.ninja.health /= 0 then
                             [ H.text <| String.fromInt b.ninja.health ]
 
                         else
