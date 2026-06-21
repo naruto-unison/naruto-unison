@@ -243,9 +243,7 @@ characters =
         , Skill.charges   = 1
         , Skill.dur       = Passive
         , Skill.start     =
-          [ To Self $ trap' Permanent OnStunned clearReanimationReserves
-          , To Enemy $ tag 1 []
-          ]
+          [ To Self $ trap' Permanent OnStunned clearReanimationReserves ]
         , Skill.effects   =
           [ To Self $ reanimate 1 ]
         } :| (setCharges 1 <$> reanimations)
@@ -289,25 +287,34 @@ characters =
         , Skill.desc      = "Using the body of an injured enemy as a sacrificial vessel, Kabuto begins the reanimation ritual. If the enemy does not break free by taking an action during the next 3 turns, they will be sacrificed to resurrect the target of [Reanimation Scroll]. If their health reaches 0, the sacrifice will occur immediately. Reanimated allies regain 10 health after every turn in which they are not damaged, and they gain a random chakra after every turn in which they do not act."
         , Skill.require   = [ UserChannel False "Sacrificial Reanimation"
                             , TargetHealth AtMost 99
+                            , TargetHealth AtLeast 1
                             ]
         , Skill.classes   = [Summon, Ranged, Unreflectable, Necromancy]
-        , Skill.dur       = Control 2
+        , Skill.dur       = Control -3
         , Skill.start     =
+          let
+            doResurrect :: SkillEffect
+            doResurrect = targeting Allies $
+                whenM (target has "Reanimation Scroll") do
+                    resurrect 100
+                    hide Permanent "reanimated" []
+                    trapWith [Unremovable] Permanent OnNotDamaged $
+                        heal 10
+                    trapWith [Unremovable] Permanent OnNoAction $
+                        gain [Rand]
+          in
           [ To Enemy do
                 controlBombWith [Hidden]
                     []
-                    [ To Expire killHard ]
+                    [ To Expire do
+                        killHard
+                        doResurrect
+                    ]
                 controlTrap (OnAction All) do
                     cancelChannel skillName
                 controlTrap OnDeath do
                     cancelChannel skillName
-                    targeting Allies $ whenM (target has "Reanimation Scroll") do
-                        factory
-                        hide Permanent "reanimated" []
-                        trapWith [Unremovable] Permanent OnNotDamaged $
-                            heal 10
-                        trapWith [Unremovable] Permanent OnNoAction $
-                            gain [Rand]
+                    doResurrect
           ]
         }
       ]
@@ -900,7 +907,7 @@ characters =
         { Skill.name    = "Curse Mark Release"
         , Skill.desc    = "By giving an ally a curse mark, Orochimaru uses their body as an anchor for his soul after death. If the target's health reaches 25 or lower while Orochimaru is dead, Orochimaru will be resurrected into their body with full health and all status effects removed, and will become invulnerable to bane skills. Cannot be used while active. If Orochimaru acquires a new body, this skill becomes [Regeneration][g][n]."
         , Skill.require = [UserTrap False "Curse Mark Release"]
-        , Skill.classes = [Physical, Unremovable, Bypassing, Uncounterable, Unreflectable, Invisible, Melee, Atemporal]
+        , Skill.classes = [Physical, Unremovable, Bypassing, Uncounterable, Unreflectable, Invisible, Melee]
         , Skill.cost    = [Blood, Nin]
         , Skill.effects =
           [ To Ally do
