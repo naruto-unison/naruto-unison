@@ -395,7 +395,6 @@ data Trap = Trap
     , user      :: Slot
     , effect    :: Int -> Runnable Context
     , classes   :: EnumSet Class
-    , tracker   :: Int
     , dur       :: Duration
     }
 
@@ -407,7 +406,6 @@ instance ToJSON Trap where
         , skill
         , user
         , classes
-        , tracker
         , dur
         } = object
         [ "direction" .= direction
@@ -416,7 +414,6 @@ instance ToJSON Trap where
         , "skill"     .= skill
         , "user"      .= user
         , "classes"   .= classes
-        , "tracker"   .= tracker
         , "dur"       .= dur
         ]
 

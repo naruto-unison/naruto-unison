@@ -33,4 +33,4 @@ isExpiring Ninja{barrier, defense} Trap{trigger = OnBreak destrID} =
 isExpiring _ _ = False
 
 context :: Trap -> Context
-context Trap{effect, tracker} = Runnable.target $ effect tracker
+context Trap{effect} = Runnable.target $ effect 0

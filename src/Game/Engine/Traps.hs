@@ -1,7 +1,6 @@
 -- 'Trap.Trap' processing.
 module Game.Engine.Traps
   ( run
-  , track
     -- Performing 'Trap.Trap's
   , runTriggers, runDeaths, runTurn, runExpirations
   , apply
@@ -61,12 +60,12 @@ getHpTraps Ninja{health, traps} =
 
 run :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> Trap -> m ()
-run user trap@Trap{direction = Trap.From, effect, tracker} =
-    launch trap $ Runnable.retarget ctx $ effect tracker
+run user trap@Trap{direction = Trap.From, effect} =
+    launch trap $ Runnable.retarget ctx $ effect 0
   where
     ctx context = context { Context.target = user }
 
-run _ trap@Trap{effect, tracker} = launch trap $ effect tracker
+run _ trap@Trap{effect} = launch trap $ effect 0
 
 runTriggers :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> m ()
@@ -132,14 +131,6 @@ runDeathTriggersOf user n@Ninja{slot, traps}
       | N.alive n || n `is` Plague = mempty
       | otherwise = trapsOf Resurrect
     onDeathTraps = trapsOf OnDeath
-
--- | Adds a value to 'Trap.tracker' of 'N.traps' with a certain @Trigger@.
-track :: Trigger -> Int -> Ninja -> Ninja
-track trigger amount n = n { N.traps = tracked <$> n.traps }
-  where
-    tracked trap
-      | trap.trigger == trigger = trap { Trap.tracker = amount + trap.tracker }
-      | otherwise               = trap
 
 -- | Conditionally returns 'Trap.Trap's that accept a numeric value.
 getPer :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
@@ -244,7 +235,6 @@ makeTrap ctx@Context { continues
     , name
     , effect  = \i -> To context $ f i
     , classes = classes'
-    , tracker = 0
     , dur     = succ dur
     }
   where

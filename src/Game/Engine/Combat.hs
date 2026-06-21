@@ -14,7 +14,6 @@ import           Class.Play (MonadPlay)
 import qualified Class.Play as P
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
-import qualified Game.Engine.Traps as Traps
 import           Game.Model.Attack (Attack)
 import qualified Game.Model.Attack as Attack
 import           Game.Model.Class (Class(..))
@@ -167,7 +166,6 @@ attack atk dmg
 
     P.trigger user [OnDamage]
     P.trigger target $ OnDamaged <$> toList classes'
-    P.modify target $ Traps.track PerDamaged damaged
   where
     refreshEffects destructibles n
       | all (null . Destructible.effects) $ destructibles.broken = n

@@ -25,7 +25,6 @@ import qualified Class.Play as P
 import qualified Game.Engine.Combat as Combat
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
-import qualified Game.Engine.Traps as Traps
 import qualified Game.Model.Attack as Attack
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
@@ -196,7 +195,6 @@ leech' hp f
         f damaged
         P.trigger user [OnDamage]
         P.trigger target $ OnDamaged <$> NonAffliction : toList skill.classes
-        P.modify target $ Traps.track PerDamaged damaged
 
 -- | Sacrifices some amount of the target's 'N.health' down to a minimum.
 -- Uses 'Ninjas.sacrifice' internally.
