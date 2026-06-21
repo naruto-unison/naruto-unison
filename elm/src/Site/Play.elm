@@ -854,9 +854,6 @@ renderCharacter :
     -> Html Msg
 renderCharacter characters acted toggle highlighted chakras turn onTeam b =
     let
-        alive =
-            b.ninja.health > 0
-
         render =
             renderDetail onTeam b.ninja.slot characters
 
@@ -868,13 +865,9 @@ renderCharacter characters acted toggle highlighted chakras turn onTeam b =
                 "right"
 
         channels =
-            if alive then
-                b.ninja.channels
-                    |> List.reverse
-                    >> List.map (Detail.channel b.ninja.slot >> render)
-
-            else
-                []
+            b.ninja.channels
+                |> List.reverse
+                >> List.map (Detail.channel b.ninja.slot >> render)
 
         copies =
             []
@@ -887,15 +880,11 @@ renderCharacter characters acted toggle highlighted chakras turn onTeam b =
                >> live
         -}
         defenses =
-            if alive then
-                renderDefense b.ninja.slot
-                    anchor
-                    b.ninja.health
-                    (List.reverse b.ninja.barrier)
-                    (List.reverse b.ninja.defense)
-
-            else
-                []
+            renderDefense b.ninja.slot
+                anchor
+                b.ninja.health
+                (List.reverse b.ninja.barrier)
+                (List.reverse b.ninja.defense)
 
         details =
             Detail.get b.ninja

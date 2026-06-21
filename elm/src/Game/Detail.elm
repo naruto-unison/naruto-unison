@@ -33,13 +33,6 @@ get n =
         statuses =
             List.map status n.statuses
 
-        filterAlive =
-            if n.health > 0 then
-                identity
-
-            else
-                List.filter (\x -> Set.member "Necromancy" x.classes)
-
         reduce ((Nonempty x xs) as xxs) =
             case List.find (eq x) statuses of
                 Just y ->
@@ -51,14 +44,12 @@ get n =
         traps =
             n.traps
                 |> List.map trap
-                >> filterAlive
                 >> groupBy eq
                 >> List.map (reduce >> concat)
 
         stats =
             statuses
-                |> filterAlive
-                >> List.filter (\x -> not <| List.any (eq x) traps)
+                |> List.filter (\x -> not <| List.any (eq x) traps)
                 >> List.concatMap unfold
 
         ( self, others ) =
