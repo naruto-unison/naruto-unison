@@ -741,7 +741,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Flamethrower Jets"
-        , Skill.desc      = "Using fuel stored in a sealing scroll, Sasori shoots flames at an enemy for 3 turns, dealing 10 affliction damage each turn. While active, Sasori is invulnerable to all other enemies and ignores harmful non-damaging status effects. If Sasori uses any skill, [Flamethrower Jets] is canceled. After use, this skill becomes [Cutting Water Jets][n]."
+        , Skill.desc      = "Using fuel stored in a sealing scroll, Sasori shoots flames at an enemy for 3 turns, dealing 10 affliction damage each turn. While active or stunned, Sasori is invulnerable to all other enemies and ignores harmful non-damaging status effects. If Sasori uses any skill, [Flamethrower Jets] is canceled. After use, this skill becomes [Cutting Water Jets][n]."
         , Skill.classes   = [Bane, Physical, Ranged, Unreflectable]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 3
@@ -753,18 +753,18 @@ characters =
                 ]
           ]
         , Skill.always    =
-          [ To Self $ whenM (channeling skillName) $
-                trap 1 (OnAction All) $
-                    cancelChannel skillName
+          [ To Self do
+                apply 1 skillName [Enrage]
+                whenM (channeling skillName) $
+                    trap 1 (OnAction All) $
+                        cancelChannel skillName
           , To Enemy do
                 tag 1 skillName
                 targetSlot <- target slot
                 targeting Self $ apply 1 "Flame Blast" [Duel targetSlot]
           ]
         , Skill.effects   =
-          [ To Self $ apply 1 skillName [Enrage]
-          , To Enemy $ afflict 10
-          ]
+          [ To Enemy $ afflict 10 ]
         , Skill.end       =
           [ To Self $ targeting Everyone do
                 remove skillName
@@ -924,14 +924,15 @@ characters =
         , Skill.cost      = [Blood, Tai]
         , Skill.cooldown  = 3
         , Skill.dur       = Action 3
-        , Skill.effects   =
-          [ To Enemies $ damage 20
-          , To Self do
+        , Skill.always    =
+          [ To Self do
                 apply 1 skillName [Focus]
                 trapFrom 1 OnStunned do
                     damage 20
                     apply 1 skillName [Stun All]
           ]
+        , Skill.effects   =
+          [ To Enemies $ damage 20 ]
         }
       ]
     , [ Skill.new
