@@ -67,7 +67,7 @@ chooseReanimation user mcurrent = runMaybeT do
         Nothing      -> Seq.deleteAt i
 
 hiddenClasses :: EnumSet Class
-hiddenClasses = [Hidden, Nonstacking, Unremovable, Atemporal]
+hiddenClasses = [Hidden, Nonstacking, Unremovable]
 
 reanimate :: ∀ m. MonadPlay m => Duration -> m ()
 reanimate dur = P.uncopied do

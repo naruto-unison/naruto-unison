@@ -299,7 +299,7 @@ characters =
       , Skill.new
         { Skill.name      = "First Blood"
         , Skill.desc      = "Searching for a victim to join him in his ritual of death, Hidan deals 5 damage to an opponent and marks them for 2 turns. While they are marked, this skill becomes [Blood Curse][g]."
-        , Skill.classes   = [Bane, Physical, Unreflectable, Atemporal]
+        , Skill.classes   = [Bane, Physical, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
@@ -307,17 +307,18 @@ characters =
                 bomb 2 skillName
                     []
                     [ To Done $ targeting Self $ remove "first blood" ]
-                targeting Self $ hide Permanent skillName
+                targeting Self $ bomb Permanent skillName
                     [ Alternate "Jashin Sigil"
                                 "Blood Curse"
                     ]
+                    [ To Done $ targeting Everyone $ remove skillName ]
           ]
         }
       , Skill.new
         { Skill.name      = "Blood Curse"
         , Skill.desc      = "Hidan begins his ritual by drinking the blood of [First Blood]'s target, instantly using [Prayer] and then linking himself to them for 3 turns. While active, skills used on Hidan and the target by their opponents are also reflected to each other, and this skill becomes [Death Blow][t][g]. Hidan ignores harmful status effects, although his target does not. Damage that Hidan deals to himself with his own skills while linked to a living target does not harm him."
         , Skill.require   = [TargetHas AtLeast 1 "First Blood"]
-        , Skill.classes   = [Chakra, Soulbound, Uncounterable, Unreflectable, Unremovable, Atemporal]
+        , Skill.classes   = [Chakra, Soulbound, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Gen]
         , Skill.effects   =
           [ To Self do
@@ -327,7 +328,14 @@ characters =
           ,  To Enemy do
                 userSlot   <- user slot
                 targetSlot <- target slot
-                apply 3 "Blood Curse" [Share userSlot]
+                bomb 3 skillName
+                    [Share userSlot]
+                    [ To Done do
+                        removeTrap skillName
+                        targeting Self do
+                            remove skillName
+                            remove "bloodlink"
+                    ]
                 trap 3 OnDeath $ targeting Self $
                     remove "bloodlink"
                 targeting Self do
@@ -341,6 +349,9 @@ characters =
                         [ To Done do
                             remove "Jashin Sigil"
                             remove "bloodlink"
+                            withTarget targetSlot do
+                                remove skillName
+                                removeTrap skillName
                         ]
           ]
         }
@@ -481,7 +492,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Thousand Hungry Sharks"
         , Skill.desc      = "A school of sharks erupts around Kisame. He gains ten stacks of [Hundred Hungry Sharks]. Every turn, the sharks deal 5 piercing damage to all enemies, spending one stack per enemy hit. The first enemy to use a skill on Kisame will be marked, causing the sharks to ignore other enemies until the target dies. Deals 5 additional damage during [Exploding Water Shockwave]. Once used, this skill becomes [Man-Eating Sharks][n]."
-        , Skill.classes   = [Chakra, Ranged, Unreflectable, Resource, Atemporal]
+        , Skill.classes   = [Chakra, Ranged, Unreflectable, Resource]
         , Skill.cost      = [Nin]
         , Skill.dur       = Ongoing Permanent
         , Skill.start     =
@@ -493,11 +504,12 @@ characters =
                     ]
                 trapFrom' Permanent (OnHarmed All) do
                     targeting Self $ removeTrap skillName
-                    targeting Enemies $ hide Permanent "ignored" []
+                    targeting Enemies $
+                        applyWith [Hidden, Atemporal] Permanent "ignored" []
                     remove "ignored"
-                    tag Permanent skillName
-                    trap' Permanent OnDeath $ targeting Everyone $
-                        remove "ignored"
+                    tagWith [Atemporal] Permanent skillName
+                    trapWith [Hidden, Atemporal] Permanent OnDeath $
+                        targeting Everyone $ remove "ignored"
           ]
         , Skill.effects   =
           [ To Enemies $ unlessM (target has "ignored") $
@@ -1016,10 +1028,10 @@ characters =
     , [ Skill.new
         { Skill.name      = "Guided Missile"
         , Skill.desc      = "Pain fires a slow-moving but devastating missile at a target. Over the next four turns, the cost of this skill is 1 chakra that cycles through the different types of chakra. Each turn, it has a different effect on the target. Using the skill again resets it."
-        , Skill.classes   = [Physical, Ranged, Bypassing, Invisible, Nonstacking, Atemporal]
+        , Skill.classes   = [Physical, Ranged, Bypassing, Invisible, Nonstacking]
         , Skill.dur       = Ongoing 4
         , Skill.start     =
-          [ To Enemy $ tag 4 skillName ]
+          [ To Enemy $ tagWith [Atemporal] 4 skillName ]
         , Skill.effects   =
           [ To Self $ nextAlternate skillName]
         , Skill.end       =

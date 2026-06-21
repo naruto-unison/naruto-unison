@@ -368,12 +368,12 @@ characters =
     , [ Skill.new
         { Skill.name      = "Self-Sacrifice"
         , Skill.desc      = "Asuma continually protects one ally. All skills that enemies use on the target will be reflected to Asuma. This skill can be used again with no chakra cost to cancel its effect."
-        , Skill.classes   = [Physical, Melee, Soulbound, Unremovable, Unreflectable, Atemporal]
+        , Skill.classes   = [Physical, Melee, Soulbound, Unremovable, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To XAlly do
                 userSlot <- user slot
-                bomb Permanent skillName
+                bombWith [Atemporal] Permanent skillName
                     [ Redirect userSlot ]
                     [ To Done $ targeting Self $ remove "self-sacrifice" ]
           , To Self $ hide Permanent skillName

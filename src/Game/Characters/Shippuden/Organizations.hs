@@ -63,18 +63,20 @@ characters =
     , [ Skill.new
         { Skill.name      = "Kotoamatsukami"
         , Skill.desc      = "Using his Mangekyō Sharingan, Shisui traps an enemy in a powerful genjutsu. The next time they use a skill, their team will lose 1 random chakra. Until they use a skill, Shisui can use this skill with no chakra cost to transfer Kotoamatsukami to a different enemy."
-        , Skill.classes   = [Mental, Ranged, Invisible, Unremovable, Unreflectable, Atemporal]
+        , Skill.classes   = [Mental, Ranged, Invisible, Unremovable, Unreflectable]
         , Skill.cost      = [Blood, Gen]
         , Skill.effects   =
           [ To Enemy do
+                let resetter = "Reset Kotoamatsukami"
                 targeting Everyone $ removeTrap skillName
                 targeting Self $ hide Permanent skillName []
+                bombWith [Hidden] Permanent resetter
+                    []
+                    [ To Done $ targeting Self $ remove "kotoamatsukami" ]
                 trap Permanent (OnAction All) do
                     removeTrap skillName
-                    targeting Self $ remove "kotoamatsukami"
+                    remove resetter
                     deplete 1
-                trap Permanent OnDeath $ targeting Self $
-                    remove "kotoamatsukami"
           ]
         , Skill.changes    = changeWith "Kotoamatsukami" $ setCost []
         }
