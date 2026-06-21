@@ -14,10 +14,12 @@ import qualified Yesod.Auth as Auth
 
 import qualified Application.App as App
 import           Application.Model (EntityField(..))
+import qualified Application.Model.Unlocked as Unlocked
 import qualified Application.Model.User as User
 import qualified Game.AI as AI
 import qualified Game.Characters as Characters
 import           Game.Model.Chakras (Chakras)
+import qualified Game.Model.Character as Character
 import qualified Game.Model.Game as Game
 import qualified Game.Model.Ninja as N
 import qualified Game.Model.Player as Player
@@ -49,14 +51,19 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2]
                        , UserPractice =. [a2, b2, c2]
                        ]
 
-    practice <- getsYesod App.practice
+    let playerReanimated = getDna [a1, b1, c1] unlocked
+        botReanimated    = getDna [a2, b2, c2]
+                         $ Character.ident <$> Characters.list
 
+    practice <- getsYesod App.practice
     game <- liftIO do
         game <- createSystemRandom >>= runReaderT Game.newWithChakras
+        let game' = game { Game.dna = (playerReanimated, botReanimated) }
         -- TODO: Move to a recurring timer?
         Cache.purgeExpired practice
-        Cache.insert practice who $ Wrapper.new game ninjas
-        return game
+        Cache.insert practice who $ Wrapper.new game' ninjas
+        return game'
+
 
     returnJson GameInfo { vsUser = Entity who bot
                         , player = Player.A
@@ -67,6 +74,9 @@ getPracticeQueueR [a1, b1, c1, a2, b2, c2]
                         }
   where
     hasDuplicates a b c = a == b || a == c || b == c
+    getDna team unlocked = fromList
+                         . filter (\x -> Unlocked.reanimated x && x ∉ team)
+                         $ toList unlocked
     bot = (User.new "Bot" Nothing $ ModifiedJulianDay 0)
           { User.name     = "Bot"
           , User.avatar   = "/img/icon/bot.jpg"

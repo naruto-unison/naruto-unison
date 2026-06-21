@@ -9,6 +9,7 @@ import           Game.Model.Ninja (isChanneling)
 import           Game.Model.ID (ID(ID))
 import qualified Game.Model.ID
 import qualified Game.Model.Skill as Skill
+import           Game.Characters.Reanimation (clearReanimationReserves, reanimations, reanimationStatusName, reanimate, reserveReanimation)
 
 characters :: [Category -> Text -> Character]
 characters =
@@ -230,6 +231,87 @@ characters =
         }
       ]
     , [ invuln "Puppet Distraction" "Kankurō" [Physical] ]
+    ]
+  , Character
+    "Reanimator Kabuto" 0
+    "With his unprecedented mastery of the forbidden technique known as Impure World Reincarnation, Kabuto commands legions of reanimated ninjas whose DNA he collected. He can also resurrect his allies using the reanimation technique, which notably requires no chakra whatsoever from him."
+    [LeafVillage, Rogue, Sage, TeamLeader, Earth, Water, Wind, Yin, Yang]
+    [   Skill.new
+        { Skill.name      = "Reanimated Army"
+        , Skill.desc      = "Every turn after this skill is used, it is replaced by a skill from a random Reanimated (ℝ) ninja that the player owns. Reanimated skills have no chakra cost and can only be used once."
+        , Skill.classes   = [Summon]
+        , Skill.charges   = 1
+        , Skill.dur       = Passive
+        , Skill.start     =
+          [ To Self $ trap' Permanent OnStunned clearReanimationReserves
+          , To Enemy $ tag 1 []
+          ]
+        , Skill.effects   =
+          [ To Self $ reanimate 1 ]
+        } :| (setCharges 1 <$> reanimations)
+    , [ Skill.new
+        { Skill.name      = "Binding Talisman"
+        , Skill.desc      = "Kabuto directs chakra through a kunai-implanted talisman to take direct control of one of his reanimated pawns, forcing them to do his bidding. The next time he uses a skill from [Reanimated Army], the current skill from [Reanimated Army] will also trigger. This skill stacks, but all stacks are lost if Kabuto is stunned. Cannot be used during [Summoning: Reanimation]."
+        , Skill.require   = [ UserHas AtLeast 1 reanimationStatusName
+                            , UserChannel False "Summoning: Reanimation"
+                            ]
+        , Skill.classes   = [Chakra, Ranged, Unremovable]
+        , Skill.cost      = [Rand]
+        , Skill.effects   =
+          [ To Self reserveReanimation ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Reanimation Scroll"
+        , Skill.desc      = "Kabuto collects the DNA of a dead ally and smears it on a scroll in order to reanimate them. Once used, this skill becomes [Summoning: Reanimation]. This skill cannot be used on reanimated allies."
+        , Skill.require   = [ TargetHealth AtMost 0
+                            , TargetCategory False Reanimated
+                            , TargetHasFromAny AtMost 0 "reanimated"
+                            ]
+        , Skill.classes   = [Necromancy, Unremovable, Unreflectable]
+        , Skill.effects   =
+          [ To XAlly do
+                tag Permanent skillName
+                trap' Permanent OnResurrected do
+                    targeting Everyone do
+                        removeTrap skillName
+                        remove skillName
+                    targeting Self do
+                        remove "reanimation scroll"
+                        cancelChannel "Summoning: Reanimation"
+          , To Self $ hide Permanent skillName
+                [ Alternate "Reanimation Scroll"
+                            "Summoning: Reanimation" ]
+          ]
+        }
+      , Skill.new
+        { Skill.name      = "Summoning: Reanimation"
+        , Skill.desc      = "Using the body of an injured enemy as a sacrificial vessel, Kabuto begins the reanimation ritual. If the enemy does not break free by taking an action during the next 3 turns, they will be sacrificed to resurrect the target of [Reanimation Scroll]. If their health reaches 0, the sacrifice will occur immediately. Reanimated allies regain 10 health after every turn in which they are not damaged, and they gain a random chakra after every turn in which they do not act."
+        , Skill.require   = [ UserChannel False "Sacrificial Reanimation"
+                            , TargetHealth AtMost 99
+                            ]
+        , Skill.classes   = [Summon, Ranged, Unreflectable, Necromancy]
+        , Skill.dur       = Control 2
+        , Skill.start     =
+          [ To Enemy do
+                controlBombWith [Hidden]
+                    []
+                    [ To Expire killHard ]
+                controlTrap (OnAction All) do
+                    cancelChannel skillName
+                controlTrap OnDeath do
+                    cancelChannel skillName
+                    targeting Allies $ whenM (target has "Reanimation Scroll") do
+                        factory
+                        hide Permanent "reanimated" []
+                        trapWith [Unremovable] Permanent OnNotDamaged $
+                            heal 10
+                        trapWith [Unremovable] Permanent OnNoAction $
+                            gain [Rand]
+          ]
+        }
+      ]
+    , [ invuln "Dodge" "Kabuto" [Physical] ]
     ]
   , Character
     "Sage Mode Kabuto" 0

@@ -37,7 +37,7 @@ module Game.Engine.Ninjas
   , cancelChannel, cancelOldChannel
 
   , copy, copyAll
-  , recharge, rechargeAll, spendCharge
+  , recharge, rechargeAll, spendCharge, spendCharges
 
   , prolong, prolongControlled
   , prolongChannel
@@ -488,7 +488,13 @@ recharge ID{name, owner} n = n { N.charges = deleteMap key n.charges }
   where
     key = Skill.Key name owner
 
+insertCharge :: HashMap Skill.Key Int -> Skill -> HashMap Skill.Key Int
+insertCharge charges skill = insertWith (+) (Skill.key skill) 1 charges
+
 -- | 'update's a corresponding @Ninja@ when they use a new @Skill@.
 spendCharge :: Skill -> Ninja -> Ninja
-spendCharge skill n =
-    n { N.charges = insertWith (+) (Skill.key skill) 1 n.charges }
+spendCharge skill n = n { N.charges = insertCharge n.charges skill }
+
+-- | Bulk 'spendCharge'.
+spendCharges :: [Skill] -> Ninja -> Ninja
+spendCharges skills n = n { N.charges = foldl' insertCharge n.charges skills }

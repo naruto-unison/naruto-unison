@@ -1,24 +1,28 @@
 module Site.Render exposing
     ( chakraTotals
     , chakras
+    , charIcon
     , class
     , classes
     , desc
+    , detailIcon
     , duration
     , effect
     , icon
     , name
     , rands
     , scroll
+    , skillIcon
     , streak
     )
 
+import Game.Detail exposing (Detail)
 import Game.Game as Game
 import Html as H exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
-import Import.Flags exposing (characterName)
-import Import.Model exposing (Category(..), Chakras, Channel, Channeling(..), Character, Effect, User)
+import Import.Flags exposing (characterName, clean)
+import Import.Model exposing (Category(..), Chakras, Channel, Channeling(..), Character, Effect, Skill, User)
 import Parser exposing ((|.), (|=), Parser)
 import Set exposing (Set)
 import String.Extra as String
@@ -96,17 +100,58 @@ chakraTotals x =
     ]
 
 
-icon : Character -> String -> List (H.Attribute msg) -> Html msg
-icon char path attrs =
+iconBase : String -> String -> List (H.Attribute msg) -> Html msg
+iconBase char path attrs =
     let
         src =
             "/img/ninja/"
-                ++ characterName char
+                ++ char
                 ++ "/"
                 ++ shorten path
                 ++ ".jpg"
     in
     H.img (A.src src :: attrs) []
+
+
+icon : Character -> String -> List (H.Attribute msg) -> Html msg
+icon char =
+    iconBase (characterName char)
+
+
+charIcon : Character -> List (H.Attribute msg) -> Html msg
+charIcon character =
+    icon character "icon"
+
+
+getReanimationName : String -> Set String -> Maybe String
+getReanimationName skillName skillClasses =
+    if Set.member "Reanimation" skillClasses then
+        (List.head <| String.indexes ":" skillName)
+            |> Maybe.map (\index -> clean (String.left index skillName) ++ "-(r)")
+
+    else
+        Nothing
+
+
+skillIcon : Character -> Skill -> List (H.Attribute msg) -> Html msg
+skillIcon character skill =
+    case getReanimationName skill.name skill.classes of
+        Just reanimationName ->
+            iconBase reanimationName <|
+                String.dropLeft (String.length reanimationName - 3) skill.name
+
+        Nothing ->
+            icon character skill.name
+
+
+detailIcon : Character -> Detail -> List (H.Attribute msg) -> Html msg
+detailIcon character detail =
+    case getReanimationName detail.skillName detail.classes of
+        Just reanimationName ->
+            iconBase reanimationName detail.name
+
+        Nothing ->
+            icon character detail.name
 
 
 name : Character -> List (Html msg)
@@ -134,8 +179,11 @@ duration ifEmpty x =
         0 ->
             [ H.text ifEmpty ]
 
+        1 ->
+            [ H.text "1" ]
+
         _ ->
-            [ H.text << String.fromInt <| (x + 1) // 2 ]
+            [ H.text << String.fromInt <| x // 2 ]
 
 
 class : Channel -> String -> H.Attribute msg
@@ -233,6 +281,12 @@ parseReanimated =
         |. Parser.symbol "(R)"
 
 
+parseParen : Parser (Html msg)
+parseParen =
+    Parser.succeed (H.text "(")
+        |. Parser.symbol "("
+
+
 parseName : Parser (Html msg)
 parseName =
     Parser.succeed (H.i [] << List.singleton << H.text)
@@ -262,6 +316,7 @@ parseSuccess =
         , parseName
         , parseShippuden
         , parseReanimated
+        , parseParen
         , parseText
         ]
 

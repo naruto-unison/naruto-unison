@@ -56,7 +56,7 @@ changeWithDefense name f n
 -- | Modifies a 'Skill' by its 'Skill.change' and any other effects on it.
 change :: Transform
 change n skill@Skill{changes, classes, cost} =
-    Skill.chakraClasses
+    Skill.withChakraClasses
     . changeIf Swap Skill.swap
     . changeIf Restrict Skill.restrict
     $ changes n skill { Skill.cost = Effects.exhaust classes n ++ cost }

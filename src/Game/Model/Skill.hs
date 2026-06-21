@@ -1,6 +1,7 @@
 module Game.Model.Skill
-  ( Skill(..), new, chakraClasses
+  ( Skill(..), new
   , hasCharges, hasCooldown
+  , withChakraClasses, withExtraClasses
   , Target(..)
   , Key(..), key
   , targets
@@ -8,6 +9,7 @@ module Game.Model.Skill
   -- Mutators
   , addClass, addClasses, removeClass
   , addDesc
+  , setCharges
   , setCooldown
   , setCost
   , setDur
@@ -27,7 +29,7 @@ import           Game.Model.Internal (Channeling(..), Key(..), Skill(..), Runnab
 import           Game.Model.Internal.Skill (key)
 import qualified Game.Model.Runnable as Runnable
 import qualified Game.Model.Slot as Slot
-import           Util ((∈))
+import           Util ((∈), (∉), insertIf)
 
 -- | Default values.
 new :: Skill
@@ -59,8 +61,17 @@ hasCooldown _                   = True
 -- | Adds 'Model.Class.Bloodline', 'Model.Class.Genjutsu',
 -- 'Model.Class.Ninjutsu', 'Model.Class.Taijutsu', and 'Model.Class.Random'
 -- to the 'classes' of a @Skill@ if they are included in its 'cost'.
-chakraClasses :: Skill -> Skill
-chakraClasses skill = skill { classes = getClasses skill.cost ++ skill.classes }
+withChakraClasses :: Skill -> Skill
+withChakraClasses skill =
+    skill { classes = getClasses skill.cost ++ skill.classes }
+
+withExtraClasses :: Skill -> Skill
+withExtraClasses skill@Skill{classes} = skill { classes = added ++ classes }
+  where
+    added = insertIf (Bane ∉ classes) NonBane
+          . insertIf (Mental ∉ classes) NonMental
+          . insertIf (Ranged ∉ classes) NonRanged
+          $ singleton All
 
 -- | All targets that a @Skill@ effects.
 targets :: Skill -> EnumSet Target
@@ -97,6 +108,9 @@ removeClass cla skill = skill { classes = deleteSet cla skill.classes }
 
 addDesc :: TextBuilder -> Skill -> Skill
 addDesc add skill = skill { desc = buildStrict $ display skill.desc ++ add }
+
+setCharges :: Int -> Skill -> Skill
+setCharges charges skill = skill { charges = charges }
 
 setCooldown :: Duration -> Skill -> Skill
 setCooldown cooldown skill = skill { cooldown = cooldown }

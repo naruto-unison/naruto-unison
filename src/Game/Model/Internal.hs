@@ -277,11 +277,13 @@ data Requirement
     = Unusable
     | UserHas Range Int Text
     | TargetHas Range Int Text
+    | TargetHasFromAny Range Int Text
     | UserHealth Range Int
     | TargetHealth Range Int
     | UserChannel Bool Text
     | UserDefense Range Int Text
     | UserTrap Bool Text
+    | TargetCategory Bool Category
     deriving (Eq, Ord, Show, Generic)
 
 instance ToJSON Requirement

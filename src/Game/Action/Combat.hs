@@ -173,6 +173,8 @@ resurrect (min 100 -> hp) = P.unsilenced do
     when (health < hp) do
         P.modify target \n -> n { N.health = hp }
         P.trigger user [OnHeal]
+        when (health == 0)
+            $ P.trigger target [OnResurrected]
 
 -- | Damages the target and passes the amount of damage dealt to another action,
 -- retargeted toward the user. Typically paired with @'heal'@ to effectively

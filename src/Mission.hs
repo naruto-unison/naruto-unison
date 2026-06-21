@@ -3,7 +3,7 @@
 module Mission
   ( initDB
   , updateProgress
-  , Unlocks, unlocked, freeChars
+  , Unlocks, unlocked, unlockedOf, freeChars
   , characterID
   , userMission
   , processWin, processDefeat, processUnpicked
@@ -42,7 +42,7 @@ import           Handler.Client.Reward (Reward(Reward))
 import qualified Handler.Client.Reward as Reward
 import           Handler.Play.Match (Outcome(..))
 import           Handler.Play.War (War)
-import qualified Handler.Queue as Queue
+import qualified Handler.Queue.Section as Queue
 import           Mission.Goal (Goal(Reach))
 import qualified Mission.Goal as Goal
 import qualified Mission.Missions as Missions
@@ -88,18 +88,20 @@ allUnlocked = keysSet Characters.map
 -- If @unlock-all@ in [config/settings.yml](config/settings.yml) is set to true,
 -- all Characters will always be returned.
 unlocked :: App.Handler Unlocks
-unlocked = cached $ fromMaybe allUnlocked <$> runMaybeT do
+unlocked = cached $ unlockedOf =<< Auth.maybeAuthId
+
+unlockedOf :: Maybe (Key User) -> App.Handler Unlocks
+unlockedOf mwho = fromMaybe allUnlocked <$> runMaybeT do
+    who <- hoistMaybe mwho
     unlockAll <- getsYesod \app -> app.settings.unlockAll
     guard $ not unlockAll
-    Just who  <- Auth.maybeAuthId
-    privilege <- App.getPrivilege
+    User{privilege} <- MaybeT $ liftDB $ get who
     guard $ privilege < Moderator
     ids <- getsYesod App.characterIDs
     unlocks <- liftDB $ selectList [ UnlockedUser ==. who ] []
     return $ freeChars `union` setFromList (mapMaybe (look ids) unlocks)
   where
-    look ids (Entity _ Unlocked{character}) =
-        Bimap.lookup character ids
+    look ids (Entity _ Unlocked{character}) = Bimap.lookup character ids
 
 -- | 'Character.ident's of all Characters without missions or DNA
 -- 'Character.price's.

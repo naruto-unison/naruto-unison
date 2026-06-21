@@ -1,7 +1,7 @@
 {-# OPTIONS_HADDOCK hide #-}
 {-# LANGUAGE OverloadedLists #-}
 
-module Game.Characters.Reanimated.Kage (characters) where
+module Game.Characters.Reanimated.Kage (characters, reanimations) where
 
 import Game.Characters.Import
 
@@ -527,3 +527,88 @@ characters =
     , [ invuln "Block" "Hanzō" [Physical] ]
     ]
   ]
+
+reanimations :: [Skill]
+reanimations =
+    [ Skill.new
+        { Skill.name    = "Hashirama Senju: Tree Wave Destruction"
+        , Skill.desc    = "Sending out trees in all directions, Hashirama deals 10 damage to all enemies and provides 5 permanent destructible defense to his team."
+        , Skill.classes = [Physical, Ranged]
+        , Skill.effects =
+          [ To Enemies $ damage 10
+          , To Allies $ defend Permanent 5
+          ]
+        }
+    , Skill.new
+        { Skill.name    = "Tobirama Senju: Water Prison"
+        , Skill.desc    = "Water surrounds an enemy, dealing 15 damage and making them ignore helpful effects for 1 turn."
+        , Skill.classes = [Physical, Ranged]
+        , Skill.effects =
+          [ To Enemy do
+                damage 15
+                apply 1 "Water Prison" [Seal]
+          ]
+        }
+    , Skill.new
+        { Skill.name    = "Minato Namikaze: Reciprocal Round-Robin"
+        , Skill.desc    = "Minato prepares to switch places with an ally. If enemies use skills on the target next turn, the skills will be reflected onto Minato, and the target's skills next turn will bypass invulnerability, counters, reflects, and damage reduction."
+        , Skill.classes = [Chakra, Ranged, Invisible, Unremovable]
+        , Skill.effects =
+          [ To XAlly do
+                apply -1 "Reciprocal Round-Robin" [Nullify]
+                trap -1 (OnHarmed All) $
+                    apply -1 "Round-Robin Surprise Attack"
+                        [ AntiCounter
+                        , Bypass
+                        , Pierce
+                        ]
+          ]
+        }
+    , Skill.new
+        { Skill.name    = "Rasa: Magnet Technique"
+        , Skill.desc    = "Waves of gold flood the enemy team, dealing 10 damage and applying 10 permanent destructible barrier to them. The skills of enemies who have destructible barrier from this skill cost 1 additional arbitrary chakra."
+        , Skill.classes = [Physical, Ranged]
+        , Skill.effects =
+          [ To Enemies do
+                damage 10
+                barricade' Permanent 10 [Exhaust [All]]
+          ]
+        }
+    , Skill.new
+        { Skill.name    = "A: Lightning Straight"
+        , Skill.desc    = "A rushes an opponent with lightning speed and strikes them with stiffened fingers, dealing 20 damage."
+        , Skill.classes = [Physical, Melee]
+        , Skill.effects =
+          [ To Enemy $ damage 20 ]
+        }
+    , Skill.new
+        { Skill.name    = "Mū: Particle Beam"
+        , Skill.desc    = "A ray of high-energy atomic particles blasts an enemy, dealing 25 piercing damage. Deals 10 additional damage if the target is invulnerable."
+        , Skill.classes = [Chakra, Ranged, Bypassing]
+        , Skill.effects =
+          [ To Enemy do
+                bonus <- 10 `bonusIf` target isInvulnerable
+                pierce (25 + bonus)
+          ]
+        }
+    , Skill.new
+        { Skill.name    = "Gengetsu Hōzuki: Water Pistol"
+        , Skill.desc    = "Gengetsu fires a drop of water like a bullet at an enemy, dealing 10 piercing damage and killing them if their health drops to 10 or lower."
+        , Skill.classes = [Chakra, Ranged]
+        , Skill.effects =
+          [ To Enemy do
+                pierce 10
+                executeAt 10
+          ]
+        }
+    , Skill.new
+        { Skill.name    = "Hanzō: Sickle Dance"
+        , Skill.desc    = "Hanzō gouges an enemy with his sickle, dealing 15 piercing damage to them immediately and 5 affliction damage for 2 turns."
+        , Skill.classes = [Bane, Physical, Melee]
+        , Skill.effects =
+          [ To Enemy do
+                pierce 15
+                apply 2 "Sickle Dance" [Afflict 5]
+          ]
+        }
+    ]

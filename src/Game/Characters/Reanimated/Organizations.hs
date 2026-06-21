@@ -1,7 +1,7 @@
 {-# OPTIONS_HADDOCK hide #-}
 {-# LANGUAGE OverloadedLists #-}
 
-module Game.Characters.Reanimated.Organizations (characters) where
+module Game.Characters.Reanimated.Organizations (characters, reanimations) where
 
 import Game.Characters.Import
 
@@ -662,7 +662,7 @@ characters =
           [ To Enemy $ control [Reveal]
           , To Self $ controlWith [Hidden]
                 [Alternate "Human Path"
-                            "Naraka Path"
+                           "Naraka Path"
                 ]
           ]
         , Skill.effects   =
@@ -721,3 +721,112 @@ characters =
     , [ invuln "Animal Path" "Nagato" [Summon, Invisible] ]
     ]
   ]
+
+reanimations :: [Skill]
+reanimations =
+    [ Skill.new
+        { Skill.name    = "Jirōbō: Earth Dome Prison"
+        , Skill.desc    = "Jirōbō encases an enemy in chakra-conductive rock and drains their energy, dealing 20 affliction damage."
+        , Skill.classes = [Chakra, Melee]
+        , Skill.effects =
+          [ To Enemy $ afflict 20 ]
+        }
+    , Skill.new
+        { Skill.name    = "Kimimaro: Digital Shrapnel"
+        , Skill.desc    = "A volley of bullets shoot forth from Kimimaro's fingertips, providing his reanimator with 50% damage reduction for 1 turn. Next turn, enemies who use skills will take 20 damage."
+        , Skill.classes = [Physical, Ranged]
+        , Skill.effects =
+          [ To Enemies $ trap 1 (OnAction All) $
+                damage 20
+          , To Self $ apply 1 "Digital Shrapnel" [Reduce [All] Percent 50]
+          ]
+        }
+    , Skill.new
+        { Skill.name    = "Haku: Acupuncture"
+        , Skill.desc    = "Haku alters the flow of energy in an enemy by sticking a needle into one of their vital points, disabling the non-damage effects of their skills on allies and enemies for 2 turns."
+        , Skill.classes = [Physical, Ranged]
+        , Skill.effects =
+          [ To Enemy $ apply 2 "Acupuncture" [Silence] ]
+        }
+    , Skill.new
+        { Skill.name    = "Zabuza Momochi: Executioner's Butchering"
+        , Skill.desc    = "Zabuza's sword carves into an enemy like the edge of a guillotine, dealing 30 piercing damage."
+        , Skill.classes = [Physical, Melee]
+        , Skill.effects =
+          [ To Enemy $ pierce 30 ]
+        }
+    , Skill.new
+        { Skill.name    = "Ameyuri Ringo: Thunder Gate"
+        , Skill.desc    = "With the twin blades of Baki plunged into the ground, Ameyuri calls down lightning from the sky to incinerate the battlefield around an enemy, dealing 30 piercing damage to them."
+        , Skill.classes = [Chakra, Ranged]
+        , Skill.effects =
+          [ To Enemy $ pierce 30 ]
+        }
+    , Skill.new
+        { Skill.name    = "Kushimaru Kuriarare: Needle Stitching"
+        , Skill.desc    = "Nuibari skewers an enemy and pulls a wire through them, dealing 20 piercing damage and preventing them from affecting his reanimator for 1 turn."
+        , Skill.classes = [Chakra, Ranged]
+        , Skill.effects =
+          [ To Enemy do
+                pierce 20
+                userSlot <- user slot
+                apply 1 "Needle Stitching" [Block userSlot]
+          ]
+        }
+    , Skill.new
+        { Skill.name    = "Jinpachi Munashi: Splatter"
+        , Skill.desc    = "Jinpachi swings his sword at an enemy and detonates numerous paper bombs on contact, dealing 30 affliction damage. For 1 turn, the target receives 5 additional damage from non-affliction skills."
+        , Skill.classes = [Chakra, Melee, Bane]
+        , Skill.effects =
+          [ To Enemy do
+                afflict 30
+                apply 1 "Splatter" [Bleed [NonAffliction] Flat 5]
+          ]
+        }
+    , Skill.new
+        { Skill.name    = "Fuguki Suikazan: Sharp Hair Spear"
+        , Skill.desc    = "Fuguki extends his hair to skewer enemies around him, dealing 10 damage to the enemy team and stunning their non-mental skills for 1 turn."
+        , Skill.classes = [Physical, Ranged]
+        , Skill.effects =
+          [ To Enemies do
+                damage 10
+                apply 1 "Sharp Hair Spear" [Stun NonMental]
+          ]
+        }
+    , Skill.new
+        { Skill.name    = "Jinin Akebino: Axe Chop"
+        , Skill.desc    = "Slashing an enemy with the axe part of Kabutowari, Jinin deals 15 piercing damage, disables the countering effects of their skills, and prevents them from reducing damage or becoming invulnerable."
+        , Skill.classes = [Physical, Melee]
+        , Skill.effects =
+          [ To Enemy do
+                pierce 15
+                apply 1 "Axe Chop"
+                    [ Expose
+                    , Disable Counters
+                    ]
+          ]
+        }
+    , Skill.new
+        { Skill.name    = "Deidara: Detonating Clay"
+        , Skill.desc    = "Deidara tosses an explosive clay bomb at an enemy, dealing 20 piercing damage and making his reanimator invulnerable to mental skills for 1 turn."
+        , Skill.classes = [Chakra, Ranged]
+        , Skill.effects =
+          [ To Enemy $ pierce 20
+          , To Self $ apply 1 "Detonating Clay" [Invulnerable Mental]
+          ]
+        }
+    , Skill.new
+        { Skill.name    = "Sasori: Ally Control"
+        , Skill.desc    = "Sasori manipulates an ally with puppeteering threads. All non-ranged skills that enemies use on the target next turn will be reflected back at them."
+        , Skill.classes = [Physical, Invisible]
+        , Skill.effects =
+          [ To XAlly $ apply 1 "Ally Control" [ReflectAll NonRanged] ]
+        }
+    , Skill.new
+        { Skill.name    = "Nagato: Naraka Path"
+        , Skill.desc    = "The King of Hell absorbs 20 of an enemy's health and converts it into destructible defense."
+        , Skill.classes = [Mental, Ranged]
+        , Skill.effects =
+          [ To Enemy $ leech 20 $ defend Permanent ]
+        }
+    ]

@@ -10,6 +10,7 @@ module Game.Action.Status
   , bomb, bombWith
     -- * Control
   , control, controlWith
+  , controlBomb, controlBombWith
   -- * Adjusting statuses
   , refresh, prolong, hasten
   -- * Removing statuses
@@ -115,6 +116,14 @@ tagWith classes dur name = applyWith (classes ++ extraClasses) dur name []
 -- | Alias for 'applyWith [Hidden]'.
 hide :: ∀ m. MonadPlay m => Duration -> Text -> [Effect] -> m ()
 hide = applyWith $ singleton Hidden
+
+controlBombWith :: ∀ m. MonadPlay m
+                => EnumSet Class -> [Effect] -> [Runnable Bomb] -> m ()
+controlBombWith classes effects bombs = P.unsilenced
+    $ Statuses.control classes bombs effects
+
+controlBomb :: ∀ m. MonadPlay m => [Effect] -> [Runnable Bomb] -> m ()
+controlBomb = controlBombWith mempty
 
 controlWith :: ∀ m. MonadPlay m => EnumSet Class -> [Effect] -> m ()
 controlWith classes effects = P.unsilenced

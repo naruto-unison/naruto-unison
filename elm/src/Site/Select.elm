@@ -20,7 +20,7 @@ import Maybe.Extra as Maybe
 import Ports exposing (Ports)
 import Process
 import Set exposing (Set)
-import Site.Render as Render exposing (icon)
+import Site.Render as Render
 import Sound exposing (Sound)
 import Task exposing (Task)
 import Tuple exposing (first, second)
@@ -785,8 +785,7 @@ userBox red blue mUser csrf csrfParam showLogin costs team =
                     in
                     ( characterName char
                     , H.div [ A.class "charWrapper" ] <|
-                        icon char
-                            "icon"
+                        Render.charIcon char
                             [ A.class "char click"
                             , E.onMouseOver << Preview <| PreviewChar char
                             , E.onClick <| Team Delete char
@@ -861,8 +860,7 @@ vsBox st =
           <|
             \char ->
                 ( characterName char
-                , icon char
-                    "icon"
+                , Render.charIcon char
                     [ A.class "char click"
                     , E.onClick <| Vs Delete char
                     ]
@@ -1008,7 +1006,7 @@ previewBox st =
                             for (x :: xs) <|
                                 \char_ ->
                                     ( characterName char_
-                                    , icon char_ "icon" <|
+                                    , Render.charIcon char_ <|
                                         if locked st.unlocked char_ then
                                             [ A.classList
                                                 [ ( "on", char == char_ )
@@ -1043,7 +1041,7 @@ previewBox st =
                                             ]
                                     )
                 , H.h3 [] <|
-                    [ icon char "icon" [ A.class "char" ]
+                    [ Render.charIcon char [ A.class "char" ]
                     , if not <| locked st.unlocked char then
                         H.aside [] []
 
@@ -1082,8 +1080,8 @@ previewBox st =
                         ]
                 ]
                     ++ List.map3 (previewSkill st.visibles char)
-                        (List.range 0 10)
                         -- doesn't matter, not the limiting factor
+                        (List.range 0 10)
                         char.skills
                         st.alternates
 
@@ -1156,7 +1154,10 @@ previewSkill visibles char slot skills i =
             H.section []
                 [ H.div [] <|
                     Maybe.values
-                        [ Just <| icon char skill.name [ A.class "char" ]
+                        [ Just <|
+                            Render.skillIcon char
+                                skill
+                                [ A.class "char" ]
                         , vPrev
                         , vNext
                         ]
@@ -1247,8 +1248,7 @@ listChars st =
             in
             ( characterName char
             , H.div [ A.class "charWrapper" ] <|
-                icon char
-                    "icon"
+                Render.charIcon char
                     [ E.onMouseOver << Preview <| PreviewChar char
                     , E.onClick <| Team Add char
                     , A.class <| charClass char
@@ -1319,8 +1319,7 @@ listVs st =
         displayChar char =
             ( characterName char
             , H.div [ A.class "charWrapper", A.title char.name ]
-                [ icon char
-                    "icon"
+                [ Render.charIcon char
                     [ E.onClick <| Vs Add char
                     , A.class <| charClass char
                     ]

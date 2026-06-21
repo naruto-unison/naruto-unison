@@ -1,7 +1,7 @@
 {-# OPTIONS_HADDOCK hide #-}
 {-# LANGUAGE OverloadedLists #-}
 
-module Game.Characters.Reanimated.Adults (characters) where
+module Game.Characters.Reanimated.Adults (characters, reanimations) where
 
 import Game.Characters.Import
 
@@ -396,3 +396,77 @@ characters =
     , [ invuln "Hide" "Chūkichi" [Mental] ]
     ]
   ]
+
+reanimations :: [Skill]
+reanimations =
+    [ Skill.new
+        { Skill.name    = "Pakura: Searing Combat"
+        , Skill.desc    = "Pakura ignites an enemy, dealing 20 affliction damage to them for 2 turns."
+        , Skill.classes = [Physical, Melee, Bane]
+        , Skill.effects =
+          [ To Enemy $ apply 2 "Searing Combat" [Afflict 20] ]
+        }
+    , Skill.new
+        { Skill.name   = "Gari: Landmine Fist"
+        , Skill.desc   = "Making direct contact with an enemy, Gari generates an explosion inside them that deals 35 piercing damage."
+        , Skill.classes = [Chakra, Melee]
+        , Skill.effects =
+          [ To Enemy $ pierce 35 ]
+        }
+    , Skill.new
+        { Skill.name    = "Ginkaku: Amber Purification Jar"
+        , Skill.desc    = "Ginkaku captures an enemy inside the Sage of the Sixth Path's sealing jar, stunning their physical and melee skills for 1 turn."
+        , Skill.classes = [Physical, Melee]
+        , Skill.effects =
+          [ To Enemy $ apply 1 "Amber Purification Jar"
+                [ Stun Physical
+                , Stun Melee
+                ]
+          ]
+        }
+    , Skill.new
+        { Skill.name    = "Kinkaku: Leaf Fan"
+        , Skill.desc    = "Using a legendary fan that can generate any of the five elements, Kinkaku deals 25 affliction damage to an enemy and provides 50% damage reduction to his reanimator for 1 turn."
+        , Skill.classes = [Physical, Ranged]
+        , Skill.effects =
+          [ To Enemy $ afflict 25
+          , To Self $ apply 1 "Leaf Fan" [Reduce [All] Percent 50]
+          ]
+        }
+    , Skill.new
+        { Skill.name    = "Toroi: Magnetic Current"
+        , Skill.desc    = "Toroi energizes the field with magnetism, dealing 10 piercing damage to all enemies."
+        , Skill.classes = [Physical, Ranged]
+        , Skill.effects =
+          [ To Enemies $ pierce 10 ]
+        }
+    , Skill.new
+        { Skill.name    = "Fukai: Lariat"
+        , Skill.desc    = "Rushing an enemy, Fukai deals 15 piercing damage to them and stuns their chakra and ranged skills for 1 turn."
+        , Skill.classes = [Mental, Ranged]
+        , Skill.effects =
+          [ To Enemy do
+                pierce 15
+                apply 1 "Lariat"
+                    [ Stun Chakra
+                    , Stun Ranged
+                    ]
+          ]
+        }
+    , Skill.new
+        { Skill.name    = "Chiyo: Army of Illusions"
+        , Skill.desc    = "Chiyo takes control of multiple bodies and attacks an enemy, dealing 20 damage and making her reanimator invulnerable to non-ranged skills for 1 turn."
+        , Skill.classes = [Physical, Ranged]
+        , Skill.effects   =
+          [ To Enemy $ damage 20
+          , To Self $ apply 1 "Army of Illusions" [Invulnerable NonRanged]
+          ]
+        }
+    , Skill.new
+        { Skill.name    = "Chūkichi: Psychic Jamming"
+        , Skill.desc    = "Chūkichi telepathically disrupts the minds of all enemies, increasing the costs of their skills by 1 arbitrary chakra for 1 turn."
+        , Skill.classes = [Mental, Ranged]
+        , Skill.effects =
+          [ To Enemies $ apply 1 "Psychic Jamming" [Exhaust [All]] ]
+        }
+    ]

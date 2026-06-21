@@ -1,7 +1,6 @@
 
 module Game.Model.Trigger
   ( Trigger(..)
-  , affectsDead
   , isCounter
   , isSingleUse
   , Negative(..)
@@ -19,6 +18,7 @@ import           Class.Display (Display(..))
 import           Game.Model.Class (Class(..), lower)
 import           Game.Model.ID (ID(ID))
 import qualified Game.Model.ID
+import           Util (insertIf)
 
 -- | Conditions to activate a 'Game.Model.Trap.Trap'
 data Trigger
@@ -46,6 +46,7 @@ data Trigger
     | OnNotDamaged
     | OnReduce
     | OnReflect
+    | OnResurrected
     | OnSacrifice
     | OnStun
     | OnStunned
@@ -57,15 +58,6 @@ instance Hashable Trigger
 
 instance ToJSON Trigger where
     toJSON = toJSON . display'
-
-instance Classed Trigger where
-    getClasses (Counter cla)      = singleton cla
-    getClasses (CounterAll cla)   = singleton cla
-    getClasses (Countered cla)    = singleton cla
-    getClasses (OnAction cla)     = singleton cla
-    getClasses (OnDamaged cla)    = singleton cla
-    getClasses (OnHarmed cla)     = singleton cla
-    getClasses _                  = mempty
 
 instance Display Trigger where
     display (Counter Uncounterable)    = "Next skill received from an enemy will be negated."
@@ -101,16 +93,24 @@ instance Display Trigger where
     display OnNotDamaged       = "Trigger: Do not receive any damage."
     display OnReduce           = "Trigger: Apply damage reduction."
     display OnReflect          = "Trigger: Reflect a skill."
+    display OnResurrected      = "Trigger: Return to life."
     display OnSacrifice        = "Trigger: Use a skill that sacrifices the user's health."
     display OnStun             = "Trigger: Apply a stun or disabling effect."
     display OnStunned          = "Trigger: Stunned."
     display PerDamaged         = "Trigger: Receive damage."
     display Resurrect          = "Trigger: Reach 0 health."
 
-affectsDead :: Trigger -> Bool
-affectsDead OnDeath   = True
-affectsDead Resurrect = True
-affectsDead _         = False
+instance Classed Trigger where
+    getClasses trigger = insertIf (affectsDead trigger) Necromancy
+                       . insertIf (isAtemporal trigger) Atemporal
+                       $ mempty
+      where
+        affectsDead OnDeath       = True
+        affectsDead Resurrect     = True
+        affectsDead OnResurrected = True
+        affectsDead _             = False
+        isAtemporal OnResurrected = True
+        isAtemporal _             = False
 
 isCounter :: Trigger -> Bool
 isCounter Counter{}    = True

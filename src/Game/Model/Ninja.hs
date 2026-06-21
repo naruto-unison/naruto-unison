@@ -3,6 +3,7 @@ module Game.Model.Ninja
   , alive
   , is, isChanneling
   , has, has', hasBarrier, hasDefense, hasTrap
+  , hasFromAny, hasFromAny'
   , total, amount, amount', amountFromAny', amountFromAny
   , numHelpful, numHarmful
   , lastChakraSpent
@@ -90,6 +91,18 @@ hasDefense = has' defense
 hasTrap :: ID -- ^ 'Trap.name'.
            -> Ninja -> Bool
 hasTrap = has' traps
+
+hasFromAny' :: ∀ a. HasID a
+            => (Ninja -> [a])
+            -> Text
+            -> Ninja
+            -> Bool
+hasFromAny' getter name n = any ((== name) . ID.name . ID.from) $ getter n
+
+hasFromAny :: Text
+           -> Ninja
+           -> Bool
+hasFromAny = hasFromAny' statuses
 
 -- | Chakra spent on 'lastSkill'.
 lastChakraSpent :: Ninja -> Chakras

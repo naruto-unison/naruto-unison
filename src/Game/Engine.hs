@@ -30,6 +30,8 @@ import qualified Game.Engine.Skills as Skills
 import qualified Game.Engine.Traps as Traps
 import           Game.Model.Channel (Channel(Channel))
 import qualified Game.Model.Channel
+import           Game.Model.Character (Category(..), Character(Character))
+import qualified Game.Model.Character
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
@@ -88,9 +90,14 @@ processTurn runner = do
     doHpsOverTime
     P.alterGame Game.swapPlaying
     doDeaths
+    when (any isReanimated initial)
+        . P.alterGame . Game.updateDna =<< P.ninjas
     yieldVictor
     Hook.turnEnd player initial =<< P.ninjas
   where
+    isReanimated Ninja{character = Character{category = Reanimated}} = True
+    isReanimated _ = False
+
     getChannels ns =
         [ Context { new       = False
                   , user      = n.slot

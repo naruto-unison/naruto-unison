@@ -140,8 +140,9 @@ factory = do
     P.modify target Ninjas.factory
     P.modifyAll $ unSoulbound target
     alive' <- N.alive <$> P.nTarget
-    when (alive' && not alive)
-        $ P.trigger user [OnHeal]
+    when (alive' && not alive) do
+        P.trigger user [OnHeal]
+        P.trigger target [OnResurrected]
 
 -- | Restores a target to an earlier state. Charges are preserved.
 replaceWith :: ∀ m. MonadPlay m => Ninja -> m ()

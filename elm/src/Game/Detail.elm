@@ -20,6 +20,7 @@ type alias Detail =
     , classes : Set String
     , dur : Int
     , source : Int
+    , skillName : String
     , user : Int
     , effects : List Effect
     , trap : Bool
@@ -133,6 +134,7 @@ channel user x =
     , classes = x.skill.classes
     , dur = Game.dur x
     , source = x.skill.owner
+    , skillName = x.skill.name
     , user = user
     , effects = []
     , trap =
@@ -153,6 +155,7 @@ copy x =
     , classes = x.skill.classes
     , dur = x.dur
     , source = x.skill.owner
+    , skillName = x.skill.name
     , user = x.skill.owner
     , effects = []
     , trap = False
@@ -167,6 +170,7 @@ status x =
     , classes = x.classes
     , dur = x.dur
     , source = x.skill.owner
+    , skillName = x.skill.name
     , user = x.user
     , effects = List.uniqueBy .desc x.effects
     , trap = False
@@ -191,6 +195,7 @@ trap x =
     , classes = x.classes
     , dur = x.dur
     , source = x.skill.owner
+    , skillName = x.skill.name
     , user = x.user
     , effects = [ effects ]
     , trap = True

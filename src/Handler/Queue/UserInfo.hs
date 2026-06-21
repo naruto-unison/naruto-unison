@@ -1,6 +1,7 @@
 module Handler.Queue.UserInfo (UserInfo(..)) where
 
-import Control.Concurrent.MVar (MVar)
+import ClassyPrelude
+
 import Database.Persist (Entity)
 import Data.Time.Clock.System (SystemTime)
 
@@ -11,6 +12,7 @@ import Handler.Queue.Message (Response)
 data UserInfo = UserInfo
     { user   :: Entity User
     , team   :: [Character]
+    , dna    :: Seq Text
     , joined :: SystemTime
     , chan   :: MVar Response
     }

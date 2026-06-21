@@ -2,6 +2,7 @@ module Import.Flags exposing
     ( Characters
     , Flags
     , characterName
+    , clean
     , decode
     , failure
     , printFailure
@@ -124,8 +125,13 @@ withKey f =
     List.map <| \x -> ( f x, x )
 
 
-clean : Char -> Char
-clean x =
+clean : String -> String
+clean =
+    String.map cleanChar << String.toLower
+
+
+cleanChar : Char -> Char
+cleanChar x =
     case x of
         ' ' ->
             '-'
@@ -136,9 +142,7 @@ clean x =
 
 characterName : Character -> String
 characterName char =
-    String.map clean
-        << String.toLower
-    <|
+    clean <|
         case char.category of
             Original ->
                 char.name

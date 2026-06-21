@@ -32,6 +32,7 @@ data Class
     -- Tags
     | Bane
     | Necromancy
+    | Reanimation
     -- Prevention
     | Uncounterable
     | Unreflectable

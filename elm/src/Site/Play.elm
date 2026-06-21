@@ -17,7 +17,7 @@ import Maybe.Extra as Maybe
 import Ports exposing (Ports)
 import Process
 import Set exposing (Set)
-import Site.Render as Render exposing (icon)
+import Site.Render as Render
 import Sound exposing (Sound)
 import Task
 import Util exposing (ListChange(..), elem, pure, showErr)
@@ -671,7 +671,7 @@ renderChakra turn exchange chakras (ChakraPair chakra spend amount random) =
 renderAct : List Character -> Act -> Html Msg
 renderAct characters x =
     H.div [ A.class "act click", E.onClick <| Enact Delete x ]
-        [ icon (Game.root characters x.skill) x.skill.name []
+        [ Render.skillIcon (Game.root characters x.skill) x.skill []
         , H.div [ A.class "actcost" ] <|
             Render.chakras x.skill.cost
         ]
@@ -735,7 +735,7 @@ renderSkill user chakras able characters button targets skill =
             String.cons (Char.fromCode <| skill.owner + 48) skill.name
 
         image =
-            icon (Game.root characters skill) skill.name []
+            Render.skillIcon (Game.root characters skill) skill []
 
         cooldown =
             if user.health > 0 && skill.cooldown > 0 then
@@ -832,7 +832,7 @@ renderDetail team slot characters detail =
             ]
         ]
         [ H.div [] <|
-            amount [ icon (Game.get characters detail.source) detail.name [] ]
+            amount [ Render.detailIcon (Game.get characters detail.source) detail [] ]
         , H.p [] <|
             if Set.member "Continues" detail.classes then
                 [ H.text "•" ]
@@ -930,10 +930,10 @@ renderCharacter characters acted toggle highlighted chakras turn onTeam b =
         faceIcon =
             case b.ninja.face of
                 Nothing ->
-                    icon b.character "icon"
+                    Render.charIcon b.character
 
                 Just face ->
-                    icon (Game.get characters face.user) <| "icon" ++ face.icon
+                    Render.icon (Game.get characters face.user) <| "icon" ++ face.icon
 
         mainBar =
             (if onTeam then
@@ -982,7 +982,7 @@ renderCharacter characters acted toggle highlighted chakras turn onTeam b =
 bar : Character -> String -> Int -> Int -> List (Html msg)
 bar source name amount dur =
     [ H.section []
-        [ icon source name [ A.class "char" ]
+        [ Render.icon source name [ A.class "char" ]
         , H.dl []
             [ H.h4 []
                 [ H.text name ]
@@ -1003,7 +1003,7 @@ renderView visibles characters viewing =
         case viewing of
             ViewCharacter x ->
                 [ H.section []
-                    [ icon x "icon" [ A.class "char" ]
+                    [ Render.charIcon x [ A.class "char" ]
                     , H.section []
                         [ H.h4 [] <|
                             Render.name x
@@ -1018,7 +1018,9 @@ renderView visibles characters viewing =
 
             ViewDetail removable x ->
                 [ H.section []
-                    [ icon (Game.get characters x.source) x.name [ A.class "char" ]
+                    [ Render.detailIcon (Game.get characters x.source)
+                        x
+                        [ A.class "char" ]
                     , H.dl [] <|
                         [ H.h4 [] [ H.span [] [ H.text x.name ] ]
                         , Render.classes True <| Set.intersect visibles x.classes
@@ -1152,7 +1154,7 @@ renderView visibles characters viewing =
                 in
                 [ H.section []
                     [ H.div [] <|
-                        icon character x.name [ A.class "char" ]
+                        Render.skillIcon character x [ A.class "char" ]
                             :: Maybe.withDefault [] varyButtons
                     , H.dl []
                         [ H.h4 []

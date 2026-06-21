@@ -13,6 +13,7 @@ import Control.Monad.Loops (iterateWhile)
 import Control.Monad.Trans.Maybe (MaybeT(..), hoistMaybe)
 import Data.Enum.Set (EnumSet)
 
+import           Class.Classed (Classed(..))
 import           Class.Hook (MonadHook)
 import qualified Class.Hook as Hook
 import           Class.Parity (Parity)
@@ -109,8 +110,11 @@ runDeathTriggersOf user n@Ninja{slot, traps}
   | alive = return False
   | not $ null resurrectTraps = do
         Hook.trigger Resurrect n
-        P.modify slot \n' -> Ninjas.clearTraps Resurrect n' { N.health = 1 }
+        P.modify slot \n' -> Ninjas.clearAnyTraps
+                             (setFromList [Resurrect, OnResurrected])
+                             n' { N.health = 1 }
         mapM_ (run user) resurrectTraps
+        mapM_ (run user) $ trapsOf OnResurrected
         return True
   | not $ null onDeathTraps = do
         Hook.trigger OnDeath n
@@ -249,11 +253,10 @@ makeTrap ctx@Context { continues
       | continues || new      = deleteSet Continues
       | otherwise             = deleteSet Continues . deleteSet Invisible
     baseClasses = classes ++ skill.classes
-    extra = insertIf (Trigger.affectsDead trigger) Necromancy
-          . insertIf (Hidden ∈ baseClasses) Unremovable
+    extra = insertIf (Hidden ∈ baseClasses) Unremovable
           . insertSet Nonstacking
           . setContinues
-          $ mempty
+          $ getClasses trigger
     classes' = baseClasses ++ extra
     skill'   = skill { Skill.classes = classes'
                      , Skill.require = mempty

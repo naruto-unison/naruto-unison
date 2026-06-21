@@ -15,6 +15,7 @@ import           Class.Stackable (Stackable)
 import qualified Game.Engine.Effects as Effects
 import           Game.Model.Channel (Channeling(..))
 import qualified Game.Model.Channel as Channel
+import qualified Game.Model.Character
 import           Game.Model.Class (Class(..))
 import           Game.Model.Effect (Effect(..))
 import           Game.Model.ID (HasID, ID(ID))
@@ -67,30 +68,50 @@ requireAmount getter AtMost  0 itemID n = not $ N.has' getter itemID n
 requireAmount getter AtLeast 1 itemID n = N.has' getter itemID n
 requireAmount getter r  i itemID n = inRange r i $ N.amount' getter itemID n
 
+requireFromAny :: ∀ a. (HasID a, Stackable a)
+              => (Ninja -> [a]) -> Range -> Int -> Text -> Ninja -> Bool
+requireFromAny getter AtMost  0 name n = not $ N.hasFromAny' getter name n
+requireFromAny getter AtLeast 1 name n = N.hasFromAny' getter name n
+requireFromAny getter r  i name n = inRange r i $ N.amountFromAny' getter name n
+
 -- | Checks whether a user passes the 'Skill.require' of a 'Skill'.
 succeed :: Requirement -> Slot -> Slot -> Ninja -> Bool
 succeed Unusable _ _ _ = False
+
 succeed (UserHas r i name) owner user n@Ninja{slot}
   | user /= slot = True
   | otherwise    = requireAmount N.statuses r i ID { user, owner, name } n
 succeed (TargetHas r i name) owner user n@Ninja{slot}
   | user == slot = True
   | otherwise    = requireAmount N.statuses r i ID { user, owner, name } n
+
+succeed (TargetHasFromAny r i name) _ user n@Ninja{slot}
+  | user == slot = True
+  | otherwise    = requireFromAny N.statuses r i name n
+
 succeed (UserHealth r i) _  user Ninja{health, slot}
   | user /= slot = True
   | otherwise    = inRange r i health
 succeed (TargetHealth r i) _ user Ninja{health, slot}
   | user == slot = True
   | otherwise    = inRange r i health
+
 succeed (UserChannel expected name) owner user n@Ninja{slot}
   | user /= slot = True
   | otherwise    = expected == N.isChanneling ID { user, owner, name } n
+
 succeed (UserDefense r i name) owner user n@Ninja{slot}
   | user /= slot = True
   | otherwise    = requireAmount N.defense r i ID { user, owner, name } n
+
 succeed (UserTrap expected name) owner user n@Ninja{slot}
   | user /= slot = True
   | otherwise    = expected == N.hasTrap ID { user, owner, name } n
+
+succeed (TargetCategory expected category) _ user n@Ninja{slot}
+  | user == slot = True
+  | otherwise    = expected == (n.character.category == category)
+
 
 -- | Checks whether a @Skill@ can be used on a target.
 targetable :: Skill -- ^ @Skill@ to check.
