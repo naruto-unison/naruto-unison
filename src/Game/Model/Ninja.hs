@@ -5,6 +5,7 @@ module Game.Model.Ninja
   , has, has', hasBarrier, hasDefense, hasTrap
   , hasFromAny, hasFromAny'
   , total, amount, amount', amountFromAny', amountFromAny
+  , duration, duration'
   , numHelpful, numHarmful
   , lastChakraSpent
   ) where
@@ -13,8 +14,11 @@ import ClassyPrelude
 
 import qualified Class.Parity as Parity
 import           Class.Stackable (Stackable, getAmount)
+import           Class.TurnBased (TurnBased)
+import qualified Class.TurnBased as TurnBased
 import           Game.Model.Chakras (Chakras)
 import           Game.Model.Class (Class(..))
+import           Game.Model.Duration (Duration(..))
 import           Game.Model.Effect (Effect(..))
 import qualified Game.Model.Effect as Effect
 import           Game.Model.ID (HasID, ID)
@@ -128,6 +132,14 @@ amountFromAny' :: ∀ a. (HasID a, Stackable a)
 amountFromAny' getter name n = sum
     [ getAmount item | item <- getter n,
                        (ID.from item).name == name ]
+
+duration :: ID -> Ninja -> Maybe Duration
+duration = duration' statuses
+
+duration' :: ∀ a. (HasID a, TurnBased a)
+          => (Ninja -> [a]) -> ID -> Ninja -> Maybe Duration
+duration' getter itemID n = TurnBased.getDur
+                            <$> find ((== itemID) . ID.from) (getter n)
 
 total :: ∀ a. Stackable a => (Ninja -> [a]) -> Ninja -> Int
 total getter n = sum $ getAmount <$> getter n

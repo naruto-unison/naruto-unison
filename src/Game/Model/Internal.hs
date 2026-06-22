@@ -355,7 +355,6 @@ data Status = Status
     , effects :: [Effect]
     , classes :: EnumSet Class
     , bombs   :: [Runnable Bomb]
-    , maxDur  :: Duration
     , dur     :: Duration
     } deriving (Generic)
 

@@ -21,9 +21,7 @@ import           Game.Model.Duration (Duration(..))
 import qualified Game.Model.Duration as Duration
 import           Game.Model.Effect (Constructor(..), Effect(..))
 import qualified Game.Model.Effect as Effect
-import qualified Game.Model.ID as ID
 import           Game.Model.Ninja (Ninja, is)
-import qualified Game.Model.Ninja as N
 import           Game.Model.Runnable (Runnable)
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
@@ -75,13 +73,9 @@ apply amount classes bombs unthrottled name effects = void $ runMaybeT do
                     , dur
                     , effects
                     }
-        stID = ID.from status
-    if N.has stID nTarget && Extending ∈ status.classes then
-        P.modify target $ Ninjas.prolong status.dur stID
-    else do
-        guard $ null effects || not (null status.effects)
-        P.modify target $ Ninjas.addStatus status
-        triggerStatusApplied status.effects
+    guard $ null effects || not (null status.effects)
+    P.modify target $ Ninjas.addStatus status
+    triggerStatusApplied status.effects
   where
     isChanneled = setFromList [Continues, Controlled] `intersects` classes
 

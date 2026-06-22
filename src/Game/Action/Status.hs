@@ -12,7 +12,7 @@ module Game.Action.Status
   , control, controlWith
   , controlBomb, controlBombWith
   -- * Adjusting statuses
-  , refresh, prolong, hasten
+  , prolong, hasten
   -- * Removing statuses
   , cureAll, cureBane, cureStun, purge, remove, removeStack, removeStacks
   -- * Specialized
@@ -41,24 +41,15 @@ import           Game.Model.Status (Bomb(..), Status(Status))
 import qualified Game.Model.Status as Status
 import           Util ((∈))
 
--- | Refreshes the 'Status.dur' of 'N.statuses' with matching 'Status.name'
--- to 'Status.maxDur'.
--- Uses 'Ninjas.refresh' internally.
-refresh :: ∀ m. MonadPlay m => Text -> m ()
-refresh name = P.unsilenced
-    $ P.toTargetFromUser Ninjas.refresh name
-
 -- | Increases the 'Status.dur' of 'N.statuses' with matching 'Status.name'.
 -- Uses 'Ninjas.prolong' internally.
 prolong :: ∀ m. MonadPlay m => Duration -> Text -> m ()
-prolong dur name = P.unsilenced
-    $ P.toTargetFromUser (Ninjas.prolong dur) name
+prolong dur name = P.toTargetFromUser (Ninjas.prolong dur) name
 
 -- | Reduces the 'Status.dur' of 'N.statuses' with matching 'Status.name'.
 -- Uses 'Ninjas.prolong' internally.
 hasten :: ∀ m. MonadPlay m => Duration -> Text -> m ()
-hasten dur name = P.unsilenced
-    $ P.toTargetFromUser (Ninjas.prolong $ negate dur) name
+hasten dur name = P.toTargetFromUser (Ninjas.prolong $ negate dur) name
 
 -- | Adds a @Status@ to 'N.statuses'.
 apply :: ∀ m. MonadPlay m => Duration -> Text -> [Effect] -> m ()

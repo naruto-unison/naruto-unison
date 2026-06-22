@@ -51,9 +51,8 @@ instance Stackable Status where
             , skill = Skill{name = skillName, owner}
             , effects
             , classes
-            , maxDur
             , dur
-            } = (user, owner, dur, maxDur, classes, name, skillName, effects)
+            } = (user, owner, dur, classes, name, skillName, effects)
     stackable _ _ = False
     unstack = (==) `on` project
       where

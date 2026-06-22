@@ -27,7 +27,6 @@ new user dur skill = Status
     , effects = mempty
     , classes = skill.classes
     , bombs   =  mempty
-    , maxDur  = succ dur
     , dur     = succ dur
     }
 

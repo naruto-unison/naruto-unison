@@ -240,39 +240,48 @@ characters =
     "Reanimated by Kabuto, Ameyuri was one of the Seven Swordsmen of the Mist. Wielding Baki, the legendary twin lightning blades, Ameyuri cuts down her enemies using paralyzing electricity."
     [MistVillage, Kabuto, SevenSwordsmen, Jonin, Lightning]
     let
-        electrocute :: SkillEffect
-        electrocute = unlessM (target has' traps "Electricity") $
-            trapWith [Hidden] Permanent "Electricity" (OnAction All) $
-                whenM (target has "Electricity") do
-                    refresh "Electricity"
-                    targeting Everyone $ whenM (target has "Electricity") $
-                        asAction $ afflict 5
+        electrocute :: Duration -> SkillEffect
+        electrocute dur = do
+            unlessM (target has' traps "Electricity") $
+                trapWith [Hidden] Permanent "Electricity" (OnAction All) do
+                    electricity <- target amount "Electricity"
+                    when (electricity > 0) do
+                        remove "Electricity"
+                        addStacks' (toEnum electricity) "Electricity" electricity
+                        targeting Everyone $ whenM (target has "Electricity") $
+                            asAction $ afflict 5
+
+            mcurrentDur <- target duration "Electricity"
+            case mcurrentDur of
+                Nothing -> addStacks' dur "Electricity" $ fromEnum dur
+                Just currentDur -> do
+                    currentStacks <- target amount "Electricity"
+                    let newDur    = pred $ currentDur + dur
+                        newStacks = max currentStacks $ fromEnum newDur
+                    remove "Electricity"
+                    addStacks' newDur "Electricity" newStacks
     in
     [ [ Skill.new
         { Skill.name      = "Lightning Fang"
-        , Skill.desc      = "Bolts of lightning cascade across the battlefield, applying 2 turns of Electricity to all enemies. Whenever someone affected by Electricity uses a skill, Electricity on them is refreshed to its maximum duration, and everyone affected by Electricity receives 5 affliction damage that bypasses invulnerability. Reapplying Electricity extends its duration instead of stacking."
-        , Skill.classes   = [Bane, Chakra, Ranged, Extending]
+        , Skill.desc      = "Bolts of lightning cascade across the battlefield, applying 2 turns    of Electricity to all enemies. Whenever someone affected by Electricity uses a skill, Electricity on them is refreshed to its maximum duration, and everyone affected by Electricity receives 5 affliction damage that bypasses invulnerability. Reapplying Electricity extends its duration instead of stacking."
+        , Skill.classes   = [Bane, Chakra, Ranged, Nonstacking]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Enemies do
-                apply 2 "Electricity" []
-                electrocute
-          ]
+          [ To Enemies $ electrocute 2 ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Depth Charge"
         , Skill.desc      = "Ameyuri surrounds herself with lightning and electrocutes an opponent, dealing 30 damage. Deals affliction damage if the target is affected by Electricity. Enemies who use a skill on Ameyuri next turn will have 1 turn of Electricity applied to them."
-        , Skill.classes   = [Bane, Chakra, Melee, Extending]
+        , Skill.classes   = [Bane, Chakra, Melee, Nonstacking]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy do
                 electricity <- target has "Electricity"
                 if electricity then afflict 30 else damage 30
-          , To Self $ trapFrom 1 skillName (OnHarmed All) do
-                apply 1 "Electricity" []
-                electrocute
+          , To Self $ trapFrom 1 skillName (OnHarmed All) $
+                electrocute 1
            ]
         }
       ]

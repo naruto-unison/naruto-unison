@@ -42,7 +42,6 @@ module Game.Engine.Ninjas
   , prolong, prolongControlled
   , prolongChannel
   , renameChannels
-  , refresh
   ) where
 
 import ClassyPrelude
@@ -413,7 +412,7 @@ prolongControlled dur statusID = prolongIf matches dur
 
 prolongIf :: (Status -> Bool) -> Duration -> Ninja -> Ninja
 prolongIf condition dur n
-  | dur < 0 = processEffects n'
+  | dur < 0   = processEffects n'
   | otherwise = n'
   where
     n' = n { N.statuses = mapMaybe doProlong n.statuses }
@@ -428,10 +427,7 @@ prolong' _ st@Status{dur = Permanent} = Just st
 prolong' Permanent st = Just st { Status.dur = Permanent }
 prolong' (Duration dur) st
   | statusDur' < 0 = Nothing
-  | otherwise      = Just
-        st { Status.dur    = statusDur'
-           , Status.maxDur = max st.maxDur statusDur'
-           }
+  | otherwise      = Just st { Status.dur = st.dur + Duration dur' }
     where
       statusDur' = st.dur + Duration dur'
       dur'
@@ -462,15 +458,6 @@ purge :: Ninja -> Ninja
 purge = filterEffects keep
   where
     keep _ effect = Effect.sticky effect || not (Effect.helpful effect)
-
--- | Resets the duration of matching 'statuses' to their 'Status.maxDur'.
-refresh :: ID -- ^ 'Status.name'.
-        -> Ninja -> Ninja
-refresh statusID n = n { N.statuses = f <$> n.statuses }
-  where
-    f st
-      | ID.from st == statusID = st { Status.dur = st.maxDur }
-      | otherwise              = st
 
 -- | Replicates 'removeStack'.
 removeStacks :: Int -- ^ Subtracted from 'Status.amount'.
