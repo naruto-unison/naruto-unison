@@ -318,7 +318,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy $ trap 1 OnHarm $
+          [ To Enemy $ trap 1 OnHarm $ asAction $
                 apply 2 skillName [Snare 1]
           ]
         }

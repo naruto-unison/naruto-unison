@@ -291,7 +291,7 @@ characters =
           [ To Self $ apply 1 skillName [Reduce [All] Flat 15]
           , To Enemy do
                 pierce 15
-                trap 1 (OnAction All) $
+                trap 1 (OnAction All) $ asAction $
                     pierce 15
           ]
         }
@@ -368,7 +368,7 @@ characters =
           ,  To Self do
                 apply 4 skillName [Reduce [All] Flat 15]
                 trap 4 OnDeath $ targeting Everyone $
-                    whenM (target has skillName) $
+                    whenM (target has skillName) $ asAction $
                         apply Permanent "Borrowed Sharingan"
                             [ Reduce [All] Flat 5
                             , Strengthen [NonAffliction] Flat 5

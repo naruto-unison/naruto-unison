@@ -64,7 +64,7 @@ characters =
                 trap Permanent OnHarm do
                     removeTrap skillName
                     stacks <- target amount skillName
-                    pierce (20 * stacks)
+                    asAction $ pierce (20 * stacks)
                     remove skillName
           ]
         }
@@ -174,8 +174,9 @@ characters =
                 trap Permanent OnHarm do
                     removeTrap skillName
                     stacks <- target amount skillName
-                    damage (35 * stacks)
-                    addStacks "Spirit Word" stacks
+                    asAction do
+                        damage (35 * stacks)
+                        addStacks "Spirit Word" stacks
                     remove skillName
           ]
         }
@@ -334,7 +335,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ trap Permanent (Countered All) do
+          [ To Enemy $ trap Permanent (Countered All) $ asAction do
                 damage 20
                 apply 1 skillName [Stun Physical]
           ]

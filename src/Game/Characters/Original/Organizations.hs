@@ -33,9 +33,9 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemies do
-                trap 2 (OnAction Chakra) $
+                trap 2 (OnAction Chakra) $ asAction $
                     apply 1 skillName [Stun Chakra]
-                trap 2 (OnAction Physical) $
+                trap 2 (OnAction Physical) $ asAction $
                     apply 1 skillName [Stun Physical]
           ]
         }
@@ -223,7 +223,7 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Enemy $ trap 3 OnHarm $
+          [ To Enemy $ trap 3 OnHarm $ asAction $
                 pierce 25
           , To Self $ defend Permanent 30
           ]
@@ -236,7 +236,7 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Enemy $ trap 3 OnNoAction $
+          [ To Enemy $ trap 3 OnNoAction $ asAction $
                 pierce 25
           , To Self $ defend Permanent 30
           ]

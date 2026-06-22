@@ -186,10 +186,10 @@ characters =
           [ To Enemies $ trap 3 OnChakra $ targeting Self $
                 gain [Rand]
           , To Allies do
-                trap 3 OnStunned $
+                trap 3 OnStunned $ asAction $
                     apply 1 skillName [Invulnerable All]
-                trap 3 (OnDamaged NonAffliction) $
-                    targeting Self $ apply 1 skillName [Strengthen [All] Flat 10]
+                trap 3 (OnDamaged NonAffliction) $ targeting Self $
+                    apply 1 skillName [Strengthen [All] Flat 10]
           , To Self $ apply 3 skillName
                 [ Alternate "Super Beast Scroll: Snake"
                             "Super Beast Scroll: Bird"
@@ -373,15 +373,15 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Gentle Step Twin Lion Fists"
-        , Skill.desc      = "Hinata creates two lions of pure chakra. The next 2 times an enemy uses a skill on Hinata or her allies, a chakra lion will attack them, dealing 30 damage and depleting 1 random chakra. Creates a third lion during [Eight Trigrams Sixty-Four Palms]. Cannot be used while active."
+        , Skill.desc      = "Hinata creates two lions of pure chakra. The next 2 times a non-invulnerable enemy uses a skill on Hinata or her allies, a chakra lion will attack them, dealing 30 damage and depleting 1 random chakra. Creates a third lion during [Eight Trigrams Sixty-Four Palms]. Cannot be used while active."
         , Skill.require   = [UserHas AtMost 0 "Chakra Lion"]
-        , Skill.classes   = [Chakra, Melee, Bypassing, Soulbound, Resource]
+        , Skill.classes   = [Chakra, Melee, Soulbound, Resource]
         , Skill.cost      = [Blood, Nin]
         , Skill.effects   =
           [ To Self do
                 bonus <- 1 `bonusIf` user has "Eight Trigrams Sixty-Four Palms"
                 addStacks "Chakra Lion" (2 + bonus)
-          , To Enemies $ trap' Permanent OnHarm do
+          , To Enemies $ trap' Permanent OnHarm $ asAction do
                 targeting Self $ removeStack "Chakra Lion"
                 deplete 1
                 damage 30
@@ -527,7 +527,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ trap 3 (OnAction All) do
+          [ To Enemy $ trap 3 (OnAction All) $ asAction do
                 apply 1 skillName
                     [ Expose
                     , Uncounter
@@ -1040,7 +1040,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                trap 1 OnHeal $ apply 2 skillName [Stun All]
+                trap 1 OnHeal $ asAction $ apply 2 skillName [Stun All]
           ]
         }
       ]

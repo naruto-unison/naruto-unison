@@ -683,7 +683,7 @@ characters =
           [ To Enemy do
                 stacks <- user amount "Amaterasu"
                 afflict (10 + 5 * stacks)
-                trap 1 (OnAction All) $
+                trap 1 (OnAction All) $ asAction $
                     afflict 20
           ]
         }

@@ -11,7 +11,6 @@ import Data.Enum.Set (EnumSet)
 
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
-import qualified Game.Action as Action
 import qualified Game.Engine.Traps as Traps
 import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Channel (Channeling(..))
@@ -31,14 +30,14 @@ trap :: ∀ m. MonadPlay m => Duration -> Trigger -> RunConstraint () -> m ()
 trap = trapConst Trap.Toward mempty
 -- | 'Hidden' 'trap'.
 trap' :: ∀ m. MonadPlay m => Duration -> Trigger -> RunConstraint () -> m ()
-trap' = trapConst Trap.Toward $ setFromList [Bypassing, Hidden]
+trap' = trapConst Trap.Toward $ setFromList [Hidden]
 
 -- | Adds a @Trap@ to 'N.traps' that targets the person who triggers it.
 trapFrom :: ∀ m. MonadPlay m => Duration -> Trigger -> RunConstraint () -> m ()
 trapFrom = trapConst Trap.From mempty
 -- | 'Hidden' 'trapFrom'.
 trapFrom' :: ∀ m. MonadPlay m => Duration -> Trigger -> RunConstraint () -> m ()
-trapFrom' = trapConst Trap.From $ setFromList [Bypassing, Hidden]
+trapFrom' = trapConst Trap.From $ setFromList [Hidden]
 
 -- | Adds a @Trap@ to 'N.traps' with additional 'Class'es.
 trapWith :: ∀ m. MonadPlay m
@@ -49,11 +48,11 @@ trapWith = trapConst Trap.Toward
 -- accumulated while the trap is in play and tracked with its 'Trap.tracker'.
 trapPer  :: ∀ m. MonadPlay m
          => Duration -> Trigger -> IntRunConstraint () -> m ()
-trapPer  = trapFull Trap.Per mempty
+trapPer  = Traps.apply Trap.Per mempty
 -- | 'Hidden' 'trapPer'.
 trapPer' :: ∀ m. MonadPlay m
          => Duration -> Trigger -> IntRunConstraint () -> m ()
-trapPer' = trapFull Trap.Per $ setFromList [Bypassing, Hidden]
+trapPer' = Traps.apply Trap.Per $ setFromList [Bypassing, Hidden]
 
 controlTrapConst :: ∀ m. MonadPlay m
                  => Trap.Direction -> EnumSet Class -> Trigger
@@ -90,14 +89,7 @@ onBreakFrom f = do
 trapConst :: ∀ m. MonadPlay m
          => Trap.Direction -> EnumSet Class -> Duration -> Trigger
          -> RunConstraint () -> m ()
-trapConst trapType clas dur tr f = trapFull trapType clas dur tr \_ -> f
-
--- | Trap engine.
-trapFull :: ∀ m. MonadPlay m
-         => Trap.Direction -> EnumSet Class -> Duration -> Trigger
-         -> IntRunConstraint () -> m ()
-trapFull direction classes unthrottled trigger f =
-    Traps.apply direction classes unthrottled trigger $ Action.wrap . f
+trapConst trapType clas dur tr f = Traps.apply trapType clas dur tr $ const f
 
 -- | Removes 'N.traps' with matching 'Trap.name'.
 -- Uses 'Ninjas.clearTrap' internally.

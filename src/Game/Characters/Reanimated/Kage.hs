@@ -130,7 +130,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Space-Time Marking"
         , Skill.desc      = "Minato opportunistically marks targets to use as teleport destinations for avoiding attacks. Allies who do not use skills this turn and enemies who do not use skills next turn will be marked for 4 turns. Minato gains 5 points of damage reduction for each marked target. This skill stacks."
-        , Skill.classes   = [Physical, Ranged, Invisible]
+        , Skill.classes   = [Physical, Ranged, Invisible, Bypassing]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
@@ -157,7 +157,7 @@ characters =
             setRoundRobin :: Slot -> SkillEffect
             setRoundRobin slot = do
                 apply -1 skillName [Redirect slot]
-                trap -1 (OnHarmed All) $
+                trap -1 (OnHarmed All) $ asAction $
                     apply -1 "Round-Robin Surprise Attack"
                         [ AntiCounter
                         , Bypass
@@ -234,7 +234,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ trap 1 (Countered All) do
+          [ To Enemy $ trap 1 (Countered All) $ asAction do
                 bonus <- 10 `bonusIf` target has' barrier "Gold Dust Waterfall"
                 barricade Permanent (20 + bonus)
           ]
@@ -563,7 +563,7 @@ reanimations =
         , Skill.effects =
           [ To XAlly do
                 apply -1 "Reciprocal Round-Robin" [Nullify]
-                trap -1 (OnHarmed All) $
+                trap -1 (OnHarmed All) $ asAction $
                     apply -1 "Round-Robin Surprise Attack"
                         [ AntiCounter
                         , Bypass

@@ -341,7 +341,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Kotoamatsukami"
         , Skill.desc      = "Danzō infiltrates the mind of an enemy. The next time they use a skill, they will be countered and stunned for 2 turns, and this skill will be replaced by the skill they used for 2 turns. Copied skills cannot copy other skills and do not transform into alternates."
-        , Skill.classes   = [Mental, Ranged, Invisible, Uncounterable, Unreflectable]
+        , Skill.classes   = [Mental, Ranged, Invisible, Uncounterable, Unreflectable, Bypassing]
         , Skill.cost      = [Blood, Gen, Gen]
         , Skill.cooldown  = 9
         , Skill.effects   =
@@ -414,7 +414,7 @@ characters =
         , Skill.effects  =
           [ To Enemy do
                 trap 1 (Countered All) (return ())
-                trap 1 OnHelp $
+                trap 1 OnHelp $ asAction $
                     apply 3 skillName [Exhaust [All]]
           ]
         }

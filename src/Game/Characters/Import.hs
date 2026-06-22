@@ -4,6 +4,7 @@
 module Game.Characters.Import
   ( module Import
   , SkillEffect
+  , asAction
   , invuln
   , skillName
   , user, target
@@ -77,6 +78,9 @@ invuln name userName classes = Skill.new
 
 skillName :: Text
 skillName = ""
+
+asAction :: ∀ m. MonadPlay m => m () -> m ()
+asAction = Action.wrap
 
 orSkillName :: ∀ m. MonadPlay m => Text -> m Text
 orSkillName name

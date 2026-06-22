@@ -619,7 +619,7 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemies $ trap 1 (OnAction All) $
+          [ To Enemies $ trap 1 (OnAction All) $ asAction $
                 afflict 20
           ]
         , Skill.changes   = changeWith "Burning Blade" $ setCost [Nin]

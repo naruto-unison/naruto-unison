@@ -17,7 +17,7 @@ characters =
         { Skill.name      = "Rivalry"
         , Skill.desc      = "Jirōbō picks out an enemy as his rival. If they use a skill on Jirōbō or his allies next turn, they will be countered and forced to target Jirōbō. Effect ends if Jirōbō uses a skill on a different enemy or uses this skill again. Cannot be used during [Summoning: Earth Prison Golem]."
         , Skill.require   = [UserChannel False "Summoning: Earth Prison Golem"]
-        , Skill.classes   = [Mental, Melee, Invisible, Soulbound]
+        , Skill.classes   = [Mental, Melee, Invisible, Soulbound, Bypassing]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
@@ -125,7 +125,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.cost      = [Blood]
         , Skill.effects   =
-          [ To Enemies $ trap 1 (OnAction All) $
+          [ To Enemies $ trap 1 (OnAction All) $ asAction $
                 damage 20
           , To Self $ apply 1 skillName [Reduce [All] Percent 50]
           ]
@@ -550,7 +550,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy $ trap Permanent OnHarm do
-                pierce 20
+                asAction $ pierce 20
                 addStack skillName
           ]
         }
@@ -736,7 +736,7 @@ reanimations =
         , Skill.desc    = "A volley of bullets shoot forth from Kimimaro's fingertips, providing his reanimator with 50% damage reduction for 1 turn. Next turn, enemies who use skills will take 20 damage."
         , Skill.classes = [Physical, Ranged]
         , Skill.effects =
-          [ To Enemies $ trap 1 (OnAction All) $
+          [ To Enemies $ trap 1 (OnAction All) $ asAction $
                 damage 20
           , To Self $ apply 1 "Digital Shrapnel" [Reduce [All] Percent 50]
           ]

@@ -362,9 +362,9 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To XAlly $ trapFrom Permanent (Counter NonMental) $
+          [ To XAlly $ trapFrom Permanent (Counter NonMental) $ asAction $
                 damage 10
-          , To Enemy $ trap Permanent (Countered NonMental) $
+          , To Enemy $ trap Permanent (Countered NonMental) $ asAction $
                 damage 10
           ]
         }

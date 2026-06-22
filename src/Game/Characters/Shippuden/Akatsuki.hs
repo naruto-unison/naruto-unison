@@ -80,9 +80,9 @@ characters =
           [ To Enemy $ damage 10
           , To XEnemies $ damage 5
           , To Enemies do
-                trap 1 OnDefend $
+                trap 1 OnDefend $ asAction $
                     damage 10
-                trap 1 OnReduce $
+                trap 1 OnReduce $ asAction $
                     damage 10
           ]
         }
@@ -158,8 +158,9 @@ characters =
         , Skill.effects   =
           [ To Enemy $ trap 2 (OnAction NonMental) do
                 removeTrap skillName
-                damage 10
-                apply 4 skillName [Weaken [All] Flat 5]
+                asAction do
+                    damage 10
+                    apply 4 skillName [Weaken [All] Flat 5]
           ]
         }
       ]
@@ -254,7 +255,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.start     =
           [ To Enemies do
-                trap -1 OnNoHarm $
+                trap -1 OnNoHarm $ asAction $
                     apply 1 "Pinned" [Expose]
           , To Self $ apply 1 skillName
                 [ Alternate "Thousand Arms"
