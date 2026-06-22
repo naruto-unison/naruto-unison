@@ -413,7 +413,7 @@ characters =
         , Skill.cooldown = 2
         , Skill.effects  =
           [ To Enemy do
-                trap 1 (Countered All) (return ())
+                trap 1 (Countered All) doNothing
                 trap 1 OnHelp $ asAction $
                     apply 3 skillName [Exhaust [All]]
           ]

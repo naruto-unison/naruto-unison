@@ -5,6 +5,7 @@ module Game.Characters.Import
   ( module Import
   , SkillEffect
   , asAction
+  , doNothing
   , invuln
   , skillName
   , user, target
@@ -81,6 +82,12 @@ skillName = ""
 
 asAction :: ∀ m. MonadPlay m => m () -> m ()
 asAction = Action.wrap
+
+
+doNothing :: RunConstraint ()
+doNothing = return ()
+
+
 
 orSkillName :: ∀ m. MonadPlay m => Text -> m Text
 orSkillName name
