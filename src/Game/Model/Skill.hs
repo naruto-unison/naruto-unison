@@ -24,7 +24,6 @@ import           Class.Classed (Classed(..))
 import           Class.Display (Display(..), buildStrict)
 import           Game.Model.Chakras (Chakras)
 import           Game.Model.Class (Class(..))
-import           Game.Model.Duration (Duration)
 import           Game.Model.Internal (Channeling(..), Key(..), Skill(..), Runnable(To), Target(..))
 import           Game.Model.Internal.Skill (key)
 import qualified Game.Model.Runnable as Runnable
@@ -113,7 +112,7 @@ addDesc add skill = skill { desc = buildStrict $ display skill.desc ++ add }
 setCharges :: Int -> Skill -> Skill
 setCharges charges skill = skill { charges = charges }
 
-setCooldown :: Duration -> Skill -> Skill
+setCooldown :: Int -> Skill -> Skill
 setCooldown cooldown skill = skill { cooldown = cooldown }
 
 setCost :: Chakras -> Skill -> Skill

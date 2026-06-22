@@ -296,7 +296,7 @@ data Skill = Skill
     , require   :: [Requirement]     -- ^ Defaults to empty
     , classes   :: EnumSet Class     -- ^ Defaults to empty
     , cost      :: Chakras           -- ^ Defaults to empty
-    , cooldown  :: Duration          -- ^ Defaults to @0@
+    , cooldown  :: Int               -- ^ Defaults to @0@
     , charges   :: Int               -- ^ Defaults to @0@
     , dur       :: Channeling        -- ^ Defaults to 'Instant'
     , start     :: [Runnable Target] -- ^ Defaults to empty

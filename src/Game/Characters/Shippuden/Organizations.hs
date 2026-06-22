@@ -163,7 +163,6 @@ characters =
         , Skill.desc      = "Torune applies a Venom Beetle to every enemy, which deals 5 affliction damage for 5 turns. Torune gains 30 permanent destructible defense. Whoever destroys his destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from this skill, this skill costs [r][r] but does not provide any destructible defense."
         , Skill.classes   = [Bane, Melee]
         , Skill.cost      = [Blood, Blood]
-        , Skill.cooldown  = Permanent
         , Skill.effects   =
           [ To Enemies applyVenomBeetle
           , To Self $ applyBeetleDefense 30

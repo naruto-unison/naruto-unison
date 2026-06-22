@@ -1178,7 +1178,7 @@ previewSkill visibles char slot skills i =
                           , String.fromInt skill.charges ++ " charge."
                           )
                         , ( skill.cooldown > 0
-                          , "CD: " ++ String.fromInt ((skill.cooldown + 1) // 2)
+                          , "CD: " ++ String.fromInt skill.cooldown
                           )
                         ]
                 ]

@@ -10,7 +10,6 @@ import ClassyPrelude
 import qualified Game.Engine.Effects as Effects
 import           Game.Model.Channel (Channeling(..))
 import qualified Game.Model.Character
-import           Game.Model.Duration (sync)
 import           Game.Model.ID (ID(ID))
 import qualified Game.Model.ID
 import           Game.Model.Ninja (Ninja)
@@ -33,13 +32,11 @@ alter cd skillID = modifyCooldowns $ insertWith (+) (idKey skillID) cd
 
 -- | 'update's a corresponding @Ninja@ when they use a new @Skill@.
 update :: Skill -> Ninja -> Ninja
-update skill@Skill{cooldown, dur} n =
-    modifyCooldowns (insertMap (Skill.key skill) cd) n
+update skill@Skill{cooldown} n
+  | cd == 0   = n
+  | otherwise = modifyCooldowns (insertMap (Skill.key skill) $ 1 + cd) n
   where
-    minim
-      | dur == Instant || dur == Passive = 0
-      | otherwise = sync cooldown + 2
-    cd = max minim $ sync cooldown + 2 + 2 * Effects.snare n
+    cd = max 0 $ cooldown + Effects.snare n
 
 -- | Sets an element in 'N.coooldowns' to 0 by name.
 reset :: ID-> Ninja -> Ninja

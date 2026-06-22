@@ -71,6 +71,7 @@ import           Game.Model.ID (HasID, ID(ID))
 import qualified Game.Model.ID as ID
 import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
+import           Game.Model.Player (Player)
 import qualified Game.Model.Requirement as Requirement
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
@@ -210,18 +211,21 @@ sacrifice minhp hp = adjustHealth $ max minhp . (- hp)
 
 -- | Applies 'Class.TurnBased.decr' to all of a @Ninja@'s 'Class.TurnBased'
 -- types.
-decrement :: Ninja -> Ninja
-decrement n = processSkills $ processEffects
+decrement :: Player -> Ninja -> Ninja
+decrement playing n = processSkills $ processEffects
     n { N.defense   = mapMaybe TurnBased.decrement n.defense
       , N.statuses  = mapMaybe TurnBased.decrement n.statuses
       , N.barrier   = mapMaybe TurnBased.decrement n.barrier
       , N.channels  = mapMaybe (TurnBased.decrement . setNotNew) n.channels
       , N.traps     = mapMaybe TurnBased.decrement n.traps
       , N.copies    = (TurnBased.decrement =<<) <$> n.copies
-      , N.cooldowns = (max 0 . subtract 1) <$> n.cooldowns
+      , N.cooldowns = cooldowns
       }
   where
     setNotNew chan = chan { Channel.new = False }
+    cooldowns
+      | Parity.allied playing n = subtract 1 <$> filterMap (> 1) n.cooldowns
+      | otherwise               = n.cooldowns
 
 addTrap :: Trap -> Ninja -> Ninja
 addTrap trap n

@@ -704,7 +704,7 @@ renderSkill user chakras able characters button targets skill =
                         []
 
                     else
-                        [ H.span [] [ H.text << String.fromInt << max 1 <| cooldown // 2 ] ]
+                        [ H.span [] [ H.text <| String.fromInt cooldown ] ]
                    )
 
     else
@@ -994,7 +994,7 @@ renderView visibles characters viewing =
                                 "None"
 
                             y ->
-                                String.fromInt <| y // 2
+                                String.fromInt y
 
                     cost =
                         case Chakra.total x.cost of
