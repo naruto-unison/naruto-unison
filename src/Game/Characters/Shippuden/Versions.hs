@@ -265,7 +265,7 @@ characters =
         , Skill.dur       = Ongoing Permanent
         , Skill.effects   =
         [ To Self do
-            trap' 1 OnStunned $ cancelChannel skillName
+            trap 1 OnStunned $ cancelChannel skillName
             hide 1 skillName
                 [ Alternate "Binding Talisman"
                             "Binding Talisman"
@@ -301,7 +301,7 @@ characters =
         , Skill.effects   =
           [ To XAlly do
                 tag Permanent skillName
-                trap' Permanent OnResurrected do
+                trapWith [Hidden] Permanent OnResurrected do
                     targeting Everyone do
                         removeTrap skillName
                         remove skillName
@@ -405,7 +405,7 @@ characters =
           in
           [ To Self do
                 killShadow
-                trap' Permanent OnDeath
+                trap Permanent OnDeath
                     killShadow
           ]
         , Skill.effects   =
@@ -947,9 +947,9 @@ characters =
                 bomb Permanent skillName
                     []
                     [ To Done $ targeting Self $ removeTrap skillName ]
-          , To Self $ trap' Permanent OnDeath $ targeting Everyone $
+          , To Self $ trapWith [Hidden] Permanent OnDeath $ targeting Everyone $
                 whenM (target has skillName) $
-                    trap' Permanent (OnHealthMax 25) do
+                    trap Permanent (OnHealthMax 25) do
                         targeting Everyone do
                             remove skillName
                             removeTrap skillName

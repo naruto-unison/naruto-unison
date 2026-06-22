@@ -381,12 +381,12 @@ characters =
           [ To Self do
                 bonus <- 1 `bonusIf` user has "Eight Trigrams Sixty-Four Palms"
                 addStacks "Chakra Lion" (2 + bonus)
-          , To Enemies $ trap' Permanent OnHarm $ asAction do
+          , To Allies $ trapFrom Permanent (OnHarmed All) $ asAction do
                 targeting Self $ removeStack "Chakra Lion"
-                deplete 1
-                damage 30
                 unlessM (user has "Chakra Lion") $ targeting Everyone $
                     removeTrap skillName
+                deplete 1
+                damage 30
           ]
         }
       ]

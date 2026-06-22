@@ -21,6 +21,7 @@ import ClassyPrelude as Import hiding (swap)
 
 import Class.Display as Import (Display(..))
 import Class.Play as Import (withTarget)
+import Game.Action as Import (wrap)
 import Game.Action.Chakra as Import
 import Game.Action.Channel as Import
 import Game.Action.Combat as Import

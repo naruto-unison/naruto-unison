@@ -503,7 +503,7 @@ characters =
                     [ Alternate "Thousand Hungry Sharks"
                                 "Man-Eating Sharks"
                     ]
-                trapFrom' Permanent (OnHarmed All) do
+                trapFrom Permanent (OnHarmed All) do
                     targeting Self $ removeTrap skillName
                     targeting Enemies $
                         applyWith [Hidden, Atemporal] Permanent "ignored" []
@@ -777,7 +777,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 apply Permanent skillName [Swap]
-                trap' Permanent (OnAction All) do
+                trapWith [Hidden] Permanent (OnAction All) do
                     removeTrap skillName
                     remove skillName
           ]

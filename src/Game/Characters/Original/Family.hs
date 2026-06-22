@@ -98,7 +98,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                trap' -1 OnDeath $ targeting Self $
+                trap 0 OnDeath $ targeting Self $
                     apply 2 skillName
                         [ Strengthen [All] Flat 10
                         , Endure

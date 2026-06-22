@@ -90,7 +90,7 @@ characters =
                     , Alternate "Tag Team"
                                 "Tag Team"
                     ]
-                trap' Permanent Resurrect do
+                trap Permanent Resurrect do
                     izumoHealth <- user amount "Izumo's Health"
                     setHealth izumoHealth
                     remove "Izumo's Health"
@@ -112,7 +112,7 @@ characters =
                 remove "Izumo's Health"
                 remove skillName
                 addStacks "Kotetsu's Health" userHealth
-                trap' Permanent Resurrect do
+                trap Permanent Resurrect do
                     kotetsuHealth <- user amount "Kotetsu's Health"
                     setHealth kotetsuHealth
                     remove "Kotetsu's Health"

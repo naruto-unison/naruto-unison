@@ -277,7 +277,7 @@ characters =
                 anyLeft <- user has "Sharingan"
                 if anyLeft then do
                     rewind <- user ()
-                    trap' 1 Resurrect $
+                    trap 1 Resurrect $
                         replaceWith rewind
                 else
                     cancelChannel skillName

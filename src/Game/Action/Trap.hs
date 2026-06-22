@@ -1,6 +1,6 @@
 -- | Actions that characters can use to affect @Trap@s.
 module Game.Action.Trap
-  ( trap, trap', trapFrom, trapFrom', trapPer, trapPer', trapWith
+  ( trap, trapFrom, trapPer, trapPer', trapWith
   , controlTrap, controlTrapFrom
   , onBreak, onBreakFrom
   , removeTrap
@@ -28,16 +28,10 @@ import           Game.Model.Trigger (Trigger(..))
 -- | Adds a @Trap@ to 'N.traps' that targets the person it was used on.
 trap :: ∀ m. MonadPlay m => Duration -> Trigger -> RunConstraint () -> m ()
 trap = trapConst Trap.Toward mempty
--- | 'Hidden' 'trap'.
-trap' :: ∀ m. MonadPlay m => Duration -> Trigger -> RunConstraint () -> m ()
-trap' = trapConst Trap.Toward $ setFromList [Hidden]
 
 -- | Adds a @Trap@ to 'N.traps' that targets the person who triggers it.
 trapFrom :: ∀ m. MonadPlay m => Duration -> Trigger -> RunConstraint () -> m ()
 trapFrom = trapConst Trap.From mempty
--- | 'Hidden' 'trapFrom'.
-trapFrom' :: ∀ m. MonadPlay m => Duration -> Trigger -> RunConstraint () -> m ()
-trapFrom' = trapConst Trap.From $ setFromList [Hidden]
 
 -- | Adds a @Trap@ to 'N.traps' with additional 'Class'es.
 trapWith :: ∀ m. MonadPlay m
@@ -75,7 +69,7 @@ controlTrapFrom = controlTrapConst Trap.From $ singleton Controlled
 onBreak :: ∀ m. MonadPlay m => RunConstraint () -> m ()
 onBreak f = do
     triggerID <- ID.from <$> P.context
-    trap' Permanent (OnBreak triggerID) f
+    trapWith (singleton Hidden) Permanent (OnBreak triggerID) f
 
 -- | Adds an 'OnBreak' @Trap@ for the used 'Skill.Skill' to 'N.traps'.
 -- @OnBreak@ traps are triggered when a @Destructible@ in 'N.defense' with the
@@ -83,7 +77,7 @@ onBreak f = do
 onBreakFrom :: ∀ m. MonadPlay m => RunConstraint () -> m ()
 onBreakFrom f = do
     triggerID <- ID.from <$> P.context
-    trapFrom' Permanent (OnBreak triggerID) f
+    trapConst Trap.From (singleton Hidden) Permanent (OnBreak triggerID) f
 
 -- | Adds a @Trap@ to 'N.traps'.
 trapConst :: ∀ m. MonadPlay m

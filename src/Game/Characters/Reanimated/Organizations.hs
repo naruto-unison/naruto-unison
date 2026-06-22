@@ -242,7 +242,7 @@ characters =
         electrocute :: SkillEffect
         electrocute = unlessM (target has "electrocuted") do
             hide Permanent "electrocuted" []
-            trapWith [Hidden, Bypassing] Permanent (OnAction All) $
+            trapWith [Hidden] Permanent (OnAction All) $
                 whenM (target has "Electricity") do
                     refresh "Electricity"
                     targeting Everyone $ whenM (target has "Electricity") $
@@ -445,9 +445,9 @@ characters =
           [ To Self replaceChannel ]
         , Skill.effects   =
           [ To Self do
-                trap' 1 OnNotDamaged $
+                trap 1 OnNotDamaged $
                     heal 10
-                trap' 1 OnDamage $
+                trap 1 OnDamage $
                     apply Permanent skillName [Reduce [All] Flat 5]
           ]
         , Skill.end       =

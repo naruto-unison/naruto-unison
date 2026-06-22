@@ -52,23 +52,28 @@ spec = parallel do
 
         useOn Enemy "Fierce Bite" do
             it "strengthens user if target dies" do
+                setHealth 10
                 Sim.act
-                Sim.as XEnemies kill
                 factory
                 damaged <- measureDamage $ damage dmg
                 damaged - dmg `shouldBe` 10
             it "ignores stuns if target dies" do
+                setHealth 10
                 Sim.act
-                Sim.as XEnemies kill
                 targeting Self $ Sim.as XEnemies $ apply Permanent skillName [Stun All]
                 userStunned <- user Effects.stun
                 userStunned `shouldBe` []
             it "makes user immortal if target dies" do
+                setHealth 10
                 Sim.act
-                Sim.as XEnemies kill
                 targeting Self $ Sim.as XEnemies kill
                 userHealth <- user health
                 userHealth `shouldBe` 1
+            it "does not make user immortal if target does not die" do
+                Sim.act
+                targeting Self $ Sim.as XEnemies kill
+                userHealth <- user health
+                userHealth `shouldBe` 0
 
         useOn Enemy "Tunneling Fang" do
             it "deals bonus damage during Call Kuromaru" do

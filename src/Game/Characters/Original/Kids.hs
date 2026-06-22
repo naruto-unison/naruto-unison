@@ -765,7 +765,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 apply Permanent skillName [Enrage]
-                trap' Permanent (OnDamaged NonAffliction) do
+                trap Permanent (OnDamaged NonAffliction) do
                     removeTrap skillName
                     remove skillName
           ]
