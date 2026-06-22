@@ -663,10 +663,10 @@ characters =
           let
             amaterasu :: SkillEffect
             amaterasu = do
-                trapWith [Bypassing] Permanent OnInvulnerable do
+                trap Permanent OnInvulnerable do
                     removeTrap skillName
                     remove skillName
-                bombWith [Bypassing] Permanent skillName
+                bomb Permanent skillName
                     [ Afflict 5 ]
                     [ To Done $ targeting Self $ addStack skillName ]
                 trapFrom Permanent OnHelped
@@ -735,7 +735,7 @@ characters =
                   whenM (target has "Poisonous Chain Skewer") $
                         bomb 2 "Complex Toxin"
                         []
-                        [ To Expire $ apply 1 skillName [Stun All] ]
+                        [ To Expire $ asAction $ apply 1 skillName [Stun All] ]
           ]
         }
       ]
@@ -810,7 +810,7 @@ characters =
                 damage 30
                 bomb 2 "Complex Toxin"
                     []
-                    [ To Expire $ apply 1 skillName [Stun All] ]
+                    [ To Expire $ asAction $ apply 1 skillName [Stun All] ]
           , To Self $ cancelChannel "Flamethrower Jets"
           ]
         }
@@ -939,7 +939,7 @@ characters =
         { Skill.name    = "Curse Mark Release"
         , Skill.desc    = "By giving an ally a curse mark, Orochimaru uses their body as an anchor for his soul after death. If the target's health reaches 25 or lower while Orochimaru is dead, Orochimaru will be resurrected into their body with full health and all status effects removed, and will become invulnerable to bane skills. Cannot be used while active. If Orochimaru acquires a new body, this skill becomes [Regeneration][g][n]."
         , Skill.require = [UserTrap False "Curse Mark Release"]
-        , Skill.classes = [Physical, Unremovable, Bypassing, Uncounterable, Unreflectable, Invisible, Melee]
+        , Skill.classes = [Physical, Unremovable, Uncounterable, Unreflectable, Invisible, Melee]
         , Skill.cost    = [Blood, Nin]
         , Skill.effects =
           [ To Ally do

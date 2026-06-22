@@ -212,13 +212,15 @@ characters =
         , Skill.classes   = [Mental, Ranged, Bypassing, Unreflectable, Unremovable]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ To Self $ apply Permanent "Sensory Radar: Collate"
-                [ Alternate "Sensory Radar"
-                            "Sensory Radar: Collate"
-                ]
-          , To Allies $ trap Permanent (OnHarmed All) $ targeting Self do
-                heal 10
-                addStack skillName
+          [ To Self do
+                apply Permanent "Sensory Radar: Collate"
+                    [ Alternate "Sensory Radar"
+                                "Sensory Radar: Collate"
+                    ]
+                targeting Allies $
+                    trap Permanent (OnHarmed All) $ targeting Self do
+                        heal 10
+                        addStack skillName
           ]
         }
       , Skill.new

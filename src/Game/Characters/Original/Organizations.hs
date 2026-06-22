@@ -732,7 +732,8 @@ characters =
                 bomb Permanent skillName
                     [ Afflict 20 ]
                     [ To Done $ targeting Everyone $ remove skillName ]
-                targeting Self $ apply Permanent skillName [Reduce [All] Flat 15]
+                targeting Self $
+                    apply Permanent skillName [Reduce [All] Flat 15]
           ]
         }
       ]

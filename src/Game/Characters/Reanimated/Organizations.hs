@@ -65,7 +65,7 @@ characters =
         { Skill.name      = "Summoning: Earth Prison Golem"
         , Skill.desc      = "Jirōbō spends two Scattered Rocks to summon a golem, gaining 35 destructible defense for 2 turns. While Jirōbō has destructible defense from this skill, all enemies are his Rivals and can only target him. The first enemy to use a skill on him each turn is instantly affected by [Earth Dome Prison]."
         , Skill.require   = [UserHas AtLeast 2 "Scattered Rock"]
-        , Skill.classes   = [Summon, Soulbound]
+        , Skill.classes   = [Summon, Soulbound, Bypassing]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 4
         , Skill.dur       = Passive
@@ -242,11 +242,11 @@ characters =
         electrocute :: SkillEffect
         electrocute = unlessM (target has "electrocuted") do
             hide Permanent "electrocuted" []
-            trap' Permanent (OnAction All) $
+            trapWith [Hidden, Bypassing] Permanent (OnAction All) $
                 whenM (target has "Electricity") do
                     refresh "Electricity"
                     targeting Everyone $ whenM (target has "Electricity") $
-                        afflict 5
+                        asAction $ afflict 5
     in
     [ [ Skill.new
         { Skill.name      = "Lightning Fang"
@@ -305,8 +305,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 affected <- numAffected skillName
-                targeting Everyone $ whenM (target has skillName) do
-                    damage 5
+                targeting Everyone $ whenM (target has skillName) $
                     prolong 1 skillName
                 pierce (20 + 5 * affected)
                 userSlot <- user slot

@@ -521,7 +521,7 @@ characters =
                   targeting Self $ removeTrap skillName
                   apply Permanent skillName [Afflict 20]
                   ibuse <- user has "major summoning: ibuse"
-                  targeting Self $ if ibuse then do
+                  targeting Self if ibuse then do
                       remove "Major Summoning Ibuse"
                       remove "major summoning: ibuse"
                       alterCooldown "Major Summoning: Ibuse" -2

@@ -346,7 +346,7 @@ characters =
         , Skill.effects   =
           [ To Enemy $ bomb 3 skillName
                 []
-                [ To Expire $ triggerGiganticBeetle ]
+                [ To Expire triggerGiganticBeetle ]
           ]
         }
       ]
@@ -912,7 +912,7 @@ characters =
                 damage (20 + bonus)
                 bomb 1 skillName
                     []
-                    [ To Expire do
+                    [ To Expire $ asAction do
                         bonus' <- 10 `bonusIf` target has "Kuroari Trap"
                         afflict (10 + bonus')
                     ]
@@ -1040,7 +1040,8 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                trap 1 OnHeal $ asAction $ apply 2 skillName [Stun All]
+                trap 1 OnHeal $ asAction $
+                    apply 2 skillName [Stun All]
           ]
         }
       ]

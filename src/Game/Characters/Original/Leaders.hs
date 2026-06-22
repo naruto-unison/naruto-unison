@@ -66,7 +66,7 @@ characters =
         , Skill.effects   =
           [ To Enemy $ bomb 1 skillName
                 [Stun All]
-                [ To Expire $ afflict 25 ]
+                [ To Expire $ asAction $ afflict 25 ]
           ]
         }
       ]

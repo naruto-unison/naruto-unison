@@ -63,8 +63,9 @@ characters =
                 addStack skillName
                 trap Permanent OnHarm do
                     removeTrap skillName
-                    stacks <- target amount skillName
-                    asAction $ pierce (20 * stacks)
+                    asAction do
+                        stacks <- target amount skillName
+                        pierce (20 * stacks)
                     remove skillName
           ]
         }

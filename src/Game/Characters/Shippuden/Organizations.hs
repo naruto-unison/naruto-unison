@@ -109,10 +109,10 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Ally do
-                trapFrom 1 (Counter NonMental) $
+                trapFrom 1 (Counter NonMental) $ asAction $
                     damage 20
                 trap 1 (Counter NonMental) do
-                    defend Permanent 20
+                    asAction $ defend Permanent 20
                     targeting Self $ recharge "Tenth Edict on Enlightenment"
           ]
         }
@@ -125,8 +125,8 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self $ recharge "Tenth Edict on Enlightenment"
-          , To XAlly $ targeting Allies $ defend Permanent 20
-          , To Enemy $ targeting Enemies $ barricade Permanent 20
+          , To XAlly $ targeting Allies $ asAction $ defend Permanent 20
+          , To Enemy $ targeting Enemies $ asAction $ barricade Permanent 20
           ]
         }
       ]
@@ -348,7 +348,7 @@ characters =
           [ To Enemy $ trap 2 Nullified do
                 removeTrap skillName
                 remove skillName
-                apply 2 "Kotoamatsukami Stun" [Stun All]
+                asAction $ apply 2 "Kotoamatsukami Stun" [Stun All]
                 copyLast 2
           ]
         }
