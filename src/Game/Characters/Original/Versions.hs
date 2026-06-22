@@ -141,7 +141,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Ally $ trapFrom 1 (Counter Physical) do
+          [ To Ally $ trapFrom 1 skillName (Counter Physical) do
                 stacks <- user amount "Unpredictable Assault"
                 damage (20 + 5 * stacks)
                 targeting Self $ addStack "Unpredictable Assault"
@@ -260,7 +260,7 @@ characters =
         , Skill.effects   =
           [ To Enemies do
                 apply 1 skillName [Exhaust [NonMental]]
-                trap 1 (OnAction NonMental) $
+                trap 1 skillName (OnAction NonMental) $
                     remove skillName
           , To Self $ apply 1 skillName
                 [ Alternate "Sand Burial Prison"

@@ -111,17 +111,17 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Ally do
-                trapFrom 3 (OnHarmed Melee) $
+                trapFrom 3 skillName (OnHarmed Melee) $
                     whenM (target has "mane") $
                         damage 25
-                trapFrom 3 (OnHarmed Ranged) $
+                trapFrom 3 skillName (OnHarmed Ranged) $
                     whenM (target has "mane") do
                         damage 15
                         apply 1 skillName
                             [ Stun Melee
                             , Stun Physical
                             ]
-                trapFrom 3 (OnHarmed Physical) $
+                trapFrom 3 skillName (OnHarmed Physical) $
                     flag "mane"
           ]
         }

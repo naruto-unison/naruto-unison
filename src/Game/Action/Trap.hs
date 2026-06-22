@@ -26,26 +26,26 @@ import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger (Trigger(..))
 
 -- | Adds a @Trap@ to 'N.traps' that targets the person it was used on.
-trap :: ∀ m. MonadPlay m => Duration -> Trigger -> RunConstraint () -> m ()
+trap :: ∀ m. MonadPlay m => Duration -> Text -> Trigger -> RunConstraint () -> m ()
 trap = trapConst Trap.Toward mempty
 
 -- | Adds a @Trap@ to 'N.traps' that targets the person who triggers it.
-trapFrom :: ∀ m. MonadPlay m => Duration -> Trigger -> RunConstraint () -> m ()
+trapFrom :: ∀ m. MonadPlay m => Duration -> Text -> Trigger -> RunConstraint () -> m ()
 trapFrom = trapConst Trap.From mempty
 
 -- | Adds a @Trap@ to 'N.traps' with additional 'Class'es.
 trapWith :: ∀ m. MonadPlay m
-         => EnumSet Class -> Duration -> Trigger -> RunConstraint () -> m ()
+         => EnumSet Class -> Duration -> Text -> Trigger -> RunConstraint () -> m ()
 trapWith = trapConst Trap.Toward
 
 -- | Adds a @Trap@ to 'N.traps' with an effect that depends on a number
 -- accumulated while the trap is in play and tracked with its 'Trap.tracker'.
 trapPer  :: ∀ m. MonadPlay m
-         => Duration -> Trigger -> IntRunConstraint () -> m ()
+         => Duration -> Text -> Trigger -> IntRunConstraint () -> m ()
 trapPer  = Traps.apply Trap.Per mempty
 -- | 'Hidden' 'trapPer'.
 trapPer' :: ∀ m. MonadPlay m
-         => Duration -> Trigger -> IntRunConstraint () -> m ()
+         => Duration -> Text -> Trigger -> IntRunConstraint () -> m ()
 trapPer' = Traps.apply Trap.Per $ setFromList [Bypassing, Hidden]
 
 controlTrapConst :: ∀ m. MonadPlay m
@@ -54,7 +54,7 @@ controlTrapConst :: ∀ m. MonadPlay m
 controlTrapConst trapType clas tr f = do
     Context{skill = Skill{dur}} <- P.context
     case dur of
-        Control i -> trapConst trapType clas i tr f
+        Control i -> trapConst trapType clas i "" tr f
         _         -> return ()
 
 controlTrap :: ∀ m. MonadPlay m => Trigger -> RunConstraint () -> m ()
@@ -69,7 +69,7 @@ controlTrapFrom = controlTrapConst Trap.From $ singleton Controlled
 onBreak :: ∀ m. MonadPlay m => RunConstraint () -> m ()
 onBreak f = do
     triggerID <- ID.from <$> P.context
-    trapWith (singleton Hidden) Permanent (OnBreak triggerID) f
+    trapWith (singleton Hidden) Permanent "" (OnBreak triggerID) f
 
 -- | Adds an 'OnBreak' @Trap@ for the used 'Skill.Skill' to 'N.traps'.
 -- @OnBreak@ traps are triggered when a @Destructible@ in 'N.defense' with the
@@ -77,13 +77,14 @@ onBreak f = do
 onBreakFrom :: ∀ m. MonadPlay m => RunConstraint () -> m ()
 onBreakFrom f = do
     triggerID <- ID.from <$> P.context
-    trapConst Trap.From (singleton Hidden) Permanent (OnBreak triggerID) f
+    trapConst Trap.From (singleton Hidden) Permanent "" (OnBreak triggerID) f
 
 -- | Adds a @Trap@ to 'N.traps'.
 trapConst :: ∀ m. MonadPlay m
-         => Trap.Direction -> EnumSet Class -> Duration -> Trigger
+         => Trap.Direction -> EnumSet Class -> Duration -> Text -> Trigger
          -> RunConstraint () -> m ()
-trapConst trapType clas dur tr f = Traps.apply trapType clas dur tr $ const f
+trapConst trapType clas dur name tr f =
+    Traps.apply trapType clas dur name tr $ const f
 
 -- | Removes 'N.traps' with matching 'Trap.name'.
 -- Uses 'Ninjas.clearTrap' internally.

@@ -54,7 +54,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $ trapFrom 2 (CounterAll All) do
+          [ To Self $ trapFrom 2 skillName (CounterAll All) do
                 damage 15
                 targeting Self $ apply -1 skillName [Invulnerable All]
           ]
@@ -73,7 +73,7 @@ characters =
                 bombWith [Hidden] Permanent resetter
                     []
                     [ To Done $ targeting Self $ remove "kotoamatsukami" ]
-                trap Permanent (OnAction All) do
+                trap Permanent skillName (OnAction All) do
                     removeTrap skillName
                     remove resetter
                     deplete 1
@@ -109,9 +109,9 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Ally do
-                trapFrom 1 (Counter NonMental) $ asAction $
+                trapFrom 1 skillName (Counter NonMental) $ asAction $
                     damage 20
-                trap 1 (Counter NonMental) do
+                trap 1 skillName (Counter NonMental) do
                     asAction $ defend Permanent 20
                     targeting Self $ recharge "Tenth Edict on Enlightenment"
           ]
@@ -226,7 +226,7 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Ally $ trapFrom 2 (Counter NonMental) do
+          [ To Ally $ trapFrom 2 skillName (Counter NonMental) do
                 removeTrap skillName
                 apply -4 skillName [Face]
                 copyAll 4
@@ -277,7 +277,7 @@ characters =
                 anyLeft <- user has "Sharingan"
                 if anyLeft then do
                     rewind <- user ()
-                    trap 1 Resurrect $
+                    trap 1 skillName Resurrect $
                         replaceWith rewind
                 else
                     cancelChannel skillName
@@ -345,7 +345,7 @@ characters =
         , Skill.cost      = [Blood, Gen, Gen]
         , Skill.cooldown  = 9
         , Skill.effects   =
-          [ To Enemy $ trap 2 Nullified do
+          [ To Enemy $ trap 2 skillName Nullified do
                 removeTrap skillName
                 remove skillName
                 asAction $ apply 2 "Kotoamatsukami Stun" [Stun All]
@@ -413,8 +413,8 @@ characters =
         , Skill.cooldown = 2
         , Skill.effects  =
           [ To Enemy do
-                trap 1 (Countered All) doNothing
-                trap 1 OnHelp $ asAction $
+                trap 1 skillName (Countered All) doNothing
+                trap 1 skillName OnHelp $ asAction $
                     apply 3 skillName [Exhaust [All]]
           ]
         }
@@ -506,7 +506,7 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Self do
-                trapFrom 1 (CounterAll NonMental) $
+                trapFrom 1 skillName (CounterAll NonMental) $
                     afflict 10
                 apply Permanent skillName
                     [ Alternate "Chidori Stream"
@@ -540,7 +540,7 @@ characters =
         , Skill.start     =
           [ To Self $ addStacks "Thunder Cloud" 2 ]
         , Skill.always    =
-          [ To Self $ trapFrom 1 (OnHarmed All) do
+          [ To Self $ trapFrom 1 skillName (OnHarmed All) do
                 afflict 5
                 targeting Self $ addStack "Thunder Cloud"
           ]

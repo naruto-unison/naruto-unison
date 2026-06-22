@@ -262,13 +262,13 @@ spec = parallel do
 
         useOn Enemy "Expert Analysis" do
             it "undoes counters" do
-                trap Permanent (Counter All) $ return ()
+                trap Permanent skillName (Counter All) $ return ()
                 Sim.act
                 Sim.as Enemy $ return ()
                 Sim.as Self $ apply Permanent skillName [Reveal]
                 target (`is` Reveal)
             it "does nothing if target does nothing" do
-                trap Permanent (Counter All) $ return ()
+                trap Permanent skillName (Counter All) $ return ()
                 Sim.act
                 Sim.as Self $ apply Permanent skillName [Reveal]
                 target (`is` Reveal)

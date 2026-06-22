@@ -23,7 +23,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 15
-                trap 1 OnChakra $
+                trap 1 skillName OnChakra $
                     deplete 1
           ]
         }
@@ -38,7 +38,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 15
-                trap 1 OnStun $ asAction $
+                trap 1 skillName OnStun $ asAction $
                     apply 1 skillName [Stun All]
           ]
         , Skill.changes   = changeWith "Unyielding Tenacity" $ setCost [Rand]
@@ -206,7 +206,7 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemies $ trap -1 OnNoAction $ asAction $
+          [ To Enemies $ trap -1 skillName OnNoAction $ asAction $
                 apply 1 skillName
                     [ Stun All
                     , Bleed [Physical, Chakra, Summon] Flat 10
@@ -344,7 +344,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To XAlly $ trap 1 (Counter NonMental) doNothing ]
+          [ To XAlly $ trap 1 skillName (Counter NonMental) doNothing ]
         }
       ]
     , [ Skill.new

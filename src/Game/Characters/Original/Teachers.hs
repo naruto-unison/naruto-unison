@@ -42,7 +42,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ trap 1 OnHarm $ asAction do
+          [ To Enemy $ trap 1 skillName OnHarm $ asAction do
                 damage 40
                 apply 1 skillName [Bleed [Physical, Chakra, Summon] Flat 25]
           ]
@@ -90,7 +90,7 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.start     =
-          [ To Self $ trap -1 OnNotDamaged $
+          [ To Self $ trap -1 skillName OnNotDamaged $
                 apply 1 "Successful Ambush" [Invulnerable All]
           ]
         }
@@ -180,7 +180,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy $ damage 30
-          , To Self $ trap 1 (Counter All) doNothing
+          , To Self $ trap 1 skillName (Counter All) doNothing
           ]
         }
       ]
@@ -444,7 +444,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ trap 1 (Countered All) $ asAction $
+          [ To Enemy $ trap 1 skillName (Countered All) $ asAction $
                 damage 30
           ]
         }

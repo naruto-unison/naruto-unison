@@ -23,7 +23,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 targeting Everyone $ remove skillName
-                trap 1 (Countered All) do
+                trap 1 skillName (Countered All) do
                     slot <- user slot
                     apply Permanent skillName [Taunt slot]
           ]
@@ -80,7 +80,7 @@ characters =
                 userSlot <- user slot
                 targeting Enemies do
                     apply 1 "Rivalry" [Taunt userSlot]
-                trapFrom 1 (OnHarmed All) do
+                trapFrom 1 skillName (OnHarmed All) do
                     leech 20 heal
                     targeting Self do
                         removeTrap skillName
@@ -125,7 +125,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.cost      = [Blood]
         , Skill.effects   =
-          [ To Enemies $ trap 1 (OnAction All) $ asAction $
+          [ To Enemies $ trap 1 skillName (OnAction All) $ asAction $
                 damage 20
           , To Self $ apply 1 skillName [Reduce [All] Percent 50]
           ]
@@ -146,7 +146,7 @@ characters =
           [ To Enemies do
                 bonus <- 20 `bonusIf` channeling "Crystal Ice Mirrors"
                 pierce (10 + bonus)
-                trapPer' -1 PerDamaged \i -> when (i >= 50) $
+                trapPer' -1 skillName PerDamaged \i -> when (i >= 50) $
                     apply 1 skillName [Stun All]
           ]
         , Skill.changes   = changeWithChannel "Crystal Ice Mirrors" restrict
@@ -177,7 +177,8 @@ characters =
           [ To Self $ defend Permanent 20 ]
         , Skill.effects   =
           [ To Self $ whenM (user has' defense skillName) $
-                trapPer -1 PerDamaged $ unlessM (user has' defense skillName) .
+                trapPer -1 skillName PerDamaged $
+                    unlessM (user has' defense skillName) .
                         defend Permanent
           ]
         }
@@ -240,9 +241,8 @@ characters =
     [MistVillage, Kabuto, SevenSwordsmen, Jonin, Lightning]
     let
         electrocute :: SkillEffect
-        electrocute = unlessM (target has "electrocuted") do
-            hide Permanent "electrocuted" []
-            trapWith [Hidden] Permanent (OnAction All) $
+        electrocute = unlessM (target has' traps "Electricity") $
+            trapWith [Hidden] Permanent "Electricity" (OnAction All) $
                 whenM (target has "Electricity") do
                     refresh "Electricity"
                     targeting Everyone $ whenM (target has "Electricity") $
@@ -270,7 +270,7 @@ characters =
           [ To Enemy do
                 electricity <- target has "Electricity"
                 if electricity then afflict 30 else damage 30
-          , To Self $ trapFrom 1 (OnHarmed All) do
+          , To Self $ trapFrom 1 skillName (OnHarmed All) do
                 apply 1 "Electricity" []
                 electrocute
            ]
@@ -391,7 +391,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Self do
-                trapFrom 1 (OnHarmed All) $
+                trapFrom 1 skillName (OnHarmed All) $
                     apply Permanent skillName [Afflict 10]
                 apply 1 skillName
                     [ Alternate "Scroll Unraveling"
@@ -427,7 +427,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 pierce 15
-                trapFrom 1 OnHarm do
+                trapFrom 1 skillName OnHarm do
                     targetSlot <- target slot
                     apply 2 skillName [Taunt targetSlot]
           ]
@@ -445,9 +445,9 @@ characters =
           [ To Self replaceChannel ]
         , Skill.effects   =
           [ To Self do
-                trap 1 OnNotDamaged $
+                trap 1 skillName OnNotDamaged $
                     heal 10
-                trap 1 OnDamage $
+                trap 1 skillName OnDamage $
                     apply Permanent skillName [Reduce [All] Flat 5]
           ]
         , Skill.end       =
@@ -548,7 +548,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ trap Permanent OnHarm do
+          [ To Enemy $ trap Permanent skillName OnHarm do
                 asAction $ pierce 20
                 addStack skillName
           ]
@@ -706,7 +706,7 @@ characters =
           [ To Enemy do
                 apply Permanent skillName [Expose]
                 pierce 15
-                trap Permanent OnHelped do
+                trap Permanent skillName OnHelped do
                     removeTrap skillName
                     remove skillName
           ]
@@ -735,7 +735,7 @@ reanimations =
         , Skill.desc    = "A volley of bullets shoot forth from Kimimaro's fingertips, providing his reanimator with 50% damage reduction for 1 turn. Next turn, enemies who use skills will take 20 damage."
         , Skill.classes = [Physical, Ranged]
         , Skill.effects =
-          [ To Enemies $ trap 1 (OnAction All) $ asAction $
+          [ To Enemies $ trap 1 skillName (OnAction All) $ asAction $
                 damage 20
           , To Self $ apply 1 "Digital Shrapnel" [Reduce [All] Percent 50]
           ]

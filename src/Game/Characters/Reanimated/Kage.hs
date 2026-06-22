@@ -136,7 +136,7 @@ characters =
         , Skill.effects   =
           let
             setTrap :: Duration -> SkillEffect
-            setTrap dur = trap dur OnNoAction do
+            setTrap dur = trap dur skillName OnNoAction do
                 applyWith [Invisible] 4 skillName []
                 targeting Self $
                     applyWith [Invisible] 4 skillName [Reduce [All] Flat 5]
@@ -157,7 +157,7 @@ characters =
             setRoundRobin :: Slot -> SkillEffect
             setRoundRobin slot = do
                 apply -1 skillName [Redirect slot]
-                trap -1 (OnHarmed All) $ asAction $
+                trap -1 skillName (OnHarmed All) $ asAction $
                     apply -1 "Round-Robin Surprise Attack"
                         [ AntiCounter
                         , Bypass
@@ -234,7 +234,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ trap 1 (Countered All) $ asAction do
+          [ To Enemy $ trap 1 skillName (Countered All) $ asAction do
                 bonus <- 10 `bonusIf` target has' barrier "Gold Dust Waterfall"
                 barricade Permanent (20 + bonus)
           ]
@@ -252,7 +252,7 @@ characters =
         , Skill.classes   = [Chakra, Melee, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Allies $ trapFrom Permanent (OnHarmed All) $
+          [ To Allies $ trapFrom Permanent skillName (OnHarmed All) $
                 tag 1 skillName
           , To Self do
                 addStack "Hell Stab"
@@ -270,7 +270,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 addStack "Hell Stab"
-                trap Permanent (OnDamaged All) $
+                trap Permanent skillName (OnDamaged All) $
                     alterCooldown "Lightning Armor" -1
                 remove "Piercing Four-Fingered"
                 apply Permanent skillName
@@ -359,7 +359,7 @@ characters =
                     , Reduce [All] Percent 50
                     , Weaken [All] Flat 5
                     ]
-                trap 2 Resurrect do
+                trap 2 skillName Resurrect do
                     removeTrap skillName
                     setHealth 15
                     remove skillName
@@ -465,7 +465,7 @@ characters =
                     [ Alternate "Major Summoning: Ibuse"
                                 "Poison Fog"
                     ]
-                trapPer' Permanent PerDamaged \i -> do
+                trapPer' Permanent skillName PerDamaged \i -> do
                     stacks <- user amount skillName
                     if stacks > i then
                         removeStacks skillName i
@@ -517,7 +517,7 @@ characters =
         , Skill.classes   = [Physical, Bane, Invisible]
         , Skill.cost      = [Blood]
         , Skill.effects   =
-          [ To Self $ trapFrom 1 (OnHarmed NonMental) do
+          [ To Self $ trapFrom 1 skillName (OnHarmed NonMental) do
                   targeting Self $ removeTrap skillName
                   apply Permanent skillName [Afflict 20]
                   ibuse <- user has "major summoning: ibuse"
@@ -563,7 +563,7 @@ reanimations =
         , Skill.effects =
           [ To XAlly do
                 apply -1 "Reciprocal Round-Robin" [Nullify]
-                trap -1 (OnHarmed All) $ asAction $
+                trap -1 skillName (OnHarmed All) $ asAction $
                     apply -1 "Round-Robin Surprise Attack"
                         [ AntiCounter
                         , Bypass

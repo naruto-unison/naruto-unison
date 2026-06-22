@@ -115,7 +115,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ trapFrom 4 (OnHarmed All) $
+          [ To Self $ trapFrom 4 skillName (OnHarmed All) $
                 pierce 15
           ]
         }
@@ -141,7 +141,7 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Self $ trapFrom 1 (CounterAll NonMental) $
+          [ To Self $ trapFrom 1 skillName (CounterAll NonMental) $
                 pierce 20
           ]
         }

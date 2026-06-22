@@ -37,14 +37,14 @@ characters =
         , Skill.cooldown  = 5
         , Skill.effects   =
           [ To Enemy do
-                trap 4 OnDeath $
+                trap 4 skillName OnDeath $
                     targeting Self killHard
                 targeting Self do
                     apply 4 skillName
                         [ Alternate "Life Link"
                                     "Life Transfer"
                         ]
-                    trap 4 OnDeath $ targeting Everyone $
+                    trap 4 skillName OnDeath $ targeting Everyone $
                         whenM (target has' traps skillName)
                             killHard
           ]
@@ -263,13 +263,13 @@ characters =
           [ To Enemy do
                 whenM (user has "Sharingan Stun") $
                     apply 1 skillName [Stun All]
-                trap 2 OnChakra do
+                trap 2 skillName OnChakra do
                     removeTrap skillName
                     targeting Self $ gain [Rand]
-                trap 2 OnStun do
+                trap 2 skillName OnStun do
                     removeTrap skillName
                     targeting Self $ tag 1 "Sharingan Stun"
-                trap 2 OnDamage do
+                trap 2 skillName OnDamage do
                     removeTrap skillName
                     targeting Self $
                         apply 1 skillName [Strengthen [All] Flat 10]
@@ -291,7 +291,7 @@ characters =
           [ To Self $ apply 1 skillName [Reduce [All] Flat 15]
           , To Enemy do
                 pierce 15
-                trap 1 (OnAction All) $ asAction $
+                trap 1 skillName (OnAction All) $ asAction $
                     pierce 15
           ]
         }
@@ -367,7 +367,7 @@ characters =
                 tagWith [Atemporal] 4 skillName
           ,  To Self do
                 apply 4 skillName [Reduce [All] Flat 15]
-                trap 4 OnDeath $ targeting Everyone $
+                trap 4 skillName OnDeath $ targeting Everyone $
                     whenM (target has skillName) $ asAction $
                         apply Permanent "Borrowed Sharingan"
                             [ Reduce [All] Flat 5

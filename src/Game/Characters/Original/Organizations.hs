@@ -33,9 +33,9 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemies do
-                trap 2 (OnAction Chakra) $ asAction $
+                trap 2 skillName (OnAction Chakra) $ asAction $
                     apply 1 skillName [Stun Chakra]
-                trap 2 (OnAction Physical) $ asAction $
+                trap 2 skillName (OnAction Physical) $ asAction $
                     apply 1 skillName [Stun Physical]
           ]
         }
@@ -90,7 +90,7 @@ characters =
                     , Alternate "Tag Team"
                                 "Tag Team"
                     ]
-                trap Permanent Resurrect do
+                trap Permanent skillName Resurrect do
                     izumoHealth <- user amount "Izumo's Health"
                     setHealth izumoHealth
                     remove "Izumo's Health"
@@ -112,7 +112,7 @@ characters =
                 remove "Izumo's Health"
                 remove skillName
                 addStacks "Kotetsu's Health" userHealth
-                trap Permanent Resurrect do
+                trap Permanent skillName Resurrect do
                     kotetsuHealth <- user amount "Kotetsu's Health"
                     setHealth kotetsuHealth
                     remove "Kotetsu's Health"
@@ -152,7 +152,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To XAlly $ trap 3 Resurrect do
+          [ To XAlly $ trap 3 skillName Resurrect do
                 setHealth 5
                 targetNumSkills <- target (length . skills)
                 teach 1 "Converging Murder" [0..targetNumSkills - 1]
@@ -199,7 +199,7 @@ characters =
                     , Alternate "Biding Time"
                                 "Payback"
                     ]
-                trap Permanent (OnDamaged All) $
+                trap Permanent skillName (OnDamaged All) $
                     addStack "Payback"
           ]
         }
@@ -223,7 +223,7 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Enemy $ trap 3 OnHarm $ asAction $
+          [ To Enemy $ trap 3 skillName OnHarm $ asAction $
                 pierce 25
           , To Self $ defend Permanent 30
           ]
@@ -236,7 +236,7 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Enemy $ trap 3 OnNoAction $ asAction $
+          [ To Enemy $ trap 3 skillName OnNoAction $ asAction $
                 pierce 25
           , To Self $ defend Permanent 30
           ]
@@ -332,11 +332,11 @@ characters =
                 bonus <- 10 `bonusIf` target has "Chain Wrap"
                 damage (30 + bonus)
                 apply Permanent skillName [Afflict 1]
-                trap Permanent OnSacrifice do
+                trap Permanent skillName OnSacrifice do
                     removeTrap skillName
                     remove "Poison Gauntlet"
                 flag skillName
-                trap Permanent (OnDamaged NonAffliction) $
+                trap Permanent skillName (OnDamaged NonAffliction) $
                     unlessM (target has "poison gauntlet") do
                         removeTrap skillName
                         remove "Poison Gauntlet"
@@ -657,7 +657,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Ally $ trap Permanent (Counter Physical) doNothing ]
+          [ To Ally $ trap Permanent skillName (Counter Physical) doNothing ]
         }
       ]
     , [ invuln "Spider Thread Armor" "Kidōmaru" [Chakra] ]

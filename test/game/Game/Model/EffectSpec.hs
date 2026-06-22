@@ -95,10 +95,10 @@ spec = parallel do
     describe "AntiCounter" do
         it "ignores counters and reflects" $ simAt Enemy do
             apply Permanent skillName [Reflect, ReflectAll All]
-            trap Permanent (Counter All) $ return ()
-            trap Permanent (CounterAll All) $ return ()
+            trap Permanent skillName (Counter All) $ return ()
+            trap Permanent skillName (CounterAll All) $ return ()
             targeting Self do
-                trap Permanent (Countered All) $ return ()
+                trap Permanent skillName (Countered All) $ return ()
                 apply Permanent skillName [AntiCounter]
             canTarget
 
@@ -203,9 +203,9 @@ spec = parallel do
             apply Permanent skillName [Disable Counters]
             Sim.as Enemy do
                 targeting Self do
-                    trap Permanent (Counter All) $ return ()
-                    trap Permanent (CounterAll All) $ return ()
-                trap Permanent (Countered All) $ return ()
+                    trap Permanent skillName (Counter All) $ return ()
+                    trap Permanent skillName (CounterAll All) $ return ()
+                trap Permanent skillName (Countered All) $ return ()
             canTarget
 
         it "stuns others" $ simAt Enemy do
@@ -433,13 +433,15 @@ spec = parallel do
     describe "Throttle" do
         it "throttles counters" $ simAt Enemy do
             apply Permanent skillName [Throttle 1 Counters]
-            Sim.as Enemy $ trap 5 (Countered All) $ apply Permanent skillName [Reveal]
+            Sim.as Enemy $ trap 5 skillName (Countered All) $
+                apply Permanent skillName [Reveal]
             Sim.turns $ 5 - 2
             Sim.as Self $ return ()
             not <$> user (`is` Reveal)
         it "does not remove counters" $ simAt Enemy do
             apply Permanent skillName [Throttle 1 Counters]
-            Sim.as Enemy $ trap 5 (Countered All) $ apply Permanent skillName [Reveal]
+            Sim.as Enemy $ trap 5 skillName (Countered All) $
+                apply Permanent skillName [Reveal]
             Sim.turns $ 5 - 3
             Sim.as Self $ return ()
             user (`is` Reveal)
@@ -482,8 +484,8 @@ spec = parallel do
                 , ReflectAll All
                 , Uncounter
                 ]
-            trap Permanent (Counter All) $ return ()
-            trap Permanent (CounterAll All) $ return ()
+            trap Permanent skillName (Counter All) $ return ()
+            trap Permanent skillName (CounterAll All) $ return ()
             canTarget
 
     describe "Unreduce" do

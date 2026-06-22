@@ -318,7 +318,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy $ trap 1 OnHarm $ asAction $
+          [ To Enemy $ trap 1 skillName OnHarm $ asAction $
                 apply 2 skillName [Snare 1]
           ]
         }
@@ -765,7 +765,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 apply Permanent skillName [Enrage]
-                trap Permanent (OnDamaged NonAffliction) do
+                trap Permanent skillName (OnDamaged NonAffliction) do
                     removeTrap skillName
                     remove skillName
           ]

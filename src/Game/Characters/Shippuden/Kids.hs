@@ -47,7 +47,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Self do
-                trapFrom 1 (Counter All) $
+                trapFrom 1 skillName (Counter All) $
                     tag 1 skillName
                 apply 1 skillName
                     [ Alternate "Giant Rasengan"
@@ -183,12 +183,12 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Enemies $ trap 3 OnChakra $ targeting Self $
+          [ To Enemies $ trap 3 skillName OnChakra $ targeting Self $
                 gain [Rand]
           , To Allies do
-                trap 3 OnStunned $ asAction $
+                trap 3 skillName OnStunned $ asAction $
                     apply 1 skillName [Invulnerable All]
-                trap 3 (OnDamaged NonAffliction) $ targeting Self $
+                trap 3 skillName (OnDamaged NonAffliction) $ targeting Self $
                     apply 1 skillName [Strengthen [All] Flat 10]
           , To Self $ apply 3 skillName
                 [ Alternate "Super Beast Scroll: Snake"
@@ -332,7 +332,7 @@ characters =
           [ To Self $ bomb -1 "Barricaded"
                 []
                 [ To Expire $ gain [Blood] ]
-          ,  To Ally $ trapFrom 1 (Counter All) do
+          ,  To Ally $ trapFrom 1 skillName (Counter All) do
                 triggerGiganticBeetle
                 targeting Self $ remove "Barricaded"
           ]
@@ -381,12 +381,13 @@ characters =
           [ To Self do
                 bonus <- 1 `bonusIf` user has "Eight Trigrams Sixty-Four Palms"
                 addStacks "Chakra Lion" (2 + bonus)
-          , To Allies $ trapFrom Permanent (OnHarmed All) $ asAction do
-                targeting Self $ removeStack "Chakra Lion"
-                unlessM (user has "Chakra Lion") $ targeting Everyone $
-                    removeTrap skillName
-                deplete 1
-                damage 30
+          , To Allies $ trapFrom Permanent skillName (OnHarmed All) $
+                asAction do
+                    targeting Self $ removeStack "Chakra Lion"
+                    unlessM (user has "Chakra Lion") $ targeting Everyone $
+                        removeTrap skillName
+                    deplete 1
+                    damage 30
           ]
         }
       ]
@@ -398,7 +399,7 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Self $ tag 4 skillName
-          , To Enemies $ trap 4 OnHarm $
+          , To Enemies $ trap 4 skillName OnHarm $
                 addStack skillName
           ]
         }
@@ -417,7 +418,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.dur       = Control 2
         , Skill.start     =
-          [ To Enemy $ trap 1 (Countered All) $
+          [ To Enemy $ trap 1 skillName (Countered All) $
                 copyLast 1
           ]
         , Skill.effects   =
@@ -497,9 +498,9 @@ characters =
         , Skill.cooldown  = 5
         , Skill.effects   =
           [ To Self do
-                trap 4 (OnDamaged NonAffliction) $
+                trap 4 skillName (OnDamaged NonAffliction) $
                     tag 1 "What a Drag"
-                trap 4 OnHarm $ unlessM (user has "What a Drag") $
+                trap 4 skillName OnHarm $ unlessM (user has "What a Drag") $
                     apply 1 skillName
                         [ Invulnerable All
                         , Alternate "Long-Range Tactics"
@@ -527,7 +528,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ trap 3 (OnAction All) $ asAction do
+          [ To Enemy $ trap 3 skillName (OnAction All) $ asAction do
                 apply 1 skillName
                     [ Expose
                     , Uncounter
@@ -583,7 +584,7 @@ characters =
           [ To Self $ addCalories 1 ]
         , Skill.effects   =
           [ To Enemy $ damage 15
-          ,  To Self $ trap 1 (CounterAll NonMental) doNothing ]
+          ,  To Self $ trap 1 skillName (CounterAll NonMental) doNothing ]
         , Skill.changes   = caloricCost
         }
       ]
@@ -805,7 +806,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemies $ apply 2 skillName [Expose]
-          , To Self $ trap 1 (CounterAll All) $
+          , To Self $ trap 1 skillName (CounterAll All) $
                 apply -1 skillName
                     [ Alternate "Eight Trigrams Sixty-Four Palms"
                                 "Pressure Point Strike"
@@ -1040,7 +1041,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                trap 1 OnHeal $ asAction $
+                trap 1 skillName OnHeal $ asAction $
                     apply 2 skillName [Stun All]
           ]
         }
@@ -1085,7 +1086,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.dur       = Action 2
         , Skill.start     =
-          [ To Enemy $ trap 1 (OnAction All) $
+          [ To Enemy $ trap 1 skillName (OnAction All) $
                 removeTrap skillName
           ]
         , Skill.effects   =
@@ -1103,7 +1104,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do
-                trap Permanent (Counter NonMental) doNothing
+                trap Permanent skillName (Counter NonMental) doNothing
                 hide Permanent skillName []
           ]
         , Skill.changes   = changePer "agile backflip" \i ->
@@ -1117,7 +1118,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To XAlly $ trap 1 Resurrect $
+          [ To XAlly $ trap 1 skillName Resurrect $
                 setHealth 15
           ]
         }

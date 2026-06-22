@@ -87,7 +87,7 @@ characters =
                     , Alternate "Call Kuromaru"
                                 "Fierce Bite"
                     ]
-                trapFrom 4 (OnHarmed NonBane) $
+                trapFrom 4 skillName (OnHarmed NonBane) $
                     damage 10
           ]
         }
@@ -98,7 +98,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                trap 0 OnDeath $ targeting Self $
+                trap 0 skillName OnDeath $ targeting Self $
                     apply 2 skillName
                         [ Strengthen [All] Flat 10
                         , Endure
@@ -218,7 +218,7 @@ characters =
                                 "Sensory Radar: Collate"
                     ]
                 targeting Allies $
-                    trap Permanent (OnHarmed All) $ targeting Self do
+                    trap Permanent skillName (OnHarmed All) $ targeting Self do
                         heal 10
                         addStack skillName
           ]
@@ -303,7 +303,7 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Enemies $ trap 3 OnStun $
+          [ To Enemies $ trap 3 skillName OnStun $
                 apply 3 "Ensnared" []
           ]
         }
@@ -317,7 +317,7 @@ characters =
         , Skill.effects   =
           [ To Ally do
                 apply 1 skillName [DamageToDefense]
-                trap 1 (OnDamaged NonAffliction) do
+                trap 1 skillName (OnDamaged NonAffliction) do
                     removeTrap skillName
                     remove skillName
           ]
@@ -364,10 +364,10 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To XAlly $ trapFrom Permanent (Counter NonMental) $ asAction $
-                damage 10
-          , To Enemy $ trap Permanent (Countered NonMental) $ asAction $
-                damage 10
+          [ To XAlly $ trapFrom Permanent skillName (Counter NonMental) $
+                asAction $ damage 10
+          , To Enemy $ trap Permanent skillName (Countered NonMental) $
+                asAction $ damage 10
           ]
         }
       ]

@@ -71,7 +71,7 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To XAllies $ apply 3 skillName [Snare -1]
-          , To Enemies $ trap 3 (OnAction All) do
+          , To Enemies $ trap 3 skillName (OnAction All) do
                 targeting Everyone $ removeTrap skillName
                 copyLast 1
           ]
@@ -168,7 +168,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.dur       = Action 3
         , Skill.effects   =
-          [ To Self $ trapFrom 1 (OnHarmed Physical) $ damage 10
+          [ To Self $ trapFrom 1 skillName (OnHarmed Physical) $ damage 10
           , To Enemy do
                 afterFirstTurn <- channeling skillName
                 if afterFirstTurn then
@@ -246,7 +246,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 apply 1 skillName [Reduce [All] Percent 50]
-                trapFrom 1 (OnHarmed All) $
+                trapFrom 1 skillName (OnHarmed All) $
                     apply 1 skillName
                         [ Stun Physical
                         , Stun Melee
@@ -353,7 +353,7 @@ characters =
         , Skill.cost      = [Blood, Nin]
         , Skill.charges   = 1
         , Skill.effects   =
-          [ To XAlly $ trap Permanent Resurrect do
+          [ To XAlly $ trap Permanent skillName Resurrect do
                 cureAll
                 setHealth 100
                 targeting Self $ setHealth 1
@@ -565,7 +565,7 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To REnemy $ damage 20
-          , To Self $ trap 1 (OnHarmed All) $
+          , To Self $ trap 1 skillName (OnHarmed All) $
                 apply 1 skillName [Invulnerable All]
           ]
         }
@@ -607,7 +607,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 apply 3 skillName [Reduce [All] Flat 10]
-                trapFrom 3 (OnHarmed All) $
+                trapFrom 3 skillName (OnHarmed All) $
                     afflict 10
           ]
         }
@@ -619,7 +619,7 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemies $ trap 1 (OnAction All) $ asAction $
+          [ To Enemies $ trap 1 skillName (OnAction All) $ asAction $
                 afflict 20
           ]
         , Skill.changes   = changeWith "Burning Blade" $ setCost [Nin]
@@ -650,7 +650,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Self do
-                trapFrom 1 (CounterAll All) $
+                trapFrom 1 skillName (CounterAll All) $
                     pierce 20
                 hide Permanent skillName
                     [ Alternate "Back Slice"
@@ -694,7 +694,7 @@ characters =
           [ To Ally do
                 addStack skillName
                 ally <- target slot
-                trapFrom Permanent (OnHarmed All) do
+                trapFrom Permanent skillName (OnHarmed All) do
                     stacks <- withTarget ally do
                         removeTrap skillName
                         stacks <- target amount "Paper Bomb"
@@ -824,7 +824,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 apply 3 skillName [Reduce [All] Flat 5]
-                trapFrom 3 (OnHarmed NonMental) $
+                trapFrom 3 skillName (OnHarmed NonMental) $
                     damage 10
           ]
         }
@@ -848,7 +848,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Self $ trapFrom 1 (CounterAll All) $
+          [ To Self $ trapFrom 1 skillName (CounterAll All) $
                 apply 1 skillName [Exhaust [All]]
           ]
         }
@@ -889,7 +889,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Self $ trapFrom 1 (CounterAll Physical) $
+          [ To Self $ trapFrom 1 skillName (CounterAll Physical) $
                 pierce 20
           ]
         }

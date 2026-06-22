@@ -21,7 +21,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy $ afflict 20
-          , To Self $ trapFrom 2 (OnHarmed All) $
+          , To Self $ trapFrom 2 skillName (OnHarmed All) $
                 afflict 10
           ]
         }
@@ -61,7 +61,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 addStack skillName
-                trap Permanent OnHarm do
+                trap Permanent skillName OnHarm do
                     removeTrap skillName
                     asAction do
                         stacks <- target amount skillName
@@ -77,7 +77,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Self $ trapFrom 1 (OnHarmed All) do
+          [ To Self $ trapFrom 1 skillName (OnHarmed All) do
                 damage 25
                 targeting Self $ apply 2 skillName
                     [ Reduce [All] Percent 25
@@ -172,7 +172,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 addStack skillName
-                trap Permanent OnHarm do
+                trap Permanent skillName OnHarm do
                     removeTrap skillName
                     stacks <- target amount skillName
                     asAction do
@@ -208,7 +208,7 @@ characters =
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
-          [ To Self $ trapFrom 2 (OnHarmed All) $
+          [ To Self $ trapFrom 2 skillName (OnHarmed All) $
                 apply Permanent skillName [Plague]
           , To Enemy do
                 stacksA <- target amount "Conserving Bee Twin Blades"
@@ -336,7 +336,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ trap Permanent (Countered All) $ asAction do
+          [ To Enemy $ trap Permanent skillName (Countered All) $ asAction do
                 damage 20
                 apply 1 skillName [Stun Physical]
           ]

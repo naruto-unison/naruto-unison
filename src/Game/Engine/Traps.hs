@@ -35,7 +35,6 @@ import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
 import           Game.Model.Runnable (Runnable(To), IntRunConstraint)
 import qualified Game.Model.Runnable as Runnable
-import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import           Game.Model.Trap (Trap(Trap))
@@ -204,16 +203,16 @@ runExpirations = mapM_ expire =<< P.ninjas
 
 -- | Trap engine.
 apply :: ∀ m. MonadPlay m
-         => Trap.Direction -> EnumSet Class -> Duration -> Trigger
+         => Trap.Direction -> EnumSet Class -> Duration -> Text -> Trigger
          -> IntRunConstraint () -> m ()
-apply direction classes unthrottled trigger f = void $ runMaybeT do
+apply direction classes unthrottled name trigger f = void $ runMaybeT do
     context@Context{new, target} <- P.context
     nUser <- P.nUser
     guard . not $ isCounter && nUser `is` Disable Counters
     dur   <- if not new || isChanneled then return unthrottled else
                 hoistMaybe $ throttle nUser
     P.modify target $ Ninjas.addTrap
-        $ makeTrap context direction classes dur trigger f
+        $ makeTrap context direction classes dur name trigger f
   where
     isChanneled = setFromList [Continues, Controlled] `intersects` classes
     isCounter = Trigger.isCounter trigger
@@ -222,17 +221,17 @@ apply direction classes unthrottled trigger f = void $ runMaybeT do
       | otherwise = Just unthrottled
 
 makeTrap :: Context -> Trap.Direction -> EnumSet Class -> Duration
-         -> Trigger -> IntRunConstraint () -> Trap
+         -> Text -> Trigger -> IntRunConstraint () -> Trap
 makeTrap ctx@Context { continues
                      , new
-                     , skill = skill@Skill{name}
+                     , skill
                      , user
-                     } direction classes dur trigger f = Trap
+                     } direction classes dur name trigger f = Trap
     { trigger
     , direction
     , skill   = skill'
     , user
-    , name
+    , name    = Skill.provideName skill name
     , effect  = \i -> To context $ f i
     , classes = classes'
     , dur     = succ dur

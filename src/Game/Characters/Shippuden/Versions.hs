@@ -78,7 +78,7 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Self do
-                trapFrom 1 (Counter All) $
+                trapFrom 1 skillName (Counter All) $
                     damage 30
                 remove "Natural Energy Assault"
           ]
@@ -265,7 +265,7 @@ characters =
         , Skill.dur       = Ongoing Permanent
         , Skill.effects   =
         [ To Self do
-            trap 1 OnStunned $ cancelChannel skillName
+            trap 1 skillName OnStunned $ cancelChannel skillName
             hide 1 skillName
                 [ Alternate "Binding Talisman"
                             "Binding Talisman"
@@ -301,7 +301,7 @@ characters =
         , Skill.effects   =
           [ To XAlly do
                 tag Permanent skillName
-                trapWith [Hidden] Permanent OnResurrected do
+                trapWith [Hidden] Permanent skillName OnResurrected do
                     targeting Everyone do
                         removeTrap skillName
                         remove skillName
@@ -328,9 +328,9 @@ characters =
                 whenM (target has "Reanimation Scroll") do
                     resurrect 100
                     hide Permanent "reanimated" []
-                    trapWith [Unremovable] Permanent OnNotDamaged $
+                    trapWith [Unremovable] Permanent skillName OnNotDamaged $
                         heal 10
-                    trapWith [Unremovable] Permanent OnNoAction $
+                    trapWith [Unremovable] Permanent skillName OnNoAction $
                         gain [Rand]
           in
           [ To Enemy do
@@ -405,7 +405,7 @@ characters =
           in
           [ To Self do
                 killShadow
-                trap Permanent OnDeath
+                trap Permanent skillName OnDeath
                     killShadow
           ]
         , Skill.effects   =
@@ -611,7 +611,7 @@ characters =
                 pierce 20
                 apply 1 skillName [Stun All]
           , To Self do
-                trap -1 (OnHarmed Physical) $
+                trap -1 skillName (OnHarmed Physical) $
                     remove skillName
                 bomb -1 skillName
                     [ Reduce [Physical] Flat 15 ]
@@ -638,7 +638,7 @@ characters =
           [ To Enemy $ damage 15
           , To Self do
                 removeStack skillName
-                trap 1 OnStunned $
+                trap 1 skillName OnStunned $
                     cancelChannel skillName
           ]
         , Skill.end       =
@@ -663,13 +663,13 @@ characters =
           let
             amaterasu :: SkillEffect
             amaterasu = do
-                trap Permanent OnInvulnerable do
+                trap Permanent skillName OnInvulnerable do
                     removeTrap skillName
                     remove skillName
                 bomb Permanent skillName
                     [ Afflict 5 ]
                     [ To Done $ targeting Self $ addStack skillName ]
-                trapFrom Permanent OnHelped
+                trapFrom Permanent skillName OnHelped
                     amaterasu
           in
           [ To Enemy amaterasu ]
@@ -683,7 +683,7 @@ characters =
           [ To Enemy do
                 stacks <- user amount "Amaterasu"
                 afflict (10 + 5 * stacks)
-                trap 1 (OnAction All) $ asAction $
+                trap 1 skillName (OnAction All) $ asAction $
                     afflict 20
           ]
         }
@@ -756,7 +756,7 @@ characters =
           [ To Self do
                 apply 1 skillName [Enrage]
                 whenM (channeling skillName) $
-                    trap 1 (OnAction All) $
+                    trap 1 skillName (OnAction All) $
                         cancelChannel skillName
           , To Enemy do
                 tag 1 skillName
@@ -927,7 +927,7 @@ characters =
         , Skill.always    =
           [ To Self do
                 apply 1 skillName [Focus]
-                trapFrom 1 OnStunned do
+                trapFrom 1 skillName OnStunned do
                     damage 20
                     apply 1 skillName [Stun All]
           ]
@@ -947,9 +947,9 @@ characters =
                 bomb Permanent skillName
                     []
                     [ To Done $ targeting Self $ removeTrap skillName ]
-          , To Self $ trapWith [Hidden] Permanent OnDeath $ targeting Everyone $
-                whenM (target has skillName) $
-                    trap Permanent (OnHealthMax 25) do
+          , To Self $ trapWith [Hidden] Permanent skillName OnDeath $
+                targeting Everyone $ whenM (target has skillName) $
+                    trap Permanent skillName (OnHealthMax 25) do
                         targeting Everyone do
                             remove skillName
                             removeTrap skillName

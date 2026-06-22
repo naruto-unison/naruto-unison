@@ -80,9 +80,9 @@ characters =
           [ To Enemy $ damage 10
           , To XEnemies $ damage 5
           , To Enemies do
-                trap 1 OnDefend $ asAction $
+                trap 1 skillName OnDefend $ asAction $
                     damage 10
-                trap 1 OnReduce $ asAction $
+                trap 1 skillName OnReduce $ asAction $
                     damage 10
           ]
         }
@@ -156,7 +156,7 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ trap 2 (OnAction NonMental) do
+          [ To Enemy $ trap 2 skillName (OnAction NonMental) do
                 removeTrap skillName
                 asAction do
                     damage 10
@@ -255,7 +255,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.start     =
           [ To Enemies do
-                trap -1 OnNoHarm $ asAction $
+                trap -1 skillName OnNoHarm $ asAction $
                     apply 1 "Pinned" [Expose]
           , To Self $ apply 1 skillName
                 [ Alternate "Thousand Arms"
@@ -337,7 +337,7 @@ characters =
                             remove skillName
                             remove "bloodlink"
                     ]
-                trap 3 OnDeath $ targeting Self $
+                trap 3 skillName OnDeath $ targeting Self $
                     remove "bloodlink"
                 targeting Self do
                     hide 3 "bloodlink" []
@@ -503,13 +503,13 @@ characters =
                     [ Alternate "Thousand Hungry Sharks"
                                 "Man-Eating Sharks"
                     ]
-                trapFrom Permanent (OnHarmed All) do
+                trapFrom Permanent skillName (OnHarmed All) do
                     targeting Self $ removeTrap skillName
                     targeting Enemies $
                         applyWith [Hidden, Atemporal] Permanent "ignored" []
                     remove "ignored"
                     tagWith [Atemporal] Permanent skillName
-                    trapWith [Hidden, Atemporal] Permanent OnDeath $
+                    trapWith [Hidden, Atemporal] Permanent skillName OnDeath $
                         targeting Everyone $ remove "ignored"
           ]
         , Skill.effects   =
@@ -580,9 +580,9 @@ characters =
         , Skill.dur       = Ongoing -1
         , Skill.effects   =
           [ To Enemy do
-                trap 1 (Countered Chakra) $
+                trap 1 skillName (Countered Chakra) $
                     flag skillName
-                trap 1 (Countered Mental) $
+                trap 1 skillName (Countered Mental) $
                     flag skillName
           ]
         , Skill.end       =
@@ -675,7 +675,7 @@ characters =
         , Skill.cooldown   = 2
         , Skill.effects    =
           [ To Self do
-                trapFrom 1 (OnHarmed All) $
+                trapFrom 1 skillName (OnHarmed All) $
                     apply 1 skillName [Exhaust [All]]
                 apply 1 skillName [Nullify]
           ]
@@ -777,7 +777,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 apply Permanent skillName [Swap]
-                trapWith [Hidden] Permanent (OnAction All) do
+                trapWith [Hidden] Permanent skillName (OnAction All) do
                     removeTrap skillName
                     remove skillName
           ]
@@ -811,7 +811,7 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ trap Permanent (Counter All) $
+          [ To Self $ trap Permanent skillName (Counter All) $
                 apply 2 skillName
                     [ Alternate "Sharingan"
                                 "Kamui"
@@ -891,7 +891,7 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.dur       = Passive
         , Skill.start     =
-          [ To Ally $ trapFrom 1 (Counter All) $
+          [ To Ally $ trapFrom 1 skillName (Counter All) $
                 damage 20
           , To Self $ tag 1 "Tidal Force"
           ]
@@ -908,7 +908,7 @@ characters =
         , Skill.classes   = [Chakra, Ranged, Invisible, Unreflectable]
         , Skill.cost      = [Gen]
         , Skill.effects   =
-          [ To Ally $ trapFrom 1 (Counter All) $
+          [ To Ally $ trapFrom 1 skillName (Counter All) $
                 damage 20
           , To Self $ tag 1 "Tidal Force"
           ]
@@ -924,7 +924,7 @@ characters =
                 userSlot <- user slot
                 apply 1 skillName [Taunt userSlot]
           , To Self $ whenM (user has "Tidal Force") $
-                trapFrom 1 (Counter All) $
+                trapFrom 1 skillName (Counter All) $
                         damage 20
           ]
         }
@@ -989,7 +989,7 @@ characters =
           [ To Enemy do
                 pierce 15
                 apply Permanent skillName [Afflict 10]
-                trap Permanent OnHelped do
+                trap Permanent skillName OnHelped do
                     removeTrap skillName
                     remove skillName
           ]
@@ -1153,7 +1153,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.dur       = Ongoing 2
         , Skill.start     =
-          [ To Enemy $ trap 2 (OnAction All) $
+          [ To Enemy $ trap 2 skillName (OnAction All) $
                 removeTrap skillName
           , To Self $ apply Permanent skillName
                 [ Alternate "Summoning: Giant Centipede"
@@ -1209,7 +1209,7 @@ characters =
         , Skill.dur       = Ongoing 3
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Allies $ trap -1 (OnHarmed All) $ targeting Self $
+          [ To Allies $ trap -1 skillName (OnHarmed All) $ targeting Self $
                 whenM (channeling skillName) $
                     addStack skillName
           , To Enemies do
