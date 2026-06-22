@@ -110,7 +110,7 @@ runSnapshots progress game =
             List.length game.snapshots
 
         fullDelay =
-            snapshotsLength * snapshotDelay
+            (snapshotsLength - 1) * snapshotDelay
 
         delaySnapshot i snapshot =
             after ((snapshotsLength - i - 1) * snapshotDelay) <|
@@ -389,7 +389,7 @@ component ports =
                 ReceivePractice (Ok [ x, y ]) ->
                     let
                         fullDelay =
-                            practiceDelay + List.length x.snapshots * snapshotDelay
+                            practiceDelay + (List.length x.snapshots - 1) * snapshotDelay
 
                         afterFinish =
                             after fullDelay <|
