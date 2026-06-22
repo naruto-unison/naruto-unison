@@ -199,16 +199,16 @@ commandeer = P.unsilenced do
     nUser   <- P.nUser
     nTarget <- P.nTarget
 
-    P.modify nUser.slot $ Ninjas.modifyStatuses
-        (mapMaybe gainHelpful nTarget.statuses ++) . \n ->
-            n { N.defense = nTarget.defense .++ n.defense
-              , N.barrier = mempty
-              }
-    P.modify nTarget.slot $ Ninjas.modifyStatuses
-        (mapMaybe loseHelpful) . \n ->
-            n { N.defense = mempty
-              , N.barrier = nUser.barrier
-              }
+    P.write nUser.slot
+        . Ninjas.modifyStatuses (mapMaybe gainHelpful nTarget.statuses ++)
+        $ nUser { N.defense = nTarget.defense .++ nUser.defense
+                , N.barrier = mempty
+                }
+    P.write nTarget.slot
+        . Ninjas.modifyStatuses (mapMaybe loseHelpful)
+        $ nTarget { N.defense = mempty
+                  , N.barrier = nUser.barrier
+                  }
   where
     stealable ef = Effect.helpful ef && not (Effect.sticky ef)
 

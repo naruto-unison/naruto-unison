@@ -69,12 +69,12 @@ run _ trap@Trap{effect} = launch trap $ effect 0
 runAndRemoveIf :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
                  => (Trap -> Bool) -> Slot -> Slot -> m Bool
 runAndRemoveIf predicate user slot = do
-    Ninja{traps} <- P.ninja slot
+    n@Ninja{traps} <- P.ninja slot
     let (yays, nays) = partition predicate traps
     if null yays then
         return False
     else do
-        P.modify slot \n -> n { N.traps = nays }
+        P.write slot n { N.traps = nays }
         mapM_ (run user) yays
         return True
 
@@ -105,7 +105,7 @@ runTriggersOf user n@Ninja{slot, traps, triggers}
 runDeaths :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Maybe Slot -> m ()
 runDeaths muser = void $ iterateWhile (any id)
-                $ mapM doEach . filter (not . N.alive) =<< P.ninjas
+                $ mapM doEach =<< P.ninjas
   where
     doEach n@Ninja{slot} = runDeathTriggersOf (fromMaybe slot muser) n
 
@@ -118,7 +118,7 @@ runDeathTriggersOf user n@Ninja{slot, traps}
             Hook.trigger Resurrect n
             P.modify slot \n' -> n'
                 { N.health = 1
-                , N.traps = deleteBy ((==) `on` Trap.trigger) res n.traps
+                , N.traps = deleteBy ((==) `on` Trap.trigger) res n'.traps
                 }
             run user res
             void $ runAndRemoveIf ((== OnResurrected) . Trap.trigger) user slot

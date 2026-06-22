@@ -44,10 +44,10 @@ build dur amount effects = do
 adjustHealth :: ∀ m. MonadPlay m => (Int -> Int) -> m ()
 adjustHealth adjust = do
     Context{target, user, skill} <- P.context
-    health <- N.health <$> P.nTarget
-    P.modify target $ Ninjas.adjustHealth adjust
-    health' <- N.health <$> P.nTarget
-    case health' `compare` health of
+    nTarget <- P.nTarget
+    let nTarget' = Ninjas.adjustHealth adjust nTarget
+    P.write target nTarget'
+    case nTarget'.health `compare` nTarget.health of
         LT -> P.trigger target $ OnDamaged <$> toList skill.classes
         EQ -> return ()
         GT -> P.trigger user [OnHeal]

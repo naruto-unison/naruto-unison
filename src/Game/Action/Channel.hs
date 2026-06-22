@@ -30,9 +30,9 @@ replaceChannel = do
 
 takeChannels :: ∀ m. (MonadPlay m) => Slot -> (Channel -> Bool) -> m [Channel]
 takeChannels slot f = do
-    Ninja{channels} <- P.ninja slot
+    n@Ninja{channels} <- P.ninja slot
     let (yays, nays) = partition f channels
-    P.modify slot \n -> n { N.channels = nays }
+    P.write slot n { N.channels = nays }
     return yays
 
 -- | Cancels 'N.channels' with a matching 'Channel.name'.

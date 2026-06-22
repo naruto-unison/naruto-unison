@@ -249,7 +249,7 @@ doHpsOverTime = do
     doEach player n = do
         hp <- Effects.hp player n <$> P.ninjas
         when (N.alive n)
-            . P.modify n.slot $ Ninjas.adjustHealth (- hp)
+            . P.write n.slot $ Ninjas.adjustHealth (- hp) n
 
 -- | Updates 'Game.victor'.
 yieldVictor :: ∀ m. MonadGame m => m ()

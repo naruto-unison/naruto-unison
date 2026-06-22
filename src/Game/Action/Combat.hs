@@ -59,10 +59,10 @@ demolish = Combat.attack Attack.Demolish
 -- target.
 demolishAll :: ∀ m. MonadPlay m => m ()
 demolishAll = do
-    Ninja{barrier, slot = user}   <- P.nUser
-    Ninja{defense, slot = target} <- P.nTarget
-    P.modify user   Ninjas.clearBarrier
-    P.modify target Ninjas.clearDefense
+    n@Ninja{barrier, slot = user}    <- P.nUser
+    nt@Ninja{defense, slot = target} <- P.nTarget
+    P.write user   $ Ninjas.clearBarrier n
+    P.write target $ Ninjas.clearDefense nt
     P.trigger user   $ OnBreak . ID.from <$> barrier
     P.trigger target $ OnBreak . ID.from <$> defense
 
@@ -130,11 +130,12 @@ executeAt threshold = whenM (shouldExecute <$> P.nTarget) kill
 
 killFull :: ∀ m. MonadPlay m => Bool -> m ()
 killFull endure = void $ runMaybeT do
-    guard . N.alive =<< P.nTarget
+    nTarget <- P.nTarget
+    guard $ N.alive nTarget
     Context{target, user} <- P.context
-    P.modify target $ Ninjas.kill endure
-    guard . not $ Parity.allied user target
-    guard . not . N.alive =<< P.nTarget
+    let nTarget' = Ninjas.kill endure nTarget
+    P.write target nTarget'
+    guard . not $ Parity.allied user target || N.alive nTarget'
     P.trigger user [OnExecute]
 
 -- | Kills the target. The target can survive if it has the 'Endure' effect.
@@ -168,9 +169,9 @@ heal hp
 resurrect :: ∀ m. MonadPlay m => Int -> m ()
 resurrect (min 100 -> hp) = P.unsilenced do
     Context{target, user} <- P.context
-    Ninja{health} <- P.nTarget
+    nTarget@Ninja{health} <- P.nTarget
     when (health < hp) do
-        P.modify target \n -> n { N.health = hp }
+        P.write target nTarget { N.health = hp }
         P.trigger user [OnHeal]
         when (health == 0)
             $ P.trigger target [OnResurrected]
