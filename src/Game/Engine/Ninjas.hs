@@ -27,7 +27,7 @@ module Game.Engine.Ninjas
   , clearDefense
 
   , clear
-  , clearTrap, clearTraps, clearAnyTraps
+  , clearTrap, clearTraps
   , cure
   , cureBane
   , purge
@@ -292,12 +292,6 @@ clearTrap trapID n = n { N.traps = filter ((/= trapID) . ID.from) n.traps }
 -- | Deletes 'traps' with matching 'Trap.trigger'.
 clearTraps :: Trigger -> Ninja -> Ninja
 clearTraps tr n = n { N.traps = filter ((/= tr) . Trap.trigger) n.traps }
-
--- | Deletes 'traps' with matching 'Trap.trigger'.
-clearAnyTraps :: HashSet Trigger -> Ninja -> Ninja
-clearAnyTraps trs n
-  | null n.traps || null trs = n
-  | otherwise = n { N.traps = filter ((∉ trs) . Trap.trigger) n.traps }
 
 -- | Adds channels with a specific target.
 addChannels :: Skill -> Slot -> Ninja -> Ninja

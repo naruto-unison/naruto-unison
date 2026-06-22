@@ -6,11 +6,12 @@ module Game.Engine.Traps
   , apply
   ) where
 
-import ClassyPrelude
+import ClassyPrelude hiding (deleteBy)
 
 import Control.Monad.Loops (iterateWhile)
 import Control.Monad.Trans.Maybe (MaybeT(..), hoistMaybe)
 import Data.Enum.Set (EnumSet)
+import Data.List (deleteBy)
 
 import           Class.Classed (Classed(..))
 import           Class.Hook (MonadHook)
@@ -41,7 +42,7 @@ import           Game.Model.Trap (Trap(Trap))
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger(Trigger(..))
 import qualified Game.Model.Trigger as Trigger
-import           Util ((∈), intersects, insertIf)
+import           Util ((∈), (∉), intersects, insertIf)
 
 launch :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
        => Trap -> Runnable Context -> m ()
@@ -52,10 +53,9 @@ launch trap (To context@Context{target} f)
     P.withContext context f
     Hook.trap trap nTarget
 
-getHpTraps :: Ninja -> [Trap]
-getHpTraps Ninja{health, traps} =
-    [trap | trap@Trap{trigger = OnHealthMax hp} <- traps,
-            health <= hp]
+isHpTrap :: Ninja -> Trap -> Bool
+isHpTrap Ninja{health} Trap{trigger = OnHealthMax hp} = health <= hp
+isHpTrap _ _ = False
 
 run :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> Trap -> m ()
@@ -66,15 +66,32 @@ run user trap@Trap{direction = Trap.From, effect} =
 
 run _ trap@Trap{effect} = launch trap $ effect 0
 
+runAndRemoveIf :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
+                 => (Trap -> Bool) -> Slot -> Slot -> m Bool
+runAndRemoveIf predicate user slot = do
+    Ninja{traps} <- P.ninja slot
+    let (yays, nays) = partition predicate traps
+    if null yays then
+        return False
+    else do
+        P.modify slot \n -> n { N.traps = nays }
+        mapM_ (run user) yays
+        return True
+
 runTriggers :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> m ()
 runTriggers user = do
     mapM_ (runTriggersOf user) =<< P.ninjas
     P.modifyAll clearTriggers
   where
-    clearTriggers n = Ninjas.clearAnyTraps singleUses n { N.triggers = mempty }
+    clearTriggers n
+      | null singleUses = n { N.triggers = mempty }
+      | otherwise       = n { N.triggers = mempty
+                            , N.traps    = filter notSingleUse n.traps
+                            }
       where
-        singleUses = filterSet Trigger.isSingleUse n.triggers
+        singleUses   = filterSet Trigger.isSingleUse n.triggers
+        notSingleUse = (∉ singleUses) . Trap.trigger
 
 runTriggersOf :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> Ninja -> m ()
@@ -82,13 +99,8 @@ runTriggersOf user n@Ninja{slot, traps, triggers}
   | null triggers = return ()
   | otherwise     = do
     mapM_ (`Hook.trigger` n) triggers
+    void $ runAndRemoveIf (isHpTrap n) user slot
     mapM_ (run user) $ filter ((∈ triggers) . Trap.trigger) traps
-    when (not $ null hpTraps) do
-        mapM_ (run user) hpTraps
-        P.modify slot
-            . Ninjas.clearAnyTraps . setFromList $ Trap.trigger <$> hpTraps
-  where
-    hpTraps = getHpTraps n
 
 runDeaths :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Maybe Slot -> m ()
@@ -100,36 +112,28 @@ runDeaths muser = void $ iterateWhile (any id)
 runDeathTriggersOf :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
     => Slot -> Ninja -> m Bool
 runDeathTriggersOf user n@Ninja{slot, traps}
-  | alive && not (null hpTraps) = do
-        mapM_ (run user) hpTraps
-        P.modify slot
-            . Ninjas.clearAnyTraps . setFromList $ Trap.trigger <$> hpTraps
-        return True
-  | alive = return False
-  | not $ null resurrectTraps = do
-        Hook.trigger Resurrect n
-        P.modify slot \n' -> Ninjas.clearAnyTraps
-                             (setFromList [Resurrect, OnResurrected])
-                             n' { N.health = 1 }
-        mapM_ (run user) resurrectTraps
-        mapM_ (run user) $ trapsOf OnResurrected
-        return True
-  | not $ null onDeathTraps = do
-        Hook.trigger OnDeath n
-        P.modify slot $ Ninjas.clearTraps OnDeath
-        mapM_ (run user) onDeathTraps
-        return True
-  | otherwise = do
-        Hook.trigger OnDeath n
-        return False
+  | alive     = runAndRemoveIf (isHpTrap n) user slot
+  | otherwise = case resurrectTrap of
+        Just res -> do
+            Hook.trigger Resurrect n
+            P.modify slot \n' -> n'
+                { N.health = 1
+                , N.traps = deleteBy ((==) `on` Trap.trigger) res n.traps
+                }
+            run user res
+            void $ runAndRemoveIf ((== OnResurrected) . Trap.trigger) user slot
+            return True
+        Nothing -> do
+            Hook.trigger OnDeath n
+            runAndRemoveIf (isOnDeath . Trap.trigger) user slot
   where
+    resurrectTrap
+      | n `is` Plague = Nothing
+      | otherwise     = find ((== Resurrect) . Trap.trigger) traps
     alive = N.alive n
-    trapsOf trigger = filter ((== trigger) . Trap.trigger) traps
-    hpTraps = getHpTraps n
-    resurrectTraps
-      | N.alive n || n `is` Plague = mempty
-      | otherwise = trapsOf Resurrect
-    onDeathTraps = trapsOf OnDeath
+    isOnDeath OnDeath   = True
+    isOnDeath OnBreak{} = True
+    isOnDeath _ = False
 
 -- | Conditionally returns 'Trap.Trap's that accept a numeric value.
 getPer :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
@@ -193,13 +197,7 @@ runTurn ninjas = do
 runExpirations :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => m ()
 runExpirations = mapM_ expire =<< P.ninjas
   where
-    expire n
-      | null yays = return ()
-      | otherwise = do
-            P.modify n.slot \n' -> n' { N.traps = nays }
-            mapM_ (run n.slot) yays
-      where
-        (yays, nays) = partition (Trap.isExpiring n) n.traps
+    expire n@Ninja{slot} = void $ runAndRemoveIf (Trap.isExpiring n) slot slot
 
 -- | Trap engine.
 apply :: ∀ m. MonadPlay m
