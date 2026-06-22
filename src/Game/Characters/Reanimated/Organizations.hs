@@ -240,7 +240,6 @@ characters =
     "Reanimated by Kabuto, Ameyuri was one of the Seven Swordsmen of the Mist. Wielding Baki, the legendary twin lightning blades, Ameyuri cuts down her enemies using paralyzing electricity."
     [MistVillage, Kabuto, SevenSwordsmen, Jonin, Lightning]
     let
-        electrocute :: Duration -> SkillEffect
         electrocute dur = do
             unlessM (target has' traps "Electricity") $
                 trapWith [Hidden] Permanent "Electricity" (OnAction All) do
