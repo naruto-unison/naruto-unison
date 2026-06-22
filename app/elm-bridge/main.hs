@@ -58,7 +58,7 @@ data Skill = Skill
     , desc      :: Text
     , classes   :: EnumSet Class
     , cost      :: Chakras
-    , cooldown  :: Duration
+    , cooldown  :: Int
     , charges   :: Int
     , dur       :: Channeling
     , start     :: [Runnable Target]

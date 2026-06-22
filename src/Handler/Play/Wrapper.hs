@@ -20,7 +20,6 @@ import qualified Class.Play as P
 import           Class.Random (MonadRandom)
 import           Game.Model.Game (Game)
 import           Game.Model.Ninja (Ninja)
-import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill
