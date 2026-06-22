@@ -24,8 +24,6 @@ import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
 import qualified Game.Model.Requirement as Requirement
 import           Game.Model.Slot (Slot, SlotSet)
-import           Handler.Play.Snapshot (Snapshot)
-import qualified Handler.Play.Snapshot as Snapshot
 import           Util ((∈), (∉))
 
 -- | Intermediate type for marshaling to JSON.
@@ -36,22 +34,20 @@ data Turn = Turn
     , victor    :: EnumSet Player
     , inactive  :: (Int, Int)
     , ninjas    :: [Ninja]
-    , snapshots :: [Snapshot]
     , targets   :: [[[Slot]]]
     } deriving (Generic)
 
 instance ToJSON Turn
 
 --  | Encodes game state into a form suitable for sending to the client.
-new :: Player -> [Ninja] -> [Snapshot] -> Game -> Turn
-new player ninjas snapshots Game{chakra, inactive, playing, victor} = Turn
+new :: Player -> [Ninja] -> Game -> Turn
+new player ninjas Game{chakra, inactive, playing, victor} = Turn
     { chakra  = Parity.getOf player chakra
     , playing
     , victor
     , inactive = Parity.swap player inactive
     , ninjas   = censored
-    , snapshots = censorSnapshot player <$> snapshots
-    , targets   = targets <$> censored
+    , targets  = targets <$> censored
     }
   where
     censored = censorNinjas player ninjas
@@ -59,10 +55,6 @@ new player ninjas snapshots Game{chakra, inactive, playing, victor} = Turn
     targets n@Ninja{skills}
       | Parity.allied player n = skillTargets n <$> toList skills
       | otherwise              = replicate (length skills) []
-
-censorSnapshot :: Player -> Snapshot -> Snapshot
-censorSnapshot player snapshot =
-    snapshot { Snapshot.ninjas = censorNinjas player snapshot.ninjas }
 
 censorNinjas :: Player -> [Ninja] -> [Ninja]
 censorNinjas player ninjas = censorNinja revealed <$> ninjas

@@ -86,7 +86,6 @@ instance MonadHook WrapperM where
     trap _ _      = return ()
     trigger _ _   = return ()
     turnEnd _ _ _ = return ()
-    turnStart _ _ = return ()
 
 instance StatefulGen () WrapperM where
     uniformWord32 _ = return 0

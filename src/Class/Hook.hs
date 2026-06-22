@@ -11,7 +11,6 @@ import Control.Monad.Trans.Writer (WriterT)
 import Yesod.WebSockets (WebSocketsT)
 
 import Game.Model.Chakras (Chakras)
-import Game.Model.Game (Game)
 import Game.Model.Internal (Context, Ninja, Skill, Trap)
 import Game.Model.Player (Player)
 import Game.Model.Trigger (Trigger)
@@ -25,7 +24,6 @@ class Monad m => MonadHook m where
     trap      :: Trap -> Ninja -> m ()
     trigger   :: Trigger -> Ninja -> m ()
     turnEnd   :: Player -> Vector Ninja -> Vector Ninja -> m ()
-    turnStart :: Game -> Vector Ninja -> m ()
 
     default action :: Lift MonadHook m
                    => Skill -> Vector Ninja -> Vector Ninja -> m ()
@@ -46,11 +44,6 @@ class Monad m => MonadHook m where
     default turnEnd :: Lift MonadHook m
                     => Player -> Vector Ninja -> Vector Ninja -> m ()
     turnEnd p ns = lift . turnEnd p ns
-    {-# INLINE turnEnd #-}
-    default turnStart :: Lift MonadHook m
-                      => Game -> Vector Ninja -> m ()
-    turnStart g = lift . turnStart g
-    {-# INLINE turnStart #-}
 
 instance MonadHook m => MonadHook (ExceptT e m)
 instance MonadHook m => MonadHook (IdentityT m)

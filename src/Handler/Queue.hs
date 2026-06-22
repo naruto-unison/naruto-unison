@@ -172,7 +172,6 @@ makeGame user team userDna vsUser vsTeam vsDna = do
             , war
             , game = game'
             , ninjas
-            , snapshots = mempty
             }
         gameInfoB = GameInfo
             { vsUser = user
@@ -180,7 +179,6 @@ makeGame user team userDna vsUser vsTeam vsDna = do
             , war    = War.opponent <$> war
             , game = game'
             , ninjas
-            , snapshots = mempty
             }
     return (mvar, gameInfoA, gameInfoB)
   where

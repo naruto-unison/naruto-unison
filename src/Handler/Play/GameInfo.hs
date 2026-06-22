@@ -9,7 +9,6 @@ import           Application.Model.User (User)
 import           Game.Model.Game (Game)
 import           Game.Model.Ninja (Ninja)
 import           Game.Model.Player (Player)
-import           Handler.Play.Snapshot (Snapshot)
 import           Handler.Play.War (War)
 import qualified Handler.Play.Turn as Turn
 
@@ -18,7 +17,6 @@ data GameInfo = GameInfo
     { vsUser    :: Entity User
     , game      :: Game
     , ninjas    :: Vector Ninja
-    , snapshots :: [Snapshot]
     , player    :: Player
     , war       :: Maybe War
     }
@@ -28,12 +26,11 @@ instance ToJSON GameInfo where
         { vsUser = Entity _ vsUser
         , game
         , ninjas
-        , snapshots
         , player
         , war
         } = object
         [ "opponent" .= vsUser
         , "player"   .= player
         , "war"      .= war
-        , "turn"     .= Turn.new player (toList ninjas) snapshots game
+        , "turn"     .= Turn.new player (toList ninjas) game
         ]

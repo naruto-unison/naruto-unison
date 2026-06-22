@@ -11,16 +11,14 @@ module Handler.Play.Wrapper
 import ClassyPrelude
 
 import qualified Data.Vector as Vector
-import           Data.Vector.Mutable (MVector)
+import           Data.Vector.Mutable (STVector)
 import qualified Data.Vector.Mutable as MVector
 
 import           Class.Hook (MonadHook(..))
-import qualified Class.Parity as Parity
 import           Class.Play (MonadGame)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
-import           Game.Model.Game (Game(Game))
-import qualified Game.Model.Game
+import           Game.Model.Game (Game)
 import           Game.Model.Ninja (Ninja)
 import           Game.Model.Player (Player)
 import           Game.Model.Skill (Skill(Skill))
@@ -30,7 +28,6 @@ import           Game.Model.Trap (Trap(Trap))
 import qualified Game.Model.Trap
 import           Handler.Play.GameInfo (GameInfo(GameInfo))
 import qualified Handler.Play.GameInfo
-import           Handler.Play.Snapshot (Snapshot(Snapshot))
 import           Handler.Play.Tracker (Tracker)
 import qualified Handler.Play.Tracker as Tracker
 import           Handler.Play.Turn (Turn)
@@ -40,10 +37,9 @@ import           Mission.Progress (Progress)
 -- | This type is the core of the entire program. It is the environment of game
 -- processes and implements all of the user-defined monads.
 data STWrapper s = STWrapper
-    { tracker      :: Tracker s
-    , gameRef      :: STRef s Game
-    , ninjasRef    :: MVector s Ninja
-    , snapshotsRef :: STRef s [Snapshot]
+    { tracker   :: Tracker s
+    , gameRef   :: STRef s Game
+    , ninjasRef :: STVector s Ninja
     }
 
 type IOWrapper = STWrapper RealWorld
@@ -68,39 +64,27 @@ instance (PrimMonad m, s ~ PrimState m) => MonadGame (ReaderT (STWrapper s) m) w
     {-# INLINABLE modifyAll #-}
 
 instance (PrimMonad m, s ~ PrimState m) => MonadHook (ReaderT (STWrapper s) m) where
-    action Skill{name} (toList -> ns) (toList -> ns')  = do
-        STWrapper{gameRef, snapshotsRef, tracker} <- ask
-        Game{chakra = gameChakra, playing} <- readRef gameRef
-        let playerChakra = Parity.getOf playing gameChakra
-        modifyRef' snapshotsRef (Snapshot playerChakra ns' :)
-        Tracker.trackAction name ns ns' tracker
-    chakra Skill{name} ch ch'  = asks tracker
+    action Skill{name} (toList -> ns) (toList -> ns')  = asks tracker
+        >>= Tracker.trackAction name ns ns'
+    chakra Skill{name} ch ch' = asks tracker
         >>= Tracker.trackChakra name ch ch'
     trap Trap{name, user} targ = asks tracker
         >>= Tracker.trackTrap name user targ
-    trigger tr targ            = asks tracker
+    trigger tr targ = asks tracker
         >>= Tracker.trackTrigger tr targ
     turnEnd p (toList -> ns) (toList -> ns') = asks tracker
         >>= Tracker.trackTurn p ns ns'
-    turnStart _ _              = asks snapshotsRef
-        >>= flip writeRef []
 
 fromInfo :: ∀ m. PrimMonad m => GameInfo -> m (STWrapper (PrimState m))
-fromInfo info@GameInfo{game, ninjas, snapshots} = do
-    tracker      <- Tracker.fromInfo info
-    gameRef      <- newRef game
-    ninjasRef    <- Vector.thaw ninjas
-    snapshotsRef <- newRef snapshots
-    return STWrapper
-        { tracker
-        , gameRef
-        , ninjasRef
-        , snapshotsRef
-        }
+fromInfo info@GameInfo{game, ninjas} = do
+    tracker   <- Tracker.fromInfo info
+    gameRef   <- newRef game
+    ninjasRef <- Vector.thaw ninjas
+    return STWrapper { tracker, gameRef, ninjasRef }
 
 runGame :: ∀ m. PrimMonad m
         => GameInfo -> ReaderT (STWrapper (PrimState m)) m () -> m Wrapper
-runGame info f = fromInfo info >>= runReaderT do
+runGame info f = (fromInfo info) >>= runReaderT do
     f
     unsafeFreeze =<< ask
 
@@ -115,7 +99,6 @@ data Wrapper = Wrapper
     { progress :: [Progress]
     , game     :: Game
     , ninjas   :: Vector Ninja
-    , snapshots :: [Snapshot]
     }
 
 new :: Game -> Vector Ninja -> Wrapper
@@ -123,42 +106,36 @@ new game ninjas = Wrapper
     { progress  = mempty
     , game
     , ninjas
-    , snapshots = mempty
     }
 
 freeze :: ∀ m. PrimMonad m => STWrapper (PrimState m) -> m Wrapper
-freeze STWrapper{tracker, gameRef, ninjasRef, snapshotsRef} = do
+freeze STWrapper{tracker, gameRef, ninjasRef} = do
     progress  <- Tracker.freeze tracker
     game      <- readRef gameRef
     ninjas    <- Vector.freeze ninjasRef
-    snapshots <- readRef snapshotsRef
-    return Wrapper { progress, game, ninjas, snapshots }
+    return Wrapper { progress, game, ninjas }
 
 -- | The STWrapper may not be used after this operation.
 unsafeFreeze :: ∀ m. PrimMonad m => STWrapper (PrimState m) -> m Wrapper
-unsafeFreeze STWrapper{tracker, gameRef, ninjasRef, snapshotsRef} = do
+unsafeFreeze STWrapper{tracker, gameRef, ninjasRef} = do
     progress  <- Tracker.unsafeFreeze tracker
     game      <- readRef gameRef
     ninjas    <- Vector.unsafeFreeze ninjasRef
-    snapshots <- readRef snapshotsRef
-    return Wrapper { progress, game, ninjas, snapshots }
+    return Wrapper { progress, game, ninjas }
 
 thaw :: ∀ m. PrimMonad m => Wrapper -> m (STWrapper (PrimState m))
-thaw Wrapper{game, ninjas, snapshots} = do
+thaw Wrapper{game, ninjas} = do
     gameRef      <- newRef game
     ninjasRef    <- Vector.thaw ninjas
-    snapshotsRef <- newRef snapshots
     return STWrapper
         { tracker = Tracker.empty
         , gameRef
         , ninjasRef
-        , snapshotsRef
         }
 
 --  | Encodes game state into a form suitable for sending to the client.
 toTurn :: Player -> Wrapper -> Turn
-toTurn player Wrapper{ninjas, game, snapshots} =
-    Turn.new player (toList ninjas) snapshots game
+toTurn player Wrapper{ninjas, game} = Turn.new player (toList ninjas) game
 
 instance MonadRandom m => MonadRandom (ReaderT Wrapper m)
 instance MonadRandom m => MonadRandom (ReaderT (STWrapper s) m)

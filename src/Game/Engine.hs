@@ -73,8 +73,7 @@ runTurn acts = do
 processTurn :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => m () -> m ()
 processTurn runner = do
     initial <- P.ninjas
-    game@Game{playing = player} <- P.game
-    Hook.turnStart game initial
+    Game{playing = player} <- P.game
     runner
     channels <- getChannels <$> P.allies player
     mapM_ Action.act channels
