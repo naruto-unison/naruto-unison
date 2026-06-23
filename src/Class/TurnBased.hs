@@ -50,6 +50,10 @@ increment x = case getDur x of
 expiring :: ∀ a. TurnBased a => a -> Bool
 expiring x = getDur x == 0
 
+instance TurnBased Duration where
+    getDur = id
+    setDur = const
+
 instance TurnBased Destructible where
     getDur Destructible{dur} = dur
     setDur d x = x { Destructible.dur = d }
