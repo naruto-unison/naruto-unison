@@ -111,8 +111,16 @@ spec = parallel do
                 targetExhausted <- Effects.exhaust [NonMental]
                                    <$> Sim.targets XEnemies
                 targetExhausted `shouldBe` [Rand]
+            it "increases every turn" do
+                Sim.act
+                Sim.turns 1
+                Sim.withClass Mental $ Sim.as XEnemies $ return ()
+                targetExhausted <- Effects.exhaust [NonMental]
+                                   <$> Sim.targets XEnemies
+                targetExhausted `shouldBe` [Rand, Rand]
             it "ends if target uses non-mental" do
                 Sim.act
+                Sim.turns 1
                 Sim.withClass NonMental $ Sim.as XEnemies $ return ()
                 targetExhausted <- Effects.exhaust [NonMental] <$>
                                    Sim.targets XEnemies
