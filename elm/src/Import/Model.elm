@@ -643,7 +643,6 @@ type alias Trap  =
    , skill: Skill
    , user: Int
    , classes: (Set String)
-   , tracker: Int
    , dur: (Maybe Int)
    }
 
@@ -656,7 +655,6 @@ jsonDecTrap =
    |> required "skill" (jsonDecSkill)
    |> required "user" (Json.Decode.int)
    |> required "classes" (decodeSet (Json.Decode.string))
-   |> required "tracker" (Json.Decode.int)
    |> fnullable "dur" (Json.Decode.int)
 
 jsonEncTrap : Trap -> Value
@@ -668,7 +666,6 @@ jsonEncTrap  val =
    , ("skill", jsonEncSkill val.skill)
    , ("user", Json.Encode.int val.user)
    , ("classes", (encodeSet Json.Encode.string) val.classes)
-   , ("tracker", Json.Encode.int val.tracker)
    , ("dur", (maybeEncode (Json.Encode.int)) val.dur)
    ]
 

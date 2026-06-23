@@ -76,7 +76,6 @@ data Trap = Trap
     , skill     :: Skill
     , user      :: Slot
     , classes   :: EnumSet Class
-    , tracker   :: Int
     , dur       :: Duration
     }
 
