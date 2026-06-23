@@ -87,12 +87,13 @@ addStacks' dur name i = do
 flag :: ∀ m. MonadPlay m => Text -> m ()
 flag name = do
     Context{skill, target, user} <- P.context
-    P.modify target $ Ninjas.addStatus (Status.new user 0 skill)
-        { Status.name    = if null name then toLower skill.name else name
-        , Status.classes = skill.classes ++ extraClasses
-        }
+    let status = (Status.new user 0 skill)
+            { Status.name    = if null name then toLower skill.name else name
+            , Status.classes = skill.classes ++ extraClasses
+            }
+    P.modify target \n -> n { N.statuses = status : n.statuses }
   where
-    extraClasses = setFromList [Hidden, Unremovable, Nonstacking]
+    extraClasses = setFromList [Hidden, Unremovable]
 
 -- | Applies a @Status@ with no effects, used as a marker for other
 -- 'Skill.Skill's.
