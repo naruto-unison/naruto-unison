@@ -220,6 +220,7 @@ data Ninja = Ninja
     , statuses   :: [Status]            -- ^ Starts empty
     , channels   :: [Channel]           -- ^ Starts empty
     , traps      :: [Trap]              -- ^ Starts empty
+    , onTurn     :: Bool                -- ^ Starts false
     , lastSkill  :: Maybe Skill         -- ^ Starts at @Nothing@
     , triggers   :: HashSet Trigger     -- ^ Empty at the start of each action
     , negatives  :: EnumSet Negative    -- ^ Empty at the start of each turn
