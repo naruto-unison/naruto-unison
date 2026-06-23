@@ -53,7 +53,9 @@ interrupt = P.unsilenced do
 -- | Increases the duration of 'N.channels' with a matching 'Channel.name'.
 -- Uses 'Ninjas.prolongChannel' internally.
 prolongChannel :: ∀ m. MonadPlay m => Text -> Duration -> m ()
-prolongChannel name dur = P.toUserFromUser (Ninjas.prolongChannel dur) name
+prolongChannel name dur = do
+    context <- P.context
+    P.toUserFromUser (Ninjas.prolongChannel context dur) name
 
 -- | Modify all channel names.
 renameChannels :: ∀ m. MonadPlay m => (Text -> Text) -> m ()

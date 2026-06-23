@@ -72,7 +72,7 @@ getCurrent n = do
 
 reanimate :: ∀ m. MonadPlay m => m ()
 reanimate = do
-    Context{user, skill = skill@Skill{name = skillName}} <- P.context
+    context@Context{user, skill = skill@Skill{name = skillName}} <- P.context
     statusID <- P.createID reanimationStatusName
     mcurrent <- getCurrent <$> P.nUser
     reanimation <- chooseReanimation user $ identFromSkill <$> mcurrent
@@ -83,7 +83,7 @@ reanimate = do
         Just alternate ->
             P.modify user
                 $ Ninjas.processSkills
-                . Ninjas.addStatus (Status.new user Permanent skill)
+                . Ninjas.addStatus context (Status.new user Permanent skill)
                     { Status.name    = reanimationStatusName
                     , Status.classes = [Hidden, Nonstacking, Unremovable]
                     , Status.effects = [Alternate skillName alternate]
@@ -95,10 +95,10 @@ removeReanimation = P.toUserFromUser Ninjas.clear reanimationStatusName
 reserveReanimation :: ∀ m. MonadPlay m => m ()
 reserveReanimation = void $ runMaybeT do
     current <- MaybeT $ getCurrent <$> P.nUser
-    Context{user, skill} <- P.context
+    context@Context{user, skill} <- P.context
     removeReanimation
     let skillID = ID.from skill
-    P.modify user $ Ninjas.addStatus (Status.new user Permanent current)
+    P.modify user $ Ninjas.addStatus context (Status.new user Permanent current)
         { Status.classes = Reanimation `insertSet` skill.classes
         , Status.bombs   = [ To Done $ P.modify user $ Ninjas.recharge skillID
                                         | Skill.hasCharges skill ]

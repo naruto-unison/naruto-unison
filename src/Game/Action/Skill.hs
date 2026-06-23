@@ -86,12 +86,12 @@ getAlternates loadout = do
 -- | Uses 'Ninjas.nextAlternate' internally.
 nextAlternate :: ∀ m. MonadPlay m => Text -> m ()
 nextAlternate name = do
-    Context{user, skill} <- P.context
+    context@Context{user, skill} <- P.context
     let name' = Skill.provideName skill name
     nUser <- P.nUser
     case Ninjas.nextAlternate name' nUser of
         Nothing  -> return ()
-        Just alt -> P.modify user . Ninjas.addStatus
+        Just alt -> P.modify user . Ninjas.addStatus context
                   $ Status.addClasses alternateClasses
                         (Status.new user 1 skill)
                         { Status.effects = [Alternate name' alt] }
@@ -100,19 +100,19 @@ nextAlternate name = do
 -- Uses 'Ninjas.copyAll' internally.
 copyAll :: ∀ m. MonadPlay m => Duration -> m ()
 copyAll dur = P.uncopied do
-    Context{user} <- P.context
+    context@Context{user} <- P.context
     nTarget <- P.nTarget
-    P.modify user $ Ninjas.copyAll dur nTarget
+    P.modify user $ Ninjas.copyAll context dur nTarget
 
 -- | Copies the 'N.lastSkill' of the target into a specific skill slot
 -- of the user's 'N.copies'. Uses 'Execute.copy' internally.
 copyLast :: ∀ m. MonadPlay m => Duration -> m ()
 copyLast dur = P.uncopied . void $ runMaybeT do
-    Context{skill = Skill{name}, user} <- P.context
+    context@Context{skill = Skill{name}, user} <- P.context
     Just skill <- N.lastSkill <$> P.nTarget
     Just s     <- Vector.findIndex (any $ (== name) . Skill.name)
                 . toNullable <$> userSkills
-    P.modify user $ Ninjas.copy dur [s] skill
+    P.modify user $ Ninjas.copy context dur [s] skill
 
 teach :: ∀ m. MonadPlay m
        => Duration -- ^ 'Copy.dur'.
@@ -120,9 +120,9 @@ teach :: ∀ m. MonadPlay m
        -> [Int]
        -> m ()
 teach dur name slots = do
-    Context{target} <- P.context
+    context@Context{target} <- P.context
     mskill <- find ((== name) . Skill.name) . join <$> userSkills
-    mapM_ (P.modify target . Ninjas.copy dur slots) mskill
+    mapM_ (P.modify target . Ninjas.copy context dur slots) mskill
 
 -- | Resets a 'N.Ninja' to their initial state.
 -- Uses 'Ninjas.factory' internally.

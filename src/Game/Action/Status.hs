@@ -44,12 +44,16 @@ import           Util ((∈))
 -- | Increases the 'Status.dur' of 'N.statuses' with matching 'Status.name'.
 -- Uses 'Ninjas.prolong' internally.
 prolong :: ∀ m. MonadPlay m => Duration -> Text -> m ()
-prolong dur name = P.toTargetFromUser (Ninjas.prolong dur) name
+prolong dur name = do
+    context <- P.context
+    P.toTargetFromUser (Ninjas.prolong context dur) name
 
 -- | Reduces the 'Status.dur' of 'N.statuses' with matching 'Status.name'.
 -- Uses 'Ninjas.prolong' internally.
 hasten :: ∀ m. MonadPlay m => Duration -> Text -> m ()
-hasten dur name = P.toTargetFromUser (Ninjas.prolong $ succ $ negate dur) name
+hasten dur name = do
+    context <- P.context
+    P.toTargetFromUser (Ninjas.prolong context $ succ $ negate dur) name
 
 -- | Adds a @Status@ to 'N.statuses'.
 apply :: ∀ m. MonadPlay m => Duration -> Text -> [Effect] -> m ()
@@ -74,8 +78,8 @@ addStacks = addStacks' Permanent
 -- Uses 'Ninjas.addStatus' internally.
 addStacks' :: ∀ m. MonadPlay m => Duration -> Text -> Int -> m ()
 addStacks' dur name i = do
-    Context{skill, target, user} <- P.context
-    P.modify target $ Ninjas.addStatus (Status.new user dur skill)
+    context@Context{skill, target, user} <- P.context
+    P.modify target $ Ninjas.addStatus context (Status.new user dur skill)
         { Status.name    = Skill.provideName skill name
         , Status.amount  = i
         , Status.user    = user

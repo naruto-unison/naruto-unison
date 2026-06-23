@@ -74,7 +74,7 @@ apply amount classes bombs unthrottled name effects = void $ runMaybeT do
                     , effects
                     }
     guard $ null effects || not (null status.effects)
-    P.modify target $ Ninjas.addStatus status
+    P.modify target $ Ninjas.addStatus context status
     triggerStatusApplied status.effects
   where
     isChanneled = setFromList [Continues, Controlled] `intersects` classes
@@ -97,7 +97,7 @@ control classes bombs effects = do
                 Control i -> i
                 _         -> 1
             }
-    P.modify target $ Ninjas.addStatus status
+    P.modify target $ Ninjas.addStatus context status
     triggerStatusApplied status.effects
 
 data MakeStatusParams = StatusParams

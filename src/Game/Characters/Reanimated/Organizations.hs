@@ -246,7 +246,7 @@ characters =
                     electricity <- target amount "Electricity"
                     when (electricity > 0) do
                         remove "Electricity"
-                        addStacks' (succ $ toEnum electricity) "Electricity" electricity
+                        addStacks' (toEnum electricity) "Electricity" electricity
                         targeting Everyone $ whenM (target has "Electricity") $
                             asAction $ afflict 5
 

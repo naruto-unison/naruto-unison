@@ -49,6 +49,7 @@ import ClassyPrelude
 import qualified Data.Sequence as Seq
 
 import           Class.Classed (Classed(..))
+import qualified Class.Parity as Parity
 import           Class.Stackable ((.:))
 import           Class.TurnBased (TurnBased)
 import qualified Class.TurnBased as TurnBased
@@ -58,6 +59,8 @@ import           Game.Model.Channel (Channel(Channel), Channeling(..))
 import qualified Game.Model.Channel as Channel
 import qualified Game.Model.Character as Character
 import           Game.Model.Class (Class(..))
+import           Game.Model.Context (Context(Context))
+import qualified Game.Model.Context
 import           Game.Model.Copy (Copy(Copy))
 import qualified Game.Model.Copy as Copy
 import           Game.Model.Destructible (Destructible(Destructible))
@@ -226,11 +229,17 @@ decrement n = processSkills $ processEffects
       | n.onTurn  = subtract 1 <$> filterMap (> 1) n.cooldowns
       | otherwise = n.cooldowns
 
-addTrap :: Trap -> Ninja -> Ninja
-addTrap trap n
-  | any (conflicts trap) n.traps = n
-  | otherwise                    = n { N.traps = trap : n.traps }
+turnBonus :: ∀ a. TurnBased a => Context -> Ninja -> a -> a
+turnBonus Context{new = False, user} n a
+  | Parity.allied n user /= n.onTurn = TurnBased.increment a
+turnBonus _ _ a = a
+
+addTrap :: Context -> Trap -> Ninja -> Ninja
+addTrap context trap n
+  | any (conflicts trap') n.traps = n
+  | otherwise                     = n { N.traps = trap' : n.traps }
   where
+    trap' = turnBonus context n trap
     conflicts = (==) `on` \Trap{user, direction, trigger, classes, dur, name} ->
         (user, direction, trigger, classes, dur, name)
 
@@ -238,8 +247,11 @@ checkEffects :: [Effect] -> Ninja -> Ninja
 checkEffects [] n = n
 checkEffects _  n = processEffects n
 
-addStatus :: Status -> Ninja -> Ninja
-addStatus st n = checkEffects st.effects $ n { N.statuses = st .: n.statuses }
+addStatus :: Context -> Status -> Ninja -> Ninja
+addStatus context st n = checkEffects st'.effects
+    $ n { N.statuses = st' .: n.statuses }
+  where
+    st' = turnBonus context n st
 
 checkDestructibleEffects :: [Destructible] -> Ninja -> Ninja
 checkDestructibleEffects xs n
@@ -248,17 +260,21 @@ checkDestructibleEffects xs n
   where
    hasEffects Destructible{effects} = not $ null effects
 
-addBarrier :: Destructible -> Ninja -> Ninja
-addBarrier barrier n = case barrier.amount `compare` 0 of
-    LT -> n { N.defense = Destructible.negate barrier .: n.defense }
+addBarrier :: Context -> Destructible -> Ninja -> Ninja
+addBarrier context barrier n = case barrier'.amount `compare` 0 of
+    LT -> n { N.defense = Destructible.negate barrier' .: n.defense }
     EQ -> n
-    GT -> checkEffects barrier.effects n { N.barrier = barrier .: n.barrier }
+    GT -> checkEffects barrier'.effects n { N.barrier = barrier' .: n.barrier }
+  where
+    barrier' = turnBonus context n barrier
 
-addDefense :: Destructible -> Ninja -> Ninja
-addDefense defense n = case defense.amount `compare` 0 of
-    LT -> n { N.barrier = Destructible.negate defense .: n.barrier }
+addDefense :: Context -> Destructible -> Ninja -> Ninja
+addDefense context defense n = case defense'.amount `compare` 0 of
+    LT -> n { N.barrier = Destructible.negate defense' .: n.barrier }
     EQ -> n
-    GT -> checkEffects defense.effects n { N.defense = defense .: n.defense }
+    GT -> checkEffects defense'.effects n { N.defense = defense' .: n.defense }
+  where
+    defense' = turnBonus context n defense
 
 increaseDefense :: Int -- ^ 'Destructible.amount'.
                 -> ID -- ^ 'Destructible.name'.
@@ -324,23 +340,27 @@ cancelOldChannel (ID.fromOwner -> channelID) n =
     retain channel = channelID /= ID.from channel
 
 -- | Copies all 'Skill's from a source into 'N.copies'.
-copyAll :: Duration -- ^ 'Copy.dur'.
+copyAll :: Context
+        -> Duration -- ^ 'Copy.dur'.
         -> Ninja -- ^ Person whose skills are being copied.
         -> Ninja -> Ninja
-copyAll dur Ninja{skills} n = n { N.copies = cop <$> skills }
+copyAll context dur Ninja{skills} n = n { N.copies = cop <$> skills }
   where
-    cop skill = Just Copy { skill, dur }
+    dur' = turnBonus context n dur
+    cop skill = Just Copy { skill, dur = dur' }
 
 -- | Copies a matching 'Skill' from a source into 'N.copies'.
-copy :: Duration -- ^ 'Copy.dur'.
-      -> [Int] -- ^ Skill slots, in the range @[0, length 'N.skills')@.
-      -> Skill -- ^ 'Copy.skill'.
-      -> Ninja -> Ninja
-copy dur slots skill n =
+copy :: Context
+     -> Duration -- ^ 'Copy.dur'.
+     -> [Int] -- ^ Skill slots, in the range @[0, length 'N.skills')@.
+     -> Skill -- ^ 'Copy.skill'.
+     -> Ninja -> Ninja
+copy context dur slots skill n =
     n { N.copies = fromList . toList $ foldl' go seqCopies slots }
   where
+    dur' = turnBonus context n dur
     seqCopies = fromList $ toList n.copies
-    go acc slot = Seq.update slot (Just Copy { skill, dur }) acc
+    go acc slot = Seq.update slot (Just Copy { skill, dur = dur' }) acc
 
 filterEffects :: (Slot -> Effect -> Bool) -> Ninja -> Ninja
 filterEffects predicate n = modifyStatuses (mapMaybe f) n
@@ -391,27 +411,30 @@ bury n
     onlyNecromancy = filter $ (Necromancy ∈) . getClasses
 
 -- | Extends the duration of matching 'statuses'.
-prolong :: Duration -- ^ Added to 'Status.dur'.
+prolong :: Context
+        -> Duration -- ^ Added to 'Status.dur'.
         -> ID -- ^ 'Status.name'.
         -> Ninja -> Ninja
-prolong dur statusID = prolongIf ((== statusID) . ID.from) dur
+prolong context dur statusID = prolongIf ((== statusID) . ID.from) context dur
 
 -- | Extends the duration of matching 'statuses' that are 'Controlled'.
-prolongControlled :: Duration -- ^ Added to 'Status.dur'.
-        -> ID -- ^ 'Status.name'.
-        -> Ninja -> Ninja
-prolongControlled dur statusID = prolongIf matches dur
+prolongControlled :: Context
+                  -> Duration -- ^ Added to 'Status.dur'.
+                  -> ID -- ^ 'Status.name'.
+                  -> Ninja -> Ninja
+prolongControlled context dur statusID = prolongIf matches context dur
   where
     matches st = Controlled ∈ st.classes && ID.from st == statusID
 
-prolongIf :: (Status -> Bool) -> Duration -> Ninja -> Ninja
-prolongIf condition dur n
-  | dur < 0   = processEffects n'
+prolongIf :: (Status -> Bool) -> Context -> Duration -> Ninja -> Ninja
+prolongIf condition context dur n
+  | dur' < 0  = processEffects n'
   | otherwise = n'
   where
+    dur' = turnBonus context n dur
     n' = n { N.statuses = mapMaybe doProlong n.statuses }
     doProlong st
-      | condition st = prolong' dur st
+      | condition st = prolong' dur' st
       | otherwise    = Just st
 
 -- | Extends the duration of a single 'Status'.
@@ -423,13 +446,14 @@ prolong' dur st
     where
       dur' = st.dur + dur
 
-prolongChannel :: Duration -> ID -> Ninja -> Ninja
-prolongChannel dur (ID.fromOwner -> channelID) n =
+prolongChannel :: Context -> Duration -> ID -> Ninja -> Ninja
+prolongChannel context dur (ID.fromOwner -> channelID) n =
     n { N.channels = f <$> n.channels }
   where
+    dur' = turnBonus context n dur
     f chan
       | ID.from chan /= channelID || not (prolongs chan.dur) = chan
-      | otherwise = TurnBased.addDur dur chan
+      | otherwise = TurnBased.addDur dur' chan
     prolongs (Ongoing (Duration i)) = i >= 0
     prolongs (Action  (Duration i)) = i >= 0
     prolongs _                      = False

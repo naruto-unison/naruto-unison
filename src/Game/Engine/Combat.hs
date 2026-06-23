@@ -122,7 +122,7 @@ attack atk dmg
     nTarget <- P.nTarget
     guard . not $ nTarget `is` Invulnerable atkClass
 
-    Context{target, user, skill} <- P.context
+    context@Context{target, user, skill} <- P.context
     nUser <- P.nUser
     let classes'    = insertSet atkClass skill.classes
         dmgCalc     = formula atk classes' nUser nTarget dmg
@@ -134,7 +134,7 @@ attack atk dmg
                                     nTarget.defense
 
     if atk > Attack.Afflict && nTarget `is` DamageToDefense then
-        P.modify target $ Ninjas.addDefense Destructible
+        P.modify target $ Ninjas.addDefense context Destructible
             { user
             , skill   = Skill.removeClass Nonstacking skill
             , amount  = dmgCalc

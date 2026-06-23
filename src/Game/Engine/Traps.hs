@@ -209,7 +209,7 @@ apply direction classes unthrottled name trigger f = void $ runMaybeT do
     guard . not $ isCounter && nUser `is` Disable Counters
     dur   <- if not new || isChanneled then return unthrottled else
                 hoistMaybe $ throttle nUser
-    P.modify target $ Ninjas.addTrap
+    P.modify target $ Ninjas.addTrap context
         $ makeTrap context direction classes dur name trigger f
   where
     isChanneled = setFromList [Continues, Controlled] `intersects` classes

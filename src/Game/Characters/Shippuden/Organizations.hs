@@ -56,7 +56,7 @@ characters =
         , Skill.effects   =
           [ To Self $ trapFrom 2 skillName (CounterAll All) do
                 damage 15
-                targeting Self $ apply -1 skillName [Invulnerable All]
+                targeting Self $ apply 0 skillName [Invulnerable All]
           ]
         }
       ]

@@ -156,7 +156,7 @@ characters =
             setRoundRobin slot = do
                 apply -1 skillName [Redirect slot]
                 trap -1 skillName (OnHarmed All) $ asAction $
-                    apply -1 "Round-Robin Surprise Attack"
+                    apply 0 "Round-Robin Surprise Attack"
                         [ AntiCounter
                         , Bypass
                         , Pierce
@@ -561,7 +561,7 @@ reanimations =
           [ To XAlly do
                 apply -1 "Reciprocal Round-Robin" [Nullify]
                 trap -1 skillName (OnHarmed All) $ asAction $
-                    apply -1 "Round-Robin Surprise Attack"
+                    apply 0 "Round-Robin Surprise Attack"
                         [ AntiCounter
                         , Bypass
                         , Pierce
