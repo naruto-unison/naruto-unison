@@ -27,6 +27,7 @@ import           Game.Model.ID (ID(ID))
 import qualified Game.Model.ID
 import qualified Game.Model.Ninja as N
 import qualified Game.Model.Skill as Skill
+import qualified Game.Model.Status as Status
 
 import qualified Blank
 import           OrphanInstances ()
@@ -432,6 +433,10 @@ spec = parallel do
         it "blocks against others"    . not $ simAt XEnemies tryTarget
 
     describe "Throttle" do
+        let durationFromTarget :: HasCallStack => Text -> Ninja -> Duration
+            durationFromTarget name n = maybe (error "error: not found")
+                Status.dur $ find ((== name) . Status.name) n.statuses
+
         it "throttles counters" $ simAt Enemy do
             apply Permanent skillName [Throttle 1 Counters]
             Sim.as Enemy $ trap 5 skillName (Countered All) $
@@ -448,28 +453,22 @@ spec = parallel do
             user (`is` Reveal)
 
         it "throttles stuns" $ simAt Enemy do
-            apply Permanent skillName [Throttle 1 Stuns]
-            Sim.as Enemy $ apply 5 skillName [Stun All]
-            Sim.turns $ 5 - 1
-            userStunned <- user Effects.stun
-            return $ userStunned `shouldBe` mempty
-        it "does not remove stuns" $ simAt Enemy do
-            apply Permanent skillName [Throttle 1 Stuns]
-            Sim.as Enemy $ apply 5 skillName [Stun All]
-            Sim.turns $ 5 - 2
-            userStunned <- user Effects.stun
-            return $ userStunned `shouldBe` [All]
+            Sim.as Enemy $ apply 5 "effect" [Stun All]
+            dur <- user $ durationFromTarget "effect"
+            factory
+            apply Permanent skillName [Throttle 2 Stuns]
+            Sim.as Enemy $ apply 5 "effect" [Stun All]
+            dur' <- user $ durationFromTarget "effect"
+            return $ dur - dur' `shouldBe` 2
 
         it "throttles others" $ simAt Enemy do
-            apply Permanent skillName [Throttle 1 (Only Reveal)]
-            Sim.as Enemy $ apply 5 skillName [Reveal]
-            Sim.turns $ 5 - 1
-            not <$> user (`is` Reveal)
-        it "does not remove others" $ simAt Enemy do
-            apply Permanent skillName [Throttle 1 (Only Reveal)]
-            Sim.as Enemy $ apply 5 skillName [Reveal]
-            Sim.turns $ 5 - 2
-            user (`is` Reveal)
+            Sim.as Enemy $ apply 5 "effect" [Reveal]
+            dur <- user $ durationFromTarget "effect"
+            factory
+            apply Permanent skillName [Throttle 2 (Only Reveal)]
+            Sim.as Enemy $ apply 5 "effect" [Reveal]
+            dur' <- user $ durationFromTarget "effect"
+            return $ dur - dur' `shouldBe` 2
 
     describe "Undefend" do
         it "ignores own defense" $ simAt Enemy do
