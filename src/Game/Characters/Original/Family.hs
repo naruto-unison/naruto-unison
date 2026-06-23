@@ -263,7 +263,7 @@ characters =
     [LeafVillage, Jonin, Yin, Nara]
     [ [ Skill.new
         { Skill.name      = "Shadow Possession"
-        , Skill.desc      = "Shikamaru captures an enemy in shadows, stunning their non-mental skills for 2 turns and dealing 20 damage. Deals 10 additional damage if the target is affected by [Black Spider Lily]. The following turn, this skill becomes [Shadow Dispersion][g]."
+        , Skill.desc      = "Shikaku captures an enemy in shadows, stunning their non-mental skills for 2 turns and dealing 20 damage. Deals 10 additional damage if the target is affected by [Black Spider Lily]. The following turn, this skill becomes [Shadow Dispersion][g]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen, Rand]
         , Skill.dur       = Control 2
