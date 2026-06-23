@@ -649,7 +649,7 @@ renderDefense slot anchor track barriers defenses =
             H.div
                 [ A.classList
                     [ ( "chardefense", True )
-                    , ( "ghost", x.dur == 1 )
+                    , ( "ghost", x.dur == Just 0 )
                     ]
                 , A.style anchor <| String.fromInt track ++ "%"
                 , A.style "width" <| String.fromInt x.amount ++ "%"
@@ -759,7 +759,7 @@ renderDetail team slot characters detail =
               , detail.trap
               )
             , ( "ghost"
-              , detail.dur == 1
+              , detail.dur == Just 0
               )
             , ( "remove"
               , List.any removable detail.effects
@@ -918,7 +918,7 @@ renderCharacter characters acted toggle highlighted chakras turn onTeam b =
                ]
 
 
-bar : Character -> String -> Int -> Int -> List (Html msg)
+bar : Character -> String -> Int -> Maybe Int -> List (Html msg)
 bar source name amount dur =
     [ H.section []
         [ Render.icon source name [ A.class "char" ]
@@ -1004,6 +1004,14 @@ renderView visibles characters viewing =
                             _ ->
                                 Render.chakras x.cost
 
+                    showDur mdur =
+                        case mdur of
+                            Nothing ->
+                                ""
+
+                            Just dur ->
+                                " " ++ String.fromInt ((dur + 1) // 2)
+
                     duration =
                         case x.dur of
                             Instant ->
@@ -1012,23 +1020,14 @@ renderView visibles characters viewing =
                             Passive ->
                                 "Instant"
 
-                            Action 0 ->
-                                "Action"
-
-                            Control 0 ->
-                                "Control"
-
-                            Ongoing 0 ->
-                                "Ongoing"
-
                             Action y ->
-                                "Action " ++ String.fromInt ((y + 1) // 2)
+                                "Action" ++ showDur y
 
                             Control y ->
-                                "Control " ++ String.fromInt ((y + 1) // 2)
+                                "Control" ++ showDur y
 
                             Ongoing y ->
-                                "Ongoing " ++ String.fromInt ((y + 1) // 2)
+                                "Ongoing" ++ showDur y
 
                     charges =
                         if x.charges == 0 then

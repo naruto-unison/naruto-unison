@@ -246,7 +246,7 @@ characters =
                     electricity <- target amount "Electricity"
                     when (electricity > 0) do
                         remove "Electricity"
-                        addStacks' (toEnum electricity) "Electricity" electricity
+                        addStacks' (succ $ toEnum electricity) "Electricity" electricity
                         targeting Everyone $ whenM (target has "Electricity") $
                             asAction $ afflict 5
 
@@ -255,14 +255,14 @@ characters =
                 Nothing -> addStacks' dur "Electricity" $ fromEnum dur
                 Just currentDur -> do
                     currentStacks <- target amount "Electricity"
-                    let newDur    = pred $ currentDur + dur
+                    let newDur    = currentDur + dur
                         newStacks = max currentStacks $ fromEnum newDur
                     remove "Electricity"
                     addStacks' newDur "Electricity" newStacks
     in
     [ [ Skill.new
         { Skill.name      = "Lightning Fang"
-        , Skill.desc      = "Bolts of lightning cascade across the battlefield, applying 2 turns    of Electricity to all enemies. Whenever someone affected by Electricity uses a skill, Electricity on them is refreshed to its maximum duration, and everyone affected by Electricity receives 5 affliction damage that bypasses invulnerability. Reapplying Electricity extends its duration instead of stacking."
+        , Skill.desc      = "Bolts of lightning cascade across the battlefield, applying 2 turns of Electricity to all enemies. Whenever someone affected by Electricity uses a skill, Electricity on them is refreshed to its maximum duration, and everyone affected by Electricity receives 5 affliction damage that bypasses invulnerability. Reapplying Electricity extends its duration instead of stacking."
         , Skill.classes   = [Bane, Chakra, Ranged, Nonstacking]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 4

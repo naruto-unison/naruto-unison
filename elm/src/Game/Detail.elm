@@ -18,7 +18,7 @@ type alias Detail =
     { name : String
     , desc : String
     , classes : Set String
-    , dur : Int
+    , dur : Maybe Int
     , source : Int
     , skillName : String
     , user : Int

@@ -613,6 +613,9 @@ button.scroll:hover {
         flex-direction: column;
     }
 }
+.ghost {
+    color: #666;
+}
 .ghost div {
     border-color: #666;
 }

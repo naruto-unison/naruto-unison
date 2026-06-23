@@ -122,7 +122,8 @@ typeAlterations t = case t of
     ETyApp (ETyCon (ETCon "NonNull"))  x -> typeAlterations x
     ETyApp (ETyCon (ETCon "Runnable")) x -> typeAlterations x
     ETyCon (ETCon "Class")     -> ETyCon (ETCon "String")
-    ETyCon (ETCon "Duration")  -> ETyCon (ETCon "Int")
+    ETyCon (ETCon "Duration")  -> ETyApp (ETyCon (ETCon "Maybe"))
+                                $ ETyCon (ETCon "Int")
     ETyCon (ETCon "EnumSet")   -> ETyCon (ETCon "Set")
     ETyCon (ETCon "Group")     -> ETyCon (ETCon "String")
     ETyCon (ETCon "Slot")      -> ETyCon (ETCon "Int")

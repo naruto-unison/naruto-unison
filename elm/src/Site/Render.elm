@@ -2,7 +2,6 @@ module Site.Render exposing
     ( chakraTotals
     , chakras
     , charIcon
-    , class
     , classes
     , desc
     , detailIcon
@@ -22,7 +21,7 @@ import Html as H exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
 import Import.Flags exposing (characterName, clean)
-import Import.Model exposing (Category(..), Chakras, Channel, Channeling(..), Character, Effect, Skill, User)
+import Import.Model exposing (Category(..), Chakras, Channeling(..), Character, Effect, Skill, User)
 import Parser exposing ((|.), (|=), Parser)
 import Set exposing (Set)
 import String.Extra as String
@@ -173,28 +172,14 @@ name char =
             ]
 
 
-duration : String -> Int -> List (Html msg)
+duration : String -> Maybe Int -> List (Html msg)
 duration ifEmpty x =
     case x of
-        0 ->
+        Nothing ->
             [ H.text ifEmpty ]
 
-        _ ->
-            [ H.text << String.fromInt <| x // 2 ]
-
-
-class : Channel -> String -> H.Attribute msg
-class x others =
-    A.class <|
-        case x.dur of
-            Action _ ->
-                others ++ " action"
-
-            Control _ ->
-                others ++ " control"
-
-            _ ->
-                others
+        Just y ->
+            [ H.text << String.fromInt <| (y + 1) // 2 ]
 
 
 classes : Bool -> Set String -> Html msg

@@ -35,19 +35,20 @@ class TurnBased a where
 -- If @'getDur' == Duration 1@, deletes the structure; it has expired.
 -- Otherwise, decrements the remaining duration by 1.
 decrement :: ∀ a. TurnBased a => a -> Maybe a
-decrement x
-  | dur < 1     = Nothing
-  | otherwise   = Just $! setDur (pred dur) x -- @pred Permanent == Permanent@
-  where
-    dur = getDur x
+decrement x = case getDur x of
+    Permanent  -> Just x
+    Duration 0 -> Nothing
+    Duration d -> Just $! setDur (Duration $ d - 1) x
 
 -- | If @'getDur' == 'Permanent'@, has no effect.
 -- Otherwise, increases the remaining duration by 1.
 increment :: ∀ a. TurnBased a => a -> a
-increment x = setDur (succ $ getDur x) x -- @succ Permanent == Permanent@
+increment x = case getDur x of
+    Permanent  -> x
+    Duration d -> setDur (Duration $ d + 1) x
 
 expiring :: ∀ a. TurnBased a => a -> Bool
-expiring x = getDur x < 1
+expiring x = getDur x == 0
 
 instance TurnBased Destructible where
     getDur Destructible{dur} = dur

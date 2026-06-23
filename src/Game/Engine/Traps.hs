@@ -232,7 +232,7 @@ makeTrap ctx@Context { continues
     , name    = Skill.provideName skill name
     , effect  = \i -> To context $ f i
     , classes = classes'
-    , dur     = succ dur
+    , dur
     }
   where
     setContinues

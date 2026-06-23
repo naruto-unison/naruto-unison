@@ -92,7 +92,7 @@ instance Display Duration where
     display dur       = display $ fromEnum dur
 
 instance ToJSON Duration where
-    toJSON Permanent    = A.Number 0
+    toJSON Permanent    = A.Null
     toJSON (Duration x) = A.Number $ fromIntegral x
     {-# INLINE toJSON #-}
 

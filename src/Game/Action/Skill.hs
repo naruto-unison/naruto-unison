@@ -107,7 +107,7 @@ copyAll dur = P.uncopied do
 -- | Copies the 'N.lastSkill' of the target into a specific skill slot
 -- of the user's 'N.copies'. Uses 'Execute.copy' internally.
 copyLast :: ∀ m. MonadPlay m => Duration -> m ()
-copyLast (succ -> dur) = P.uncopied . void $ runMaybeT do
+copyLast dur = P.uncopied . void $ runMaybeT do
     Context{skill = Skill{name}, user} <- P.context
     Just skill <- N.lastSkill <$> P.nTarget
     Just s     <- Vector.findIndex (any $ (== name) . Skill.name)

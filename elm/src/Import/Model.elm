@@ -100,18 +100,18 @@ jsonEncChannel  val =
 type Channeling  =
     Instant
     | Passive
-    | Action Int
-    | Control Int
-    | Ongoing Int
+    | Action (Maybe Int)
+    | Control (Maybe Int)
+    | Ongoing (Maybe Int)
 
 jsonDecChanneling : Json.Decode.Decoder ( Channeling )
 jsonDecChanneling =
     let jsonDecDictChanneling = Dict.fromList
             [ ("Instant", Json.Decode.lazy (\_ -> Json.Decode.succeed Instant))
             , ("Passive", Json.Decode.lazy (\_ -> Json.Decode.succeed Passive))
-            , ("Action", Json.Decode.lazy (\_ -> Json.Decode.map Action (Json.Decode.int)))
-            , ("Control", Json.Decode.lazy (\_ -> Json.Decode.map Control (Json.Decode.int)))
-            , ("Ongoing", Json.Decode.lazy (\_ -> Json.Decode.map Ongoing (Json.Decode.int)))
+            , ("Action", Json.Decode.lazy (\_ -> Json.Decode.map Action (Json.Decode.maybe (Json.Decode.int))))
+            , ("Control", Json.Decode.lazy (\_ -> Json.Decode.map Control (Json.Decode.maybe (Json.Decode.int))))
+            , ("Ongoing", Json.Decode.lazy (\_ -> Json.Decode.map Ongoing (Json.Decode.maybe (Json.Decode.int))))
             ]
         jsonDecObjectSetChanneling = Set.fromList ["Instant", "Passive"]
     in  decodeSumTaggedObject "Channeling" "tag" "contents" jsonDecDictChanneling jsonDecObjectSetChanneling
@@ -121,9 +121,9 @@ jsonEncChanneling  val =
     let keyval v = case v of
                     Instant  -> ("Instant", encodeValue (Json.Encode.list identity []))
                     Passive  -> ("Passive", encodeValue (Json.Encode.list identity []))
-                    Action v1 -> ("Action", encodeValue (Json.Encode.int v1))
-                    Control v1 -> ("Control", encodeValue (Json.Encode.int v1))
-                    Ongoing v1 -> ("Ongoing", encodeValue (Json.Encode.int v1))
+                    Action v1 -> ("Action", encodeValue ((maybeEncode (Json.Encode.int)) v1))
+                    Control v1 -> ("Control", encodeValue ((maybeEncode (Json.Encode.int)) v1))
+                    Ongoing v1 -> ("Ongoing", encodeValue ((maybeEncode (Json.Encode.int)) v1))
     in encodeSumTaggedObject "tag" "contents" keyval val
 
 
@@ -165,20 +165,20 @@ jsonEncCharacter  val =
 
 type alias Copy  =
    { skill: Skill
-   , dur: Int
+   , dur: (Maybe Int)
    }
 
 jsonDecCopy : Json.Decode.Decoder ( Copy )
 jsonDecCopy =
    Json.Decode.succeed Copy
    |> required "skill" (jsonDecSkill)
-   |> required "dur" (Json.Decode.int)
+   |> fnullable "dur" (Json.Decode.int)
 
 jsonEncCopy : Copy -> Value
 jsonEncCopy  val =
    Json.Encode.object
    [ ("skill", jsonEncSkill val.skill)
-   , ("dur", Json.Encode.int val.dur)
+   , ("dur", (maybeEncode (Json.Encode.int)) val.dur)
    ]
 
 
@@ -187,7 +187,7 @@ type alias Destructible  =
    { amount: Int
    , user: Int
    , skill: Skill
-   , dur: Int
+   , dur: (Maybe Int)
    , effects: (List Effect)
    }
 
@@ -197,7 +197,7 @@ jsonDecDestructible =
    |> required "amount" (Json.Decode.int)
    |> required "user" (Json.Decode.int)
    |> required "skill" (jsonDecSkill)
-   |> required "dur" (Json.Decode.int)
+   |> fnullable "dur" (Json.Decode.int)
    |> required "effects" (Json.Decode.list (jsonDecEffect))
 
 jsonEncDestructible : Destructible -> Value
@@ -206,7 +206,7 @@ jsonEncDestructible  val =
    [ ("amount", Json.Encode.int val.amount)
    , ("user", Json.Encode.int val.user)
    , ("skill", jsonEncSkill val.skill)
-   , ("dur", Json.Encode.int val.dur)
+   , ("dur", (maybeEncode (Json.Encode.int)) val.dur)
    , ("effects", (Json.Encode.list jsonEncEffect) val.effects)
    ]
 
@@ -569,7 +569,7 @@ type alias Status  =
    , effects: (List Effect)
    , classes: (Set String)
    , bombs: (List Bomb)
-   , dur: Int
+   , dur: (Maybe Int)
    }
 
 jsonDecStatus : Json.Decode.Decoder ( Status )
@@ -582,7 +582,7 @@ jsonDecStatus =
    |> required "effects" (Json.Decode.list (jsonDecEffect))
    |> required "classes" (decodeSet (Json.Decode.string))
    |> required "bombs" (Json.Decode.list (jsonDecBomb))
-   |> required "dur" (Json.Decode.int)
+   |> fnullable "dur" (Json.Decode.int)
 
 jsonEncStatus : Status -> Value
 jsonEncStatus  val =
@@ -594,7 +594,7 @@ jsonEncStatus  val =
    , ("effects", (Json.Encode.list jsonEncEffect) val.effects)
    , ("classes", (encodeSet Json.Encode.string) val.classes)
    , ("bombs", (Json.Encode.list jsonEncBomb) val.bombs)
-   , ("dur", Json.Encode.int val.dur)
+   , ("dur", (maybeEncode (Json.Encode.int)) val.dur)
    ]
 
 
@@ -644,7 +644,7 @@ type alias Trap  =
    , user: Int
    , classes: (Set String)
    , tracker: Int
-   , dur: Int
+   , dur: (Maybe Int)
    }
 
 jsonDecTrap : Json.Decode.Decoder ( Trap )
@@ -657,7 +657,7 @@ jsonDecTrap =
    |> required "user" (Json.Decode.int)
    |> required "classes" (decodeSet (Json.Decode.string))
    |> required "tracker" (Json.Decode.int)
-   |> required "dur" (Json.Decode.int)
+   |> fnullable "dur" (Json.Decode.int)
 
 jsonEncTrap : Trap -> Value
 jsonEncTrap  val =
@@ -669,7 +669,7 @@ jsonEncTrap  val =
    , ("user", Json.Encode.int val.user)
    , ("classes", (encodeSet Json.Encode.string) val.classes)
    , ("tracker", Json.Encode.int val.tracker)
-   , ("dur", Json.Encode.int val.dur)
+   , ("dur", (maybeEncode (Json.Encode.int)) val.dur)
    ]
 
 

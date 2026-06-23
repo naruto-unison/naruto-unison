@@ -160,14 +160,14 @@ get xs slot =
         >> Maybe.withDefault unknown
 
 
-dur : Channel -> Int
+dur : Channel -> Maybe Int
 dur chan =
     case chan.dur of
         Passive ->
-            0
+            Nothing
 
         Instant ->
-            1
+            Just 1
 
         Action x ->
             x

@@ -49,7 +49,7 @@ prolong dur name = P.toTargetFromUser (Ninjas.prolong dur) name
 -- | Reduces the 'Status.dur' of 'N.statuses' with matching 'Status.name'.
 -- Uses 'Ninjas.prolong' internally.
 hasten :: ∀ m. MonadPlay m => Duration -> Text -> m ()
-hasten dur name = P.toTargetFromUser (Ninjas.prolong $ negate dur) name
+hasten dur name = P.toTargetFromUser (Ninjas.prolong $ succ $ negate dur) name
 
 -- | Adds a @Status@ to 'N.statuses'.
 apply :: ∀ m. MonadPlay m => Duration -> Text -> [Effect] -> m ()

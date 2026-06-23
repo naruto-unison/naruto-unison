@@ -63,7 +63,7 @@ import           Game.Model.Copy (Copy(Copy))
 import qualified Game.Model.Copy as Copy
 import           Game.Model.Destructible (Destructible(Destructible))
 import qualified Game.Model.Destructible as Destructible
-import           Game.Model.Duration (Duration(..), sync)
+import           Game.Model.Duration (Duration(..))
 import           Game.Model.Effect (Amount(..), Effect(..))
 import qualified Game.Model.Effect as Effect
 import qualified Game.Model.Face as Face
@@ -305,7 +305,7 @@ addChannels skill@Skill{dur} target n = n { N.channels = chan : n.channels }
     chan = Channel
         { target
         , skill = skill { Skill.require = mempty }
-        , dur   = TurnBased.increment dur
+        , dur
         , new   = True
         }
 
@@ -330,10 +330,7 @@ copyAll :: Duration -- ^ 'Copy.dur'.
         -> Ninja -> Ninja
 copyAll dur Ninja{skills} n = n { N.copies = cop <$> skills }
   where
-    dur'
-      | Parity.even dur = dur
-      | otherwise       = succ dur
-    cop skill = Just Copy { skill, dur = dur' }
+    cop skill = Just Copy { skill, dur }
 
 -- | Copies a matching 'Skill' from a source into 'N.copies'.
 copy :: Duration -- ^ 'Copy.dur'.
@@ -421,17 +418,11 @@ prolongIf condition dur n
 -- | Extends the duration of a single 'Status'.
 prolong' :: Duration -- ^ Added to 'Status.dur'.
          -> Status -> Maybe Status
-prolong' _ st@Status{dur = Permanent} = Just st
-prolong' Permanent st = Just st { Status.dur = Permanent }
-prolong' (Duration dur) st
-  | statusDur' < 0 = Nothing
-  | otherwise      = Just st { Status.dur = st.dur + Duration dur' }
+prolong' dur st
+  | dur' < 0  = Nothing
+  | otherwise = Just st { Status.dur = dur' }
     where
-      statusDur' = st.dur + Duration dur'
-      dur'
-        | odd $ sync st.dur + dur = dur
-        | dur < 0                 = dur + 1
-        | otherwise               = dur - 1
+      dur' = st.dur + dur
 
 prolongChannel :: Duration -> ID -> Ninja -> Ninja
 prolongChannel dur (ID.fromOwner -> channelID) n =

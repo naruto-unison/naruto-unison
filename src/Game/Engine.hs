@@ -75,12 +75,12 @@ processTurn runner = do
     initial <- P.ninjas
     Game{playing = player} <- P.game
     runner
+    Traps.runExpirations
     channels <- getChannels <$> P.allies player
     mapM_ Action.act channels
     Traps.runTurn initial
     doSkillEnds
     doDeaths
-    Traps.runExpirations
     expired <- P.ninjas
     P.modifyAll $ Ninjas.decrement player
     doExpiredBombs expired

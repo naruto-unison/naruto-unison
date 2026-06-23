@@ -27,7 +27,7 @@ new user dur skill = Status
     , effects = mempty
     , classes = skill.classes
     , bombs   =  mempty
-    , dur     = succ dur
+    , dur
     }
 
 addClasses :: EnumSet Class -> Status -> Status

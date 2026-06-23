@@ -127,7 +127,7 @@ spec = parallel do
             it "extends duration" do
                 replicateM_ testStacks Sim.act
                 electricDur <- target $ Sim.statusDur "Electricity"
-                electricDur `shouldBe` fromIntegral (1 + testStacks)
+                electricDur `shouldBe` succ (fromIntegral testStacks)
             it "damages on action" do
                 Sim.act
                 damaged <- measureDamage $ Sim.as Enemy $ return ()
@@ -158,7 +158,7 @@ spec = parallel do
                 damagedWith <- measureDamage Sim.act
                 damagedWith - damagedWithout `shouldBe` 2 * 10
             it "shortens Electricity" do
-                replicateM_ testStacks  $ Sim.use "Lightning Fang"
+                replicateM_ testStacks $ Sim.use "Lightning Fang"
                 Sim.act
                 electricDur <- target $ Sim.statusDur "Electricity"
                 electricDur `shouldBe` fromIntegral testStacks - 1
