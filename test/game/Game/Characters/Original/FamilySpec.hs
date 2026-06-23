@@ -142,7 +142,6 @@ spec = parallel do
             it "does not damage target of Shadow Possession" do
                 Sim.use "Shadow Possession"
                 setHealth 100
-                Sim.use "Black Spider Lily"
                 damaged <- measureDamage Sim.act
                 damaged `shouldBe` 0
             it "damages others" do
