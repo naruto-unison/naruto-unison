@@ -26,7 +26,6 @@ import qualified Game.Model.Game as Game
 import           Game.Model.ID (ID(ID))
 import qualified Game.Model.ID
 import qualified Game.Model.Ninja as N
-import qualified Game.Model.Player as Player
 import qualified Game.Model.Skill as Skill
 
 import qualified Blank

@@ -331,20 +331,22 @@ characters =
     [LeafVillage, AlliedForces, Jonin, TeamLeader, Yang, Akimichi]
     [ [ Skill.new
         { Skill.name      = "Chain Bind"
-        , Skill.desc      = "Chōza slows an enemy, dealing 5 damage and weakening their physical, chakra, and summon damage by 10 for 1 turn. Chōza's team gains 5 permanent destructible defense."
+        , Skill.desc      = "Chōza slows an enemy, dealing 5 damage and weakening their physical, chakra, and summon damage by 10 for 1 turn. Lasts an additional turn during [Human Boulder]. Chōza's team gains 5 permanent destructible defense."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
                 damage 5
-                apply 1 skillName [Weaken [Physical, Chakra, Summon] Flat 10]
+                bonus <- 1 `bonusIf` target has "Human Boulder"
+                apply (1 + bonus) skillName
+                    [Weaken [Physical, Chakra, Summon] Flat 10]
           , To Allies $ defend Permanent 5
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Human Boulder"
-        , Skill.desc      = "Chōza transforms into a rolling juggernaut. For 3 turns, he deals 15 damage to an enemy and provides 10 destructible defense to himself and his allies for 1 turn. Each turn, if the target is affected by [Chain Bind], it lasts 1 additional turn on them."
+        , Skill.desc      = "Chōza transforms into a rolling juggernaut. For 3 turns, he deals 15 damage to an enemy and provides 10 destructible defense to himself and his allies for 1 turn."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 3
@@ -353,7 +355,7 @@ characters =
           [ To Allies $ defend 1 10
           , To Enemy do
                 damage 15
-                prolong 1 "Chain Bind"
+                tag 1 []
           ]
         }
       ]

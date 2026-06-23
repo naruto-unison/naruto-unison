@@ -89,12 +89,16 @@ spec = parallel do
                 damageWith - damageWithout `shouldBe` 2 * 5
 
     describeCharacter "Chōza Akimichi" do
-        useOn Enemy "Human Boulder" do
-            it "prolongs Chain Bind" do
-                Sim.use "Chain Bind"
+        useOn Enemy "Chain Bind" do
+            it "lasts longer during Human Boulder" do
+                Sim.use "Human Boulder"
                 Sim.act
-                Sim.turns 2
+                Sim.turns 1
                 target has "Chain Bind"
+            it "does not last longer otherwise" do
+                Sim.act
+                Sim.turns 1
+                not <$> target has "Chain Bind"
 
         useOn XAlly "Partial Expansion" do
             it "counters on ally" do
