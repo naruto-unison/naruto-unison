@@ -206,7 +206,7 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemies $ trap -1 skillName OnNoAction $ asAction $
+          [ To Enemies $ trap 1 skillName OnNoAction $ asAction $
                 apply 1 skillName
                     [ Stun All
                     , Bleed [Physical, Chakra, Summon] Flat 10

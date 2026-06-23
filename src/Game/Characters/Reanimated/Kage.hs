@@ -140,7 +140,7 @@ characters =
                 targeting Self $
                     applyWith [Invisible] 4 skillName [Reduce [All] Flat 5]
           in
-          [ To XAllies $ setTrap -1
+          [ To XAllies $ setTrap 1
           , To Enemies $ setTrap 1
           ]
         }
@@ -154,8 +154,8 @@ characters =
         , Skill.effects   =
           let
             setRoundRobin slot = do
-                apply -1 skillName [Redirect slot]
-                trap -1 skillName (OnHarmed All) $ asAction $
+                apply 1 skillName [Redirect slot]
+                trap 1 skillName (OnHarmed All) $ asAction $
                     apply 0 "Round-Robin Surprise Attack"
                         [ AntiCounter
                         , Bypass
@@ -559,8 +559,8 @@ reanimations =
         , Skill.classes = [Chakra, Ranged, Invisible, Unremovable]
         , Skill.effects =
           [ To XAlly do
-                apply -1 "Reciprocal Round-Robin" [Nullify]
-                trap -1 skillName (OnHarmed All) $ asAction $
+                apply 1 "Reciprocal Round-Robin" [Nullify]
+                trap 1 skillName (OnHarmed All) $ asAction $
                     apply 0 "Round-Robin Surprise Attack"
                         [ AntiCounter
                         , Bypass

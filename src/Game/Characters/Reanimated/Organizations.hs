@@ -177,7 +177,7 @@ characters =
           [ To Self $ defend Permanent 20 ]
         , Skill.effects   =
           [ To Self $ whenM (user has' defense skillName) $
-                trapPer -1 skillName PerDamaged $
+                trapPer 1 skillName PerDamaged $
                     unlessM (user has' defense skillName) .
                         defend Permanent
           ]

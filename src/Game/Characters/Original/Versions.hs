@@ -206,7 +206,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sand Transformation"
-        , Skill.desc      = "Shukaku gradually accumulates sand around Gaara's body, gaining 10 permanent destructible defense every turn for 5 turns. At the end of the 5 turns, Shukaku enters Tailed Beast Form for 3 turns. During [Tailed Beast Form], this skill becomes [Shukaku Full Release][b]."
+        , Skill.desc      = "Shukaku gradually accumulates sand around Gaara's body, gaining 10 permanent destructible defense every turn for 5 turns. When this skill ends, Shukaku enters Tailed Beast Form for 3 turns. During [Tailed Beast Form], this skill becomes [Shukaku Full Release][b]."
         , Skill.require   = [UserChannel False "Sand Transformation"]
         , Skill.classes   = [Mental]
         , Skill.cost      = [Rand, Rand]

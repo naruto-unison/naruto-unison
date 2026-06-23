@@ -90,7 +90,7 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.start     =
-          [ To Self $ trap -1 skillName OnNotDamaged $
+          [ To Self $ trap 1 skillName OnNotDamaged $
                 apply 1 "Successful Ambush" [Invulnerable All]
           ]
         }

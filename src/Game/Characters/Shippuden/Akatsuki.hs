@@ -255,7 +255,7 @@ characters =
         , Skill.cooldown  = 3
         , Skill.start     =
           [ To Enemies do
-                trap -1 skillName OnNoHarm $ asAction $
+                trap 1 skillName OnNoHarm $ asAction $
                     apply 1 "Pinned" [Expose]
           , To Self $ apply 1 skillName
                 [ Alternate "Thousand Arms"
@@ -1209,7 +1209,7 @@ characters =
         , Skill.dur       = Ongoing 3
         , Skill.cooldown  = 3
         , Skill.effects   =
-          [ To Allies $ trap -1 skillName (OnHarmed All) $ targeting Self $
+          [ To Allies $ trap 1 skillName (OnHarmed All) $ targeting Self $
                 whenM (channeling skillName) $
                     addStack skillName
           , To Enemies do
