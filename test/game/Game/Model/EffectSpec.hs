@@ -26,6 +26,7 @@ import qualified Game.Model.Game as Game
 import           Game.Model.ID (ID(ID))
 import qualified Game.Model.ID
 import qualified Game.Model.Ninja as N
+import qualified Game.Model.Player as Player
 import qualified Game.Model.Skill as Skill
 
 import qualified Blank
@@ -395,7 +396,7 @@ spec = parallel do
                 skill = Skill.new { Skill.cooldown = cd }
                 simCooldown n@Ninja{slot} = Wrapper.run game do
                     Action.act ctx
-                    P.modify slot Ninjas.decrement
+                    P.modify slot $ Ninjas.decrement Player.A
                     maybe 0 snd . headMay . mapToList . cooldowns <$> P.ninja slot
                   where
                     game = Wrapper.new $ n : unsafeTail Blank.ninjas
