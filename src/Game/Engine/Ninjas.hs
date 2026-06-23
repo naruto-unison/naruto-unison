@@ -49,7 +49,6 @@ import ClassyPrelude
 import qualified Data.Sequence as Seq
 
 import           Class.Classed (Classed(..))
-import qualified Class.Parity as Parity
 import           Class.Stackable ((.:))
 import           Class.TurnBased (TurnBased)
 import qualified Class.TurnBased as TurnBased
@@ -71,7 +70,6 @@ import           Game.Model.ID (HasID, ID(ID))
 import qualified Game.Model.ID as ID
 import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
-import           Game.Model.Player (Player)
 import qualified Game.Model.Requirement as Requirement
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
@@ -211,8 +209,8 @@ sacrifice minhp hp = adjustHealth $ max minhp . (- hp)
 
 -- | Applies 'Class.TurnBased.decr' to all of a @Ninja@'s 'Class.TurnBased'
 -- types.
-decrement :: Player -> Ninja -> Ninja
-decrement playing n = processSkills $ processEffects
+decrement :: Ninja -> Ninja
+decrement n = processSkills $ processEffects
     n { N.defense   = mapMaybe TurnBased.decrement n.defense
       , N.statuses  = mapMaybe TurnBased.decrement n.statuses
       , N.barrier   = mapMaybe TurnBased.decrement n.barrier
@@ -220,12 +218,13 @@ decrement playing n = processSkills $ processEffects
       , N.traps     = mapMaybe TurnBased.decrement n.traps
       , N.copies    = (TurnBased.decrement =<<) <$> n.copies
       , N.cooldowns = cooldowns
+      , N.onTurn    = not n.onTurn
       }
   where
     setNotNew chan = chan { Channel.new = False }
     cooldowns
-      | Parity.allied playing n = subtract 1 <$> filterMap (> 1) n.cooldowns
-      | otherwise               = n.cooldowns
+      | n.onTurn  = subtract 1 <$> filterMap (> 1) n.cooldowns
+      | otherwise = n.cooldowns
 
 addTrap :: Trap -> Ninja -> Ninja
 addTrap trap n

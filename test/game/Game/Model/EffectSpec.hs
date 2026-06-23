@@ -396,7 +396,7 @@ spec = parallel do
                 skill = Skill.new { Skill.cooldown = cd }
                 simCooldown n@Ninja{slot} = Wrapper.run game do
                     Action.act ctx
-                    P.modify slot $ Ninjas.decrement Player.A
+                    P.modify slot Ninjas.decrement
                     maybe 0 snd . headMay . mapToList . cooldowns <$> P.ninja slot
                   where
                     game = Wrapper.new $ n : unsafeTail Blank.ninjas

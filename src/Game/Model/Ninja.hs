@@ -46,6 +46,7 @@ new slot c = Ninja
     , channels   = mempty
     , traps      = mempty
     , lastSkill  = Nothing
+    , onTurn     = Parity.even slot
     , triggers   = mempty
     , negatives  = mempty
     , effects    = mempty
