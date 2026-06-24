@@ -277,7 +277,7 @@ button.scroll:hover {
 }
 
 .char.locked {
-    opacity: 0.5;
+    opacity: 0.75;
     outline-color: #999;
 }
 .char.locked.buy {
@@ -371,6 +371,33 @@ button.scroll:hover {
 .charWrapper {
     display: inline-block;
     position: relative;
+
+    button {
+        padding: 0;
+        margin: 0;
+        box-sizing: initial;
+        width: 1em;
+        height: 1em;
+        position: absolute;
+        line-height: 0;
+        left: 5px;
+        bottom: 5px;
+        border-radius: 100%;
+        background: none;
+        border: 1px solid black;
+    }
+
+    button:hover {
+        transform: scale(1.1);
+    }
+
+    .add {
+        background-image: url("/img/ui/select/add.svg");
+    }
+
+    .remove {
+        background-image: url("/img/ui/select/remove.svg");
+    }
 
     div {
         border-radius: 100%;
@@ -509,6 +536,7 @@ button.scroll:hover {
     height: 100%;
     text-align: center;
     overflow: hidden;
+    font-size: 20px;
 
     img {
         width: 60px;
@@ -537,14 +565,21 @@ button.scroll:hover {
             position: absolute;
             bottom: -1px;
             left: -65px;
+            font-size: 16px;
+
+            .charWrapper {
+                button {
+                    bottom: 1px;
+                }
+            }
 
             .char {
-                outline-color: #fff;
+                outline-color: black;
                 outline-width: 1px !important;
             }
 
             .char.on {
-                outline: 2px #0099ff !important;
+                outline: 2px white !important;
                 outline-width: 2px !important;
                 outline-style: solid !important;
             }
@@ -1237,6 +1272,12 @@ svg {
     width: 256px;
     height: 75px;
     margin: 2px 0 9px 0;
+    font-size: 24px;
+
+    .charWrapper button {
+        bottom: 1px;
+        left: 7px;
+    }
 }
 
 #teamContainer {

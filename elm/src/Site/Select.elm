@@ -112,6 +112,7 @@ type alias Model =
     , stage : Stage
     , url : String
     , team : List Character
+    , teamSet : Set String
     , costs : Chakras
     , vs : List Character
     , unlocked : Set String
@@ -126,7 +127,6 @@ type alias Model =
     , showLogin : Bool
     , index : Int
     , cols : Int
-    , toggled : Maybe Character
     , previewing : Previewing
     , mission : List ObjectiveProgress
     , alternates : List Int
@@ -161,12 +161,16 @@ type Msg
     | SetSearch String
     | SetStage Stage
     | SwitchLogin
-    | Team ListChange Character
+    | ToggleTeam Character
     | TryUpdate
     | Alternate Int Int
     | Vs ListChange Character
-    | Untoggle
     | UpdateForm FormUpdate
+
+
+toTeamSet : List Character -> Set String
+toTeamSet =
+    Set.fromList << List.map .ident
 
 
 teamCosts : Characters -> List Character -> Chakras
@@ -202,6 +206,7 @@ component ports =
             , stage = Browsing
             , url = flags.url
             , team = team
+            , teamSet = toTeamSet team
             , costs = teamCosts flags.characters team
             , vs = vs
             , user = flags.user
@@ -215,7 +220,6 @@ component ports =
             , showLogin = True
             , index = 0
             , cols = 11
-            , toggled = Nothing
             , previewing = PreviewWar
             , mission = []
             , alternates = [ 0, 0, 0, 0 ]
@@ -251,7 +255,7 @@ component ports =
         view : Model -> Html Msg
         view st =
             H.section [ A.id "charSelect" ] <|
-                lazy3 (userBox st.red st.blue st.user st.csrf st.csrfParam)
+                lazy3 (userBox st)
                     st.showLogin
                     st.costs
                     st.team
@@ -293,9 +297,6 @@ component ports =
 
                 SwitchLogin ->
                     pure { st | showLogin = not st.showLogin }
-
-                Untoggle ->
-                    pure { st | toggled = Nothing }
 
                 Page x ->
                     ( st, scroll x )
@@ -339,66 +340,49 @@ component ports =
                             }
 
                 Preview x ->
-                    pure <|
-                        if Maybe.isJust st.toggled then
-                            st
-
-                        else
-                            { st
-                                | previewing = x
-                                , alternates = [ 0, 0, 0, 0 ]
-                                , mission = []
-                            }
+                    withSound Sound.Click
+                        { st
+                            | previewing = x
+                            , alternates = [ 0, 0, 0, 0 ]
+                            , mission = []
+                        }
 
                 Alternate slot i ->
                     withSound Sound.Click
                         { st | alternates = List.updateAt slot (\n -> n + i) st.alternates }
 
-                Team Add char ->
-                    withSound Sound.Click <|
-                        case st.toggled of
-                            Nothing ->
-                                { st | toggled = Just char }
+                ToggleTeam char ->
+                    if List.member char st.team then
+                        case st.stage of
+                            Practicing ->
+                                pure st
 
-                            Just toggled ->
-                                if toggled /= char then
-                                    { st | toggled = Just char }
-
-                                else if locked st.unlocked char then
-                                    { st | toggled = Nothing }
-
-                                else if char |> elem st.team then
-                                    { st | toggled = Nothing }
-
-                                else if List.length st.team < Game.teamSize then
-                                    let
-                                        team =
-                                            char :: st.team
-                                    in
+                            _ ->
+                                let
+                                    team =
+                                        List.remove char st.team
+                                in
+                                withSound Sound.Cancel
                                     { st
-                                        | toggled = Nothing
-                                        , team = team
+                                        | team = team
+                                        , teamSet = toTeamSet team
                                         , costs = teamCosts st.chars team
                                     }
 
-                                else
-                                    { st | toggled = Nothing }
+                    else if List.length st.team == Game.teamSize then
+                        pure st
 
-                Team Delete char ->
-                    case st.stage of
-                        Practicing ->
-                            pure st
-
-                        _ ->
-                            let
-                                team =
-                                    List.remove char st.team
-                            in
-                            withSound Sound.Cancel
-                                { st
-                                    | team = team
-                                    , costs = teamCosts st.chars team
-                                }
+                    else
+                        let
+                            team =
+                                char :: st.team
+                        in
+                        withSound Sound.Click
+                            { st
+                                | team = team
+                                , teamSet = toTeamSet team
+                                , costs = teamCosts st.chars team
+                            }
 
                 Vs Add char ->
                     withSound Sound.Click <|
@@ -595,16 +579,12 @@ affordable muser char =
 
 
 userBox :
-    Set String
-    -> Set String
-    -> Maybe User
-    -> String
-    -> String
+    Model
     -> Bool
     -> Chakras
     -> List Character
     -> Html Msg
-userBox red blue mUser csrf csrfParam showLogin costs team =
+userBox st showLogin costs team =
     let
         meta onClick =
             if List.length team == Game.teamSize then
@@ -614,7 +594,7 @@ userBox red blue mUser csrf csrfParam showLogin costs team =
                 [ A.class "parchment playButton" ]
 
         nav =
-            case mUser of
+            case st.user of
                 Just _ ->
                     [ H.a
                         [ A.id "mainsite"
@@ -640,12 +620,12 @@ userBox red blue mUser csrf csrfParam showLogin costs team =
                     ]
 
         box =
-            case mUser of
+            case st.user of
                 Just user ->
                     H.div
                         [ A.id "userBox"
                         , A.class "parchment loggedin"
-                        , E.onMouseOver << Preview <| PreviewUser user
+                        , E.onClick << Preview <| PreviewUser user
                         ]
                         [ H.img
                             [ A.class "userimg"
@@ -704,8 +684,8 @@ userBox red blue mUser csrf csrfParam showLogin costs team =
                                 [ ( True
                                   , H.input
                                         [ A.type_ "hidden"
-                                        , A.name csrfParam
-                                        , A.value csrf
+                                        , A.name st.csrfParam
+                                        , A.value st.csrf
                                         ]
                                         []
                                   )
@@ -773,36 +753,8 @@ userBox red blue mUser csrf csrfParam showLogin costs team =
         , H.section [ A.id "teamContainer" ]
             [ Keyed.node "div"
                 [ A.id "teamButtons", A.class "select" ]
-                << for team
               <|
-                \char ->
-                    let
-                        isRed =
-                            char |> belongsTo red
-
-                        isBlue =
-                            char |> belongsTo blue
-                    in
-                    ( characterName char
-                    , H.div [ A.class "charWrapper" ] <|
-                        Render.charIcon char
-                            [ A.class "char click"
-                            , E.onMouseOver << Preview <| PreviewChar char
-                            , E.onClick <| Team Delete char
-                            ]
-                            :: (if isRed && isBlue then
-                                    [ H.div [ A.class "redblue" ] [] ]
-
-                                else if isRed then
-                                    [ H.div [ A.class "red" ] [] ]
-
-                                else if isBlue then
-                                    [ H.div [ A.class "blue" ] [] ]
-
-                                else
-                                    []
-                               )
-                    )
+                List.map (keyedCharWrapper Nothing st) team
             , H.div [ A.class "space" ] []
             , H.div [ A.id "underTeam", A.class "parchment" ] <|
                 Render.chakraTotals costs
@@ -900,6 +852,75 @@ listWar class war =
         |> Set.toList
         >> List.map (H.text >> List.singleton >> H.p [])
         >> H.div [ A.class class ]
+
+
+keyedCharWrapper : Maybe Character -> Model -> Character -> ( String, Html Msg )
+keyedCharWrapper mchar st char =
+    ( characterName char, charWrapper mchar st char )
+
+
+charWrapper : Maybe Character -> Model -> Character -> Html Msg
+charWrapper mchar st char =
+    let
+        isOn =
+            case mchar of
+                Just onChar ->
+                    onChar.ident == char.ident
+
+                Nothing ->
+                    False
+
+        charClass =
+            if isOn then
+                "char on"
+
+            else if not <| locked st.unlocked char then
+                "char click"
+
+            else if affordable st.user char then
+                "char locked buy"
+
+            else
+                "char locked"
+
+        isRed =
+            char |> belongsTo st.red
+
+        isBlue =
+            char |> belongsTo st.blue
+    in
+    H.div [ A.class "charWrapper" ] <|
+        Render.charIcon char
+            [ E.onClick << Preview <| PreviewChar char
+            , A.class charClass
+            ]
+            :: List.filterMap identity
+                [ if Maybe.isNothing st.user || locked st.unlocked char then
+                    Nothing
+
+                  else if Set.member char.ident st.teamSet then
+                    Just <| H.button [ A.class "remove", E.onClick <| ToggleTeam char ] []
+
+                  else if List.length st.team == Game.teamSize then
+                    Nothing
+
+                  else
+                    Just <| H.button [ A.class "add", E.onClick <| ToggleTeam char ] []
+                , if Maybe.isJust mchar then
+                    Nothing
+
+                  else if isRed && isBlue then
+                    Just <| H.div [ A.class "redblue" ] []
+
+                  else if isRed then
+                    Just <| H.div [ A.class "red" ] []
+
+                  else if isBlue then
+                    Just <| H.div [ A.class "blue" ] []
+
+                  else
+                    Nothing
+                ]
 
 
 previewBox : Model -> Html Msg
@@ -1003,43 +1024,7 @@ previewBox st =
                             []
 
                         Just (Nonempty x xs) ->
-                            for (x :: xs) <|
-                                \char_ ->
-                                    ( characterName char_
-                                    , Render.charIcon char_ <|
-                                        if locked st.unlocked char_ then
-                                            [ A.classList
-                                                [ ( "on", char == char_ )
-                                                , ( "noclick locked char", True )
-                                                ]
-                                            , E.onMouseOver << Preview <| PreviewChar char_
-                                            ]
-
-                                        else if
-                                            List.member char_ <|
-                                                case st.stage of
-                                                    Practicing ->
-                                                        st.vs
-
-                                                    _ ->
-                                                        st.team
-                                        then
-                                            [ A.classList
-                                                [ ( "on", char == char_ )
-                                                , ( "noclick disabled char", True )
-                                                ]
-                                            , E.onMouseOver << Preview <| PreviewChar char_
-                                            ]
-
-                                        else
-                                            [ A.classList
-                                                [ ( "on", char == char_ )
-                                                , ( "click char", True )
-                                                ]
-                                            , E.onMouseOver << Preview <| PreviewChar char_
-                                            , E.onClick <| Team Add char_
-                                            ]
-                                    )
+                            List.map (keyedCharWrapper (Just char) st) (x :: xs)
                 , H.h3 [ A.class "charBanner" ] <|
                     [ Render.charIcon char [ A.class "char" ]
                     , if not <| locked st.unlocked char then
@@ -1203,70 +1188,6 @@ listChars st =
                 st.chars.list
                     |> wrap
 
-        charClass char =
-            -- god I wish this language had pattern guards
-            let
-                select =
-                    case st.toggled of
-                        Nothing ->
-                            ""
-
-                        Just toggled ->
-                            if toggled == char then
-                                "selected"
-
-                            else
-                                "deselected"
-
-                lock =
-                    if locked st.unlocked char then
-                        if affordable st.user char then
-                            "locked buy"
-
-                        else
-                            "locked"
-
-                    else if List.member char st.team then
-                        "disabled"
-
-                    else
-                        ""
-            in
-            if String.isEmpty select && String.isEmpty lock then
-                "char click"
-
-            else
-                String.join " " [ "char", select, lock ]
-
-        displayChar char =
-            let
-                isRed =
-                    char |> belongsTo st.red
-
-                isBlue =
-                    char |> belongsTo st.blue
-            in
-            ( characterName char
-            , H.div [ A.class "charWrapper" ] <|
-                Render.charIcon char
-                    [ E.onMouseOver << Preview <| PreviewChar char
-                    , E.onClick <| Team Add char
-                    , A.class <| charClass char
-                    ]
-                    :: (if isRed && isBlue then
-                            [ H.div [ A.class "redblue" ] [] ]
-
-                        else if isRed then
-                            [ H.div [ A.class "red" ] [] ]
-
-                        else if isBlue then
-                            [ H.div [ A.class "blue" ] [] ]
-
-                        else
-                            []
-                       )
-            )
-
         baseAttrs =
             [ A.class "chars", A.class "parchment", A.id "forTeam" ]
 
@@ -1299,10 +1220,9 @@ listChars st =
         , Keyed.node "div"
             [ A.id "teamScroll"
             , A.class "charScroll"
-            , E.onMouseLeave Untoggle
             ]
           <|
-            List.map displayChar displays
+            List.map (keyedCharWrapper Nothing st) displays
         ]
 
 
@@ -1337,11 +1257,7 @@ listVs st =
                 baseAttrs
     in
     H.section attrs
-        [ Keyed.node "div"
-            [ A.class "charScroll"
-            , E.onMouseLeave Untoggle
-            ]
-          <|
+        [ Keyed.node "div" [ A.class "charScroll" ] <|
             List.map displayChar st.chars.list
         ]
 
