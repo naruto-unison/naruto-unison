@@ -16,6 +16,7 @@ module Application.App
   , lastModified
   , unsafeHandler
   , resourcesApp
+  , defaultLayoutWrapper
   ) where
 
 import ClassyPrelude hiding (Handler)
@@ -175,6 +176,22 @@ formatAsLastModified :: UTCTime -> String
 formatAsLastModified = Format.formatTime Format.defaultTimeLocale
     "%a, %d %b %Y %H:%M:%S GMT"
 
+defaultLayoutWrapper :: Widget -> Handler Html
+defaultLayoutWrapper widget = do
+    manalytics <- getsYesod \app -> app.settings.analytics
+    PageContent{pageTitle, pageDescription, pageHead, pageBody} <-
+        widgetToPageContent do
+            $(combineStylesheets 'StaticR [ Static.css_include_main_css
+                                          , Static.css_include_normalize_css
+                                          ])
+            $(widgetFile "global")
+            widget
+    withUrlRenderer
+        $(hamletFile "templates/default-layout/default-layout-wrapper.hamlet")
+    where
+    cookieName     = decodeUtf8 defaultCsrfCookieName
+    csrfHeaderName = decodeUtf8 defaultCsrfHeaderName.foldedCase
+
 instance Yesod App where
     approot :: Approot App
     approot = ApprootRequest \app req ->
@@ -191,7 +208,6 @@ instance Yesod App where
 
     defaultLayout :: Widget -> Handler Html
     defaultLayout widget = do
-        manalytics       <- getsYesod \app -> app.settings.analytics
         mmsg             <- getMessage
         mcurrentRoute    <- getCurrentRoute
         (title, parents) <- breadcrumbs
@@ -200,18 +216,9 @@ instance Yesod App where
 
         let muser = snd <$> mauth
 
-        PageContent{pageTitle, pageDescription, pageHead, pageBody} <-
-            widgetToPageContent do
-                setTitle . toHtml $ title ++ " - Naruto Unison"
-                $(combineStylesheets 'StaticR [ Static.css_include_main_css
-                                              , Static.css_include_normalize_css
-                                              ])
-                $(widgetFile "default-layout/default-layout")
-        withUrlRenderer
-          $(hamletFile "templates/default-layout/default-layout-wrapper.hamlet")
-      where
-        cookieName     = decodeUtf8 defaultCsrfCookieName
-        csrfHeaderName = decodeUtf8 defaultCsrfHeaderName.foldedCase
+        defaultLayoutWrapper do
+            setTitle . toHtml $ title ++ " - Naruto Unison"
+            $(widgetFile "default-layout/default-layout")
 
     authRoute :: App -> Maybe (Route App)
     authRoute _ = Just $ AuthR Auth.LoginR

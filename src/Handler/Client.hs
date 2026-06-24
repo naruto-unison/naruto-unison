@@ -101,15 +101,15 @@ getReanimateR Character{ident, price} = do
 -- | Renders the gameplay client.
 getPlayR :: App.Handler Html
 getPlayR = do
-    mauth       <- Auth.maybeAuthPair
-    (red,blue)  <- liftIO War.today
+    mauth      <- Auth.maybeAuthPair
+    (red,blue) <- liftIO War.today
     let muser = snd <$> mauth
     PlayParams{bg, practice, team, unlocked} <- getPlayParams muser
     when (isJust muser)
         $ liftIO createSystemRandom >>= runReaderT Play.gameSocket
     setCsrfCookie
     token <- reqToken <$> getRequest
-    defaultLayout do
+    App.defaultLayoutWrapper do
         setTitle "Naruto Unison"
         addStylesheet $ App.StaticR Static.css_embeds_css
         $(combineScripts 'App.StaticR [ Static.js_include_progressbar_min_js

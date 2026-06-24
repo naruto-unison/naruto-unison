@@ -1,45 +1,42 @@
 <!-- Page Contents -->
 
-$if mcurrentRoute == Just PlayR
-  ^{widget}
-$else
-  $maybe msg <- mmsg
-    <div .alert.alert-info #message>
-      #{msg}
+$maybe msg <- mmsg
+  <div .alert.alert-info #message>
+    #{msg}
 
-  <header #sitenav>
-    <aside>
-      <img src=/img/logo.png>
-    <nav>
-      $maybe currentRoute <- mcurrentRoute
-        $forall (dest, name) <- navLinks
-          $if currentRoute == dest
-            <span #current>#{name}
-          $elseif origin currentRoute == dest
-            <a #current href=@{dest}>#{name}
-          $else
-            <a href=@{dest}>#{name}
-      $nothing
-        $forall (dest, name) <- navLinks
+<header #sitenav>
+  <aside>
+    <img src=/img/logo.png>
+  <nav>
+    $maybe currentRoute <- mcurrentRoute
+      $forall (dest, name) <- navLinks
+        $if currentRoute == dest
+          <span #current>#{name}
+        $elseif origin currentRoute == dest
+          <a #current href=@{dest}>#{name}
+        $else
           <a href=@{dest}>#{name}
-    <aside>
-      <div>
-        $maybe User{name} <- muser
-          <a href=@{ProfileR name}>Profile
-        $nothing
-          <a href=@{AuthR Auth.LoginR}>Login
-      <a href=@{PlayR}>
-        <button>Play Now
+    $nothing
+      $forall (dest, name) <- navLinks
+        <a href=@{dest}>#{name}
+  <aside>
+    <div>
+      $maybe User{name} <- muser
+        <a href=@{ProfileR name}>Profile
+      $nothing
+        <a href=@{AuthR Auth.LoginR}>Login
+    <a href=@{PlayR}>
+      <button>Play Now
 
-  <main>
+<main>
 
-    $if mcurrentRoute /= Just HomeR
-      <nav #breadcrumb>
-        <ul>
-          $forall (href, text) <- parents
-            <li>
-              <a href=@{href}>#{text}
-          <li .active>
-            #{title}
+  $if mcurrentRoute /= Just HomeR
+    <nav #breadcrumb>
+      <ul>
+        $forall (href, text) <- parents
+          <li>
+            <a href=@{href}>#{text}
+        <li .active>
+          #{title}
 
-    ^{widget}
+  ^{widget}

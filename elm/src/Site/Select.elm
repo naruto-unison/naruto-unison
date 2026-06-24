@@ -1040,7 +1040,7 @@ previewBox st =
                                             , E.onClick <| Team Add char_
                                             ]
                                     )
-                , H.h3 [] <|
+                , H.h3 [ A.class "charBanner" ] <|
                     [ Render.charIcon char [ A.class "char" ]
                     , if not <| locked st.unlocked char then
                         H.aside [] []

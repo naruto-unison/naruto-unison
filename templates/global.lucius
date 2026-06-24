@@ -1,0 +1,198 @@
+a,
+a sup,
+.skill {
+    color: #007acc;
+    text-decoration: none;
+}
+
+a:active,
+a:focus {
+    outline-style: none;
+}
+article h1 sup,
+article h2 sup,
+article h3 sup,
+article h4 sup,
+article h5 sup,
+article h6 sup {
+  margin-left: 1px;
+}
+
+article sup {
+  margin-left: -4px;
+}
+
+body,
+html {
+    width: 100%;
+    height: 100%;
+}
+
+.chakra {
+    display: inline-block;
+    height: 0.6em;
+    width: 0.6em;
+    border: 1px solid #222;
+    margin-left: 3px;
+}
+.chakra.blood {
+    background-color: #f0000a;
+}
+.chakra.gen {
+    background-color: #ffffff;
+}
+.chakra.nin {
+    background-color: #00a9d5;
+}
+.chakra.tai {
+    background-color: #0cdd2c;
+}
+.chakra.rand {
+    background-color: #000000;
+}
+
+.char {
+    display: inline-block;
+    outline: 1px solid #000;
+    margin: 5px;
+    vertical-align: top;
+}
+
+.complete {
+    color: rgb(0, 150, 0);
+}
+.incomplete {
+    color: rgb(200, 0, 0);
+}
+
+dl {
+    margin-top: 0;
+}
+dt {
+    float: left;
+    width: 6.5em;
+    font-weight: bold;
+}
+dt::after {
+    content: ":";
+}
+dd {
+    margin-bottom: 0.25em;
+    margin-left: 6.5em;
+}
+
+.dna::after,
+.locked::after {
+    margin-left: 0.15em;
+    vertical-align: middle;
+    filter: saturate(0) brightness(0);
+    line-height: 0;
+    font-weight: normal;
+}
+.dna::after {
+    content: "🧬";
+}
+.locked::after {
+    content: "🔒";
+}
+
+.extra {
+    color: #606060;
+    margin-left: 0.4em;
+}
+
+h1,
+h2 {
+    text-transform: uppercase;
+}
+h2,
+h3,
+h4 {
+    margin-bottom: 0.3em;
+}
+h3,
+h4 {
+    margin-top: 0.5em;
+}
+h1 {
+    font-size: 1.6em;
+    text-align: center;
+}
+h3 {
+    font-size: 1.25em;
+}
+h4 {
+    font-size: 1.15em;
+}
+h1 aside,
+h2 aside,
+h3 aside,
+h4 aside,
+h5 aside,
+h6 aside {
+    float: right;
+    font-weight: normal !important;
+    opacity: 0.9;
+}
+
+i {
+    color: #600;
+}
+
+input,
+textarea {
+    background-color: #ddd;
+    border: 1px solid #888;
+}
+
+li {
+    margin-top: 0.5em;
+    line-height: 1.4em;
+
+    > dt,
+    > dd {
+        display: contents;
+    }
+}
+
+.skillClasses {
+    font-weight: normal;
+    color: #606060;
+}
+
+sup {
+    font-style: italic;
+    font-size: 0.7em;
+    display: inline-block;
+    text-decoration: none !important;
+}
+
+.space {
+    flex-grow: 1;
+}
+
+ul {
+    margin: 0;
+    padding: 0 1em;
+
+    ul {
+        padding-left: 1.5em;
+        padding-bottom: 0.2em;
+    }
+}
+
+.wrap {
+    white-space: nowrap;
+}
+
+.Admin {
+    color: #151c77;
+    border-color: #151c77;
+    outline-color: #151c77;
+}
+.Moderator {
+    color: #2d7715;
+    border-color: #2d7715;
+    outline-color: #2d7715;
+}
+
