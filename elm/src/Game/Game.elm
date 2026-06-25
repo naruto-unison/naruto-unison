@@ -18,7 +18,6 @@ import Import.Flags exposing (Characters)
 import Import.Model as Player exposing (Category(..), Channel, Channeling(..), Character, Effect, Ninja, Player(..), Privilege(..), Skill, Target(..), Turn, User)
 import List.Extra as List
 import Set
-import Util exposing (elem)
 
 
 type alias Act =
@@ -57,13 +56,13 @@ targets slot skill =
             skill.start ++ skill.effects
 
         enemy =
-            Enemy |> elem possibleTargets
+            List.member Enemy possibleTargets
 
         ally =
-            Ally |> elem possibleTargets
+            List.member Ally possibleTargets
 
         xally =
-            XAlly |> elem possibleTargets
+            List.member XAlly possibleTargets
 
         rem =
             if slot >= teamSize then
@@ -197,7 +196,7 @@ toggles x =
 
         Just y ->
             targets y.user y.skill
-                |> List.filter (elem y.targets)
+                |> List.filter (\target -> List.member target y.targets)
 
 
 rank : User -> String

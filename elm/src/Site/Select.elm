@@ -25,7 +25,7 @@ import Sound exposing (Sound)
 import Task exposing (Task)
 import Tuple exposing (first, second)
 import Url
-import Util exposing (ListChange(..), elem, pure, showErr)
+import Util exposing (ListChange(..), pure, showErr)
 
 
 for : List a -> (a -> b) -> List b
@@ -386,7 +386,7 @@ component ports =
 
                 Vs Add char ->
                     withSound Sound.Click <|
-                        if char |> elem st.vs then
+                        if List.member char st.vs then
                             st
 
                         else if List.length st.vs < Game.teamSize then

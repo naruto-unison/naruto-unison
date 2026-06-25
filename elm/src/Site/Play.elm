@@ -20,7 +20,7 @@ import Set exposing (Set)
 import Site.Render as Render
 import Sound exposing (Sound)
 import Task
-import Util exposing (ListChange(..), elem, pure, showErr)
+import Util exposing (ListChange(..), pure, showErr)
 
 
 type Viewable
@@ -840,14 +840,14 @@ renderCharacter characters acted toggle highlighted chakras turn onTeam b =
                 && turn
                 && b.ninja.health
                 > 0
-                && not (b.ninja.slot |> elem acted)
+                && not (List.member b.ninja.slot acted)
 
         toggled =
-            b.ninja.slot |> elem (Game.toggles toggle)
+            List.member b.ninja.slot (Game.toggles toggle)
 
         mainMeta =
             [ A.classList
-                [ ( "highlighted", b.ninja.slot |> elem highlighted )
+                [ ( "highlighted", List.member b.ninja.slot highlighted )
                 , ( "toggled skill", toggled )
                 ]
             , E.onMouseOver << View <| ViewCharacter b.character

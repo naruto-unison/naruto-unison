@@ -1,6 +1,5 @@
 module Util exposing
     ( ListChange(..)
-    , elem
     , groupBy
     , illegal
     , pure
@@ -12,11 +11,6 @@ module Util exposing
 import Http exposing (Error(..))
 import List.Extra as List
 import List.Nonempty exposing (Nonempty(..))
-
-
-elem : List a -> a -> Bool
-elem xs x =
-    List.member x xs
 
 
 groupBy : (a -> a -> Bool) -> List a -> List (Nonempty a)
@@ -61,7 +55,7 @@ showErr err =
 
 shorten : String -> String
 shorten =
-    String.filter (not << elem illegal)
+    String.filter (\c -> not <| List.member c illegal)
         >> String.map unaccent
 
 
