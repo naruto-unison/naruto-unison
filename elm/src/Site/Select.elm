@@ -602,12 +602,12 @@ userBox st showLogin costs team =
                         , A.href "/home"
                         ]
                         [ H.text "Main Site" ]
-                    , H.a (meta <| Enqueue Quick)
-                        [ H.text "Quick" ]
-                    , H.a (meta <| SetStage Searching)
-                        [ H.text "Private" ]
-                    , H.a (meta <| SetStage Practicing)
-                        [ H.text "Practice" ]
+                    , H.button (meta <| Enqueue Quick)
+                        [ H.text "Start Quick Match" ]
+                    , H.button (meta <| SetStage Searching)
+                        [ H.text "Start Private Match" ]
+                    , H.button (meta <| SetStage Practicing)
+                        [ H.text "Start Practice Match" ]
                     ]
 
                 Nothing ->
@@ -678,72 +678,70 @@ userBox st showLogin costs team =
                                             "register"
                                        )
                             ]
-                            << List.map second
                           <|
-                            List.filter first
-                                [ ( True
-                                  , H.input
-                                        [ A.type_ "hidden"
-                                        , A.name st.csrfParam
-                                        , A.value st.csrf
-                                        ]
-                                        []
-                                  )
-                                , ( True
-                                  , H.div []
-                                        [ H.input
-                                            [ A.class "email"
-                                            , A.name "email"
-                                            , A.type_ "email"
-                                            , A.required True
-
-                                            -- , A.autofocus   True
-                                            , A.placeholder "Email"
-                                            ]
-                                            []
-                                        ]
-                                  )
-                                , ( showLogin
-                                  , H.div []
-                                        [ H.input
-                                            [ A.class "password"
-                                            , A.name "password"
-                                            , A.type_ "password"
-                                            , A.required True
-                                            , A.placeholder "Password"
-                                            ]
-                                            []
-                                        ]
-                                  )
-                                , ( showLogin
-                                  , H.div [ A.id "controls" ]
-                                        [ H.button
-                                            [ A.class "playButton click"
-                                            , A.type_ "submit"
-                                            ]
-                                            [ H.text "Log in" ]
-                                        , H.a
-                                            [ A.class "click"
-                                            , E.onClick SwitchLogin
-                                            ]
-                                            [ H.text "Register" ]
-                                        ]
-                                  )
-                                , ( not showLogin
-                                  , H.div [ A.id "controls" ]
-                                        [ H.a
-                                            [ A.class "click"
-                                            , E.onClick SwitchLogin
-                                            ]
-                                            [ H.text "Log in" ]
-                                        , H.button
-                                            [ A.class "playButton click"
-                                            , A.type_ "submit"
-                                            ]
-                                            [ H.text "Register" ]
-                                        ]
-                                  )
+                            [ H.input
+                                [ A.type_ "hidden"
+                                , A.name st.csrfParam
+                                , A.value st.csrf
                                 ]
+                                []
+                            , H.div []
+                                [ H.input
+                                    [ A.class "email"
+                                    , A.name "email"
+                                    , A.type_ "email"
+                                    , A.required True
+
+                                    -- , A.autofocus   True
+                                    , A.placeholder "Email"
+                                    ]
+                                    []
+                                ]
+                            ]
+                                ++ (if showLogin then
+                                        [ H.div []
+                                            [ H.input
+                                                [ A.class "password"
+                                                , A.name "password"
+                                                , A.type_ "password"
+                                                , A.required True
+                                                , A.placeholder "Password"
+                                                ]
+                                                []
+                                            ]
+                                        , H.div [ A.class "space" ] []
+                                        , H.div [ A.id "controls" ]
+                                            [ H.button
+                                                [ A.class "playButton click"
+                                                , A.type_ "submit"
+                                                ]
+                                                [ H.text "Log in" ]
+                                            , H.button
+                                                [ A.class "playButton click switch"
+                                                , A.type_ "button"
+                                                , E.onClick SwitchLogin
+                                                ]
+                                                [ H.text "Register" ]
+                                            ]
+                                        ]
+
+                                    else
+                                        [ H.div [ A.class "space" ] []
+                                        , H.div [ A.id "controls" ]
+                                            [ H.button
+                                                [ A.class "playButton click switch"
+                                                , E.onClick SwitchLogin
+                                                , A.type_ "button"
+                                                ]
+                                                [ H.text "Log in" ]
+                                            , H.button
+                                                [ A.class "playButton click"
+                                                , A.type_ "submit"
+                                                ]
+                                                [ H.text "Register" ]
+                                            ]
+                                        ]
+                                   )
                         ]
     in
     H.header []
@@ -1115,7 +1113,7 @@ previewSkill visibles char slot skills i =
                 vPrev =
                     if i > 0 then
                         Just <|
-                            H.a
+                            H.button
                                 [ A.class "prevSkill click"
                                 , E.onClick <| Alternate slot -1
                                 ]
@@ -1127,7 +1125,7 @@ previewSkill visibles char slot skills i =
                 vNext =
                     if i + 1 < List.length skills then
                         Just <|
-                            H.a
+                            H.button
                                 [ A.class "nextSkill click"
                                 , E.onClick <| Alternate slot 1
                                 ]

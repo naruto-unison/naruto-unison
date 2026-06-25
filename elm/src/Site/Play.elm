@@ -597,9 +597,9 @@ renderChakra turn exchange chakras (ChakraPair chakra spend amount random) =
         [ H.div meta []
         , H.span []
             [ H.text <| String.fromInt amount ]
-        , H.a (clickIf (turn && random > 0) "more" << Spend <| Chakra.negate spend)
+        , H.button (clickIf (turn && random > 0) "more" << Spend <| Chakra.negate spend)
             [ H.text "+" ]
-        , H.a (clickIf (turn && amount > 0) "less" <| Spend spend)
+        , H.button (clickIf (turn && amount > 0) "less" <| Spend spend)
             [ H.text "—" ]
         , H.div [ A.class "chakra rand" ] []
         , H.span []
@@ -1061,7 +1061,7 @@ renderView visibles characters viewing =
                                                     [ vPrev matches i
                                                         |> Maybe.map
                                                             (\v ->
-                                                                H.a
+                                                                H.button
                                                                     [ A.class "prevSkill click"
                                                                     , E.onClick
                                                                         << View
@@ -1075,7 +1075,7 @@ renderView visibles characters viewing =
                                                     , vNext matches i
                                                         |> Maybe.map
                                                             (\v ->
-                                                                H.a
+                                                                H.button
                                                                     [ A.class "nextSkill click"
                                                                     , E.onClick
                                                                         << View

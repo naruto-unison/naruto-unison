@@ -67,11 +67,11 @@ a:hover {
     border: 1px solid #e00 !important;
 }
 
-#playchakra a.click {
+#playchakra .click {
     color: #fff;
 }
 .userForm a,
-#playchakra a.click:hover {
+#playchakra .click:hover {
     color: #00a;
 }
 .userForm a:hover {
@@ -170,6 +170,14 @@ body {
 
 button {
     cursor: revert;
+}
+
+#controls {
+    display: flex;
+
+    button.switch {
+        border-color: white;
+    }
 }
 
 button.scroll {
@@ -865,10 +873,6 @@ li F {
     user-select: none;
 }
 
-#mainsite {
-    padding-left: 1em;
-    padding-right: 1em;
-}
 #mainsite::before,
 #mainsite::after {
     content: none;
@@ -903,6 +907,9 @@ li F {
     color: #000;
     -webkit-text-stroke: 1px rgba(255, 255, 255, 0.75);
     text-shadow: 0 0 1px rgba(255, 255, 255, 0.75);
+    appearance: none;
+    background: none;
+    border: none;
 }
 .nextSkill {
     right: 5px;
@@ -961,16 +968,14 @@ p {
     border: 2px solid #dc2e3c;
     color: #000 !important;
 }
-a.playButton {
+.playButton {
     display: block;
     text-decoration: none;
     height: 17px;
 }
-a.playButton::before {
-    content: "Start ";
-}
-a.playButton::after {
-    content: " Match";
+.playButton {
+    box-sizing: initial;
+    width: 100%;
 }
 .playButton.click:hover,
 #updateButton.click:hover,
@@ -993,17 +998,22 @@ a.playButton::after {
     font-size: 1.3em;
     padding-left: -27px;
 
-    a {
+    button {
+        appearance: none;
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0;
         color: #000;
         -webkit-user-select: none;
         user-select: none;
         pointer-events: all;
         margin: 0.15em;
     }
-    a.more {
+    button.more {
         margin-left: -0.45em;
     }
-    a.less {
+    button.less {
         margin-right: 0.55em;
     }
 
@@ -1454,7 +1464,11 @@ svg {
 }
 #registerForm,
 #loginForm {
-    margin-top: 8px;
+    padding-top: 8px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-sizing: border-box;
 }
 
 .userimg {
@@ -1589,13 +1603,13 @@ svg {
 }
 
 @media (max-width: 830px) {
-    a.playButton {
+    .playButton {
         font-size: 0.8em;
     }
     #userBox {
         width: 240px;
     }
-    a.playButton::before {
+    .playButton::before {
         content: none;
     }
 }
@@ -1612,16 +1626,12 @@ svg {
     #userBox {
         width: 168px;
     }
-    #mainsite {
-        padding-left: 0;
-        padding-right: 0;
-    }
-    a.playButton::after {
+    .playButton::after {
         content: none;
     }
 }
 @media (max-width: 630px) {
-    a.playButton {
+    .playButton {
         font-size: 0.6em;
     }
     #userBox {
