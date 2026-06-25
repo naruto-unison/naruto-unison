@@ -28,11 +28,6 @@ import Url
 import Util exposing (ListChange(..), pure, showErr)
 
 
-for : List a -> (a -> b) -> List b
-for xs f =
-    List.map f xs
-
-
 wraparound : Bool -> Int -> List a -> List a
 wraparound wrapping i xs =
     let
@@ -806,15 +801,17 @@ vsBox st =
             [ H.text "VS: " ]
         , Keyed.node "div"
             [ A.id "vsButtons", A.class "select" ]
-            << for st.vs
           <|
-            \char ->
-                ( characterName char
-                , Render.charIcon char
-                    [ A.class "char click"
-                    , E.onClick <| Vs Delete char
-                    ]
+            List.map
+                (\char ->
+                    ( characterName char
+                    , Render.charIcon char
+                        [ A.class "char click"
+                        , E.onClick <| Vs Delete char
+                        ]
+                    )
                 )
+                st.vs
         ]
 
 
@@ -983,19 +980,21 @@ previewBox st =
                         ]
                     , H.section
                         [ A.id "avatars" ]
-                        << for st.avatars
                       <|
-                        \avatar ->
-                            if st.form.avatar == avatar then
-                                H.img [ A.src avatar, A.class "noclick" ] []
+                        List.map
+                            (\avatar ->
+                                if st.form.avatar == avatar then
+                                    H.img [ A.src avatar, A.class "noclick" ] []
 
-                            else
-                                H.img
-                                    [ A.src avatar
-                                    , A.class "click"
-                                    , E.onClick << UpdateForm <| Avatar avatar
-                                    ]
-                                    []
+                                else
+                                    H.img
+                                        [ A.src avatar
+                                        , A.class "click"
+                                        , E.onClick << UpdateForm <| Avatar avatar
+                                        ]
+                                        []
+                            )
+                            st.avatars
                     , H.button
                         [ A.id "updateButton"
                         , A.class "click"
