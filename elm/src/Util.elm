@@ -1,26 +1,49 @@
 module Util exposing
     ( ListChange(..)
+    , clickIf
     , groupBy
     , illegal
     , pure
+    , reverseIf
     , shorten
     , showBool
     , showErr
     , unaccent
     )
 
+import Html as H
+import Html.Attributes as A
+import Html.Events as E
 import Http exposing (Error(..))
 import List.Extra as List
 import List.Nonempty exposing (Nonempty(..))
 
 
+clickIf : Bool -> String -> msg -> List (H.Attribute msg)
+clickIf condition class command =
+    if condition then
+        [ A.class <| class ++ " click", E.onClick command ]
+
+    else
+        [ A.class <| class ++ " noclick" ]
+
+
+reverseIf : Bool -> List a -> List a
+reverseIf condition xs =
+    if condition then
+        List.reverse xs
+
+    else
+        xs
+
+
 groupBy : (a -> a -> Bool) -> List a -> List (Nonempty a)
 groupBy pred xxs =
-    case List.uncons xxs of
-        Nothing ->
+    case xxs of
+        [] ->
             []
 
-        Just ( x, xs ) ->
+        x :: xs ->
             (Nonempty x <| List.filter (pred x) xs)
                 :: (groupBy pred <| List.filter (not << pred x) xs)
 

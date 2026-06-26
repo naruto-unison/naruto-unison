@@ -8,14 +8,16 @@ module Game.Game exposing
     , rank
     , removable
     , root
+    , targeted
     , targets
     , teamSize
     , toggles
+    , warInverse
     )
 
 import Dict
 import Import.Flags exposing (Characters)
-import Import.Model as Player exposing (Category(..), Channel, Channeling(..), Character, Effect, Ninja, Player(..), Privilege(..), Skill, Target(..), Turn, User)
+import Import.Model as Player exposing (Category(..), Channel, Channeling(..), Character, Effect, Ninja, Player(..), Privilege(..), Skill, Target(..), Turn, User, War(..))
 import List.Extra as List
 import Set
 
@@ -27,6 +29,11 @@ type alias Act =
     , skill : Skill
     , targets : List Int
     }
+
+
+targeted : Int -> Act -> Act
+targeted target act =
+    { act | target = target }
 
 
 died : Player -> Turn -> Turn -> Bool
@@ -120,6 +127,16 @@ opponent player =
 
         Player.B ->
             Player.A
+
+
+warInverse : War -> War
+warInverse war =
+    case war of
+        Red ->
+            Blue
+
+        Blue ->
+            Red
 
 
 forfeit : Player -> Turn -> Turn

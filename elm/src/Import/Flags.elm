@@ -123,7 +123,7 @@ makeCharacters chars =
                     makeShortName char
 
         groupList =
-            groupBy (\x y -> shortName x == shortName y) chars
+            chars |> groupBy (\x y -> shortName x == shortName y)
     in
     { list =
         chars

@@ -42,6 +42,24 @@ type alias Form =
     }
 
 
+createForm : Maybe User -> Form
+createForm muser =
+    case muser of
+        Nothing ->
+            { name = ""
+            , background = ""
+            , condense = False
+            , avatar = ""
+            }
+
+        Just user ->
+            { name = user.name
+            , background = Maybe.withDefault "" user.background
+            , condense = user.condense
+            , avatar = user.avatar
+            }
+
+
 type FormUpdate
     = Name String
     | Background String
@@ -52,17 +70,17 @@ type FormUpdate
 updateForm : FormUpdate -> Form -> Form
 updateForm msg form =
     case msg of
-        Name x ->
-            { form | name = x }
+        Name name ->
+            { form | name = name }
 
-        Background x ->
-            { form | background = x }
+        Background background ->
+            { form | background = background }
 
-        Condense x ->
-            { form | condense = x }
+        Condense condense ->
+            { form | condense = condense }
 
-        Avatar x ->
-            { form | avatar = x }
+        Avatar avatar ->
+            { form | avatar = avatar }
 
 
 type Stage
@@ -133,12 +151,12 @@ type alias Model =
 
 
 size : Model -> Int
-size st =
-    if st.condense then
-        List.length st.chars.groupList
+size { condense, chars } =
+    if condense then
+        List.length chars.groupList
 
     else
-        List.length st.chars.list
+        List.length chars.list
 
 
 alterTeam : (List Character -> List Character) -> Model -> Model
@@ -212,35 +230,35 @@ apiUrl baseUrl endpoint fragments =
 
 
 formUrl : String -> Form -> String
-formUrl baseUrl form =
+formUrl baseUrl { name, condense, background, avatar } =
     apiUrl baseUrl
         "update"
-        [ form.name
-        , showBool form.condense
-        , "b" ++ form.background
-        , Url.percentEncode form.avatar
+        [ name
+        , showBool condense
+        , "b" ++ background
+        , Url.percentEncode avatar
         ]
 
 
 updateUrl : Model -> String
-updateUrl st =
-    formUrl st.url st.form
+updateUrl { url, form } =
+    formUrl url form
 
 
 missionUrl : Model -> Character -> String
-missionUrl st char =
-    apiUrl st.url "mission" [ char.ident ]
+missionUrl { url } char =
+    apiUrl url "mission" [ char.ident ]
 
 
 reanimateUrl : Model -> Character -> String
-reanimateUrl st char =
-    apiUrl st.url "reanimate" [ char.ident ]
+reanimateUrl { url } char =
+    apiUrl url "reanimate" [ char.ident ]
 
 
 practiceUrl : Model -> String
-practiceUrl st =
-    apiUrl st.url "practicequeue" <|
-        List.map .ident (st.team.list ++ st.vs)
+practiceUrl { url, team, vs } =
+    apiUrl url "practicequeue" <|
+        List.map .ident (team.list ++ vs)
 
 
 queueMessage : Queue -> Team -> String
@@ -249,8 +267,8 @@ queueMessage queue team =
 
 
 scrollSizeFromViewport : Dom.Viewport -> Int
-scrollSizeFromViewport dom =
-    floor (dom.viewport.width / 68) * floor (dom.viewport.height / 64)
+scrollSizeFromViewport { viewport } =
+    floor (viewport.width / 68) * floor (viewport.height / 64)
 
 
 scrollViewport : Int -> Cmd Msg
@@ -269,7 +287,7 @@ scrollViewport signum =
 
 
 applyScroll : Int -> Int -> Int -> Int
-applyScroll x index numChars =
+applyScroll scrollBy index numChars =
     if index >= numChars then
         0
 
@@ -279,10 +297,10 @@ applyScroll x index numChars =
     else
         let
             rem =
-                numChars |> remainderBy -x
+                numChars |> remainderBy -scrollBy
         in
         if rem == 0 then
-            numChars + x
+            numChars + scrollBy
 
         else
             numChars - rem
@@ -338,21 +356,7 @@ component ports =
 
                     Nothing ->
                         False
-            , form =
-                case flags.user of
-                    Nothing ->
-                        { name = ""
-                        , background = ""
-                        , condense = False
-                        , avatar = ""
-                        }
-
-                    Just user ->
-                        { name = user.name
-                        , background = Maybe.withDefault "" user.background
-                        , condense = user.condense
-                        , avatar = user.avatar
-                        }
+            , form = createForm flags.user
             }
 
         view : Model -> Html Msg
@@ -577,17 +581,16 @@ affordable muser char =
                 user.dna >= char.price
 
 
-failWarning : Maybe String -> List (Html msg) -> List (Html msg)
-failWarning x xs =
-    case x of
+renderWarning : Maybe String -> List (Html msg)
+renderWarning mwarning =
+    case mwarning of
         Nothing ->
-            xs
+            []
 
         Just warning ->
-            xs
-                ++ [ H.span [ A.id "userfail" ]
-                        [ H.text warning ]
-                   ]
+            [ H.span [ A.id "userfail" ]
+                [ H.text warning ]
+            ]
 
 
 
@@ -617,7 +620,7 @@ renderWarBadge war char =
 
 
 charWrapper : Maybe Character -> Model -> Character -> Html Msg
-charWrapper mchar st char =
+charWrapper mchar { team, unlocked, user, war } char =
     let
         isOn =
             case mchar of
@@ -631,10 +634,10 @@ charWrapper mchar st char =
             if isOn then
                 "char on"
 
-            else if not <| locked st.unlocked char then
+            else if not <| locked unlocked char then
                 "char click"
 
-            else if affordable st.user char then
+            else if affordable user char then
                 "char locked buy"
 
             else
@@ -646,13 +649,13 @@ charWrapper mchar st char =
             , A.class charClass
             ]
             :: Maybe.values
-                [ if Maybe.isNothing st.user || locked st.unlocked char then
+                [ if Maybe.isNothing user || locked unlocked char then
                     Nothing
 
-                  else if Set.member char.ident st.team.set then
+                  else if Set.member char.ident team.set then
                     Just <| H.button [ A.class "remove", E.onClick <| ToggleTeam char ] []
 
-                  else if Set.size st.team.set == Game.teamSize then
+                  else if Set.size team.set == Game.teamSize then
                     Nothing
 
                   else
@@ -661,7 +664,7 @@ charWrapper mchar st char =
                     Nothing
 
                   else
-                    renderWarBadge st.war char
+                    renderWarBadge war char
                 ]
 
 
@@ -927,27 +930,27 @@ renderVsBox stage vs =
 renderSearchBox : Maybe String -> String -> Html Msg
 renderSearchBox error search =
     H.section [ A.id "vs", A.class "parchment" ] <|
-        failWarning error
-            [ H.button
-                [ A.class "parchment playButton click"
-                , E.onClick <| Enqueue Private
-                ]
-                [ H.text "Ready" ]
-            , H.button
-                [ A.class "parchment playButton click"
-                , E.onClick <| SetStage Browsing
-                ]
-                [ H.text "Cancel" ]
-            , H.span []
-                [ H.text "VS: " ]
-            , H.input
-                [ A.type_ "text"
-                , A.name "search"
-                , A.value search
-                , E.onInput SetSearch
-                ]
-                []
+        [ H.button
+            [ A.class "parchment playButton click"
+            , E.onClick <| Enqueue Private
             ]
+            [ H.text "Ready" ]
+        , H.button
+            [ A.class "parchment playButton click"
+            , E.onClick <| SetStage Browsing
+            ]
+            [ H.text "Cancel" ]
+        , H.span []
+            [ H.text "VS: " ]
+        , H.input
+            [ A.type_ "text"
+            , A.name "search"
+            , A.value search
+            , E.onInput SetSearch
+            ]
+            []
+        ]
+            ++ renderWarning error
 
 
 
@@ -993,17 +996,17 @@ renderUserPreview avatars error form =
     H.article [ A.class "parchment" ]
         [ H.div [ A.id "accountSettings" ]
             [ H.p [] <|
-                failWarning error
-                    [ H.label []
-                        [ H.text "Name" ]
-                    , H.input
-                        [ A.type_ "text"
-                        , A.name "name"
-                        , A.value form.name
-                        , E.onInput <| UpdateForm << Name
-                        ]
-                        []
+                [ H.label []
+                    [ H.text "Name" ]
+                , H.input
+                    [ A.type_ "text"
+                    , A.name "name"
+                    , A.value form.name
+                    , E.onInput <| UpdateForm << Name
                     ]
+                    []
+                ]
+                    ++ renderWarning error
             , H.p []
                 [ H.label []
                     [ H.text "Background" ]
@@ -1128,23 +1131,23 @@ renderCharPreview st char =
 
 
 renderObjectivePreview : ObjectiveProgress -> Html Msg
-renderObjectivePreview x =
+renderObjectivePreview { character, desc, goal, progress } =
     H.li [] <|
         List.concat
-            [ case x.character of
+            [ case character of
                 Nothing ->
                     []
 
                 Just char ->
                     [ H.text <| "As " ++ char ++ ": " ]
-            , Render.desc x.desc
-            , if x.progress < x.goal then
+            , Render.desc desc
+            , if progress < goal then
                 [ H.span [ A.class "incomplete" ]
                     [ H.text <|
                         " "
-                            ++ String.fromInt x.progress
+                            ++ String.fromInt progress
                             ++ "/"
-                            ++ String.fromInt x.goal
+                            ++ String.fromInt goal
                     ]
                 ]
 
@@ -1152,9 +1155,9 @@ renderObjectivePreview x =
                 [ H.span [ A.class "complete" ]
                     [ H.text <|
                         " "
-                            ++ String.fromInt x.goal
+                            ++ String.fromInt goal
                             ++ "/"
-                            ++ String.fromInt x.goal
+                            ++ String.fromInt goal
                     ]
                 ]
             ]
@@ -1199,7 +1202,7 @@ renderSkillPreview visibles char slot skills i =
                           , String.fromInt skill.charges ++ " charges."
                           )
                         , ( skill.charges == 1
-                          , String.fromInt skill.charges ++ " charge."
+                          , "1 charge."
                           )
                         , ( skill.cooldown > 0
                           , "CD: " ++ String.fromInt skill.cooldown
@@ -1287,10 +1290,10 @@ renderCharList st =
 
 
 renderVsList : Model -> Html Msg
-renderVsList st =
+renderVsList { chars, stage, vs } =
     let
         charClass char =
-            if List.member char st.vs then
+            if List.member char vs then
                 "char disabled"
 
             else
@@ -1310,7 +1313,7 @@ renderVsList st =
             [ A.class "chars", A.class "parchment full", A.id "forVs" ]
 
         attrs =
-            if st.stage /= Practicing then
+            if stage /= Practicing then
                 A.style "display" "none" :: baseAttrs
 
             else
@@ -1318,5 +1321,5 @@ renderVsList st =
     in
     H.section attrs
         [ Keyed.node "div" [ A.class "charScroll" ] <|
-            List.map displayChar st.chars.list
+            List.map displayChar chars.list
         ]

@@ -11,10 +11,13 @@ module Site.Render exposing
     , name
     , rands
     , scroll
+    , skillCost
+    , skillDuration
     , skillIcon
     , streak
     )
 
+import Game.Chakra as Chakra
 import Game.Detail exposing (Detail)
 import Game.Game as Game
 import Html as H exposing (Html)
@@ -132,6 +135,16 @@ getReanimationName skillName skillClasses =
         Nothing
 
 
+detailIcon : Character -> Detail -> List (H.Attribute msg) -> Html msg
+detailIcon character detail =
+    case getReanimationName detail.skillName detail.classes of
+        Just reanimationName ->
+            iconBase reanimationName detail.name
+
+        Nothing ->
+            icon character detail.name
+
+
 skillIcon : Character -> Skill -> List (H.Attribute msg) -> Html msg
 skillIcon character skill =
     case getReanimationName skill.name skill.classes of
@@ -143,14 +156,42 @@ skillIcon character skill =
             icon character skill.name
 
 
-detailIcon : Character -> Detail -> List (H.Attribute msg) -> Html msg
-detailIcon character detail =
-    case getReanimationName detail.skillName detail.classes of
-        Just reanimationName ->
-            iconBase reanimationName detail.name
+skillCost : Chakras -> List (Html msg)
+skillCost cost =
+    case Chakra.total cost of
+        0 ->
+            [ H.text "Free" ]
 
-        Nothing ->
-            icon character detail.name
+        _ ->
+            chakras cost
+
+
+skillDuration : Channeling -> String
+skillDuration dur =
+    let
+        showDur mdur =
+            case duration "" mdur of
+                "" ->
+                    ""
+
+                s ->
+                    " " ++ s
+    in
+    case dur of
+        Instant ->
+            "Instant"
+
+        Passive ->
+            "Instant"
+
+        Action y ->
+            "Action" ++ showDur y
+
+        Control y ->
+            "Control" ++ showDur y
+
+        Ongoing y ->
+            "Ongoing" ++ showDur y
 
 
 name : Character -> List (Html msg)
@@ -172,14 +213,14 @@ name char =
             ]
 
 
-duration : String -> Maybe Int -> List (Html msg)
+duration : String -> Maybe Int -> String
 duration ifEmpty x =
     case x of
         Nothing ->
-            [ H.text ifEmpty ]
+            ifEmpty
 
         Just y ->
-            [ H.text << String.fromInt <| (y + 1) // 2 ]
+            String.fromInt <| (y + 1) // 2
 
 
 classes : Bool -> Set String -> Html msg
@@ -316,14 +357,14 @@ parseDesc =
             Parser.oneOf
                 [ Parser.succeed ()
                     |. Parser.end
-                    |> Parser.map (\_ -> Parser.Done (List.reverse acc))
-                , Parser.succeed (\stmt -> Parser.Loop (stmt :: acc))
+                    |> Parser.map (always << Parser.Done <| List.reverse acc)
+                , Parser.succeed (\stmt -> Parser.Loop <| stmt :: acc)
                     |= Parser.oneOf
                         [ Parser.backtrackable parseSuccess
                         , parseFail
                         ]
                 , Parser.succeed ()
-                    |> Parser.map (\_ -> Parser.Done (List.reverse acc))
+                    |> Parser.map (always << Parser.Done <| List.reverse acc)
                 ]
 
 
