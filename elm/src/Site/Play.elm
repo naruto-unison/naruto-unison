@@ -7,7 +7,7 @@ import Game.Game as Game exposing (Act)
 import Html as H exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
-import Html.Lazy exposing (lazy3, lazy5)
+import Html.Lazy exposing (lazy3, lazy4)
 import Http
 import Import.Flags exposing (Characters, Flags, printFailure)
 import Import.Model as Model exposing (Chakras, Channeling(..), Character, Destructible, Effect, GameInfo, Message(..), Ninja, Player(..), Reward, Skill, Turn, User, War(..))
@@ -20,7 +20,7 @@ import Set exposing (Set)
 import Site.Render as Render
 import Sound exposing (Sound)
 import Task
-import Util exposing (ListChange(..), clickIf, pure, reverseIf, showErr)
+import Util exposing (ListChange(..), clickIf, pure, showErr)
 
 
 type Viewable
@@ -457,44 +457,42 @@ renderTop st characters =
             st.game.inactive
     in
     H.section [ A.id "top" ]
-        [ lazy5 renderUserBox True "account0" st.user st.war playerInactive
+        [ lazy4 renderUserBox "account0" st.user st.war playerInactive
         , lazy3 renderView st.visibles characters st.viewing
-        , lazy5 renderUserBox False "account1" st.vs vsWar vsInactive
+        , lazy4 renderUserBox "account1" st.vs vsWar vsInactive
         ]
 
 
-renderUserBox : Bool -> String -> User -> Maybe War -> Int -> Html Msg
-renderUserBox left id user war inactive =
+renderUserBox : String -> User -> Maybe War -> Int -> Html Msg
+renderUserBox id user war inactive =
     H.section
         [ A.id id
         , E.onMouseOver << View <| ViewUser user
         ]
-    <|
-        reverseIf (not left)
-            [ H.section []
-                [ H.h3 []
-                    [ H.text user.name ]
-                , H.p []
-                    [ H.text <| Game.rank user ]
-                , H.p [ A.class "inactive" ] << List.repeat inactive <| H.text "X"
-                ]
-            , H.div [ A.class "charWrapper" ]
-                [ H.img
-                    [ A.class "charicon"
-                    , A.src user.avatar
-                    ]
-                    []
-                , case war of
-                    Just Red ->
-                        H.div [ A.class "red" ] []
-
-                    Just Blue ->
-                        H.div [ A.class "blue" ] []
-
-                    Nothing ->
-                        H.div [] []
-                ]
+        [ H.section []
+            [ H.h3 []
+                [ H.text user.name ]
+            , H.p []
+                [ H.text <| Game.rank user ]
+            , H.p [ A.class "inactive" ] << List.repeat inactive <| H.text "X"
             ]
+        , H.div [ A.class "charWrapper" ]
+            [ H.img
+                [ A.class "charicon"
+                , A.src user.avatar
+                ]
+                []
+            , case war of
+                Just Red ->
+                    H.div [ A.class "red" ] []
+
+                Just Blue ->
+                    H.div [ A.class "blue" ] []
+
+                Nothing ->
+                    H.div [] []
+            ]
+        ]
 
 
 
@@ -859,7 +857,6 @@ renderNinja { characters, acted, toggle, highlight, freeChakras, ownTurn } onTea
         {-
            copies = b.ninja.copies
                |> Maybe.values
-               >> List.reverse
                >> List.map (Detail.copy >> render)
                >> live
         -}
@@ -908,30 +905,24 @@ renderNinja { characters, acted, toggle, highlight, freeChakras, ownTurn } onTea
                     && not (List.member ninja.slot acted)
             }
     in
-    H.section [ A.classList [ ( "dead", ninja.health == 0 ) ] ] <|
-        H.aside [ A.class "channels" ]
-            (ninja.channels
-                |> List.reverse
-                >> List.map (Detail.channel ninja.slot >> render)
+    H.section [ A.classList [ ( "dead", ninja.health == 0 ) ] ]
+        [ H.aside [ A.class "channels" ] <|
+            List.map (Detail.channel ninja.slot >> render) ninja.channels
+        , H.section fullMeta
+            [ faceIcon [ A.class "charicon" ] ]
+        , H.div [ A.class "charmoves" ] <|
+            List.map3
+                (renderSkill skillData)
+                (List.range 0 10 {- doesn't matter, not the limiter -})
+                targets
+                ninja.skills
+        , H.div [ A.class "charhealth" ] <|
+            renderHpBar anchor ninja
+        , H.aside [ A.class "statuses" ]
+            (Detail.get ninja
+                |> List.map render
             )
-            :: reverseIf (not onTeam)
-                [ H.section fullMeta
-                    [ faceIcon [ A.class "charicon" ] ]
-                , H.div [ A.class "charmoves" ] <|
-                    List.map3
-                        (renderSkill skillData)
-                        (List.range 0 10 {- doesn't matter, not the limiter -})
-                        targets
-                        ninja.skills
-                ]
-            ++ [ H.div [ A.class "charhealth" ] <|
-                    renderHpBar anchor ninja
-               , H.aside [ A.class "statuses" ]
-                    (Detail.get ninja
-                        |> reverseIf (not onTeam)
-                        >> List.map render
-                    )
-               ]
+        ]
 
 
 

@@ -84,6 +84,7 @@ a:hover {
 #account1 {
     text-align: left;
     right: 0;
+    flex-direction: row-reverse;
 }
 
 #accountSettings {
@@ -504,6 +505,7 @@ button.scroll:hover {
 .charmoves {
     display: inline-block;
     vertical-align: top;
+    height: 79px;
 }
 
 .charmove {
@@ -686,6 +688,7 @@ button.scroll:hover {
 }
 .channels {
     margin-bottom: 2px;
+    display: flex;
 
     .detail {
         flex-direction: column-reverse;
@@ -693,6 +696,7 @@ button.scroll:hover {
 }
 .statuses {
     margin-top: 2px;
+    display: flex;
 
     .detail {
         flex-direction: column;
@@ -1073,9 +1077,9 @@ p {
         }
 
         > section {
-            display: inline-block;
             z-index: 5;
             position: relative;
+            float: left;
 
             img.click {
                 border-color: #fff !important;
@@ -1108,6 +1112,14 @@ p {
     left: 50%;
     padding-left: 200px;
     text-align: right;
+
+    .channels, .statuses {
+        flex-direction: row-reverse;
+    }
+
+    > section > section {
+        float: right;
+    }
 }
 #account1 .charicon,
 #player1 .charicon {
@@ -1371,6 +1383,7 @@ svg {
     > section {
         width: 285px;
         position: absolute;
+        display: flex;
 
         aside {
             display: inline-block;
@@ -1383,6 +1396,7 @@ svg {
             width: 10em;
             text-transform: uppercase;
             margin: -1px 6px;
+            flex-grow: 1;
         }
     }
 }

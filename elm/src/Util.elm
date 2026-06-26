@@ -4,7 +4,6 @@ module Util exposing
     , groupBy
     , illegal
     , pure
-    , reverseIf
     , shorten
     , showBool
     , showErr
@@ -26,15 +25,6 @@ clickIf condition class command =
 
     else
         [ A.class <| class ++ " noclick" ]
-
-
-reverseIf : Bool -> List a -> List a
-reverseIf condition xs =
-    if condition then
-        List.reverse xs
-
-    else
-        xs
 
 
 groupBy : (a -> a -> Bool) -> List a -> List (Nonempty a)
