@@ -1,6 +1,8 @@
 module Import.Flags exposing
     ( Characters
+    , Csrf
     , Flags
+    , War
     , clean
     , decode
     , failure
@@ -19,6 +21,31 @@ import String.Extra as String
 import Util exposing (groupBy, unaccent)
 
 
+type alias Csrf =
+    { param : String
+    , token : String
+    }
+
+
+decodeCsrf : D.Decoder Csrf
+decodeCsrf =
+    D.succeed Csrf
+        |> D.required "param" D.string
+        >> D.required "token" D.string
+
+
+type alias War =
+    { red : Set String
+    , blue : Set String
+    }
+
+
+decodeWar =
+    D.succeed War
+        |> D.required "red" (D.list D.string |> D.map Set.fromList)
+        >> D.required "blue" (D.list D.string |> D.map Set.fromList)
+
+
 type alias Flags =
     { url : String
     , bg : String
@@ -29,10 +56,8 @@ type alias Flags =
     , avatars : List String
     , characters : Characters
     , visibles : Set String
-    , red : Set String
-    , blue : Set String
-    , csrf : String
-    , csrfParam : String
+    , war : War
+    , csrf : Csrf
     }
 
 
@@ -47,10 +72,11 @@ failure =
     , avatars = []
     , characters = makeCharacters []
     , visibles = Set.empty
-    , red = Set.empty
-    , blue = Set.empty
-    , csrf = ""
-    , csrfParam = ""
+    , war =
+        { red = Set.empty
+        , blue = Set.empty
+        }
+    , csrf = { param = "", token = "" }
     }
 
 
@@ -66,10 +92,8 @@ decode =
         >> D.required "avatars" (D.list D.string)
         >> D.required "characters" (D.list Model.jsonDecCharacter |> D.map makeCharacters)
         >> D.required "visibles" (D.list D.string |> D.map Set.fromList)
-        >> D.required "red" (D.list D.string |> D.map Set.fromList)
-        >> D.required "blue" (D.list D.string |> D.map Set.fromList)
-        >> D.required "csrf" D.string
-        >> D.required "csrfParam" D.string
+        >> D.required "war" decodeWar
+        >> D.required "csrf" decodeCsrf
 
 
 type alias Characters =

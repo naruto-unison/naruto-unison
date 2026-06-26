@@ -119,6 +119,7 @@ getPlayR = do
         addDataJS
         $(widgetFile "play/play")
   where
+    csrfParam = defaultCsrfParamName
     getPlayParams (Just user) = userPlayParams user <$> Mission.unlocked
     getPlayParams Nothing     = return guestPlayParams
     encodeJSON obj = Markup.preEscapedLazyText . decodeUtf8

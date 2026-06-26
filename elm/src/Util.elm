@@ -4,6 +4,7 @@ module Util exposing
     , illegal
     , pure
     , shorten
+    , showBool
     , showErr
     , unaccent
     )
@@ -32,6 +33,15 @@ type ListChange
 pure : a -> ( a, Cmd msg )
 pure x =
     ( x, Cmd.none )
+
+
+showBool : Bool -> String
+showBool b =
+    if b then
+        "True"
+
+    else
+        "False"
 
 
 showErr : Error -> String

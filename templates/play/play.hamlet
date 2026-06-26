@@ -1,6 +1,6 @@
 <script>
     function getElmFlags() {
-            return {
+        return {
             url:          document.location.origin + "/",
             bg:           #{encodeJSON bg},
             userTeam:     #{encodeJSON team},
@@ -9,10 +9,8 @@
             user:         #{encodeJSON muser},
             avatars,
             characters,
-            red:          #{encodeJSON red},
-            blue:         #{encodeJSON blue},
+            war:          { red: #{encodeJSON red}, blue: #{encodeJSON blue} },
             visibles,
-            csrf:         "#{fromMaybe "" token}",
-            csrfParam:    "#{defaultCsrfParamName}",
+            csrf:         { param: "#{csrfParam}", token: "#{fromMaybe "" token}" }
         };
     };
