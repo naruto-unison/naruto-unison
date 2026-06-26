@@ -15,6 +15,7 @@ module Game.Game exposing
     , warInverse
     )
 
+import Array exposing (Array)
 import Dict
 import Import.Flags exposing (Characters)
 import Import.Model as Player exposing (Category(..), Channel, Channeling(..), Character, Effect, Ninja, Player(..), Privilege(..), Skill, Target(..), Turn, User, War(..))
@@ -224,7 +225,7 @@ rank user =
 
         Normal ->
             ranks
-                |> List.getAt (user.xp // 5000)
+                |> Array.get (user.xp // 5000)
                 >> Maybe.withDefault "Hokage"
 
         Moderator ->
@@ -234,20 +235,21 @@ rank user =
             "Admin"
 
 
-ranks : List String
+ranks : Array String
 ranks =
-    [ "Academy Student"
-    , "Genin"
-    , "Chūnin"
-    , "Missing-Nin"
-    , "Anbu"
-    , "Jōnin"
-    , "Sannin"
-    , "Jinchūriki"
-    , "Akatsuki"
-    , "Kage"
-    , "Hokage"
-    ]
+    Array.fromList
+        [ "Academy Student"
+        , "Genin"
+        , "Chūnin"
+        , "Missing-Nin"
+        , "Anbu"
+        , "Jōnin"
+        , "Sannin"
+        , "Jinchūriki"
+        , "Akatsuki"
+        , "Kage"
+        , "Hokage"
+        ]
 
 
 merge : Characters -> Ninja -> Character
