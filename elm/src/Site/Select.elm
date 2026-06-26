@@ -358,7 +358,7 @@ component ports =
         view : Model -> Html Msg
         view st =
             H.section [ A.id "charSelect" ] <|
-                lazy2 (userBox st)
+                lazy2 (renderUserBox st)
                     st.userBoxFormType
                     st.team
                     :: (case st.stage of
@@ -368,15 +368,15 @@ component ports =
                             _ ->
                                 [ case st.stage of
                                     Practicing ->
-                                        vsBox st.stage st.vs
+                                        renderVsBox st.stage st.vs
 
                                     Searching ->
-                                        searchBox st.error st.search
+                                        renderSearchBox st.error st.search
 
                                     _ ->
-                                        previewBox st
-                                , listChars st
-                                , listVs st
+                                        renderPreviewBox st
+                                , renderCharList st
+                                , renderVsList st
                                 ]
                        )
 
@@ -594,8 +594,8 @@ failWarning x xs =
 -- CHARWRAPPER
 
 
-warBadge : War -> Character -> Maybe (Html msg)
-warBadge war char =
+renderWarBadge : War -> Character -> Maybe (Html msg)
+renderWarBadge war char =
     let
         isRed =
             char |> belongsTo war.red
@@ -661,7 +661,7 @@ charWrapper mchar st char =
                     Nothing
 
                   else
-                    warBadge st.war char
+                    renderWarBadge st.war char
                 ]
 
 
@@ -674,8 +674,8 @@ keyedCharWrapper mchar st char =
 -- USERBOX
 
 
-userBoxNav : { loggedIn : Bool, teamFull : Bool } -> Html Msg
-userBoxNav { loggedIn, teamFull } =
+renderUserBoxNav : { loggedIn : Bool, teamFull : Bool } -> Html Msg
+renderUserBoxNav { loggedIn, teamFull } =
     let
         meta onClick =
             if teamFull then
@@ -710,8 +710,8 @@ userBoxNav { loggedIn, teamFull } =
             ]
 
 
-userBoxLoggedOut : UserBoxFormType -> Csrf -> Html Msg
-userBoxLoggedOut formType csrf =
+renderUserBoxLoggedOut : UserBoxFormType -> Csrf -> Html Msg
+renderUserBoxLoggedOut formType csrf =
     H.div [ A.id "userBox", A.class "parchment" ]
         [ H.form
             [ A.id <|
@@ -801,8 +801,8 @@ userBoxLoggedOut formType csrf =
         ]
 
 
-userBoxLoggedIn : User -> Html Msg
-userBoxLoggedIn user =
+renderUserBoxLoggedIn : User -> Html Msg
+renderUserBoxLoggedIn user =
     H.div
         [ A.id "userBox"
         , A.class "parchment loggedin"
@@ -840,14 +840,14 @@ userBoxLoggedIn user =
         ]
 
 
-userBox :
+renderUserBox :
     Model
     -> UserBoxFormType
     -> Team
     -> Html Msg
-userBox st formType team =
+renderUserBox st formType team =
     H.header []
-        [ userBoxNav
+        [ renderUserBoxNav
             { loggedIn = Maybe.isJust st.user
             , teamFull = List.length team.list == Game.teamSize
             }
@@ -863,10 +863,10 @@ userBox st formType team =
             ]
         , case st.user of
             Just user ->
-                userBoxLoggedIn user
+                renderUserBoxLoggedIn user
 
             Nothing ->
-                userBoxLoggedOut formType st.csrf
+                renderUserBoxLoggedOut formType st.csrf
         ]
 
 
@@ -874,8 +874,8 @@ userBox st formType team =
 -- VSBOX
 
 
-vsBox : Stage -> List Character -> Html Msg
-vsBox stage vs =
+renderVsBox : Stage -> List Character -> Html Msg
+renderVsBox stage vs =
     let
         meta =
             if List.length vs == Game.teamSize then
@@ -924,8 +924,8 @@ vsBox stage vs =
 -- SEARCHBOX
 
 
-searchBox : Maybe String -> String -> Html Msg
-searchBox error search =
+renderSearchBox : Maybe String -> String -> Html Msg
+renderSearchBox error search =
     H.section [ A.id "vs", A.class "parchment" ] <|
         failWarning error
             [ H.button
@@ -954,42 +954,42 @@ searchBox error search =
 -- PREVIEWBOX
 
 
-previewBox : Model -> Html Msg
-previewBox st =
+renderPreviewBox : Model -> Html Msg
+renderPreviewBox st =
     case st.previewing of
         PreviewWar ->
-            previewWar st.war
+            renderWarPreview st.war
 
         PreviewUser _ ->
-            previewUser st.avatars st.error st.form
+            renderUserPreview st.avatars st.error st.form
 
         PreviewChar char ->
-            previewChar st char
+            renderCharPreview st char
 
 
-listWar : String -> Set String -> Html msg
-listWar class war =
+renderWar : String -> Set String -> Html msg
+renderWar class war =
     war
         |> Set.toList
         >> List.map (H.text >> List.singleton >> H.p [])
         >> H.div [ A.class class ]
 
 
-previewWar : War -> Html msg
-previewWar war =
+renderWarPreview : War -> Html msg
+renderWarPreview war =
     H.article [ A.class "parchment war" ]
         [ H.section []
-            [ listWar "red" war.red
+            [ renderWar "red" war.red
             , H.h1 [] [ H.text "Today's War" ]
-            , listWar "blue" war.blue
+            , renderWar "blue" war.blue
             ]
         , H.p []
             [ H.text "Choose a side! Make a full team from one side and earn bonus DNA for defeating full teams from the other side." ]
         ]
 
 
-previewUser : List String -> Maybe String -> Form -> Html Msg
-previewUser avatars error form =
+renderUserPreview : List String -> Maybe String -> Form -> Html Msg
+renderUserPreview avatars error form =
     H.article [ A.class "parchment" ]
         [ H.div [ A.id "accountSettings" ]
             [ H.p [] <|
@@ -1066,8 +1066,8 @@ previewUser avatars error form =
         ]
 
 
-previewChar : Model -> Character -> Html Msg
-previewChar st char =
+renderCharPreview : Model -> Character -> Html Msg
+renderCharPreview st char =
     H.article [ A.class "parchment" ] <|
         [ Keyed.node "aside"
             []
@@ -1117,18 +1117,18 @@ previewChar st char =
 
             else
                 [ H.section []
-                    [ H.ul [] <| List.map previewObjective st.mission ]
+                    [ H.ul [] <| List.map renderObjectivePreview st.mission ]
                 ]
         ]
-            ++ List.map3 (previewSkill st.visibles char)
+            ++ List.map3 (renderSkillPreview st.visibles char)
                 -- doesn't matter, not the limiting factor
                 (List.range 0 10)
                 char.skills
                 st.alternates
 
 
-previewObjective : ObjectiveProgress -> Html Msg
-previewObjective x =
+renderObjectivePreview : ObjectiveProgress -> Html Msg
+renderObjectivePreview x =
     H.li [] <|
         List.concat
             [ case x.character of
@@ -1160,8 +1160,8 @@ previewObjective x =
             ]
 
 
-previewSkill : Set String -> Character -> Int -> List Skill -> Int -> Html Msg
-previewSkill visibles char slot skills i =
+renderSkillPreview : Set String -> Character -> Int -> List Skill -> Int -> Html Msg
+renderSkillPreview visibles char slot skills i =
     case List.getAt i skills of
         Nothing ->
             H.section [] []
@@ -1225,8 +1225,8 @@ wraparound wrapping i xs =
         after ++ before
 
 
-listChars : Model -> Html Msg
-listChars st =
+renderCharList : Model -> Html Msg
+renderCharList st =
     let
         wrapping =
             st.index + st.pageSize >= size st
@@ -1286,8 +1286,8 @@ listChars st =
 -- LISTVS
 
 
-listVs : Model -> Html Msg
-listVs st =
+renderVsList : Model -> Html Msg
+renderVsList st =
     let
         charClass char =
             if List.member char st.vs then
