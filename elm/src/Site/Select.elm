@@ -11,7 +11,7 @@ import Html.Events as E
 import Html.Keyed as Keyed
 import Html.Lazy exposing (lazy3)
 import Http
-import Import.Flags exposing (Characters, Flags, characterName)
+import Import.Flags exposing (Characters, Flags)
 import Import.Model as Model exposing (Chakras, Character, GameInfo, ObjectiveProgress, Skill, User)
 import Json.Decode as D
 import List.Extra as List
@@ -428,7 +428,7 @@ component ports =
                         team =
                             st.team
                                 ++ st.vs
-                                |> List.map characterName
+                                |> List.map .ident
                                 >> String.join "/"
                                 >> (++) (st.url ++ "api/practicequeue/")
                     in
@@ -468,7 +468,7 @@ component ports =
                             << String.join "/"
                           <|
                             "private"
-                                :: List.map characterName st.team
+                                :: List.map .ident st.team
                         , Process.sleep 1000 |> Task.perform (always Search)
                         ]
                     )
@@ -482,14 +482,14 @@ component ports =
                         << String.join "/"
                       <|
                         "quick"
-                            :: List.map characterName st.team
+                            :: List.map .ident st.team
                     )
 
                 GetMission char ->
                     ( st
                     , Http.get
                         { url =
-                            st.url ++ "api/mission/" ++ characterName char
+                            st.url ++ "api/mission/" ++ char.ident
                         , expect =
                             Http.expectJson (ReceiveMission char) <|
                                 D.list Model.jsonDecObjectiveProgress
@@ -510,7 +510,7 @@ component ports =
                     ( st
                     , Http.get
                         { url =
-                            st.url ++ "api/reanimate/" ++ characterName char
+                            st.url ++ "api/reanimate/" ++ char.ident
                         , expect =
                             Http.expectJson (ReceiveReanimate char) D.int
                         }
@@ -528,7 +528,7 @@ component ports =
                                     | user =
                                         Just { user | dna = dna }
                                     , unlocked =
-                                        Set.insert (characterName char) st.unlocked
+                                        Set.insert char.ident st.unlocked
                                 }
 
                         Nothing ->
@@ -551,7 +551,7 @@ size st =
 
 locked : Set String -> Character -> Bool
 locked set char =
-    not <| Set.isEmpty set || Set.member (characterName char) set
+    not <| Set.isEmpty set || Set.member char.ident set
 
 
 belongsTo : Set String -> Character -> Bool
@@ -804,7 +804,7 @@ vsBox st =
           <|
             List.map
                 (\char ->
-                    ( characterName char
+                    ( char.ident
                     , Render.charIcon char
                         [ A.class "char click"
                         , E.onClick <| Vs Delete char
@@ -851,7 +851,7 @@ listWar class war =
 
 keyedCharWrapper : Maybe Character -> Model -> Character -> ( String, Html Msg )
 keyedCharWrapper mchar st char =
-    ( characterName char, charWrapper mchar st char )
+    ( char.ident, charWrapper mchar st char )
 
 
 charWrapper : Maybe Character -> Model -> Character -> Html Msg
@@ -1234,7 +1234,7 @@ listVs st =
                 "char click"
 
         displayChar char =
-            ( characterName char
+            ( char.ident
             , H.div [ A.class "charWrapper", A.title char.name ]
                 [ Render.charIcon char
                     [ E.onClick <| Vs Add char

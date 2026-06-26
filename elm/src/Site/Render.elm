@@ -20,7 +20,7 @@ import Game.Game as Game
 import Html as H exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
-import Import.Flags exposing (characterName, clean)
+import Import.Flags exposing (clean)
 import Import.Model exposing (Category(..), Chakras, Channeling(..), Character, Effect, Skill, User)
 import Parser exposing ((|.), (|=), Parser)
 import Set exposing (Set)
@@ -114,7 +114,7 @@ iconBase char path attrs =
 
 icon : Character -> String -> List (H.Attribute msg) -> Html msg
 icon char =
-    iconBase (characterName char)
+    iconBase char.ident
 
 
 charIcon : Character -> List (H.Attribute msg) -> Html msg

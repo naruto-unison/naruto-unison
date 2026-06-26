@@ -1,7 +1,6 @@
 module Import.Flags exposing
     ( Characters
     , Flags
-    , characterName
     , clean
     , decode
     , failure
@@ -88,11 +87,11 @@ makeCharacters chars =
     let
         shortNames =
             chars
-                |> List.map (\x -> ( characterName x, makeShortName x ))
+                |> List.map (\x -> ( x.ident, makeShortName x ))
                 >> Dict.fromList
 
         shortName char =
-            case Dict.get (characterName char) shortNames of
+            case Dict.get char.ident shortNames of
                 Just name ->
                     name
 
@@ -106,7 +105,7 @@ makeCharacters chars =
         chars
     , dict =
         Dict.fromList <|
-            withKey characterName chars
+            withKey .ident chars
     , groupList =
         groupList
     , groupDict =
@@ -138,20 +137,6 @@ cleanChar x =
 
         _ ->
             unaccent x
-
-
-characterName : Character -> String
-characterName char =
-    clean <|
-        case char.category of
-            Original ->
-                char.name
-
-            Shippuden ->
-                char.name ++ " (S)"
-
-            Reanimated ->
-                char.name ++ " (R)"
 
 
 makeShortName : Character -> String
