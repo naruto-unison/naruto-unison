@@ -17,6 +17,7 @@ import Application.Model.User (Privilege(..))
 import Game.Model.Chakras (Chakras)
 import Game.Model.Channel (Channel, Channeling)
 import Game.Model.Character (Category, Character)
+import qualified Game.Model.Class as Class
 import Game.Model.Class (Class)
 import Game.Model.Copy (Copy)
 import Game.Model.Destructible (Destructible)
@@ -158,6 +159,9 @@ deriveElmDef defaultOptions ''War
 trimAll :: String -> String
 trimAll s = unlines $ dropWhileEnd isSpace <$> lines s
 
+visibleClasses :: [String]
+visibleClasses = show . Class.name <$> filter Class.visible [minBound..maxBound]
+
 main :: IO ()
 main = writeFile "elm/src/Import/Model.elm" . fromString . trimAll $ "module Import.Model exposing (..)\n\
 \\n\
@@ -165,8 +169,10 @@ main = writeFile "elm/src/Import/Model.elm" . fromString . trimAll $ "module Imp
 \import Json.Decode\n\
 \import Json.Encode exposing (Value)\n\
 \import Json.Helpers exposing (..)\n\
-\import Set exposing (Set)\n\n" ++
-    makeModuleContentWithAlterations alterations
+\import Set exposing (Set)\n\n\
+\visibleClasses : Set String\n\
+\visibleClasses = Set.fromList [" ++ intercalate ", " visibleClasses ++ "]\n\n"
+    ++ makeModuleContentWithAlterations alterations
     [ DefineElm (Proxy :: Proxy Bomb)
     , DefineElm (Proxy :: Proxy Category)
     , DefineElm (Proxy :: Proxy Chakras)

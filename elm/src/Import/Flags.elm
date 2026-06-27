@@ -52,7 +52,6 @@ type alias Flags =
     , user : Maybe User
     , avatars : List String
     , characters : Characters
-    , visibles : Set String
     , war : War
     , csrf : Csrf
     }
@@ -68,7 +67,6 @@ failure =
     , user = Nothing
     , avatars = []
     , characters = Characters.create []
-    , visibles = Set.empty
     , war =
         { red = Set.empty
         , blue = Set.empty
@@ -88,7 +86,6 @@ decode =
         >> D.required "user" (D.maybe Model.jsonDecUser)
         >> D.required "avatars" (D.list D.string)
         >> D.required "characters" (D.list Model.jsonDecCharacter |> D.map Characters.create)
-        >> D.required "visibles" (D.list D.string |> D.map Set.fromList)
         >> D.required "war" decodeWar
         >> D.required "csrf" decodeCsrf
 

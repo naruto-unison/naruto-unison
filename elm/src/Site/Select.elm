@@ -136,7 +136,6 @@ type alias Model =
     , user : Maybe User
     , avatars : List String
     , chars : Characters
-    , visibles : Set String
     , war : War
     , csrf : Csrf
     , userBoxFormType : UserBoxFormType
@@ -334,7 +333,6 @@ component ports =
             , user = flags.user
             , chars = flags.characters
             , avatars = flags.avatars
-            , visibles = flags.visibles
             , war = flags.war
             , csrf = flags.csrf
             , userBoxFormType = Login
@@ -1125,7 +1123,7 @@ renderCharPreview st char =
                     [ H.ul [] <| List.map renderObjectivePreview st.mission ]
                 ]
         ]
-            ++ List.map3 (renderSkillPreview st.visibles char)
+            ++ List.map3 (renderSkillPreview char)
                 -- doesn't matter, not the limiting factor
                 (List.range 0 10)
                 char.skills
@@ -1165,8 +1163,8 @@ renderObjectivePreview { character, desc, goal, progress } =
             ]
 
 
-renderSkillPreview : Set String -> Character -> Int -> List Skill -> Int -> Html Msg
-renderSkillPreview visibles char slot skills i =
+renderSkillPreview : Character -> Int -> List Skill -> Int -> Html Msg
+renderSkillPreview char slot skills i =
     case List.getAt i skills of
         Nothing ->
             H.section [] []
@@ -1193,7 +1191,7 @@ renderSkillPreview visibles char slot skills i =
                 , H.h4 [] <|
                     H.text skill.name
                         :: Render.chakras skill.cost
-                        ++ [ Render.classes False <| Set.intersect visibles skill.classes ]
+                        ++ [ Render.classes skill.classes ]
                 , H.p []
                     << (++) (Render.desc skill.desc)
                     << List.map

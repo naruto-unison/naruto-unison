@@ -24,7 +24,7 @@ import Html as H exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
 import Import.Flags exposing (clean)
-import Import.Model exposing (Category(..), Chakras, Channeling(..), Character, Effect, Skill, User)
+import Import.Model exposing (Category(..), Chakras, Channeling(..), Character, Effect, Skill, User, visibleClasses)
 import Parser exposing ((|.), (|=), Parser)
 import Set exposing (Set)
 import String.Extra as String
@@ -223,19 +223,17 @@ duration ifEmpty x =
             String.fromInt <| (y + 1) // 2
 
 
-classes : Bool -> Set String -> Html msg
-classes hideMore xs =
-    (if hideMore then
-        Set.diff xs moreHidden
-
-     else
-        xs
-    )
-        |> Set.toList
-        >> String.join ", "
-        >> H.text
-        >> List.singleton
-        >> H.p [ A.class "skillClasses" ]
+classes : Set String -> Html msg
+classes xs =
+    let
+        text =
+            xs
+                |> Set.intersect visibleClasses
+                >> Set.toList
+                >> String.join ", "
+    in
+    H.p [ A.class "skillClasses" ]
+        [ H.text text ]
 
 
 effect : List Character -> (Effect -> Bool) -> Effect -> Html msg

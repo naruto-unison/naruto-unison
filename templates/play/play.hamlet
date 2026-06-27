@@ -10,7 +10,6 @@
             avatars,
             characters,
             war:          { red: #{encodeJSON red}, blue: #{encodeJSON blue} },
-            visibles,
             csrf:         { param: "#{csrfParam}", token: "#{fromMaybe "" token}" }
         };
     };

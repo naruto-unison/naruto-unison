@@ -6,6 +6,9 @@ import Json.Encode exposing (Value)
 import Json.Helpers exposing (..)
 import Set exposing (Set)
 
+visibleClasses : Set String
+visibleClasses = Set.fromList ["Chakra", "Mental", "Physical", "Summon", "Melee", "Ranged", "Bypassing", "Invisible", "Soulbound", "Controlled", "Bane", "Necromancy", "Reanimation", "Uncounterable", "Unreflectable", "Unremovable"]
+
 type Bomb  =
     Done
     | Expire

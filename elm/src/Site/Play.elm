@@ -8,7 +8,7 @@ import Game.Game as Game exposing (Act)
 import Html as H exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
-import Html.Lazy exposing (lazy3, lazy4)
+import Html.Lazy exposing (lazy2, lazy4)
 import Http
 import Import.Flags exposing (Flags, printFailure)
 import Import.Model as Model exposing (Chakras, Channeling(..), Character, Destructible, Effect, GameInfo, Message(..), Ninja, Player(..), Reward, Skill, Turn, User, War(..))
@@ -124,7 +124,6 @@ type alias Model =
     , toggled : Maybe Act
     , acts : List Act
     , dna : List Reward
-    , visibles : Set String
     , war : Maybe War
     , error : String
     }
@@ -228,7 +227,6 @@ component ports =
                     , toggled = Nothing
                     , acts = []
                     , dna = []
-                    , visibles = flags.visibles
                     , war = info.war
                     , error = ""
                     }
@@ -463,7 +461,7 @@ renderTop st characters =
     in
     H.section [ A.id "top" ]
         [ lazy4 renderUserBox "account0" st.user st.war playerInactive
-        , lazy3 renderView st.visibles characters st.viewing
+        , lazy2 renderView characters st.viewing
         , lazy4 renderUserBox "account1" st.vs vsWar vsInactive
         ]
 
@@ -981,15 +979,24 @@ renderViewDestructible characters { amount, dur, skill, user } =
         ]
 
 
-renderViewDetail : Set String -> List Character -> (Effect -> Bool) -> Detail -> List (Html msg)
-renderViewDetail visibles characters removable detail =
+viewIgnoredClasses : Set String
+viewIgnoredClasses =
+    Set.fromList
+        [ "Bypassing"
+        , "Uncounterable"
+        , "Unreflectable"
+        ]
+
+
+renderViewDetail : List Character -> (Effect -> Bool) -> Detail -> List (Html msg)
+renderViewDetail characters removable detail =
     [ H.section []
         [ Render.detailIcon (Characters.get characters detail.source)
             detail
             [ A.class "char" ]
         , H.dl [] <|
             [ H.h4 [] [ H.span [] [ H.text detail.name ] ]
-            , Render.classes True <| Set.intersect visibles detail.classes
+            , Render.classes <| Set.diff detail.classes viewIgnoredClasses
             , H.dt [] [ H.text "Source" ]
             , H.dd [] << Render.name <| Characters.get characters detail.user
             , H.dt [] [ H.text "Duration" ]
@@ -1025,8 +1032,8 @@ renderAlternateButton class skill =
         []
 
 
-renderViewSkill : Set String -> List Character -> Int -> Skill -> List (Html Msg)
-renderViewSkill visibles characters charge skill =
+renderViewSkill : List Character -> Int -> Skill -> List (Html Msg)
+renderViewSkill characters charge skill =
     let
         character =
             Characters.get characters skill.owner
@@ -1057,7 +1064,7 @@ renderViewSkill visibles characters charge skill =
         , H.dl []
             [ H.h4 []
                 [ H.text skill.name ]
-            , Render.classes False <| Set.intersect visibles skill.classes
+            , Render.classes skill.classes
             , H.dt [] [ H.text "Cost" ]
             , H.dd [] <| Render.skillCost skill.cost
             , H.dt [] [ H.text "Duration" ]
@@ -1112,8 +1119,8 @@ renderViewUser user =
         ]
 
 
-renderView : Set String -> List Character -> Viewable -> Html Msg
-renderView visibles characters viewing =
+renderView : List Character -> Viewable -> Html Msg
+renderView characters viewing =
     H.article [ A.class "parchment" ] <|
         case viewing of
             ViewCharacter x ->
@@ -1123,10 +1130,10 @@ renderView visibles characters viewing =
                 [ renderViewDestructible characters x ]
 
             ViewDetail removable x ->
-                renderViewDetail visibles characters removable x
+                renderViewDetail characters removable x
 
             ViewSkill _ charge x ->
-                renderViewSkill visibles characters charge x
+                renderViewSkill characters charge x
 
             ViewUser x ->
                 [ renderViewUser x ]
