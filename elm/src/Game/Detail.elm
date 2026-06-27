@@ -7,7 +7,7 @@ module Game.Detail exposing
     )
 
 import Game.Game as Game
-import Import.Model exposing (Channel, Channeling(..), Copy, Effect, Ninja, Status, Trap)
+import Import.Model exposing (Channel, Channeling(..), Copy, Effect, Ninja, Skill, Status, Trap)
 import List.Extra as List
 import List.Nonempty exposing (Nonempty(..))
 import Set exposing (Set)
@@ -29,46 +29,43 @@ type alias Detail =
 
 
 get : Ninja -> List Detail
-get n =
+get { slot, statuses, traps } =
     let
-        statuses =
-            List.map status n.statuses
+        statusDetails =
+            List.map status statuses
 
         reduce ((Nonempty x xs) as xxs) =
-            case List.find (eq x) statuses of
+            case List.find (eq x) statusDetails of
                 Just y ->
                     Nonempty y <| x :: xs
 
                 Nothing ->
                     xxs
 
-        traps =
-            n.traps
+        trapDetails =
+            traps
                 |> List.map trap
                 >> groupBy eq
                 >> List.map (reduce >> concat)
 
         stats =
-            statuses
-                |> List.filter (\x -> not <| List.any (eq x) traps)
+            statusDetails
+                |> List.filter (\x -> not <| List.any (eq x) trapDetails)
                 >> List.concatMap unfold
 
         ( self, others ) =
             stats
-                ++ traps
-                |> List.partition (.user >> (==) n.slot)
+                ++ trapDetails
+                |> List.partition (\detail -> detail.user == slot)
     in
     others ++ self
 
 
 eq : Detail -> Detail -> Bool
 eq x y =
-    x.dur
-        == y.dur
-        && x.name
-        == y.name
-        && ignoreClasses x.classes
-        == ignoreClasses y.classes
+    (x.dur == y.dur)
+        && (x.name == y.name)
+        && (ignoreClasses x.classes == ignoreClasses y.classes)
 
 
 ignoredClasses : Set String
@@ -127,77 +124,99 @@ unfold x =
         List.repeat x.amount { x | amount = 1 }
 
 
-channel : Int -> Channel -> Detail
-channel user x =
-    { name = x.skill.name
-    , desc = x.skill.desc
-    , classes = x.skill.classes
-    , dur = Game.dur x
-    , source = x.skill.owner
-    , skillName = x.skill.name
-    , user = user
-    , effects = []
-    , trap =
-        case x.dur of
-            Control _ ->
-                True
+channelDur : Channeling -> Maybe Int
+channelDur chan =
+    case chan of
+        Passive ->
+            Nothing
 
-            _ ->
-                False
+        Instant ->
+            Just 1
+
+        Action x ->
+            x
+
+        Control x ->
+            x
+
+        Ongoing x ->
+            x
+
+
+skillBase : Maybe Int -> Skill -> Detail
+skillBase dur { classes, desc, name, owner } =
+    { name = name
+    , desc = desc
+    , classes = classes
+    , dur = dur
+    , source = owner
+    , skillName = name
+    , user = owner
+    , effects = []
+    , trap = False
     , amount = 1
+    }
+
+
+channel : Int -> Channel -> Detail
+channel user { dur, skill } =
+    let
+        base =
+            skillBase (channelDur dur) skill
+    in
+    { base
+        | user = user
+        , trap =
+            case dur of
+                Control _ ->
+                    True
+
+                _ ->
+                    False
     }
 
 
 copy : Copy -> Detail
-copy x =
-    { name = x.skill.name
-    , desc = x.skill.desc
-    , classes = x.skill.classes
-    , dur = x.dur
-    , source = x.skill.owner
-    , skillName = x.skill.name
-    , user = x.skill.owner
-    , effects = []
-    , trap = False
-    , amount = 1
-    }
+copy { dur, skill } =
+    skillBase dur skill
 
 
 status : Status -> Detail
-status x =
-    { name = x.name
-    , desc = x.skill.desc
-    , classes = x.classes
-    , dur = x.dur
-    , source = x.skill.owner
-    , skillName = x.skill.name
-    , user = x.user
-    , effects = List.uniqueBy .desc x.effects
+status { amount, classes, dur, effects, name, skill, user } =
+    { name = name
+    , desc = skill.desc
+    , classes = classes
+    , dur = dur
+    , source = skill.owner
+    , skillName = skill.name
+    , user = user
+    , effects = List.uniqueBy .desc effects
     , trap = False
-    , amount = x.amount
+    , amount = amount
+    }
+
+
+trapEffects : Effect
+trapEffects =
+    { desc = ""
+    , helpful = False
+    , sticky = True
+    , trap = True
+    , visible = True
+    , slot = Nothing
     }
 
 
 trap : Trap -> Detail
-trap x =
-    let
-        effects =
-            { desc = x.trigger
-            , helpful = False
-            , sticky = True
-            , trap = True
-            , visible = True
-            , slot = Nothing
-            }
-    in
-    { name = x.name
-    , desc = x.skill.desc
-    , classes = Set.remove "Necromancy" x.classes
-    , dur = x.dur
-    , source = x.skill.owner
-    , skillName = x.skill.name
-    , user = x.user
-    , effects = [ effects ]
+trap { classes, dur, name, skill, trigger, user } =
+    { name = name
+    , desc = skill.desc
+    , classes = classes
+    , dur = dur
+    , source = skill.owner
+    , skillName = skill.name
+    , user = user
+    , effects = [ { trapEffects | desc = trigger } ]
     , trap = True
     , amount = 1
     }

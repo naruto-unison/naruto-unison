@@ -2,20 +2,22 @@ module Util exposing
     ( ListChange(..)
     , clickIf
     , groupBy
-    , illegal
     , pure
     , shorten
     , showBool
     , showErr
     , unaccent
+    , withKey
     )
 
+import Dict exposing (Dict)
 import Html as H
 import Html.Attributes as A
 import Html.Events as E
 import Http exposing (Error(..))
 import List.Extra as List
 import List.Nonempty exposing (Nonempty(..))
+import Set exposing (Set)
 
 
 clickIf : Bool -> String -> msg -> List (H.Attribute msg)
@@ -76,34 +78,41 @@ showErr err =
             "Invalid response from server: " ++ x
 
 
+withKey : (a -> b) -> List a -> List ( b, a )
+withKey f =
+    List.map <| \x -> ( f x, x )
+
+
 shorten : String -> String
 shorten =
-    String.filter (\c -> not <| List.member c illegal)
+    String.filter isLegal
         >> String.map unaccent
 
 
-illegal : List Char
+isLegal : Char -> Bool
+isLegal c =
+    not <| Set.member c illegal
+
+
+illegal : Set Char
 illegal =
-    String.toList " -:()®./?'"
+    " -:()®./?'"
+        |> String.toList
+        >> Set.fromList
+
+
+unaccentDict : Dict Char Char
+unaccentDict =
+    Dict.fromList
+        [ ( 'ō', 'o' )
+        , ( 'Ō', 'O' )
+        , ( 'ū', 'u' )
+        , ( 'Ū', 'U' )
+        , ( 'ä', 'a' )
+        ]
 
 
 unaccent : Char -> Char
 unaccent c =
-    case c of
-        'ō' ->
-            'o'
-
-        'Ō' ->
-            'O'
-
-        'ū' ->
-            'u'
-
-        'Ū' ->
-            'U'
-
-        'ä' ->
-            'a'
-
-        _ ->
-            c
+    Dict.get c unaccentDict
+        |> Maybe.withDefault c

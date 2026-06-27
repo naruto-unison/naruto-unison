@@ -4,6 +4,7 @@ import Browser.Dom as Dom
 import Browser.Navigation as Navigation
 import Dict
 import Game.Chakra as Chakra
+import Game.Characters as Characters exposing (Characters)
 import Game.Game as Game
 import Html as H exposing (Html)
 import Html.Attributes as A
@@ -11,7 +12,7 @@ import Html.Events as E
 import Html.Keyed as Keyed
 import Html.Lazy exposing (lazy2)
 import Http
-import Import.Flags exposing (Characters, Csrf, Flags, War)
+import Import.Flags exposing (Csrf, Flags, War)
 import Import.Model as Model exposing (Chakras, Character, GameInfo, ObjectiveProgress, Skill, User)
 import Json.Decode as D
 import List.Extra as List
@@ -25,6 +26,7 @@ import Sound exposing (Sound)
 import Task
 import Tuple exposing (first, second)
 import Url
+import User
 import Util exposing (ListChange(..), pure, showBool, showErr)
 
 
@@ -112,14 +114,14 @@ type alias Team =
     }
 
 
-createTeam : Characters -> List Character -> Team
-createTeam chars list =
+createTeam : List Character -> Team
+createTeam list =
     { list = list
     , set = Set.fromList <| List.map .ident list
     , costs =
         list
-            |> List.map chars.shortName
-            >> List.filterMap (\char -> Dict.get char chars.costs)
+            |> List.concatMap (.skills >> List.filterMap List.head)
+            >> List.map .cost
             >> Chakra.sum
     }
 
@@ -161,7 +163,7 @@ size { condense, chars } =
 
 alterTeam : (List Character -> List Character) -> Model -> Model
 alterTeam update st =
-    { st | team = createTeam st.chars <| update st.team.list }
+    { st | team = createTeam <| update st.team.list }
 
 
 describeError : Http.Error -> String
@@ -327,7 +329,7 @@ component ports =
             { error = Nothing
             , stage = Browsing
             , url = flags.url
-            , team = createTeam flags.characters <| getCharacters flags.userTeam
+            , team = createTeam <| getCharacters flags.userTeam
             , vs = getCharacters flags.userPractice
             , user = flags.user
             , chars = flags.characters
@@ -822,7 +824,7 @@ renderUserBoxLoggedIn user =
             , H.text user.name
             ]
         , H.p []
-            [ H.text <| Game.rank user ]
+            [ H.text <| User.rank user ]
         , H.dt [] [ H.text "Clan" ]
         , H.dd []
             [ H.text <|
@@ -970,21 +972,21 @@ renderPreviewBox st =
             renderCharPreview st char
 
 
-renderWar : String -> Set String -> Html msg
-renderWar class war =
+renderWar : List (H.Attribute msg) -> Set String -> Html msg
+renderWar attrs war =
     war
         |> Set.toList
         >> List.map (H.text >> List.singleton >> H.p [])
-        >> H.div [ A.class class ]
+        >> H.div attrs
 
 
 renderWarPreview : War -> Html msg
 renderWarPreview war =
     H.article [ A.class "parchment war" ]
         [ H.section []
-            [ renderWar "red" war.red
+            [ renderWar [ A.class "red" ] war.red
             , H.h1 [] [ H.text "Today's War" ]
-            , renderWar "blue" war.blue
+            , renderWar [ A.class "blue" ] war.blue
             ]
         , H.p []
             [ H.text "Choose a side! Make a full team from one side and earn bonus DNA for defeating full teams from the other side." ]
@@ -1075,7 +1077,7 @@ renderCharPreview st char =
         [ Keyed.node "aside"
             []
           <|
-            case Dict.get (st.chars.shortName char) st.chars.groupDict of
+            case Characters.getGroup st.chars char of
                 Nothing ->
                     []
 

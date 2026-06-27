@@ -1,13 +1,8 @@
 module Game.Game exposing
     ( Act
     , died
-    , dur
     , forfeit
-    , get
-    , merge
-    , rank
     , removable
-    , root
     , targeted
     , targets
     , teamSize
@@ -15,12 +10,8 @@ module Game.Game exposing
     , warInverse
     )
 
-import Array exposing (Array)
-import Dict
-import Import.Flags exposing (Characters)
-import Import.Model as Player exposing (Category(..), Channel, Channeling(..), Character, Effect, Ninja, Player(..), Privilege(..), Skill, Target(..), Turn, User, War(..))
+import Import.Model as Player exposing (Channeling(..), Effect, Ninja, Player(..), Skill, Target(..), Turn, War(..))
 import List.Extra as List
-import Set
 
 
 type alias Act =
@@ -151,59 +142,14 @@ forfeit player game =
                 n
     in
     { game
-        | ninjas =
-            List.map forfeitN game.ninjas
-        , victor =
-            [ opponent player ]
+        | ninjas = List.map forfeitN game.ninjas
+        , victor = [ opponent player ]
     }
-
-
-unknown : Character
-unknown =
-    { name = "unknown"
-    , bio = ""
-    , skills = []
-    , category = Original
-    , groups = Set.empty
-    , price = 0
-    , ident = ""
-    }
-
-
-get : List Character -> Int -> Character
-get xs slot =
-    xs
-        |> List.getAt slot
-        >> Maybe.withDefault unknown
-
-
-dur : Channel -> Maybe Int
-dur chan =
-    case chan.dur of
-        Passive ->
-            Nothing
-
-        Instant ->
-            Just 1
-
-        Action x ->
-            x
-
-        Control x ->
-            x
-
-        Ongoing x ->
-            x
 
 
 removable : Bool -> Effect -> Bool
 removable onAlly ef =
     not ef.sticky && onAlly /= ef.helpful
-
-
-root : List Character -> Skill -> Character
-root characters skill =
-    get characters skill.owner
 
 
 toggles : Maybe Act -> List Int
@@ -215,59 +161,3 @@ toggles x =
         Just y ->
             targets y.user y.skill
                 |> List.filter (\target -> List.member target y.targets)
-
-
-rank : User -> String
-rank user =
-    case user.privilege of
-        Guest ->
-            "Guest"
-
-        Normal ->
-            ranks
-                |> Array.get (user.xp // 5000)
-                >> Maybe.withDefault "Hokage"
-
-        Moderator ->
-            "Moderator"
-
-        Admin ->
-            "Admin"
-
-
-ranks : Array String
-ranks =
-    Array.fromList
-        [ "Academy Student"
-        , "Genin"
-        , "Chūnin"
-        , "Missing-Nin"
-        , "Anbu"
-        , "Jōnin"
-        , "Sannin"
-        , "Jinchūriki"
-        , "Akatsuki"
-        , "Kage"
-        , "Hokage"
-        ]
-
-
-merge : Characters -> Ninja -> Character
-merge chars n =
-    let
-        char =
-            Dict.get n.character chars.dict
-                |> Maybe.withDefault unknown
-
-        zip cSkills nSkill =
-            cSkills
-                |> List.map
-                    (\cSkill ->
-                        if cSkill.name == nSkill.name then
-                            nSkill
-
-                        else
-                            cSkill
-                    )
-    in
-    { char | skills = List.map2 zip char.skills n.skills }

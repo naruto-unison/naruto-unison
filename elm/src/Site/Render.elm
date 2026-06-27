@@ -18,8 +18,8 @@ module Site.Render exposing
     )
 
 import Game.Chakra as Chakra
+import Game.Characters as Characters
 import Game.Detail exposing (Detail)
-import Game.Game as Game
 import Html as H exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
@@ -169,13 +169,13 @@ skillCost cost =
 skillDuration : Channeling -> String
 skillDuration dur =
     let
-        showDur mdur =
+        showDur durName mdur =
             case duration "" mdur of
                 "" ->
-                    ""
+                    durName
 
                 s ->
-                    " " ++ s
+                    durName ++ " " ++ s
     in
     case dur of
         Instant ->
@@ -185,13 +185,13 @@ skillDuration dur =
             "Instant"
 
         Action y ->
-            "Action" ++ showDur y
+            showDur "Action" y
 
         Control y ->
-            "Control" ++ showDur y
+            showDur "Control" y
 
         Ongoing y ->
-            "Ongoing" ++ showDur y
+            showDur "Ongoing" y
 
 
 name : Character -> List (Html msg)
@@ -259,7 +259,7 @@ effect characters removable x =
                 x.desc
 
             Just slot ->
-                x.desc ++ (Game.get characters slot).name ++ "."
+                x.desc ++ (Characters.get characters slot).name ++ "."
 
 
 moreHidden : Set String
