@@ -260,112 +260,6 @@ effect characters removable x =
                 x.desc ++ (Characters.get characters slot).name ++ "."
 
 
-moreHidden : Set String
-moreHidden =
-    Set.fromList
-        [ "Bypassing"
-        , "Uncounterable"
-        , "Unreflectable"
-        ]
-
-
-parseBreak : Parser (Html msg)
-parseBreak =
-    Parser.succeed (H.br [] [])
-        |. Parser.token "\n"
-
-
-parseChakra : String -> Parser (Html msg)
-parseChakra kind =
-    let
-        tag =
-            case String.uncons kind of
-                Just ( head, _ ) ->
-                    String.fromList [ '[', head, ']' ]
-
-                Nothing ->
-                    ""
-    in
-    Parser.succeed (chakra kind)
-        |. Parser.symbol tag
-
-
-parseShippuden : Parser (Html msg)
-parseShippuden =
-    Parser.succeed (H.sup [] [ H.text "𝕊" ])
-        |. Parser.symbol "(S)"
-
-
-parseReanimated : Parser (Html msg)
-parseReanimated =
-    Parser.succeed (H.sup [] [ H.text "ℝ" ])
-        |. Parser.symbol "(R)"
-
-
-parseParen : Parser (Html msg)
-parseParen =
-    Parser.succeed (H.text "(")
-        |. Parser.symbol "("
-
-
-parseName : Parser (Html msg)
-parseName =
-    Parser.succeed (H.i [] << List.singleton << H.text)
-        |. Parser.symbol "["
-        |= Parser.getChompedString (Parser.chompWhile ((/=) ']'))
-        |. Parser.symbol "]"
-
-
-parseText : Parser (Html msg)
-parseText =
-    Parser.succeed H.text
-        |= Parser.getChompedString
-            (Parser.chompWhile <| \c -> c /= '[' && c /= '\n' && c /= '(')
-
-
-parseSuccess : Parser (Html msg)
-parseSuccess =
-    Parser.oneOf
-        [ parseBreak
-        , parseShippuden
-        , parseReanimated
-        , parseChakra "blood"
-        , parseChakra "gen"
-        , parseChakra "nin"
-        , parseChakra "tai"
-        , parseChakra "rand"
-        , parseName
-        , parseShippuden
-        , parseReanimated
-        , parseParen
-        , parseText
-        ]
-
-
-parseFail : Parser (Html msg)
-parseFail =
-    Parser.succeed H.text
-        |= Parser.getChompedString (Parser.chompUntilEndOr "\n")
-
-
-parseDesc : Parser (List (Html msg))
-parseDesc =
-    Parser.loop [] <|
-        \acc ->
-            Parser.oneOf
-                [ Parser.succeed ()
-                    |. Parser.end
-                    |> Parser.map (always << Parser.Done <| List.reverse acc)
-                , Parser.succeed (\stmt -> Parser.Loop <| stmt :: acc)
-                    |= Parser.oneOf
-                        [ Parser.backtrackable parseSuccess
-                        , parseFail
-                        ]
-                , Parser.succeed ()
-                    |> Parser.map (always << Parser.Done <| List.reverse acc)
-                ]
-
-
 desc : String -> List (Html msg)
 desc s =
     case Parser.run parseDesc s of
@@ -374,3 +268,98 @@ desc s =
 
         Err e ->
             [ H.text <| Parser.deadEndsToString e ]
+
+
+parseDesc : Parser (List (Html msg))
+parseDesc =
+    Parser.loop [] <|
+        \acc ->
+            let
+                continue stmt =
+                    Parser.Loop <| stmt :: acc
+
+                done () =
+                    Parser.Done <| List.reverse acc
+            in
+            Parser.oneOf
+                [ Parser.end |> Parser.map done
+                , parseBreak |> Parser.map continue
+                , parseParen |> Parser.map continue
+                , parseBrace |> Parser.map continue
+                , parseText |> Parser.map continue
+                ]
+
+
+parseBreak : Parser (Html msg)
+parseBreak =
+    Parser.succeed (H.br [] [])
+        |. Parser.token "\n"
+
+
+parseParen : Parser (Html msg)
+parseParen =
+    let
+        renderParens s =
+            case s of
+                "(R)" ->
+                    H.sup [] [ H.text "ℝ" ]
+
+                "(S)" ->
+                    H.sup [] [ H.text "𝕊" ]
+
+                _ ->
+                    H.text s
+
+        chompParens =
+            Parser.symbol "("
+                |. Parser.chompWhile (\c -> c /= ')')
+                |. Parser.symbol ")"
+    in
+    Parser.succeed renderParens
+        |= Parser.getChompedString chompParens
+
+
+parseBrace : Parser (Html msg)
+parseBrace =
+    let
+        renderBrace s =
+            case s of
+                "b" ->
+                    chakra "blood"
+
+                "g" ->
+                    chakra "gen"
+
+                "n" ->
+                    chakra "nin"
+
+                "t" ->
+                    chakra "tai"
+
+                "r" ->
+                    chakra "rand"
+
+                _ ->
+                    H.i [] [ H.text s ]
+    in
+    Parser.succeed renderBrace
+        |. Parser.symbol "["
+        |= Parser.getChompedString (Parser.chompWhile ((/=) ']'))
+        |. Parser.symbol "]"
+
+
+parseText : Parser (Html msg)
+parseText =
+    let
+        isOrdinaryCharacter c =
+            c /= '[' && c /= '\n' && c /= '('
+
+        parseNonEmptyText s =
+            if String.isEmpty s then
+                Parser.problem "empty string"
+
+            else
+                Parser.succeed <| H.text s
+    in
+    Parser.getChompedString (Parser.chompWhile isOrdinaryCharacter)
+        |> Parser.andThen parseNonEmptyText
