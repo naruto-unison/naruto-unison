@@ -114,21 +114,18 @@ data User = User
     }
 
 alterations :: ETypeDef -> ETypeDef
-alterations = recAlterType typeAlterations
-
-typeAlterations :: EType -> EType
-typeAlterations t = case t of
-    ETyApp (ETyCon (ETCon "NonNull"))  x -> typeAlterations x
-    ETyApp (ETyCon (ETCon "Runnable")) x -> typeAlterations x
-    ETyCon (ETCon "Class")     -> ETyCon (ETCon "String")
-    ETyCon (ETCon "Duration")  -> ETyApp (ETyCon (ETCon "Maybe"))
-                                $ ETyCon (ETCon "Int")
-    ETyCon (ETCon "EnumSet")   -> ETyCon (ETCon "Set")
-    ETyCon (ETCon "Group")     -> ETyCon (ETCon "String")
-    ETyCon (ETCon "Slot")      -> ETyCon (ETCon "Int")
-    ETyCon (ETCon "Trigger")   -> ETyCon (ETCon "String")
-    ETyCon (ETCon "Vector")    -> ETyCon (ETCon "List")
-    _                          -> defaultTypeAlterations t
+alterations = recAlterType alter
+  where
+    alter (ETyApp (ETyCon (ETCon "NonNull"))  ty) = alter ty
+    alter (ETyApp (ETyCon (ETCon "Runnable")) ty) = alter ty
+    alter (ETyCon (ETCon "Class"))    = ETyCon (ETCon "String")
+    alter (ETyCon (ETCon "Duration")) = ETyApp (ETyCon (ETCon "Maybe"))
+                                      $ ETyCon (ETCon "Int")
+    alter (ETyCon (ETCon "EnumSet"))  = ETyCon (ETCon "Set")
+    alter (ETyCon (ETCon "Group"))    = ETyCon (ETCon "String")
+    alter (ETyCon (ETCon "Slot"))     = ETyCon (ETCon "Int")
+    alter (ETyCon (ETCon "Trigger"))  = ETyCon (ETCon "String")
+    alter ty                          = defaultTypeAlterations ty
 
 deriveElmDef defaultOptions ''Message
 deriveElmDef defaultOptions ''Failure
