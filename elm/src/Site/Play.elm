@@ -10,8 +10,8 @@ import Html.Attributes as A
 import Html.Events as E
 import Html.Lazy exposing (lazy2, lazy4)
 import Http
-import Import.Flags exposing (Flags, printFailure)
-import Import.Model as Model exposing (Chakras, Channeling(..), Character, Destructible, Effect, GameInfo, Message(..), Ninja, Player(..), Reward, Skill, Turn, User, War(..))
+import Import.Flags exposing (Flags)
+import Import.Model as Model exposing (Chakras, Channeling(..), Character, Destructible, Effect, GameInfo, GameMessage(..), Ninja, Player(..), Reward, Skill, Turn, User, War(..))
 import Json.Decode as D
 import List.Extra as List
 import Maybe.Extra as Maybe
@@ -362,12 +362,9 @@ component ports =
                         ( st, ports.websocket "forfeit" )
 
                 Receive json ->
-                    case D.decodeString Model.jsonDecMessage json of
+                    case D.decodeString Model.jsonDecGameMessage json of
                         Err err ->
                             pure { st | error = D.errorToString err }
-
-                        Ok (Fail failure) ->
-                            pure { st | error = printFailure failure }
 
                         Ok (Play game) ->
                             setGameAnd game st <|
@@ -393,9 +390,6 @@ component ports =
 
                         Ok (Rewards dna) ->
                             pure { st | dna = dna }
-
-                        Ok _ ->
-                            pure st
 
                 Ready ->
                     if st.practice then

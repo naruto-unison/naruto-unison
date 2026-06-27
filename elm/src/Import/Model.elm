@@ -286,40 +286,6 @@ jsonEncFace  val =
 
 
 
-type Failure  =
-    AlreadyQueued
-    | Canceled
-    | InvalidTeam String
-    | Locked (List String)
-    | NotFound
-    | SocketError String
-
-jsonDecFailure : Json.Decode.Decoder ( Failure )
-jsonDecFailure =
-    let jsonDecDictFailure = Dict.fromList
-            [ ("AlreadyQueued", Json.Decode.lazy (\_ -> Json.Decode.succeed AlreadyQueued))
-            , ("Canceled", Json.Decode.lazy (\_ -> Json.Decode.succeed Canceled))
-            , ("InvalidTeam", Json.Decode.lazy (\_ -> Json.Decode.map InvalidTeam (Json.Decode.string)))
-            , ("Locked", Json.Decode.lazy (\_ -> Json.Decode.map Locked (Json.Decode.list (Json.Decode.string))))
-            , ("NotFound", Json.Decode.lazy (\_ -> Json.Decode.succeed NotFound))
-            , ("SocketError", Json.Decode.lazy (\_ -> Json.Decode.map SocketError (Json.Decode.string)))
-            ]
-        jsonDecObjectSetFailure = Set.fromList ["AlreadyQueued", "Canceled", "NotFound"]
-    in  decodeSumTaggedObject "Failure" "tag" "contents" jsonDecDictFailure jsonDecObjectSetFailure
-
-jsonEncFailure : Failure -> Value
-jsonEncFailure  val =
-    let keyval v = case v of
-                    AlreadyQueued  -> ("AlreadyQueued", encodeValue (Json.Encode.list identity []))
-                    Canceled  -> ("Canceled", encodeValue (Json.Encode.list identity []))
-                    InvalidTeam v1 -> ("InvalidTeam", encodeValue (Json.Encode.string v1))
-                    Locked v1 -> ("Locked", encodeValue ((Json.Encode.list Json.Encode.string) v1))
-                    NotFound  -> ("NotFound", encodeValue (Json.Encode.list identity []))
-                    SocketError v1 -> ("SocketError", encodeValue (Json.Encode.string v1))
-    in encodeSumTaggedObject "tag" "contents" keyval val
-
-
-
 type alias GameInfo  =
    { opponent: User
    , turn: Turn
@@ -346,31 +312,22 @@ jsonEncGameInfo  val =
 
 
 
-type Message  =
-    Fail Failure
-    | Info GameInfo
-    | Ping
-    | Play Turn
+type GameMessage  =
+    Play Turn
     | Rewards (List Reward)
 
-jsonDecMessage : Json.Decode.Decoder ( Message )
-jsonDecMessage =
-    let jsonDecDictMessage = Dict.fromList
-            [ ("Fail", Json.Decode.lazy (\_ -> Json.Decode.map Fail (jsonDecFailure)))
-            , ("Info", Json.Decode.lazy (\_ -> Json.Decode.map Info (jsonDecGameInfo)))
-            , ("Ping", Json.Decode.lazy (\_ -> Json.Decode.succeed Ping))
-            , ("Play", Json.Decode.lazy (\_ -> Json.Decode.map Play (jsonDecTurn)))
+jsonDecGameMessage : Json.Decode.Decoder ( GameMessage )
+jsonDecGameMessage =
+    let jsonDecDictGameMessage = Dict.fromList
+            [ ("Play", Json.Decode.lazy (\_ -> Json.Decode.map Play (jsonDecTurn)))
             , ("Rewards", Json.Decode.lazy (\_ -> Json.Decode.map Rewards (Json.Decode.list (jsonDecReward))))
             ]
-        jsonDecObjectSetMessage = Set.fromList ["Ping"]
-    in  decodeSumTaggedObject "Message" "tag" "contents" jsonDecDictMessage jsonDecObjectSetMessage
+        jsonDecObjectSetGameMessage = Set.fromList []
+    in  decodeSumTaggedObject "GameMessage" "tag" "contents" jsonDecDictGameMessage jsonDecObjectSetGameMessage
 
-jsonEncMessage : Message -> Value
-jsonEncMessage  val =
+jsonEncGameMessage : GameMessage -> Value
+jsonEncGameMessage  val =
     let keyval v = case v of
-                    Fail v1 -> ("Fail", encodeValue (jsonEncFailure v1))
-                    Info v1 -> ("Info", encodeValue (jsonEncGameInfo v1))
-                    Ping  -> ("Ping", encodeValue (Json.Encode.list identity []))
                     Play v1 -> ("Play", encodeValue (jsonEncTurn v1))
                     Rewards v1 -> ("Rewards", encodeValue ((Json.Encode.list jsonEncReward) v1))
     in encodeSumTaggedObject "tag" "contents" keyval val
@@ -491,6 +448,65 @@ jsonEncPrivilege  val =
         Normal -> Json.Encode.string "Normal"
         Moderator -> Json.Encode.string "Moderator"
         Admin -> Json.Encode.string "Admin"
+
+
+
+type QueueFailure  =
+    AlreadyQueued
+    | Canceled
+    | InvalidTeam String
+    | Locked (List String)
+    | NotFound
+    | SocketError String
+
+jsonDecQueueFailure : Json.Decode.Decoder ( QueueFailure )
+jsonDecQueueFailure =
+    let jsonDecDictQueueFailure = Dict.fromList
+            [ ("AlreadyQueued", Json.Decode.lazy (\_ -> Json.Decode.succeed AlreadyQueued))
+            , ("Canceled", Json.Decode.lazy (\_ -> Json.Decode.succeed Canceled))
+            , ("InvalidTeam", Json.Decode.lazy (\_ -> Json.Decode.map InvalidTeam (Json.Decode.string)))
+            , ("Locked", Json.Decode.lazy (\_ -> Json.Decode.map Locked (Json.Decode.list (Json.Decode.string))))
+            , ("NotFound", Json.Decode.lazy (\_ -> Json.Decode.succeed NotFound))
+            , ("SocketError", Json.Decode.lazy (\_ -> Json.Decode.map SocketError (Json.Decode.string)))
+            ]
+        jsonDecObjectSetQueueFailure = Set.fromList ["AlreadyQueued", "Canceled", "NotFound"]
+    in  decodeSumTaggedObject "QueueFailure" "tag" "contents" jsonDecDictQueueFailure jsonDecObjectSetQueueFailure
+
+jsonEncQueueFailure : QueueFailure -> Value
+jsonEncQueueFailure  val =
+    let keyval v = case v of
+                    AlreadyQueued  -> ("AlreadyQueued", encodeValue (Json.Encode.list identity []))
+                    Canceled  -> ("Canceled", encodeValue (Json.Encode.list identity []))
+                    InvalidTeam v1 -> ("InvalidTeam", encodeValue (Json.Encode.string v1))
+                    Locked v1 -> ("Locked", encodeValue ((Json.Encode.list Json.Encode.string) v1))
+                    NotFound  -> ("NotFound", encodeValue (Json.Encode.list identity []))
+                    SocketError v1 -> ("SocketError", encodeValue (Json.Encode.string v1))
+    in encodeSumTaggedObject "tag" "contents" keyval val
+
+
+
+type QueueMessage  =
+    Fail QueueFailure
+    | Info GameInfo
+    | Ping
+
+jsonDecQueueMessage : Json.Decode.Decoder ( QueueMessage )
+jsonDecQueueMessage =
+    let jsonDecDictQueueMessage = Dict.fromList
+            [ ("Fail", Json.Decode.lazy (\_ -> Json.Decode.map Fail (jsonDecQueueFailure)))
+            , ("Info", Json.Decode.lazy (\_ -> Json.Decode.map Info (jsonDecGameInfo)))
+            , ("Ping", Json.Decode.lazy (\_ -> Json.Decode.succeed Ping))
+            ]
+        jsonDecObjectSetQueueMessage = Set.fromList ["Ping"]
+    in  decodeSumTaggedObject "QueueMessage" "tag" "contents" jsonDecDictQueueMessage jsonDecObjectSetQueueMessage
+
+jsonEncQueueMessage : QueueMessage -> Value
+jsonEncQueueMessage  val =
+    let keyval v = case v of
+                    Fail v1 -> ("Fail", encodeValue (jsonEncQueueFailure v1))
+                    Info v1 -> ("Info", encodeValue (jsonEncGameInfo v1))
+                    Ping  -> ("Ping", encodeValue (Json.Encode.list identity []))
+    in encodeSumTaggedObject "tag" "contents" keyval val
 
 
 

@@ -5,7 +5,7 @@ import Html as H exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
 import Import.Flags as Flags exposing (Flags, printFailure)
-import Import.Model as Model exposing (Failure(..), Message(..))
+import Import.Model as Model exposing (QueueFailure(..), QueueMessage(..))
 import Json.Decode as D exposing (Value)
 import Ports exposing (Ports)
 import Site.Play as Play
@@ -14,13 +14,27 @@ import Sound exposing (Sound(..))
 import Util exposing (pure, showErr)
 
 
+type ComponentModel
+    = SelectModel Select.Model
+    | PlayModel Play.Model
+
+
 type alias Model =
     { error : Maybe String
     , flags : Flags
-    , selectModel : Select.Model
-    , playModel : Maybe Play.Model
+    , component : ComponentModel
     , bg : String
     }
+
+
+isQueued : Model -> Bool
+isQueued st =
+    case st.component of
+        SelectModel model ->
+            model.stage == Select.Queued
+
+        PlayModel _ ->
+            False
 
 
 type Msg
@@ -60,6 +74,10 @@ app :
         }
 app websocket ports =
     let
+        withSound : Sound -> Model -> ( Model, Cmd Msg )
+        withSound sound st =
+            ( st, ports.sound sound )
+
         select =
             Select.component <| Ports.map ports getSelectMsg
 
@@ -81,8 +99,7 @@ app websocket ports =
                 st =
                     { flags = flags
                     , error = error
-                    , selectModel = select.init flags
-                    , playModel = Nothing
+                    , component = SelectModel <| select.init flags
                     , bg = "url(" ++ flags.bg ++ ")"
                     }
             in
@@ -101,7 +118,7 @@ app websocket ports =
                                 :: xs
 
                 contents els =
-                    if st.selectModel.stage == Select.Queued then
+                    if isQueued st then
                         H.div [ A.id "main", A.class "queueing" ] <|
                             renderSearching
                                 ++ els
@@ -115,29 +132,20 @@ app websocket ports =
                 << contents
                 << showError
             <|
-                case st.playModel of
-                    Just model ->
+                case st.component of
+                    SelectModel model ->
+                        [ H.map SelectMsg <| select.view model ]
+
+                    PlayModel model ->
                         [ renderBg st.bg
                         , H.map PlayMsg <| play.view model
                         ]
-
-                    Nothing ->
-                        [ H.map SelectMsg <| select.view st.selectModel ]
 
         update : Msg -> Model -> ( Model, Cmd Msg )
         update parentMsg st =
             case parentMsg of
                 SelectMsg (Select.ReceiveGame (Ok x)) ->
-                    let
-                        selectModel =
-                            st.selectModel
-                    in
-                    ( { st
-                        | playModel =
-                            Just <| play.init st.flags True x
-                        , selectModel =
-                            { selectModel | stage = Select.Browsing }
-                      }
+                    ( { st | component = PlayModel <| play.init st.flags True x }
                     , Cmd.batch
                         [ ports.sound Sound.StartFirst, ports.progress 0 1 1 ]
                     )
@@ -146,45 +154,47 @@ app websocket ports =
                     pure { st | error = Just <| showErr err }
 
                 SelectMsg msg ->
-                    let
-                        ( model, cmd ) =
-                            select.update msg st.selectModel
-                    in
-                    ( { st | selectModel = model }, Cmd.map SelectMsg cmd )
+                    case st.component of
+                        SelectModel model ->
+                            let
+                                ( newmodel, cmd ) =
+                                    select.update msg model
+                            in
+                            ( { st | component = SelectModel newmodel }
+                            , Cmd.map SelectMsg cmd
+                            )
 
-                PlayMsg msg ->
-                    case Maybe.map (play.update msg) <| st.playModel of
-                        Nothing ->
+                        PlayModel _ ->
                             pure st
 
-                        Just ( model, cmd ) ->
-                            ( { st | playModel = Just model }
+                PlayMsg msg ->
+                    case st.component of
+                        PlayModel model ->
+                            let
+                                ( newmodel, cmd ) =
+                                    play.update msg model
+                            in
+                            ( { st | component = PlayModel newmodel }
                             , Cmd.map PlayMsg cmd
                             )
 
+                        SelectModel _ ->
+                            pure st
+
                 Receive msg ->
-                    case D.decodeString Model.jsonDecMessage msg of
+                    case D.decodeString Model.jsonDecQueueMessage msg of
                         Ok Ping ->
-                            if st.selectModel.stage == Select.Queued then
+                            if isQueued st then
                                 ( st, ports.websocket "pong" )
 
                             else
                                 pure st
 
-                        Ok (Fail AlreadyQueued) ->
-                            failTo Select.Browsing AlreadyQueued st
-
-                        Ok (Fail NotFound) ->
-                            failTo Select.Searching NotFound st
-
-                        Ok (Fail (Locked a)) ->
-                            failTo Select.Browsing (Locked a) st
+                        Ok (Fail failure) ->
+                            fail failure st
 
                         Ok (Info info) ->
                             let
-                                selectModel =
-                                    st.selectModel
-
                                 firstPlayer =
                                     info.player == info.turn.playing
 
@@ -195,12 +205,7 @@ app websocket ports =
                                     else
                                         1
                             in
-                            ( { st
-                                | playModel =
-                                    Just <| play.init st.flags False info
-                                , selectModel =
-                                    { selectModel | stage = Select.Browsing }
-                              }
+                            ( { st | component = PlayModel <| play.init st.flags False info }
                             , Cmd.batch
                                 [ ports.progress 60000 (1 - progress) progress
                                 , ports.sound <|
@@ -212,39 +217,52 @@ app websocket ports =
                                 ]
                             )
 
-                        Ok _ ->
-                            pure st
-
                         Err err ->
                             pure { st | error = Just <| D.errorToString err }
 
-        failTo : Select.Stage -> Failure -> Model -> ( Model, Cmd Msg )
-        failTo stage failure st =
-            let
-                selectModel =
-                    st.selectModel
-            in
-            if selectModel.stage == Select.Queued then
-                ( { st
-                    | selectModel =
-                        { selectModel
-                            | stage = stage
-                            , error = Just <| printFailure failure
-                        }
-                  }
-                , ports.sound Sound.Death
-                )
+        fail : QueueFailure -> Model -> ( Model, Cmd Msg )
+        fail failure st =
+            case failure of
+                AlreadyQueued ->
+                    failTo Select.Browsing AlreadyQueued st
 
-            else
-                pure st
+                NotFound ->
+                    failTo Select.Searching NotFound st
+
+                Locked a ->
+                    failTo Select.Browsing (Locked a) st
+
+                _ ->
+                    pure st
+
+        failTo : Select.Stage -> QueueFailure -> Model -> ( Model, Cmd Msg )
+        failTo stage failure st =
+            case st.component of
+                SelectModel model ->
+                    if model.stage == Select.Queued then
+                        let
+                            newmodel =
+                                { model
+                                    | stage = stage
+                                    , error = Just <| printFailure failure
+                                }
+                        in
+                        withSound Sound.Death
+                            { st | component = SelectModel newmodel }
+
+                    else
+                        pure st
+
+                PlayModel _ ->
+                    pure st
 
         subscriptions : Model -> Sub Msg
         subscriptions st =
-            case st.playModel of
-                Nothing ->
+            case st.component of
+                SelectModel _ ->
                     websocket Receive
 
-                Just _ ->
+                PlayModel _ ->
                     websocket (Play.Receive >> PlayMsg)
     in
     { init = init

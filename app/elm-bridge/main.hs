@@ -13,28 +13,29 @@ import Elm.Derive hiding (defaultOptions)
 import Elm.Module
 import Elm.TyRep
 
-import Application.Model.User (Privilege(..))
-import Game.Model.Chakras (Chakras)
-import Game.Model.Channel (Channel, Channeling)
-import Game.Model.Character (Category, Character)
+import           Application.Model.User (Privilege(..))
+import           Game.Model.Chakras (Chakras)
+import           Game.Model.Channel (Channel, Channeling)
+import           Game.Model.Character (Category, Character)
 import qualified Game.Model.Class as Class
-import Game.Model.Class (Class)
-import Game.Model.Copy (Copy)
-import Game.Model.Destructible (Destructible)
-import Game.Model.Duration (Duration)
-import Game.Model.Face (Face)
-import Game.Model.Player (Player(..))
-import Game.Model.Runnable (Runnable)
-import Game.Model.Skill (Target)
-import Game.Model.Slot (Slot)
-import Game.Model.Status (Status, Bomb(..))
-import Game.Model.Trap (Direction)
-import Game.Model.Trigger (Trigger)
-import Handler.Client (ObjectiveProgress)
-import Handler.Client.Message (Failure(..), Message(..))
-import Handler.Client.Reward (Reward)
-import Handler.Play.Turn (Turn)
-import Handler.Play.War (War(..))
+import           Game.Model.Class (Class)
+import           Game.Model.Copy (Copy)
+import           Game.Model.Destructible (Destructible)
+import           Game.Model.Duration (Duration)
+import           Game.Model.Face (Face)
+import           Game.Model.Player (Player(..))
+import           Game.Model.Runnable (Runnable)
+import           Game.Model.Skill (Target)
+import           Game.Model.Slot (Slot)
+import           Game.Model.Status (Status, Bomb(..))
+import           Game.Model.Trap (Direction)
+import           Game.Model.Trigger (Trigger)
+import           Handler.Client (ObjectiveProgress)
+import           Handler.Client.GameMessage (GameMessage(..))
+import           Handler.Client.QueueMessage (QueueFailure(..), QueueMessage(..))
+import           Handler.Client.Reward (Reward)
+import           Handler.Play.Turn (Turn)
+import           Handler.Play.War (War(..))
 
 -- From Game.Model.Internal
 data Ninja = Ninja
@@ -128,16 +129,11 @@ alterations = recAlterType alter
     alter (ETyCon (ETCon "Trigger"))  = ETyCon (ETCon "String")
     alter ty                          = defaultTypeAlterations ty
 
-deriveElmDef defaultOptions ''Message
-deriveElmDef defaultOptions ''Failure
-
-deriveElmDef defaultOptions ''User
-deriveElmDef defaultOptions ''Privilege
 deriveElmDef defaultOptions ''Bomb
 deriveElmDef defaultOptions ''Category
+deriveElmDef defaultOptions ''Chakras
 deriveElmDef defaultOptions ''Channel
 deriveElmDef defaultOptions ''Channeling
-deriveElmDef defaultOptions ''Chakras
 deriveElmDef defaultOptions ''Character
 deriveElmDef defaultOptions ''Copy
 deriveElmDef defaultOptions ''Destructible
@@ -145,15 +141,20 @@ deriveElmDef defaultOptions ''Direction
 deriveElmDef defaultOptions ''Effect
 deriveElmDef defaultOptions ''Face
 deriveElmDef defaultOptions ''GameInfo
+deriveElmDef defaultOptions ''GameMessage
 deriveElmDef defaultOptions ''Ninja
 deriveElmDef defaultOptions ''ObjectiveProgress
 deriveElmDef defaultOptions ''Player
+deriveElmDef defaultOptions ''Privilege
+deriveElmDef defaultOptions ''QueueFailure
+deriveElmDef defaultOptions ''QueueMessage
 deriveElmDef defaultOptions ''Reward
 deriveElmDef defaultOptions ''Skill
 deriveElmDef defaultOptions ''Status
 deriveElmDef defaultOptions ''Target
 deriveElmDef defaultOptions ''Trap
 deriveElmDef defaultOptions ''Turn
+deriveElmDef defaultOptions ''User
 deriveElmDef defaultOptions ''War
 
 trimAll :: String -> String
@@ -184,13 +185,14 @@ main = writeFile "elm/src/Import/Model.elm" . fromString . trimAll $ "module Imp
     , DefineElm (Proxy :: Proxy Direction)
     , DefineElm (Proxy :: Proxy Effect)
     , DefineElm (Proxy :: Proxy Face)
-    , DefineElm (Proxy :: Proxy Failure)
     , DefineElm (Proxy :: Proxy GameInfo)
-    , DefineElm (Proxy :: Proxy Message)
+    , DefineElm (Proxy :: Proxy GameMessage)
     , DefineElm (Proxy :: Proxy Ninja)
     , DefineElm (Proxy :: Proxy ObjectiveProgress)
     , DefineElm (Proxy :: Proxy Player)
     , DefineElm (Proxy :: Proxy Privilege)
+    , DefineElm (Proxy :: Proxy QueueFailure)
+    , DefineElm (Proxy :: Proxy QueueMessage)
     , DefineElm (Proxy :: Proxy Reward)
     , DefineElm (Proxy :: Proxy Skill)
     , DefineElm (Proxy :: Proxy Status)

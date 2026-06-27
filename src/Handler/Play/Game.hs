@@ -40,7 +40,8 @@ import qualified Game.Model.Player as Player
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (SlotSet)
 import qualified Game.Model.Slot as Slot
-import qualified Handler.Client.Message as Message
+import qualified Handler.Client.GameMessage as GameMessage
+import qualified Handler.Client.QueueMessage as QueueMessage
 import           Handler.Client.Reward (Reward(Reward))
 import qualified Handler.Client.Socket as Socket
 import           Handler.Play.Act (Act)
@@ -116,15 +117,15 @@ gameSocket = Socket.withSocket \socket -> logErrors =<< runExceptT do
 
     (section, team, Response mvar info) <- untilJust $ handleFailures socket =<<
         runExceptT do
-            message <- modifyError (Message.SocketError . displayException)
+            message <- modifyError (QueueMessage.SocketError . displayException)
                      $ except =<< Socket.receiveData socket {-! BLOCKS !-}
-            Team section team <- modifyError Message.InvalidTeam . except
+            Team section team <- modifyError QueueMessage.InvalidTeam . except
                                $ Parse.parseToEnd @Team message
 
             let teamNames = Character.ident <$> team
                 locked    = filter (∉ unlocked) teamNames
             when (not $ null locked)
-                . throwError $ Message.Locked locked
+                . throwError $ QueueMessage.Locked locked
             liftDB $ update who [ UserTeam =. Just teamNames ]
 
             queued <- Queue.queue socket section team {-! BLOCKS !-}
@@ -132,7 +133,7 @@ gameSocket = Socket.withSocket \socket -> logErrors =<< runExceptT do
 
     let GameInfo{player, war, vsUser = Entity vsWho _} = info
 
-    trySocket . Socket.sendJSONData socket $ Message.Info info
+    trySocket . Socket.sendJSONData socket $ QueueMessage.Info info
 
     wrapper@Wrapper{game, progress} <- Wrapper.runGame info do
         when (player == Player.A)
@@ -143,7 +144,7 @@ gameSocket = Socket.withSocket \socket -> logErrors =<< runExceptT do
 
             if Game.inProgress wrapper.game then do
                 trySocket . Socket.sendJSONData socket
-                          . Message.Play $ Wrapper.toTurn player wrapper
+                          . GameMessage.Play $ Wrapper.toTurn player wrapper
                 Wrapper.replace wrapper =<< ask
                 tryEnact socket settings player mvar {-! BLOCKS !-}
                 game <- P.game
@@ -155,16 +156,17 @@ gameSocket = Socket.withSocket \socket -> logErrors =<< runExceptT do
                 Wrapper.replace wrapper =<< ask
 
     trySocket . Socket.sendJSONData socket
-              . Message.Play $ Wrapper.toTurn player wrapper
+              . GameMessage.Play $ Wrapper.toTurn player wrapper
 
     when (section == Queue.Quick) do -- eventually, || Queue.Ladder
         let outcome = Match.outcome game player
         if outcome == Defeat && Game.forfeited game then
             trySocket . Socket.sendJSONData socket
-                      $ Message.Rewards [Reward "Forfeit" 0]
+                      $ GameMessage.Rewards [Reward "Forfeit" 0]
         else do
             dnaReward <- liftHandler $ Mission.awardDNA Queue.Quick outcome war
-            trySocket . Socket.sendJSONData socket $ Message.Rewards dnaReward
+            trySocket . Socket.sendJSONData socket
+                $ GameMessage.Rewards dnaReward
 
         liftHandler do
             case outcome of
@@ -185,9 +187,9 @@ gameSocket = Socket.withSocket \socket -> logErrors =<< runExceptT do
         f (Right result) = return result
 
     handleFailures _ (Right val)                      = return $ Just val
-    handleFailures _ (Left (Message.SocketError err)) = throwError err
+    handleFailures _ (Left (QueueMessage.SocketError err)) = throwError err
     handleFailures socket (Left msg) =
-        Socket.sendJSONData socket (Message.Fail msg) $> Nothing
+        Socket.sendJSONData socket (QueueMessage.Fail msg) $> Nothing
 
 data ClientResponse
     = Received ClientMessage
@@ -264,7 +266,7 @@ tryEnact socket Settings{forfeitAfterSkips, turnLength} player mvar = do
             logErrorN $ "Malformed client input: " ++ pack malformed
 
     wrapper <- Wrapper.freeze =<< ask
-    Socket.sendJSONData socket . Message.Play $ Wrapper.toTurn player wrapper
+    Socket.sendJSONData socket . GameMessage.Play $ Wrapper.toTurn player wrapper
     putMVar mvar wrapper -- this should never block
   where
     decodeMessage (Left err) = case fromException err of

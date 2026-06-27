@@ -1,19 +1,17 @@
--- | Handles API routes and WebSockets related to gameplay.
-module Handler.Client.Message
-    ( Failure(..)
-    , Message(..)
+-- | Handles API routes and WebSockets related to queueing.
+module Handler.Client.QueueMessage
+    ( QueueMessage(..)
+    , QueueFailure(..)
     ) where
 
 import ClassyPrelude
 
 import Data.Aeson (ToJSON)
 
-import Handler.Client.Reward (Reward)
 import Handler.Play.GameInfo (GameInfo)
-import Handler.Play.Turn (Turn)
 
 -- | Error messages sent to the client.
-data Failure
+data QueueFailure
     = AlreadyQueued
     | Canceled
     | InvalidTeam String
@@ -22,16 +20,14 @@ data Failure
     | SocketError String
     deriving (Eq, Ord, Show, Generic)
 
-instance ToJSON Failure
+instance ToJSON QueueFailure
 
 -- | A message sent through the websocket to the client.
 -- This definition is exported so that @elm-bridge@ sends it over to the client.
-data Message
-    = Fail Failure
+data QueueMessage
+    = Fail QueueFailure
     | Info GameInfo
     | Ping
-    | Play Turn
-    | Rewards [Reward]
     deriving (Generic)
 
-instance ToJSON Message
+instance ToJSON QueueMessage

@@ -31,7 +31,7 @@ import qualified Game.Model.Game as Game
 import qualified Game.Model.Ninja as N
 import qualified Game.Model.Player as Player
 import qualified Game.Model.Slot as Slot
-import qualified Handler.Client.Message as Message
+import qualified Handler.Client.QueueMessage as QueueMessage
 import qualified Handler.Client.Socket as Socket
 import           Handler.Play.GameInfo (GameInfo(GameInfo))
 import qualified Handler.Play.GameInfo
@@ -88,7 +88,7 @@ getDnaUnlocks who = fromList . filter Unlocked.reanimated . toList
 
 queue :: ∀ m. ( App.MonadHandler m
               , MonadRandom m
-              , MonadError Message.Failure m
+              , MonadError QueueMessage.QueueFailure m
               ) => Socket.Connection -> Section -> [Character]
                 -> m Message.Response
 queue _ Quick team = do
@@ -115,7 +115,7 @@ queue socket Private team = do
                     [ UserName ==. toStrict (decodeUtf8 vsName) ] []
         case mVs of
             Just vs@(Entity vsWho _) | vsWho /= who -> return vs
-            _ -> throwError Message.NotFound
+            _ -> throwError QueueMessage.NotFound
 
     writer <- getsYesod App.private
     reader <- atomically do
@@ -124,10 +124,10 @@ queue socket Private team = do
 
     untilJust $ runMaybeT do
         msg <- atomically $ readTChan reader {-! BLOCKS !-}
-        trySocket $ Socket.sendJSONData socket Message.Ping
+        trySocket $ Socket.sendJSONData socket QueueMessage.Ping
         pong <- trySocket $ Socket.receiveData socket {-! BLOCKS !-}
         when (pong == "cancel")
-            $ throwError Message.Canceled
+            $ throwError QueueMessage.Canceled
 
         guard $ users msg == (who, vsWho)
 
@@ -147,7 +147,7 @@ queue socket Private team = do
     users (Message.Request vsWho who _)  = (who, vsWho)
     trySocket m = f =<< m
       where
-        f (Left err)     = throwError $ Message.SocketError
+        f (Left err)     = throwError $ QueueMessage.SocketError
                                       $ displayException err
         f (Right result) = return result
 
