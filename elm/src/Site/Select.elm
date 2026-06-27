@@ -316,6 +316,10 @@ component :
         }
 component ports =
     let
+        withSound : Sound -> Model -> ( Model, Cmd Msg )
+        withSound sound st =
+            ( st, ports.sound sound )
+
         init : Flags -> Model
         init flags =
             let
@@ -383,10 +387,6 @@ component ports =
                                 , renderVsList st
                                 ]
                        )
-
-        withSound : Sound -> Model -> ( Model, Cmd Msg )
-        withSound sound st =
-            ( st, ports.sound sound )
 
         update : Msg -> Model -> ( Model, Cmd Msg )
         update msg st =
@@ -476,6 +476,7 @@ component ports =
                         }
                     )
 
+                -- handled in Application.elm
                 ReceiveGame _ ->
                     pure st
 

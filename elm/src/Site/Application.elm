@@ -1,7 +1,7 @@
 module Site.Application exposing (Model, Msg, app)
 
 import Browser exposing (Document)
-import Html as H
+import Html as H exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
 import Import.Flags as Flags exposing (Flags, printFailure)
@@ -19,6 +19,7 @@ type alias Model =
     , flags : Flags
     , selectModel : Select.Model
     , playModel : Maybe Play.Model
+    , bg : String
     }
 
 
@@ -26,6 +27,26 @@ type Msg
     = PlayMsg Play.Msg
     | Receive String
     | SelectMsg Select.Msg
+
+
+getPlayMsg : Msg -> Play.Msg
+getPlayMsg msg =
+    case msg of
+        PlayMsg x ->
+            x
+
+        _ ->
+            Play.DoNothing
+
+
+getSelectMsg : Msg -> Select.Msg
+getSelectMsg msg =
+    case msg of
+        SelectMsg x ->
+            x
+
+        _ ->
+            Select.DoNothing
 
 
 app :
@@ -40,28 +61,10 @@ app :
 app websocket ports =
     let
         select =
-            Select.component
-                << Ports.map ports
-            <|
-                \a ->
-                    case a of
-                        SelectMsg x ->
-                            x
-
-                        _ ->
-                            Select.DoNothing
+            Select.component <| Ports.map ports getSelectMsg
 
         play =
-            Play.component
-                << Ports.map ports
-            <|
-                \a ->
-                    case a of
-                        PlayMsg x ->
-                            x
-
-                        _ ->
-                            Play.DoNothing
+            Play.component <| Ports.map ports getPlayMsg
 
         init : Value -> ( Model, Cmd Msg )
         init val =
@@ -74,11 +77,13 @@ app websocket ports =
                         Err err ->
                             ( Flags.failure, Just <| D.errorToString err )
 
+                st : Model
                 st =
                     { flags = flags
                     , error = error
                     , selectModel = select.init flags
                     , playModel = Nothing
+                    , bg = "url(" ++ flags.bg ++ ")"
                     }
             in
             ( st, ports.sounds Sound.enum )
@@ -92,27 +97,13 @@ app websocket ports =
                             xs
 
                         Just err ->
-                            H.div [ A.id "error" ]
-                                [ H.text err ]
+                            renderError err
                                 :: xs
 
                 contents els =
                     if st.selectModel.stage == Select.Queued then
                         H.div [ A.id "main", A.class "queueing" ] <|
-                            [ H.div [ A.id "searching" ]
-                                [ H.img
-                                    [ A.src "/img/spin.gif"
-                                    , A.alt "Spinning loading indicator"
-                                    ]
-                                    []
-                                ]
-                            , H.button
-                                [ A.id "cancel"
-                                , A.class "parchment playButton click"
-                                , E.onClick <| SelectMsg Select.Dequeue
-                                ]
-                                [ H.text "Cancel" ]
-                            ]
+                            renderSearching
                                 ++ els
 
                     else
@@ -126,13 +117,7 @@ app websocket ports =
             <|
                 case st.playModel of
                     Just model ->
-                        [ H.div
-                            [ A.id "bg"
-                            , A.classList
-                                [ ( "over", not <| List.isEmpty model.game.victor ) ]
-                            , A.style "background-image" <| "url(" ++ st.flags.bg ++ ")"
-                            ]
-                            []
+                        [ renderBg st.bg
                         , H.map PlayMsg <| play.view model
                         ]
 
@@ -243,10 +228,8 @@ app websocket ports =
                 ( { st
                     | selectModel =
                         { selectModel
-                            | stage =
-                                stage
-                            , error =
-                                Just <| printFailure failure
+                            | stage = stage
+                            , error = Just <| printFailure failure
                         }
                   }
                 , ports.sound Sound.Death
@@ -269,3 +252,35 @@ app websocket ports =
     , update = update
     , subscriptions = subscriptions
     }
+
+
+renderError : String -> Html msg
+renderError err =
+    H.div [ A.id "error" ] [ H.text err ]
+
+
+renderBg : String -> Html msg
+renderBg url =
+    H.div
+        [ A.id "bg"
+        , A.style "background-image" url
+        ]
+        []
+
+
+renderSearching : List (Html Msg)
+renderSearching =
+    [ H.div [ A.id "searching" ]
+        [ H.img
+            [ A.src "/img/spin.gif"
+            , A.alt "Spinning loading indicator"
+            ]
+            []
+        ]
+    , H.button
+        [ A.id "cancel"
+        , A.class "parchment playButton click"
+        , E.onClick <| SelectMsg Select.Dequeue
+        ]
+        [ H.text "Cancel" ]
+    ]

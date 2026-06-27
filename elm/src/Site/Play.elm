@@ -204,6 +204,10 @@ component :
         }
 component ports =
     let
+        withSound : Sound -> Model -> ( Model, Cmd Msg )
+        withSound sfx st =
+            ( st, ports.sound sfx )
+
         init : Flags -> Bool -> GameInfo -> Model
         init flags practice info =
             recalculateChakra <|
@@ -266,10 +270,6 @@ component ports =
                     List.map (renderNinja ninjaData False) enemies
                 ]
                     ++ renderCenter st
-
-        withSound : Sound -> Model -> ( Model, Cmd Msg )
-        withSound sfx st =
-            ( st, ports.sound sfx )
 
         setGameAnd : Turn -> Model -> List (Cmd Msg) -> ( Model, Cmd Msg )
         setGameAnd game st cmds =
