@@ -1,7 +1,7 @@
 module Game.Skill exposing (targets)
 
 import Game.Game exposing (teamSize)
-import Import.Model exposing (Channeling(..), Player(..), Skill, Target(..), War(..))
+import Import.Model exposing (Skill, Target(..))
 import List.Extra as List
 
 

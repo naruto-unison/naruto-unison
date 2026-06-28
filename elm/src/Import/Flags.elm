@@ -9,7 +9,7 @@ module Import.Flags exposing
     )
 
 import Game.Characters as Characters exposing (Characters)
-import Import.Model as Model exposing (Category(..), QueueFailure(..), User)
+import Import.Model as Model exposing (QueueFailure(..), User)
 import Json.Decode as D
 import Json.Helpers as D
 import List.Nonempty exposing (Nonempty(..))

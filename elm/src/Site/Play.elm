@@ -14,7 +14,7 @@ import Html.Events as E
 import Html.Lazy exposing (lazy2, lazy4)
 import Http
 import Import.Flags exposing (Flags)
-import Import.Model as Model exposing (Chakras, Channeling(..), Character, Destructible, Effect, GameInfo, GameMessage(..), Ninja, Player(..), Reward, Skill, Turn, User, War(..))
+import Import.Model as Model exposing (Chakras, Character, Destructible, Effect, GameInfo, GameMessage(..), Ninja, Player(..), Reward, Skill, Turn, User, War(..))
 import Json.Decode as D
 import List.Extra as List
 import Maybe.Extra as Maybe

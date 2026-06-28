@@ -10,7 +10,7 @@ import Json.Decode as D exposing (Value)
 import Ports exposing (Ports)
 import Site.Play as Play
 import Site.Select as Select
-import Sound exposing (Sound(..))
+import Sound exposing (Sound)
 import Util exposing (pure, showErr)
 
 

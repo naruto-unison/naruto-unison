@@ -14,8 +14,7 @@ import Dict exposing (Dict)
 import Html as H
 import Html.Attributes as A
 import Html.Events as E
-import Http exposing (Error(..))
-import List.Extra as List
+import Http
 import List.Nonempty exposing (Nonempty(..))
 import Set exposing (Set)
 
@@ -59,22 +58,22 @@ showBool b =
         "False"
 
 
-showErr : Error -> String
+showErr : Http.Error -> String
 showErr err =
     case err of
-        BadUrl x ->
+        Http.BadUrl x ->
             "Bad url: " ++ x
 
-        Timeout ->
+        Http.Timeout ->
             "Connection timed out"
 
-        NetworkError ->
+        Http.NetworkError ->
             "Network error"
 
-        BadStatus x ->
+        Http.BadStatus x ->
             "Received error " ++ String.fromInt x
 
-        BadBody x ->
+        Http.BadBody x ->
             "Invalid response from server: " ++ x
 
 

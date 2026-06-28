@@ -4,8 +4,7 @@ module Game.Game exposing
     , teamSize
     )
 
-import Import.Model as Player exposing (Ninja, Player(..), Turn, War(..))
-import List.Extra as List
+import Import.Model as Player exposing (Ninja, Player, Turn)
 
 
 teamSize : Int
