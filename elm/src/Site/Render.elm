@@ -17,7 +17,7 @@ module Site.Render exposing
     , streak
     )
 
-import Game.Chakra as Chakra
+import Game.Chakras as Chakra
 import Game.Characters as Characters
 import Game.Detail exposing (Detail)
 import Html as H exposing (Html)

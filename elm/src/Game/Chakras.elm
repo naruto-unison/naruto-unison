@@ -1,4 +1,4 @@
-module Game.Chakra exposing
+module Game.Chakras exposing
     ( affordable
     , canExchange
     , lacks
@@ -7,6 +7,7 @@ module Game.Chakra exposing
     , rate
     , sum
     , total
+    , toPathPieces
     )
 
 import Import.Model exposing (Chakras)
@@ -103,3 +104,7 @@ canExchange x =
         , { none | nin = 1 }
         , { none | tai = 1 }
         ]
+
+toPathPieces : Chakras -> List Int
+toPathPieces { blood, gen, nin, tai } =
+    [ blood, gen, nin, tai ]

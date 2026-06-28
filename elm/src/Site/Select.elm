@@ -3,7 +3,7 @@ module Site.Select exposing (Model, Msg(..), Stage(..), component)
 import Browser.Dom as Dom
 import Browser.Navigation as Navigation
 import Dict
-import Game.Chakra as Chakra
+import Game.Chakras as Chakras
 import Game.Characters as Characters exposing (Characters)
 import Game.Game as Game
 import Html as H exposing (Html)
@@ -122,7 +122,7 @@ createTeam list =
         list
             |> List.concatMap (.skills >> List.filterMap List.head)
             >> List.map .cost
-            >> Chakra.sum
+            >> Chakras.sum
     }
 
 

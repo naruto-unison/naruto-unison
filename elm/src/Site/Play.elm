@@ -1,10 +1,13 @@
 module Site.Play exposing (Model, Msg(..), component)
 
 import Dict
-import Game.Chakra as Chakra exposing (none)
+import Game.Act as Act exposing (Act)
+import Game.Chakras as Chakras exposing (none)
 import Game.Characters as Characters exposing (Characters)
 import Game.Detail as Detail exposing (Detail)
-import Game.Game as Game exposing (Act)
+import Game.Effect as Effect
+import Game.Game as Game
+import Game.Skill as Skill
 import Html as H exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
@@ -75,7 +78,7 @@ type alias ChakraSums =
 
 nullChakraSums : ChakraSums
 nullChakraSums =
-    { free = Chakra.none, net = Chakra.none, rand = 0 }
+    { free = Chakras.none, net = Chakras.none, rand = 0 }
 
 
 sumChakras : Model -> ChakraSums
@@ -84,22 +87,22 @@ sumChakras st =
         costs =
             st.acts
                 |> List.map (.skill >> .cost)
-                >> Chakra.sum
+                >> Chakras.sum
 
         net =
-            Chakra.sum [ st.exchanged, st.chakras, Chakra.negate costs ]
+            Chakras.sum [ st.exchanged, st.chakras, Chakras.negate costs ]
 
         netUnrand =
             { net | rand = 0 }
 
         rand =
-            Chakra.total st.randoms
+            Chakras.total st.randoms
                 + net.rand
-                - Chakra.rate
-                * Chakra.total st.exchanged
+                - Chakras.rate
+                * Chakras.total st.exchanged
 
         free =
-            { net | rand = Chakra.total netUnrand + rand }
+            { net | rand = Chakras.total netUnrand + rand }
     in
     { free = free, net = net, rand = rand }
 
@@ -141,8 +144,8 @@ setGame game st =
             | game = game
             , chakras = game.chakra
             , ninjas = List.map (Characters.merge st.characters) game.ninjas
-            , randoms = Chakra.none
-            , exchanged = Chakra.none
+            , randoms = Chakras.none
+            , exchanged = Chakras.none
             , acts = []
             , ownTurn = st.player == game.playing
         }
@@ -173,24 +176,14 @@ createUrl toPathPieces =
     List.map (toPathPieces >> List.map String.fromInt >> String.join ",")
 
 
-chakrasToPathPieces : Chakras -> List Int
-chakrasToPathPieces { blood, gen, nin, tai } =
-    [ blood, gen, nin, tai ]
-
-
-actToPathPieces : Act -> List Int
-actToPathPieces { user, button, target } =
-    [ user, button, target ]
-
-
 enactUrl : Model -> String
 enactUrl st =
     let
         chakras =
-            createUrl chakrasToPathPieces [ st.randoms, st.exchanged ]
+            createUrl Chakras.toPathPieces [ st.randoms, st.exchanged ]
 
         acts =
-            createUrl actToPathPieces st.acts
+            createUrl Act.toPathPieces st.acts
     in
     String.join "/" <| chakras ++ acts
 
@@ -222,8 +215,8 @@ component ports =
                     , ownTurn = info.player == info.turn.playing
                     , ninjas = []
                     , chakras = info.turn.chakra
-                    , randoms = Chakra.none
-                    , exchanged = Chakra.none
+                    , randoms = Chakras.none
+                    , exchanged = Chakras.none
                     , chakraSums = nullChakraSums
                     , exchange = False
                     , viewing = ViewUser info.opponent
@@ -324,9 +317,9 @@ component ports =
                         recalculateChakra
                             { st
                                 | randoms =
-                                    Chakra.sum [ st.randoms, chakras ]
+                                    Chakras.sum [ st.randoms, chakras ]
                                 , chakras =
-                                    Chakra.sum [ st.chakras, Chakra.negate chakras ]
+                                    Chakras.sum [ st.chakras, Chakras.negate chakras ]
                             }
 
                 Exchange Begin ->
@@ -338,8 +331,8 @@ component ports =
                         recalculateChakra
                             { st
                                 | chakras = st.game.chakra
-                                , randoms = Chakra.none
-                                , exchanged = Chakra.none
+                                , randoms = Chakras.none
+                                , exchanged = Chakras.none
                                 , exchange = False
                             }
 
@@ -347,7 +340,7 @@ component ports =
                     withSound Sound.Click <|
                         recalculateChakra
                             { st
-                                | exchanged = Chakra.sum [ st.exchanged, chakras ]
+                                | exchanged = Chakras.sum [ st.exchanged, chakras ]
                                 , exchange = False
                             }
 
@@ -396,7 +389,7 @@ component ports =
                         ( recalculateChakra
                             { untoggled
                                 | exchange = False
-                                , exchanged = Chakra.none
+                                , exchanged = Chakras.none
                             }
                         , Http.get
                             { url =
@@ -444,11 +437,21 @@ component ports =
 -- TOP
 
 
+warInverse : War -> War
+warInverse war =
+    case war of
+        Red ->
+            Blue
+
+        Blue ->
+            Red
+
+
 renderTop : Model -> List Character -> Html Msg
 renderTop st characters =
     let
         vsWar =
-            Maybe.map Game.warInverse st.war
+            Maybe.map warInverse st.war
 
         ( playerInactive, vsInactive ) =
             st.game.inactive
@@ -525,14 +528,14 @@ renderChakraModule { chakraSums, exchange, exchanged, ownTurn, randoms } =
     in
     H.section [ A.id "playchakra" ] <|
         List.map (renderChakraPair ownTurn exchange net) chakraPairs
-            ++ [ Render.rands (Chakra.total { net | rand = 0 }) rand
+            ++ [ Render.rands (Chakras.total { net | rand = 0 }) rand
                , renderChakraButton "exchange" (Exchange Begin) <|
-                    (free.rand >= Chakra.rate)
-                        && Chakra.canExchange net
+                    (free.rand >= Chakras.rate)
+                        && Chakras.canExchange net
                         && ownTurn
                , renderChakraButton "reset" (Exchange Reset) <|
-                    (exchanged /= Chakra.none)
-                        || (randoms /= Chakra.none)
+                    (exchanged /= Chakras.none)
+                        || (randoms /= Chakras.none)
                , renderChakraButton "forfeit" Forfeit ownTurn
                ]
 
@@ -545,7 +548,7 @@ renderChakraPair turn exchange chakras { chakra, spend, amount, random } =
 
         meta =
             if exchange then
-                clickIf (Chakra.affordable chakras spend) classes <|
+                clickIf (Chakras.affordable chakras spend) classes <|
                     Exchange (Conclude spend)
 
             else
@@ -555,7 +558,7 @@ renderChakraPair turn exchange chakras { chakra, spend, amount, random } =
         [ H.div meta []
         , H.span []
             [ H.text <| String.fromInt amount ]
-        , H.button (clickIf (turn && random > 0) "more" << Spend <| Chakra.negate spend)
+        , H.button (clickIf (turn && random > 0) "more" << Spend <| Chakras.negate spend)
             [ H.text "+" ]
         , H.button (clickIf (turn && amount > 0) "less" <| Spend spend)
             [ H.text "—" ]
@@ -723,7 +726,7 @@ renderSkill { user, freeChakras, active, characters } button targets skill =
         noclick =
             not active
                 || List.isEmpty targets
-                || Chakra.lacks freeChakras skill.cost
+                || Chakras.lacks freeChakras skill.cost
     in
     if noclick then
         let
@@ -765,7 +768,7 @@ renderSkill { user, freeChakras, active, characters } button targets skill =
             , E.onMouseOver << View <| ViewSkill targets charge skill
             , E.onMouseLeave Unhighlight
             , E.onClick <|
-                if Game.targets slot skill == [ slot ] then
+                if Skill.targets slot skill == [ slot ] then
                     Enact Add act
 
                 else
@@ -782,7 +785,7 @@ renderDetail onTeam slot characters detail =
                 always False
 
             else
-                Game.removable onTeam
+                Effect.removable onTeam
 
         icon =
             Render.detailIcon (Characters.get characters detail.source) detail []
@@ -861,7 +864,7 @@ renderNinja { characters, acted, toggle, highlight, freeChakras, ownTurn } onTea
                 "right"
 
         toggled =
-            List.member ninja.slot (Game.toggles toggle)
+            List.member ninja.slot (Act.toggles toggle)
 
         fullMeta =
             let
@@ -877,7 +880,7 @@ renderNinja { characters, acted, toggle, highlight, freeChakras, ownTurn } onTea
                     toggle
                         |> Maybe.filter (always toggled)
                         >> Maybe.map
-                            (E.onClick << Enact Add << Game.targeted ninja.slot)
+                            (E.onClick << Enact Add << Act.targeted ninja.slot)
             in
             case onClick of
                 Just onclick ->
