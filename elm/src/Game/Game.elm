@@ -1,10 +1,12 @@
 module Game.Game exposing
     ( died
     , forfeit
+    , split
     , teamSize
     )
 
 import Import.Model as Player exposing (Ninja, Player, Turn)
+import List.Extra as List
 
 
 teamSize : Int
@@ -15,6 +17,20 @@ teamSize =
 allied : Player -> Ninja -> Bool
 allied player n =
     (n.slot < teamSize) == (player == Player.A)
+
+
+split : Player -> List a -> { allies : List a, enemies : List a }
+split player xs =
+    let
+        ( left, right ) =
+            List.splitAt teamSize xs
+    in
+    case player of
+        Player.A ->
+            { allies = left, enemies = right }
+
+        Player.B ->
+            { allies = right, enemies = left }
 
 
 living : Player -> Turn -> Int

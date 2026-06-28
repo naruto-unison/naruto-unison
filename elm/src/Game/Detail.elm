@@ -7,6 +7,7 @@ module Game.Detail exposing
     )
 
 import Game.Game as Game
+import Game.Skill as Skill
 import Import.Model exposing (Channel, Channeling(..), Copy, Effect, Ninja, Skill, Status, Trap)
 import List.Extra as List
 import List.Nonempty exposing (Nonempty(..))
@@ -124,25 +125,6 @@ unfold x =
         List.repeat x.amount { x | amount = 1 }
 
 
-channelDur : Channeling -> Maybe Int
-channelDur chan =
-    case chan of
-        Passive ->
-            Nothing
-
-        Instant ->
-            Just 1
-
-        Action x ->
-            x
-
-        Control x ->
-            x
-
-        Ongoing x ->
-            x
-
-
 skillBase : Maybe Int -> Skill -> Detail
 skillBase dur { classes, desc, name, owner } =
     { name = name
@@ -162,7 +144,7 @@ channel : Int -> Channel -> Detail
 channel user { dur, skill } =
     let
         base =
-            skillBase (channelDur dur) skill
+            skillBase (Skill.channelDur dur) skill
     in
     { base
         | user = user

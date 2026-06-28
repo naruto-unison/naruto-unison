@@ -1,7 +1,7 @@
-module Game.Skill exposing (targets)
+module Game.Skill exposing (channelDur, targets)
 
 import Game.Game exposing (teamSize)
-import Import.Model exposing (Skill, Target(..))
+import Import.Model exposing (Channeling(..), Skill, Target(..))
 import List.Extra as List
 
 
@@ -13,6 +13,25 @@ team =
 allSlots : List Int
 allSlots =
     List.range 0 <| 2 * teamSize - 1
+
+
+channelDur : Channeling -> Maybe Int
+channelDur chan =
+    case chan of
+        Passive ->
+            Nothing
+
+        Instant ->
+            Just 1
+
+        Action x ->
+            x
+
+        Control x ->
+            x
+
+        Ongoing x ->
+            x
 
 
 targets : Int -> Skill -> List Int

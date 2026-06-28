@@ -77,37 +77,6 @@ type alias ChakraSums =
     }
 
 
-nullChakraSums : ChakraSums
-nullChakraSums =
-    { free = Chakras.none, net = Chakras.none, rand = 0 }
-
-
-sumChakras : Model -> ChakraSums
-sumChakras st =
-    let
-        costs =
-            st.acts
-                |> List.map (.skill >> .cost)
-                >> Chakras.sum
-
-        net =
-            Chakras.sum [ st.exchanged, st.chakras, Chakras.negate costs ]
-
-        netUnrand =
-            { net | rand = 0 }
-
-        rand =
-            Chakras.total st.randoms
-                + net.rand
-                - Chakras.rate
-                * Chakras.total st.exchanged
-
-        free =
-            { net | rand = Chakras.total netUnrand + rand }
-    in
-    { free = free, net = net, rand = rand }
-
-
 type alias Model =
     { url : String
     , practice : Bool
@@ -136,6 +105,31 @@ type alias Model =
 recalculateChakra : Model -> Model
 recalculateChakra st =
     { st | chakraSums = sumChakras st }
+
+
+sumChakras : Model -> ChakraSums
+sumChakras st =
+    let
+        costs =
+            st.acts
+                |> List.map (.skill >> .cost)
+                >> Chakras.sum
+
+        net =
+            Chakras.sum [ st.exchanged, st.chakras, Chakras.negate costs ]
+
+        netUnrand =
+            { net | rand = 0 }
+
+        rand =
+            Chakras.total st.randoms
+                + net.rand
+                - (Chakras.rate * Chakras.total st.exchanged)
+
+        free =
+            { net | rand = Chakras.total netUnrand + rand }
+    in
+    { free = free, net = net, rand = rand }
 
 
 setGame : Turn -> Model -> Model
@@ -174,19 +168,19 @@ type Msg
     | View Viewable
 
 
-createUrl : (a -> List Int) -> List a -> List String
-createUrl toPathPieces =
+encodePathPieces : (a -> List Int) -> List a -> List String
+encodePathPieces toPathPieces =
     List.map (toPathPieces >> List.map String.fromInt >> String.join ",")
 
 
-enactUrl : Model -> String
-enactUrl st =
+encodeEnact : Model -> String
+encodeEnact st =
     let
         chakras =
-            createUrl Chakras.toPathPieces [ st.randoms, st.exchanged ]
+            encodePathPieces Chakras.toPathPieces [ st.randoms, st.exchanged ]
 
         acts =
-            createUrl Act.toPathPieces st.acts
+            encodePathPieces Act.toPathPieces st.acts
     in
     String.join "/" <| chakras ++ acts
 
@@ -220,7 +214,11 @@ component ports =
                     , chakras = info.turn.chakra
                     , randoms = Chakras.none
                     , exchanged = Chakras.none
-                    , chakraSums = nullChakraSums
+                    , chakraSums =
+                        { free = Chakras.none
+                        , net = Chakras.none
+                        , rand = 0
+                        }
                     , exchange = False
                     , viewing = ViewUser info.opponent
                     , highlight = []
@@ -234,20 +232,12 @@ component ports =
         view : Model -> Html Msg
         view st =
             let
-                ( left, right ) =
+                { allies, enemies } =
                     List.map3 NinjaBundle
                         (Array.toList st.ninjas)
                         st.game.ninjas
                         st.game.targets
-                        |> List.splitAt Game.teamSize
-
-                ( allies, enemies ) =
-                    case st.player of
-                        A ->
-                            ( left, right )
-
-                        B ->
-                            ( right, left )
+                        |> Game.split st.player
 
                 ninjaData =
                     createNinjaData st
@@ -280,10 +270,6 @@ component ports =
 
         update : Msg -> Model -> ( Model, Cmd Msg )
         update msg st =
-            let
-                untoggled =
-                    { st | toggled = Nothing }
-            in
             case msg of
                 View ((ViewSkill targets _ _) as viewing) ->
                     pure { st | viewing = viewing, highlight = targets }
@@ -300,7 +286,7 @@ component ports =
                 Toggle skill ->
                     withSound Sound.Target <|
                         if st.toggled == Just skill then
-                            untoggled
+                            { st | toggled = Nothing }
 
                         else
                             { st | toggled = Just skill }
@@ -308,21 +294,25 @@ component ports =
                 Enact Add act ->
                     withSound Sound.ApplySkill <|
                         recalculateChakra
-                            { untoggled | acts = st.acts ++ [ act ] }
+                            { st
+                                | acts = st.acts ++ [ act ]
+                                , toggled = Nothing
+                            }
 
                 Enact Delete act ->
                     withSound Sound.Cancel <|
                         recalculateChakra
-                            { untoggled | acts = List.remove act st.acts }
+                            { st
+                                | acts = List.remove act st.acts
+                                , toggled = Nothing
+                            }
 
                 Spend chakras ->
                     withSound Sound.Click <|
                         recalculateChakra
                             { st
-                                | randoms =
-                                    Chakras.sum [ st.randoms, chakras ]
-                                , chakras =
-                                    Chakras.sum [ st.chakras, Chakras.negate chakras ]
+                                | randoms = Chakras.sum [ st.randoms, chakras ]
+                                , chakras = Chakras.sum [ st.chakras, Chakras.negate chakras ]
                             }
 
                 Exchange Begin ->
@@ -390,13 +380,14 @@ component ports =
                 Ready ->
                     if st.practice then
                         ( recalculateChakra
-                            { untoggled
+                            { st
                                 | exchange = False
                                 , exchanged = Chakras.none
+                                , toggled = Nothing
                             }
                         , Http.get
                             { url =
-                                st.url ++ "api/practiceact/" ++ enactUrl st
+                                st.url ++ "api/practiceact/" ++ encodeEnact st
                             , expect =
                                 Http.expectJson ReceivePractice <|
                                     D.list Model.jsonDecTurn
@@ -407,7 +398,7 @@ component ports =
                         ( st
                         , Cmd.batch
                             [ ports.sound Sound.StartTurn
-                            , ports.websocket <| enactUrl st
+                            , ports.websocket <| encodeEnact st
                             ]
                         )
 
