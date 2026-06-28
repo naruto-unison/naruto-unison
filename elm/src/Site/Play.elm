@@ -1,5 +1,6 @@
 module Site.Play exposing (Model, Msg(..), component)
 
+import Array exposing (Array)
 import Dict
 import Game.Act as Act exposing (Act)
 import Game.Chakras as Chakras exposing (none)
@@ -115,7 +116,7 @@ type alias Model =
     , vs : User
     , characters : Characters
     , game : Turn
-    , ninjas : List Character
+    , ninjas : Array Character
     , ownTurn : Bool
     , chakras : Chakras
     , randoms : Chakras
@@ -143,7 +144,9 @@ setGame game st =
         { st
             | game = game
             , chakras = game.chakra
-            , ninjas = List.map (Characters.merge st.characters) game.ninjas
+            , ninjas =
+                Array.fromList <|
+                    List.map (Characters.merge st.characters) game.ninjas
             , randoms = Chakras.none
             , exchanged = Chakras.none
             , acts = []
@@ -213,7 +216,7 @@ component ports =
                     , characters = flags.characters
                     , game = info.turn
                     , ownTurn = info.player == info.turn.playing
-                    , ninjas = []
+                    , ninjas = Array.empty
                     , chakras = info.turn.chakra
                     , randoms = Chakras.none
                     , exchanged = Chakras.none
@@ -233,7 +236,7 @@ component ports =
             let
                 ( left, right ) =
                     List.map3 NinjaBundle
-                        st.ninjas
+                        (Array.toList st.ninjas)
                         st.game.ninjas
                         st.game.targets
                         |> List.splitAt Game.teamSize
@@ -447,7 +450,7 @@ warInverse war =
             Red
 
 
-renderTop : Model -> List Character -> Html Msg
+renderTop : Model -> Array Character -> Html Msg
 renderTop st characters =
     let
         vsWar =
@@ -588,7 +591,7 @@ renderActs { ownTurn, chakraSums, ninjas, acts } =
         ]
 
 
-renderAct : List Character -> Act -> Html Msg
+renderAct : Array Character -> Act -> Html Msg
 renderAct characters x =
     let
         skill =
@@ -693,7 +696,7 @@ type alias SkillData =
     { user : Ninja
     , freeChakras : Chakras
     , active : Bool
-    , characters : List Character
+    , characters : Array Character
     }
 
 
@@ -777,7 +780,7 @@ renderSkill { user, freeChakras, active, characters } button targets skill =
             [ icon ]
 
 
-renderDetail : Bool -> Int -> List Character -> Detail -> Html Msg
+renderDetail : Bool -> Int -> Array Character -> Detail -> Html Msg
 renderDetail onTeam slot characters detail =
     let
         removable =
@@ -829,7 +832,7 @@ renderDetail onTeam slot characters detail =
 
 
 type alias NinjaData =
-    { characters : List Character
+    { characters : Array Character
     , acted : List Int
     , toggle : Maybe Act
     , highlight : List Int
@@ -952,7 +955,7 @@ renderViewCharacter char =
         ]
 
 
-renderViewDestructible : List Character -> Destructible -> Html msg
+renderViewDestructible : Array Character -> Destructible -> Html msg
 renderViewDestructible characters { amount, dur, skill, user } =
     let
         source =
@@ -985,7 +988,7 @@ viewIgnoredClasses =
         ]
 
 
-renderViewDetail : List Character -> (Effect -> Bool) -> Detail -> List (Html msg)
+renderViewDetail : Array Character -> (Effect -> Bool) -> Detail -> List (Html msg)
 renderViewDetail characters removable detail =
     [ H.section []
         [ Render.detailIcon (Characters.get characters detail.source)
@@ -1029,7 +1032,7 @@ renderAlternateButton class skill =
         []
 
 
-renderViewSkill : List Character -> Int -> Skill -> List (Html Msg)
+renderViewSkill : Array Character -> Int -> Skill -> List (Html Msg)
 renderViewSkill characters charge skill =
     let
         character =
@@ -1116,7 +1119,7 @@ renderViewUser user =
         ]
 
 
-renderView : List Character -> Viewable -> Html Msg
+renderView : Array Character -> Viewable -> Html Msg
 renderView characters viewing =
     H.article [ A.class "parchment" ] <|
         case viewing of

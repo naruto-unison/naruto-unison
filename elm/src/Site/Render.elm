@@ -17,6 +17,7 @@ module Site.Render exposing
     , streak
     )
 
+import Array exposing (Array)
 import Game.Chakras as Chakra
 import Game.Characters as Characters
 import Game.Detail exposing (Detail)
@@ -236,7 +237,7 @@ classes xs =
         [ H.text text ]
 
 
-effect : List Character -> (Effect -> Bool) -> Effect -> Html msg
+effect : Array Character -> (Effect -> Bool) -> Effect -> Html msg
 effect characters removable x =
     let
         meta =

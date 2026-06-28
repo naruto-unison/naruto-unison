@@ -7,6 +7,7 @@ module Game.Characters exposing
     , root
     )
 
+import Array exposing (Array)
 import Dict exposing (Dict)
 import Import.Model exposing (Category(..), Character, Ninja, Skill)
 import List.Extra as List
@@ -24,14 +25,14 @@ type alias Characters =
     }
 
 
-get : List Character -> Int -> Character
+get : Array Character -> Int -> Character
 get xs slot =
     xs
-        |> List.getAt slot
+        |> Array.get slot
         >> Maybe.withDefault unknown
 
 
-root : List Character -> Skill -> Character
+root : Array Character -> Skill -> Character
 root characters skill =
     get characters skill.owner
 
