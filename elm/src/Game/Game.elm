@@ -47,7 +47,7 @@ living player { ninjas } =
     in
     ninjas
         |> listOp teamSize
-        >> sumBy (.health >> min 1)
+        |> sumBy (.health >> min 1)
 
 
 died : Player -> Turn -> Turn -> Bool

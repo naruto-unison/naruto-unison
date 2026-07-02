@@ -92,9 +92,10 @@ showErr err =
 
 
 shorten : String -> String
-shorten =
-    String.filter isLegal
-        >> String.map unaccent
+shorten s =
+    s
+        |> String.filter isLegal
+        |> String.map unaccent
 
 
 isLegal : Char -> Bool
@@ -106,7 +107,7 @@ illegal : Set Char
 illegal =
     " -:()®./?'"
         |> String.toList
-        >> Set.fromList
+        |> Set.fromList
 
 
 unaccentDict : Dict Char Char

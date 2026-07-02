@@ -16,7 +16,7 @@ rank { privilege, xp } =
         Normal ->
             ranks
                 |> Array.get (xp // 5000)
-                >> Maybe.withDefault "Hokage"
+                |> Maybe.withDefault "Hokage"
 
         Moderator ->
             "Moderator"

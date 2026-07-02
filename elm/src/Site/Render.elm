@@ -52,9 +52,10 @@ userStreak { losses, streak, wins } =
 
 
 chakras : Chakras -> List (Html msg)
-chakras =
-    fromChakras
-        >> List.map chakra
+chakras xs =
+    xs
+        |> fromChakras
+        |> List.map chakra
 
 
 chakra : String -> Html msg
@@ -131,7 +132,7 @@ getReanimationName skillName skillClasses =
     if Set.member "Reanimation" skillClasses then
         String.indexes ":" skillName
             |> List.head
-            >> Maybe.map (\index -> clean (String.left index skillName) ++ "-(r)")
+            |> Maybe.map (\index -> clean (String.left index skillName) ++ "-(r)")
 
     else
         Nothing
@@ -231,8 +232,8 @@ classes xs =
         text =
             xs
                 |> Set.intersect visibleClasses
-                >> Set.toList
-                >> String.join ", "
+                |> Set.toList
+                |> String.join ", "
     in
     H.p [ A.class "skillClasses" ]
         [ H.text text ]
@@ -314,7 +315,7 @@ parseParen =
 
         chompParens =
             Parser.symbol "("
-                |. Parser.chompWhile (\c -> c /= ')')
+                |. Parser.chompWhile ((/=) ')')
                 |. Parser.symbol ")"
     in
     Parser.succeed renderParens

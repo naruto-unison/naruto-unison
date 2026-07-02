@@ -28,7 +28,7 @@ decodeCsrf : D.Decoder Csrf
 decodeCsrf =
     D.succeed Csrf
         |> D.required "param" D.string
-        >> D.required "token" D.string
+        |> D.required "token" D.string
 
 
 type alias War =
@@ -40,7 +40,7 @@ type alias War =
 decodeWar =
     D.succeed War
         |> D.required "red" (D.list D.string |> D.map Set.fromList)
-        >> D.required "blue" (D.list D.string |> D.map Set.fromList)
+        |> D.required "blue" (D.list D.string |> D.map Set.fromList)
 
 
 type alias Flags =
@@ -79,20 +79,22 @@ decode : D.Decoder Flags
 decode =
     D.succeed Flags
         |> D.required "url" D.string
-        >> D.required "bg" D.string
-        >> D.required "userTeam" (D.list D.string)
-        >> D.required "userPractice" (D.list D.string)
-        >> D.required "unlocked" (D.list D.string |> D.map Set.fromList)
-        >> D.required "user" (D.maybe Model.jsonDecUser)
-        >> D.required "avatars" (D.list D.string)
-        >> D.required "characters" (D.list Model.jsonDecCharacter |> D.map Characters.create)
-        >> D.required "war" decodeWar
-        >> D.required "csrf" decodeCsrf
+        |> D.required "bg" D.string
+        |> D.required "userTeam" (D.list D.string)
+        |> D.required "userPractice" (D.list D.string)
+        |> D.required "unlocked" (D.list D.string |> D.map Set.fromList)
+        |> D.required "user" (D.maybe Model.jsonDecUser)
+        |> D.required "avatars" (D.list D.string)
+        |> D.required "characters" (D.list Model.jsonDecCharacter |> D.map Characters.create)
+        |> D.required "war" decodeWar
+        |> D.required "csrf" decodeCsrf
 
 
 clean : String -> String
-clean =
-    String.map cleanChar << String.toLower
+clean s =
+    s
+        |> String.toLower
+        |> String.map cleanChar
 
 
 cleanChar : Char -> Char

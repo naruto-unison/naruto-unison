@@ -113,7 +113,7 @@ sumChakras { acts, chakras, exchanged, randoms } =
         costs =
             acts
                 |> List.map (.skill >> .cost)
-                >> Chakras.sum
+                |> Chakras.sum
 
         net =
             Chakras.sub (Chakras.add exchanged chakras) costs
@@ -412,7 +412,7 @@ component ports =
                         [ ports.progress 1500 0 1
                         , Process.sleep 1500
                             |> Task.perform
-                                (always << ReceivePractice <| Ok [ y ])
+                                (always <| ReceivePractice <| Ok [ y ])
                         ]
 
                 ReceivePractice (Ok [ y ]) ->
@@ -465,14 +465,14 @@ renderUserBox : String -> User -> Maybe War -> Int -> Html Msg
 renderUserBox id user war inactive =
     H.section
         [ A.id id
-        , E.onMouseOver << View <| ViewUser user
+        , E.onMouseOver <| View <| ViewUser user
         ]
         [ H.section []
             [ H.h3 []
                 [ H.text user.name ]
             , H.p []
                 [ H.text <| User.rank user ]
-            , H.p [ A.class "inactive" ] << List.repeat inactive <| H.text "X"
+            , H.p [ A.class "inactive" ] <| List.repeat inactive <| H.text "X"
             ]
         , H.div [ A.class "charWrapper" ]
             [ H.img
@@ -560,7 +560,7 @@ renderChakraPair turn exchange chakras { chakra, spend, amount, random } =
         [ H.div meta []
         , H.span []
             [ H.text <| String.fromInt amount ]
-        , H.button (clickIf (turn && random > 0) "more" << Spend <| Chakras.negate spend)
+        , H.button (clickIf (turn && random > 0) "more" <| Spend <| Chakras.negate spend)
             [ H.text "+" ]
         , H.button (clickIf (turn && amount > 0) "less" <| Spend spend)
             [ H.text "—" ]
@@ -665,7 +665,7 @@ renderDestructible anchor class track x =
             ]
         , A.style anchor <| String.fromInt track ++ "%"
         , A.style "width" <| String.fromInt x.amount ++ "%"
-        , E.onMouseOver << View <| ViewDestructible x
+        , E.onMouseOver <| View <| ViewDestructible x
         ]
         []
 
@@ -681,8 +681,8 @@ renderHpBar anchor { barrier, defense, health } =
     in
     ( renderHealth anchor health, health )
         |> renderAll "chardefense" defense
-        >> renderAll "charbarrier" barrier
-        >> Tuple.first
+        |> renderAll "charbarrier" barrier
+        |> Tuple.first
 
 
 type alias SkillData =
@@ -736,7 +736,7 @@ renderSkill { user, freeChakras, active, characters } button targets skill =
         in
         H.div
             [ A.class "charmove noclick"
-            , E.onMouseOver << View <| ViewSkill [] charge skill
+            , E.onMouseOver <| View <| ViewSkill [] charge skill
             , E.onMouseLeave Unhighlight
             ]
         <|
@@ -761,7 +761,7 @@ renderSkill { user, freeChakras, active, characters } button targets skill =
         in
         H.div
             [ A.class "charmove click"
-            , E.onMouseOver << View <| ViewSkill targets charge skill
+            , E.onMouseOver <| View <| ViewSkill targets charge skill
             , E.onMouseLeave Unhighlight
             , E.onClick <|
                 if Skill.targets slot skill == [ slot ] then
@@ -787,7 +787,7 @@ renderDetail onTeam slot characters ({ classes } as detail) =
             Render.detailIcon (Characters.get characters detail.source) detail []
     in
     H.div
-        [ E.onMouseOver << View <| ViewDetail removable detail
+        [ E.onMouseOver <| View <| ViewDetail removable detail
         , A.classList
             [ ( "detail"
               , True
@@ -872,13 +872,13 @@ renderNinja { characters, acted, toggle, highlight, freeChakras, ownTurn } onTea
                         [ ( "highlighted", List.member slot highlight )
                         , ( "toggled skill", toggled )
                         ]
-                    , E.onMouseOver << View <| ViewCharacter character
+                    , E.onMouseOver <| View <| ViewCharacter character
                     ]
 
                 onClick =
                     toggle
                         |> Maybe.filter (always toggled)
-                        >> Maybe.map
+                        |> Maybe.map
                             (E.onClick << Enact Add << Act.targeted slot)
             in
             case onClick of
@@ -912,8 +912,8 @@ renderNinja { characters, acted, toggle, highlight, freeChakras, ownTurn } onTea
         render =
             renderDetail onTeam slot characters
 
-        renderDetails attrs =
-            H.aside attrs << List.map render
+        renderDetails attrs els =
+            H.aside attrs <| List.map render els
     in
     H.section [ A.classList [ ( "dead", ninja.health == 0 ) ] ]
         [ renderDetails [ A.class "channels" ] <|
@@ -994,7 +994,7 @@ renderViewDetail characters removable detail =
             [ H.h4 [] [ H.span [] [ H.text detail.name ] ]
             , Render.classes <| Set.diff detail.classes viewIgnoredClasses
             , H.dt [] [ H.text "Source" ]
-            , H.dd [] << Render.name <| Characters.get characters detail.user
+            , H.dd [] <| Render.name <| Characters.get characters detail.user
             , H.dt [] [ H.text "Duration" ]
             , H.dd [] [ H.text <| Render.duration "Permanent" detail.dur ]
             ]
@@ -1009,8 +1009,8 @@ renderViewDetail characters removable detail =
         ]
     , detail.effects
         |> List.filter .visible
-        >> List.map (Render.effect characters removable)
-        >> H.ul []
+        |> List.map (Render.effect characters removable)
+        |> H.ul []
     ]
 
 
@@ -1018,7 +1018,7 @@ renderAlternateButton : String -> Skill -> Html Msg
 renderAlternateButton class skill =
     H.button
         [ A.class <| class ++ " click"
-        , E.onClick << View <| ViewSkill [] 0 { skill | charges = 0 }
+        , E.onClick <| View <| ViewSkill [] 0 { skill | charges = 0 }
         ]
         []
 
@@ -1103,7 +1103,7 @@ renderViewUser user =
             , H.dt [] [ H.text "Clan" ]
             , H.dd [] [ H.text <| Maybe.withDefault "Clanless" user.clan ]
             , H.dt [] [ H.text "Level" ]
-            , H.dd [] [ H.text << String.fromInt <| User.level user ]
+            , H.dd [] [ H.text <| String.fromInt <| User.level user ]
             , H.dt [] [ H.text "Record" ]
             , H.dd [] [ Render.userStreak user ]
             ]

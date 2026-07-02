@@ -121,8 +121,8 @@ createTeam list =
     , costs =
         list
             |> List.concatMap (.skills >> List.filterMap List.head)
-            >> List.map .cost
-            >> Chakras.sum
+            |> List.map .cost
+            |> Chakras.sum
     }
 
 
@@ -565,7 +565,7 @@ locked set char =
 
 belongsTo : Set String -> Character -> Bool
 belongsTo war char =
-    not << Set.isEmpty <| Set.intersect war char.groups
+    not <| Set.isEmpty <| Set.intersect war char.groups
 
 
 affordable : Maybe User -> Character -> Bool
@@ -646,7 +646,7 @@ charWrapper mchar { team, unlocked, user, war } char =
     in
     H.div [ A.class "charWrapper" ] <|
         Render.charIcon char
-            [ E.onClick << Preview <| PreviewChar char
+            [ E.onClick <| Preview <| PreviewChar char
             , A.class charClass
             ]
             :: Maybe.values
@@ -805,7 +805,7 @@ renderUserBoxLoggedIn ({ avatar, clan, dna, name, xp } as user) =
     H.div
         [ A.id "userBox"
         , A.class "parchment loggedin"
-        , E.onClick << Preview <| PreviewUser user
+        , E.onClick <| Preview <| PreviewUser user
         ]
         [ H.img
             [ A.class "userimg"
@@ -970,8 +970,8 @@ renderWar : List (H.Attribute msg) -> Set String -> Html msg
 renderWar attrs war =
     war
         |> Set.toList
-        >> List.map (H.text >> List.singleton >> H.p [])
-        >> H.div attrs
+        |> List.map (H.text >> List.singleton >> H.p [])
+        |> H.div attrs
 
 
 renderWarPreview : War -> Html msg
@@ -1019,12 +1019,7 @@ renderUserPreview avatars error { avatar, background, condense, name } =
                     [ A.type_ "checkbox"
                     , A.name "condense"
                     , A.checked condense
-                    , E.onInput <|
-                        always
-                            << UpdateForm
-                            << Condense
-                        <|
-                            not condense
+                    , E.onInput <| always <| UpdateForm <| Condense <| not condense
                     ]
                     []
                 , H.label []
@@ -1046,7 +1041,7 @@ renderUserPreview avatars error { avatar, background, condense, name } =
                             H.img
                                 [ A.src ava
                                 , A.class "click"
-                                , E.onClick << UpdateForm <| Avatar ava
+                                , E.onClick <| UpdateForm <| Avatar ava
                                 ]
                                 []
                     )
@@ -1079,7 +1074,7 @@ renderCharPreview st char =
                     []
 
                 Just (Nonempty x xs) ->
-                    List.map (keyedCharWrapper (Just char) st) (x :: xs)
+                    List.map (keyedCharWrapper (Just char) st) <| x :: xs
         , H.h3 [ A.class "charBanner" ] <|
             [ Render.charIcon char [ A.class "char" ]
             , if not <| locked st.unlocked char then
@@ -1105,7 +1100,7 @@ renderCharPreview st char =
 
                     else
                         [ H.button
-                            [ E.onClick << Preview <| PreviewChar char ]
+                            [ E.onClick <| Preview <| PreviewChar char ]
                             [ H.text "Hide Mission" ]
                         ]
             ]
@@ -1237,7 +1232,7 @@ renderCharList st =
             if st.condense then
                 st.chars.groupList
                     |> wrap
-                    >> List.map Nonempty.head
+                    |> List.map Nonempty.head
 
             else
                 st.chars.list

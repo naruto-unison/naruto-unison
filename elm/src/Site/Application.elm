@@ -119,8 +119,9 @@ app websocket ports =
 
                 contents els =
                     if isQueued st then
-                        H.div [ A.id "main", A.class "queueing" ]
-                            (renderSearching ++ els)
+                        H.div [ A.id "main", A.class "queueing" ] <|
+                            renderSearching
+                                ++ els
 
                     else
                         H.div [ A.id "main" ]

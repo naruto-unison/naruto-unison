@@ -31,7 +31,7 @@ get : Array Character -> Int -> Character
 get xs slot =
     xs
         |> Array.get slot
-        >> Maybe.withDefault unknown
+        |> Maybe.withDefault unknown
 
 
 root : Array Character -> Skill -> Character
@@ -116,9 +116,9 @@ makeShortName { name, skills } =
         _ ->
             skills
                 |> List.getAt 3
-                >> Maybe.andThen List.head
-                >> Maybe.andThen shortFromInvuln
-                >> Maybe.withDefault name
+                |> Maybe.andThen List.head
+                |> Maybe.andThen shortFromInvuln
+                |> Maybe.withDefault name
 
 
 shortFromInvuln : Skill -> Maybe String

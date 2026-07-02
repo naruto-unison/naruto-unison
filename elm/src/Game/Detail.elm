@@ -46,13 +46,13 @@ get { slot, statuses, traps } =
         trapDetails =
             traps
                 |> List.map trap
-                >> groupBy eq
-                >> List.map (reduce >> concat)
+                |> groupBy eq
+                |> List.map (reduce >> concat)
 
         stats =
             statusDetails
                 |> List.filter (\x -> not <| List.any (eq x) trapDetails)
-                >> List.concatMap unfold
+                |> List.concatMap unfold
 
         ( self, others ) =
             (stats ++ trapDetails)
@@ -102,15 +102,15 @@ concat (Nonempty x xs) =
         | effects =
             xxs
                 |> List.concatMap .effects
-                >> List.filter .visible
-                >> List.uniqueBy .desc
+                |> List.filter .visible
+                |> List.uniqueBy .desc
         , trap =
             xxs
                 |> List.any .trap
         , amount =
             xxs
                 |> List.filter (not << .trap)
-                >> sumBy .amount
+                |> sumBy .amount
     }
 
 
