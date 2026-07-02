@@ -1,13 +1,14 @@
 module Util exposing
     ( ListChange(..)
+    , buildDict
     , clickIf
     , groupBy
     , pure
     , shorten
     , showBool
     , showErr
+    , sumBy
     , unaccent
-    , withKey
     )
 
 import Dict exposing (Dict)
@@ -17,6 +18,11 @@ import Html.Events as E
 import Http
 import List.Nonempty exposing (Nonempty(..))
 import Set exposing (Set)
+
+
+buildDict : ( a -> comparable, a -> b ) -> List a -> Dict comparable b
+buildDict ( toKey, toValue ) =
+    List.foldl (\x -> Dict.insert (toKey x) (toValue x)) Dict.empty
 
 
 clickIf : Bool -> String -> msg -> List (H.Attribute msg)
@@ -35,13 +41,21 @@ groupBy pred xxs =
             []
 
         x :: xs ->
-            (Nonempty x <| List.filter (pred x) xs)
-                :: (groupBy pred <| List.filter (not << pred x) xs)
+            let
+                ( yays, nays ) =
+                    List.partition (pred x) xs
+            in
+            Nonempty x yays :: groupBy pred nays
 
 
 type ListChange
     = Add
     | Delete
+
+
+sumBy : (a -> number) -> List a -> number
+sumBy getter xs =
+    List.foldl ((+) << getter) 0 xs
 
 
 pure : a -> ( a, Cmd msg )
@@ -75,11 +89,6 @@ showErr err =
 
         Http.BadBody x ->
             "Invalid response from server: " ++ x
-
-
-withKey : (a -> b) -> List a -> List ( b, a )
-withKey f =
-    List.map <| \x -> ( f x, x )
 
 
 shorten : String -> String

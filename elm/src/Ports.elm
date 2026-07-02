@@ -12,9 +12,9 @@ type alias Ports msg =
 
 
 map : Ports a -> (a -> b) -> Ports b
-map ports f =
-    { progress = \dur from to -> Cmd.map f <| ports.progress dur from to
-    , sounds = Cmd.map f << ports.sounds
-    , sound = Cmd.map f << ports.sound
-    , websocket = Cmd.map f << ports.websocket
+map {progress, sounds, sound, websocket} f =
+    { progress = \dur from to -> Cmd.map f <| progress dur from to
+    , sounds = Cmd.map f << sounds
+    , sound = Cmd.map f << sound
+    , websocket = Cmd.map f << websocket
     }

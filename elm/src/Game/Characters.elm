@@ -13,14 +13,16 @@ import Import.Model exposing (Category(..), Character, Ninja, Skill)
 import List.Extra as List
 import List.Nonempty as Nonempty exposing (Nonempty)
 import Set
-import Util exposing (groupBy, withKey)
+import Util exposing (buildDict, groupBy)
 
 
 type alias Characters =
     { list : List Character
     , dict : Dict String Character
+    , size : Int
     , groupList : List (Nonempty Character)
     , groupDict : Dict String (Nonempty Character)
+    , groupSize : Int
     , shortName : Character -> String
     }
 
@@ -33,16 +35,12 @@ get xs slot =
 
 
 root : Array Character -> Skill -> Character
-root characters skill =
-    get characters skill.owner
+root characters { owner } =
+    get characters owner
 
 
 mergeSkill : Skill -> List Skill -> List Skill
-mergeSkill skill =
-    let
-        { name, owner } =
-            skill
-    in
+mergeSkill ({ name, owner } as skill) =
     List.map <|
         \otherSkill ->
             if otherSkill.name == name then
@@ -53,25 +51,23 @@ mergeSkill skill =
 
 
 merge : Characters -> Ninja -> Character
-merge chars n =
+merge chars { character, skills } =
     let
         char =
-            Dict.get n.character chars.dict
+            Dict.get character chars.dict
                 |> Maybe.withDefault unknown
     in
-    { char | skills = List.map2 mergeSkill n.skills char.skills }
+    { char | skills = List.map2 mergeSkill skills char.skills }
 
 
 create : List Character -> Characters
 create chars =
     let
-        shortNames =
-            chars
-                |> List.map (\x -> ( x.ident, makeShortName x ))
-                >> Dict.fromList
+        idents =
+            buildDict ( .ident, makeShortName ) chars
 
         shortName char =
-            case Dict.get char.ident shortNames of
+            case Dict.get char.ident idents of
                 Just name ->
                     name
 
@@ -82,9 +78,11 @@ create chars =
             chars |> groupBy (\x y -> shortName x == shortName y)
     in
     { list = chars
-    , dict = Dict.fromList <| withKey .ident chars
+    , dict = buildDict ( .ident, identity ) chars
+    , size = List.length chars
     , groupList = groupList
-    , groupDict = Dict.fromList <| withKey (Nonempty.head >> shortName) groupList
+    , groupDict = buildDict ( Nonempty.head >> shortName, identity ) groupList
+    , groupSize = List.length groupList
     , shortName = shortName
     }
 
@@ -95,8 +93,8 @@ getGroup chars char =
 
 
 makeShortName : Character -> String
-makeShortName char =
-    case char.name of
+makeShortName { name, skills } =
+    case name of
         "Killer B" ->
             "B"
 
@@ -116,16 +114,16 @@ makeShortName char =
             "Pain"
 
         _ ->
-            char.skills
+            skills
                 |> List.getAt 3
                 >> Maybe.andThen List.head
                 >> Maybe.andThen shortFromInvuln
-                >> Maybe.withDefault char.name
+                >> Maybe.withDefault name
 
 
 shortFromInvuln : Skill -> Maybe String
-shortFromInvuln x =
-    case String.words x.desc of
+shortFromInvuln { desc } =
+    case String.words desc of
         "The" :: name :: _ ->
             Just name
 

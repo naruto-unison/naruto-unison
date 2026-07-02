@@ -4,5 +4,5 @@ import Import.Model exposing (Effect)
 
 
 removable : Bool -> Effect -> Bool
-removable onAlly ef =
-    not ef.sticky && onAlly /= ef.helpful
+removable onAlly { sticky, helpful } =
+    not sticky && onAlly /= helpful

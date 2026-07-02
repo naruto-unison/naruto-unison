@@ -14,7 +14,7 @@ module Site.Render exposing
     , skillCost
     , skillDuration
     , skillIcon
-    , streak
+    , userStreak
     )
 
 import Array exposing (Array)
@@ -40,14 +40,14 @@ scroll id src cmd =
         ]
 
 
-streak : User -> Html msg
-streak user =
+userStreak : User -> Html msg
+userStreak { losses, streak, wins } =
     H.text <|
-        String.fromInt user.wins
+        String.fromInt wins
             ++ " - "
-            ++ String.fromInt user.losses
+            ++ String.fromInt losses
             ++ " (+"
-            ++ String.fromInt user.streak
+            ++ String.fromInt streak
             ++ ")"
 
 
@@ -63,12 +63,12 @@ chakra s =
 
 
 fromChakras : Chakras -> List String
-fromChakras x =
-    List.repeat x.blood "blood"
-        ++ List.repeat x.gen "gen"
-        ++ List.repeat x.nin "nin"
-        ++ List.repeat x.tai "tai"
-        ++ List.repeat x.rand "rand"
+fromChakras { blood, gen, nin, tai, rand } =
+    List.repeat blood "blood"
+        ++ List.repeat gen "gen"
+        ++ List.repeat nin "nin"
+        ++ List.repeat tai "tai"
+        ++ List.repeat rand "rand"
 
 
 rands : Int -> Int -> Html msg
@@ -90,16 +90,16 @@ rands amount random =
 
 
 chakraTotals : Chakras -> List (Html msg)
-chakraTotals x =
+chakraTotals { blood, gen, nin, tai, rand } =
     let
         named chak total =
             H.span [] [ chakra chak, H.text <| String.fromInt total ]
     in
-    [ named "blood" x.blood
-    , named "gen" x.gen
-    , named "nin" x.nin
-    , named "tai" x.tai
-    , named "rand" x.rand
+    [ named "blood" blood
+    , named "gen" gen
+    , named "nin" nin
+    , named "tai" tai
+    , named "rand" rand
     ]
 
 
@@ -117,8 +117,8 @@ iconBase char path attrs =
 
 
 icon : Character -> String -> List (H.Attribute msg) -> Html msg
-icon char =
-    iconBase char.ident
+icon { ident } =
+    iconBase ident
 
 
 charIcon : Character -> List (H.Attribute msg) -> Html msg
@@ -129,8 +129,9 @@ charIcon character =
 getReanimationName : String -> Set String -> Maybe String
 getReanimationName skillName skillClasses =
     if Set.member "Reanimation" skillClasses then
-        (List.head <| String.indexes ":" skillName)
-            |> Maybe.map (\index -> clean (String.left index skillName) ++ "-(r)")
+        String.indexes ":" skillName
+            |> List.head
+            >> Maybe.map (\index -> clean (String.left index skillName) ++ "-(r)")
 
     else
         Nothing

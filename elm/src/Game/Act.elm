@@ -1,8 +1,8 @@
 module Game.Act exposing
     ( Act
     , targeted
-    , toggles
     , toPathPieces
+    , toggles
     )
 
 import Game.Skill as Skill
@@ -27,12 +27,13 @@ toPathPieces : Act -> List Int
 toPathPieces { user, button, target } =
     [ user, button, target ]
 
+
 toggles : Maybe Act -> List Int
 toggles x =
     case x of
         Nothing ->
             []
 
-        Just y ->
-            Skill.targets y.user y.skill
-                |> List.filter (\target -> List.member target y.targets)
+        Just { user, skill, targets } ->
+            Skill.targets user skill
+                |> List.filter (\target -> List.member target targets)

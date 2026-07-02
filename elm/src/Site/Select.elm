@@ -54,11 +54,11 @@ createForm muser =
             , avatar = ""
             }
 
-        Just user ->
-            { name = user.name
-            , background = Maybe.withDefault "" user.background
-            , condense = user.condense
-            , avatar = user.avatar
+        Just { avatar, background, condense, name } ->
+            { name = name
+            , background = Maybe.withDefault "" background
+            , condense = condense
+            , avatar = avatar
             }
 
 
@@ -152,12 +152,12 @@ type alias Model =
 
 
 size : Model -> Int
-size { condense, chars } =
+size { chars, condense } =
     if condense then
-        List.length chars.groupList
+        chars.size
 
     else
-        List.length chars.list
+        chars.groupSize
 
 
 alterTeam : (List Character -> List Character) -> Model -> Model
@@ -247,13 +247,13 @@ updateUrl { url, form } =
 
 
 missionUrl : Model -> Character -> String
-missionUrl { url } char =
-    apiUrl url "mission" [ char.ident ]
+missionUrl { url } { ident } =
+    apiUrl url "mission" [ ident ]
 
 
 reanimateUrl : Model -> Character -> String
-reanimateUrl { url } char =
-    apiUrl url "reanimate" [ char.ident ]
+reanimateUrl { url } { ident } =
+    apiUrl url "reanimate" [ ident ]
 
 
 practiceUrl : Model -> String
@@ -435,7 +435,7 @@ component ports =
                                 withSound Sound.Cancel <|
                                     alterTeam (List.remove char) st
 
-                    else if List.length st.team.list == Game.teamSize then
+                    else if Set.size st.team.set == Game.teamSize then
                         pure st
 
                     else
@@ -569,8 +569,8 @@ belongsTo war char =
 
 
 affordable : Maybe User -> Character -> Bool
-affordable muser char =
-    if char.price == 0 then
+affordable muser { price } =
+    if price == 0 then
         False
 
     else
@@ -579,7 +579,7 @@ affordable muser char =
                 False
 
             Just user ->
-                user.dna >= char.price
+                user.dna >= price
 
 
 renderWarning : Maybe String -> List (Html msg)
@@ -599,13 +599,13 @@ renderWarning mwarning =
 
 
 renderWarBadge : War -> Character -> Maybe (Html msg)
-renderWarBadge war char =
+renderWarBadge { red, blue } char =
     let
         isRed =
-            char |> belongsTo war.red
+            char |> belongsTo red
 
         isBlue =
-            char |> belongsTo war.blue
+            char |> belongsTo blue
     in
     if isRed && isBlue then
         Just <| H.div [ A.class "redblue" ] []
@@ -689,29 +689,24 @@ renderUserBoxNav { loggedIn, teamFull } =
                 [ A.class "parchment playButton" ]
     in
     H.nav [ A.id "playButtons" ] <|
-        if loggedIn then
-            [ H.a
-                [ A.id "mainsite"
-                , A.class "playButton parchment click blacked"
-                , A.href "/home"
-                ]
-                [ H.text "Main Site" ]
-            , H.button (meta <| Enqueue Quick)
-                [ H.text "Start Quick Match" ]
-            , H.button (meta <| SetStage Searching)
-                [ H.text "Start Private Match" ]
-            , H.button (meta <| SetStage Practicing)
-                [ H.text "Start Practice Match" ]
+        H.a
+            [ A.id "mainsite"
+            , A.class "playButton parchment click blacked"
+            , A.href "/home"
             ]
+            [ H.text "Main Site" ]
+            :: (if loggedIn then
+                    [ H.button (meta <| Enqueue Quick)
+                        [ H.text "Start Quick Match" ]
+                    , H.button (meta <| SetStage Searching)
+                        [ H.text "Start Private Match" ]
+                    , H.button (meta <| SetStage Practicing)
+                        [ H.text "Start Practice Match" ]
+                    ]
 
-        else
-            [ H.a
-                [ A.id "mainsite"
-                , A.class "playButton parchment click blacked"
-                , A.href "/home"
-                ]
-                [ H.text "Main Site" ]
-            ]
+                else
+                    []
+               )
 
 
 renderUserBoxLoggedOut : UserBoxFormType -> Csrf -> Html Msg
@@ -806,7 +801,7 @@ renderUserBoxLoggedOut formType csrf =
 
 
 renderUserBoxLoggedIn : User -> Html Msg
-renderUserBoxLoggedIn user =
+renderUserBoxLoggedIn ({ avatar, clan, dna, name, xp } as user) =
     H.div
         [ A.id "userBox"
         , A.class "parchment loggedin"
@@ -814,33 +809,33 @@ renderUserBoxLoggedIn user =
         ]
         [ H.img
             [ A.class "userimg"
-            , A.src user.avatar
+            , A.src avatar
             ]
             []
         , H.h4 []
             [ H.aside [ A.class "dna" ]
-                [ H.text <| String.fromInt user.dna ]
-            , H.text user.name
+                [ H.text <| String.fromInt dna ]
+            , H.text name
             ]
         , H.p []
             [ H.text <| User.rank user ]
         , H.dt [] [ H.text "Clan" ]
         , H.dd []
             [ H.text <|
-                Maybe.withDefault "Clanless" user.clan
+                Maybe.withDefault "Clanless" clan
             ]
         , H.dt [] [ H.text "Level" ]
         , H.dd []
             [ H.text <|
-                String.fromInt (user.xp // 1000)
+                String.fromInt (xp // 1000)
                     ++ " ("
-                    ++ String.fromInt (user.xp |> remainderBy 1000)
+                    ++ String.fromInt (xp |> remainderBy 1000)
                     ++ " XP)"
             ]
         , H.dt [] [ H.text "Rank" ]
         , H.dd [] [ H.text "None" ]
         , H.dt [] [ H.text "Record" ]
-        , H.dd [] [ Render.streak user ]
+        , H.dd [] [ Render.userStreak user ]
         ]
 
 
@@ -853,7 +848,7 @@ renderUserBox st formType team =
     H.header []
         [ renderUserBoxNav
             { loggedIn = Maybe.isJust st.user
-            , teamFull = List.length team.list == Game.teamSize
+            , teamFull = Set.size team.set == Game.teamSize
             }
         , H.div [ A.class "space" ] []
         , H.section [ A.id "teamContainer" ]
@@ -980,12 +975,12 @@ renderWar attrs war =
 
 
 renderWarPreview : War -> Html msg
-renderWarPreview war =
+renderWarPreview { red, blue } =
     H.article [ A.class "parchment war" ]
         [ H.section []
-            [ renderWar [ A.class "red" ] war.red
+            [ renderWar [ A.class "red" ] red
             , H.h1 [] [ H.text "Today's War" ]
-            , renderWar [ A.class "blue" ] war.blue
+            , renderWar [ A.class "blue" ] blue
             ]
         , H.p []
             [ H.text "Choose a side! Make a full team from one side and earn bonus DNA for defeating full teams from the other side." ]
@@ -993,7 +988,7 @@ renderWarPreview war =
 
 
 renderUserPreview : List String -> Maybe String -> Form -> Html Msg
-renderUserPreview avatars error form =
+renderUserPreview avatars error { avatar, background, condense, name } =
     H.article [ A.class "parchment" ]
         [ H.div [ A.id "accountSettings" ]
             [ H.p [] <|
@@ -1002,7 +997,7 @@ renderUserPreview avatars error form =
                 , H.input
                     [ A.type_ "text"
                     , A.name "name"
-                    , A.value form.name
+                    , A.value name
                     , E.onInput <| UpdateForm << Name
                     ]
                     []
@@ -1014,7 +1009,7 @@ renderUserPreview avatars error form =
                 , H.input
                     [ A.type_ "text"
                     , A.name "background"
-                    , A.value form.background
+                    , A.value background
                     , E.onInput <| UpdateForm << Background
                     ]
                     []
@@ -1023,13 +1018,13 @@ renderUserPreview avatars error form =
                 [ H.input
                     [ A.type_ "checkbox"
                     , A.name "condense"
-                    , A.checked form.condense
+                    , A.checked condense
                     , E.onInput <|
                         always
                             << UpdateForm
                             << Condense
                         <|
-                            not form.condense
+                            not condense
                     ]
                     []
                 , H.label []
@@ -1043,15 +1038,15 @@ renderUserPreview avatars error form =
                 [ A.id "avatars" ]
               <|
                 List.map
-                    (\avatar ->
-                        if form.avatar == avatar then
-                            H.img [ A.src avatar, A.class "noclick" ] []
+                    (\ava ->
+                        if avatar == ava then
+                            H.img [ A.src ava, A.class "noclick" ] []
 
                         else
                             H.img
-                                [ A.src avatar
+                                [ A.src ava
                                 , A.class "click"
-                                , E.onClick << UpdateForm <| Avatar avatar
+                                , E.onClick << UpdateForm <| Avatar ava
                                 ]
                                 []
                     )

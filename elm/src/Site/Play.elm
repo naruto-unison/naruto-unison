@@ -108,23 +108,23 @@ recalculateChakra st =
 
 
 sumChakras : Model -> ChakraSums
-sumChakras st =
+sumChakras { acts, chakras, exchanged, randoms } =
     let
         costs =
-            st.acts
+            acts
                 |> List.map (.skill >> .cost)
                 >> Chakras.sum
 
         net =
-            Chakras.sum [ st.exchanged, st.chakras, Chakras.negate costs ]
+            Chakras.sub (Chakras.add exchanged chakras) costs
 
         netUnrand =
             { net | rand = 0 }
 
         rand =
-            Chakras.total st.randoms
+            Chakras.total randoms
                 + net.rand
-                - (Chakras.rate * Chakras.total st.exchanged)
+                - (Chakras.rate * Chakras.total exchanged)
 
         free =
             { net | rand = Chakras.total netUnrand + rand }
@@ -174,15 +174,20 @@ encodePathPieces toPathPieces =
 
 
 encodeEnact : Model -> String
-encodeEnact st =
+encodeEnact { acts, exchanged, randoms } =
     let
-        chakras =
-            encodePathPieces Chakras.toPathPieces [ st.randoms, st.exchanged ]
+        chakraPieces =
+            encodePathPieces Chakras.toPathPieces [ randoms, exchanged ]
 
-        acts =
-            encodePathPieces Act.toPathPieces st.acts
+        actPieces =
+            encodePathPieces Act.toPathPieces acts
     in
-    String.join "/" <| chakras ++ acts
+    String.join "/" <| chakraPieces ++ actPieces
+
+
+enactUrl : Model -> String
+enactUrl st =
+    st.url ++ "api/practiceact/" ++ encodeEnact st
 
 
 component :
@@ -311,8 +316,8 @@ component ports =
                     withSound Sound.Click <|
                         recalculateChakra
                             { st
-                                | randoms = Chakras.sum [ st.randoms, chakras ]
-                                , chakras = Chakras.sum [ st.chakras, Chakras.negate chakras ]
+                                | randoms = Chakras.add st.randoms chakras
+                                , chakras = Chakras.sub st.chakras chakras
                             }
 
                 Exchange Begin ->
@@ -333,7 +338,7 @@ component ports =
                     withSound Sound.Click <|
                         recalculateChakra
                             { st
-                                | exchanged = Chakras.sum [ st.exchanged, chakras ]
+                                | exchanged = Chakras.add st.exchanged chakras
                                 , exchange = False
                             }
 
@@ -386,8 +391,7 @@ component ports =
                                 , toggled = Nothing
                             }
                         , Http.get
-                            { url =
-                                st.url ++ "api/practiceact/" ++ encodeEnact st
+                            { url = enactUrl st
                             , expect =
                                 Http.expectJson ReceivePractice <|
                                     D.list Model.jsonDecTurn
@@ -442,18 +446,18 @@ warInverse war =
 
 
 renderTop : Model -> Array Character -> Html Msg
-renderTop st characters =
+renderTop { game, user, viewing, vs, war } characters =
     let
         vsWar =
-            Maybe.map warInverse st.war
+            Maybe.map warInverse war
 
         ( playerInactive, vsInactive ) =
-            st.game.inactive
+            game.inactive
     in
     H.section [ A.id "top" ]
-        [ lazy4 renderUserBox "account0" st.user st.war playerInactive
-        , lazy2 renderView characters st.viewing
-        , lazy4 renderUserBox "account1" st.vs vsWar vsInactive
+        [ lazy4 renderUserBox "account0" user war playerInactive
+        , lazy2 renderView characters viewing
+        , lazy4 renderUserBox "account1" vs vsWar vsInactive
         ]
 
 
@@ -495,13 +499,17 @@ renderUserBox id user war inactive =
 
 renderCenter : Model -> List (Html Msg)
 renderCenter st =
-    if List.isEmpty st.game.victor then
+    let
+        { victor } =
+            st.game
+    in
+    if List.isEmpty victor then
         [ renderChakraModule st
         , renderActs st
         ]
 
     else
-        renderGameOver st.player st.dna st.game.victor
+        renderGameOver st.player st.dna victor
 
 
 renderChakraButton : String -> msg -> Bool -> Html msg
@@ -583,12 +591,8 @@ renderActs { ownTurn, chakraSums, ninjas, acts } =
 
 
 renderAct : Array Character -> Act -> Html Msg
-renderAct characters x =
-    let
-        skill =
-            x.skill
-    in
-    H.div [ A.class "act click", E.onClick <| Enact Delete x ]
+renderAct characters ({ skill } as act) =
+    H.div [ A.class "act click", E.onClick <| Enact Delete act ]
         [ Render.skillIcon (Characters.root characters skill) skill []
         , H.div [ A.class "actcost" ] <|
             Render.chakras skill.cost
@@ -641,9 +645,7 @@ renderHealth anchor health =
         []
     , H.span
         [ A.class "charhealthtext"
-        , A.style anchor <|
-            String.fromInt (health * 93 // 100)
-                ++ "%"
+        , A.style anchor (String.fromInt (health * 93 // 100) ++ "%")
         ]
       <|
         if health /= 0 then
@@ -704,8 +706,8 @@ renderSkill :
     -> Html Msg
 renderSkill { user, freeChakras, active, characters } button targets skill =
     let
-        slot =
-            user.slot
+        { slot } =
+            user
 
         key =
             skillKey skill
@@ -772,7 +774,7 @@ renderSkill { user, freeChakras, active, characters } button targets skill =
 
 
 renderDetail : Bool -> Int -> Array Character -> Detail -> Html Msg
-renderDetail onTeam slot characters detail =
+renderDetail onTeam slot characters ({ classes } as detail) =
     let
         removable =
             if Detail.allied slot detail then
@@ -798,10 +800,10 @@ renderDetail onTeam slot characters detail =
               )
             , ( "remove"
               , List.any removable detail.effects
-                    && not (Set.member "Unremovable" detail.classes)
+                    && not (Set.member "Unremovable" classes)
               )
             , ( "invis"
-              , Set.member "Invisible" detail.classes
+              , Set.member "Invisible" classes
               )
             ]
         ]
@@ -814,7 +816,7 @@ renderDetail onTeam slot characters detail =
             else
                 [ icon ]
         , H.p [] <|
-            if Set.member "Continues" detail.classes then
+            if Set.member "Continues" classes then
                 [ H.text "•" ]
 
             else
@@ -833,13 +835,13 @@ type alias NinjaData =
 
 
 createNinjaData : Model -> NinjaData
-createNinjaData st =
-    { characters = st.ninjas
-    , acted = List.map .user st.acts
-    , toggle = st.toggled
-    , highlight = st.highlight
-    , freeChakras = st.chakraSums.free
-    , ownTurn = st.ownTurn
+createNinjaData { acts, chakraSums, highlight, ownTurn, ninjas, toggled } =
+    { characters = ninjas
+    , acted = List.map .user acts
+    , toggle = toggled
+    , highlight = highlight
+    , freeChakras = chakraSums.free
+    , ownTurn = ownTurn
     }
 
 
@@ -857,14 +859,17 @@ renderNinja { characters, acted, toggle, highlight, freeChakras, ownTurn } onTea
             else
                 "right"
 
+        { slot } =
+            ninja
+
         toggled =
-            List.member ninja.slot (Act.toggles toggle)
+            List.member slot (Act.toggles toggle)
 
         fullMeta =
             let
                 mainMeta =
                     [ A.classList
-                        [ ( "highlighted", List.member ninja.slot highlight )
+                        [ ( "highlighted", List.member slot highlight )
                         , ( "toggled skill", toggled )
                         ]
                     , E.onMouseOver << View <| ViewCharacter character
@@ -874,7 +879,7 @@ renderNinja { characters, acted, toggle, highlight, freeChakras, ownTurn } onTea
                     toggle
                         |> Maybe.filter (always toggled)
                         >> Maybe.map
-                            (E.onClick << Enact Add << Act.targeted ninja.slot)
+                            (E.onClick << Enact Add << Act.targeted slot)
             in
             case onClick of
                 Just onclick ->
@@ -901,11 +906,11 @@ renderNinja { characters, acted, toggle, highlight, freeChakras, ownTurn } onTea
                 onTeam
                     && ownTurn
                     && (ninja.health > 0)
-                    && not (List.member ninja.slot acted)
+                    && not (List.member slot acted)
             }
 
         render =
-            renderDetail onTeam ninja.slot characters
+            renderDetail onTeam slot characters
 
         renderDetails attrs =
             H.aside attrs << List.map render
@@ -913,7 +918,7 @@ renderNinja { characters, acted, toggle, highlight, freeChakras, ownTurn } onTea
     H.section [ A.classList [ ( "dead", ninja.health == 0 ) ] ]
         [ renderDetails [ A.class "channels" ] <|
             List.map Detail.copy (Maybe.values ninja.copies)
-                ++ List.map (Detail.channel ninja.slot) ninja.channels
+                ++ List.map (Detail.channel slot) ninja.channels
         , H.section fullMeta
             [ faceIcon [ A.class "charicon" ] ]
         , H.div [ A.class "charmoves" ] <|
@@ -952,8 +957,8 @@ renderViewDestructible characters { amount, dur, skill, user } =
         source =
             Characters.get characters user
 
-        name =
-            skill.name
+        { name } =
+            skill
     in
     H.section []
         [ Render.icon source name [ A.class "char" ]
@@ -1013,12 +1018,7 @@ renderAlternateButton : String -> Skill -> Html Msg
 renderAlternateButton class skill =
     H.button
         [ A.class <| class ++ " click"
-        , E.onClick
-            << View
-          <|
-            ViewSkill []
-                0
-                { skill | charges = 0 }
+        , E.onClick << View <| ViewSkill [] 0 { skill | charges = 0 }
         ]
         []
 
@@ -1105,7 +1105,7 @@ renderViewUser user =
             , H.dt [] [ H.text "Level" ]
             , H.dd [] [ H.text << String.fromInt <| User.level user ]
             , H.dt [] [ H.text "Record" ]
-            , H.dd [] [ Render.streak user ]
+            , H.dd [] [ Render.userStreak user ]
             ]
         ]
 

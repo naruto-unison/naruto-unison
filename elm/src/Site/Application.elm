@@ -28,10 +28,10 @@ type alias Model =
 
 
 isQueued : Model -> Bool
-isQueued st =
-    case st.component of
-        SelectModel model ->
-            model.stage == Select.Queued
+isQueued { component } =
+    case component of
+        SelectModel { stage } ->
+            stage == Select.Queued
 
         PlayModel _ ->
             False
@@ -119,9 +119,8 @@ app websocket ports =
 
                 contents els =
                     if isQueued st then
-                        H.div [ A.id "main", A.class "queueing" ] <|
-                            renderSearching
-                                ++ els
+                        H.div [ A.id "main", A.class "queueing" ]
+                            (renderSearching ++ els)
 
                     else
                         H.div [ A.id "main" ]
@@ -257,8 +256,8 @@ app websocket ports =
                     pure st
 
         subscriptions : Model -> Sub Msg
-        subscriptions st =
-            case st.component of
+        subscriptions { component } =
+            case component of
                 SelectModel _ ->
                     websocket Receive
 

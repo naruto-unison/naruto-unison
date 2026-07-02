@@ -7,6 +7,7 @@ module Game.Game exposing
 
 import Import.Model as Player exposing (Ninja, Player, Turn)
 import List.Extra as List
+import Util exposing (sumBy)
 
 
 teamSize : Int
@@ -15,8 +16,8 @@ teamSize =
 
 
 allied : Player -> Ninja -> Bool
-allied player n =
-    (n.slot < teamSize) == (player == Player.A)
+allied player { slot } =
+    (slot < teamSize) == (player == Player.A)
 
 
 split : Player -> List a -> { allies : List a, enemies : List a }
@@ -34,7 +35,7 @@ split player xs =
 
 
 living : Player -> Turn -> Int
-living player game =
+living player { ninjas } =
     let
         listOp =
             case player of
@@ -44,10 +45,9 @@ living player game =
                 Player.B ->
                     List.drop
     in
-    game.ninjas
+    ninjas
         |> listOp teamSize
-        >> List.map (.health >> min 1)
-        >> List.sum
+        >> sumBy (.health >> min 1)
 
 
 died : Player -> Turn -> Turn -> Bool

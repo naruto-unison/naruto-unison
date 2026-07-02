@@ -5,16 +5,6 @@ import Import.Model exposing (Channeling(..), Skill, Target(..))
 import List.Extra as List
 
 
-team : List Int
-team =
-    List.range 0 <| teamSize - 1
-
-
-allSlots : List Int
-allSlots =
-    List.range 0 <| 2 * teamSize - 1
-
-
 channelDur : Channeling -> Maybe Int
 channelDur chan =
     case chan of
@@ -34,11 +24,21 @@ channelDur chan =
             x
 
 
+team : List Int
+team =
+    List.range 0 <| teamSize - 1
+
+
+allSlots : List Int
+allSlots =
+    List.range 0 <| 2 * teamSize - 1
+
+
 targets : Int -> Skill -> List Int
-targets slot skill =
+targets slot { start, effects } =
     let
         possibleTargets =
-            skill.start ++ skill.effects
+            start ++ effects
 
         enemy =
             List.member Enemy possibleTargets

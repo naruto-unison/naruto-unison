@@ -12,7 +12,7 @@ import Import.Model exposing (Channel, Channeling(..), Copy, Effect, Ninja, Skil
 import List.Extra as List
 import List.Nonempty exposing (Nonempty(..))
 import Set exposing (Set)
-import Util exposing (groupBy)
+import Util exposing (groupBy, sumBy)
 
 
 type alias Detail =
@@ -55,9 +55,8 @@ get { slot, statuses, traps } =
                 >> List.concatMap unfold
 
         ( self, others ) =
-            stats
-                ++ trapDetails
-                |> List.partition (\detail -> detail.user == slot)
+            (stats ++ trapDetails)
+                |> List.partition (\{ user } -> user == slot)
     in
     others ++ self
 
@@ -103,26 +102,25 @@ concat (Nonempty x xs) =
         | effects =
             xxs
                 |> List.concatMap .effects
-                >> List.uniqueBy .desc
                 >> List.filter .visible
+                >> List.uniqueBy .desc
         , trap =
             xxs
                 |> List.any .trap
         , amount =
             xxs
                 |> List.filter (not << .trap)
-                >> List.map .amount
-                >> List.sum
+                >> sumBy .amount
     }
 
 
 unfold : Detail -> List Detail
-unfold x =
-    if x.amount <= 1 || not (Set.member "Resource" x.classes) then
-        [ x ]
+unfold ({ amount, classes } as detail) =
+    if amount <= 1 || not (Set.member "Resource" classes) then
+        [ detail ]
 
     else
-        List.repeat x.amount { x | amount = 1 }
+        List.repeat amount { detail | amount = 1 }
 
 
 skillBase : Maybe Int -> Skill -> Detail
@@ -165,16 +163,16 @@ copy { dur, skill } =
 
 status : Status -> Detail
 status { amount, classes, dur, effects, name, skill, user } =
-    { name = name
-    , desc = skill.desc
-    , classes = classes
-    , dur = dur
-    , source = skill.owner
-    , skillName = skill.name
-    , user = user
-    , effects = List.uniqueBy .desc effects
-    , trap = False
-    , amount = amount
+    let
+        base =
+            skillBase dur skill
+    in
+    { base
+        | name = name
+        , classes = classes
+        , user = user
+        , effects = List.uniqueBy .desc effects
+        , amount = amount
     }
 
 
@@ -191,14 +189,14 @@ trapEffects =
 
 trap : Trap -> Detail
 trap { classes, dur, name, skill, trigger, user } =
-    { name = name
-    , desc = skill.desc
-    , classes = classes
-    , dur = dur
-    , source = skill.owner
-    , skillName = skill.name
-    , user = user
-    , effects = [ { trapEffects | desc = trigger } ]
-    , trap = True
-    , amount = 1
+    let
+        base =
+            skillBase dur skill
+    in
+    { base
+        | name = name
+        , classes = classes
+        , user = user
+        , effects = [ { trapEffects | desc = trigger } ]
+        , trap = True
     }

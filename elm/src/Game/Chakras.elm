@@ -1,26 +1,19 @@
 module Game.Chakras exposing
-    ( affordable
+    ( add
+    , affordable
     , canExchange
     , lacks
     , negate
     , none
     , rate
+    , sub
     , sum
-    , total
     , toPathPieces
+    , total
     )
 
 import Import.Model exposing (Chakras)
-
-
-sum : List Chakras -> Chakras
-sum xs =
-    { blood = List.map .blood xs |> List.sum
-    , gen = List.map .gen xs |> List.sum
-    , nin = List.map .nin xs |> List.sum
-    , tai = List.map .tai xs |> List.sum
-    , rand = List.map .rand xs |> List.sum
-    }
+import Util exposing (sumBy)
 
 
 none : Chakras
@@ -28,13 +21,43 @@ none =
     { blood = 0, gen = 0, nin = 0, tai = 0, rand = 0 }
 
 
+add : Chakras -> Chakras -> Chakras
+add x y =
+    { blood = x.blood + y.blood
+    , gen = x.gen + y.gen
+    , nin = x.nin + y.nin
+    , tai = x.tai + y.tai
+    , rand = x.rand + y.rand
+    }
+
+
+sub : Chakras -> Chakras -> Chakras
+sub x y =
+    { blood = x.blood - y.blood
+    , gen = x.gen - y.gen
+    , nin = x.nin - y.nin
+    , tai = x.tai - y.tai
+    , rand = x.rand - y.rand
+    }
+
+
+sum : List Chakras -> Chakras
+sum xs =
+    { blood = sumBy .blood xs
+    , gen = sumBy .gen xs
+    , nin = sumBy .nin xs
+    , tai = sumBy .tai xs
+    , rand = sumBy .rand xs
+    }
+
+
 negate : Chakras -> Chakras
-negate x =
-    { blood = -x.blood
-    , gen = -x.gen
-    , nin = -x.nin
-    , tai = -x.tai
-    , rand = -x.rand
+negate { blood, gen, nin, tai, rand } =
+    { blood = -blood
+    , gen = -gen
+    , nin = -nin
+    , tai = -tai
+    , rand = -rand
     }
 
 
@@ -44,56 +67,31 @@ rate =
 
 
 total : Chakras -> Int
-total x =
-    x.blood + x.gen + x.nin + x.tai + x.rand
+total { blood, gen, nin, tai, rand } =
+    blood + gen + nin + tai + rand
 
 
 affordable : Chakras -> Chakras -> Bool
 affordable x y =
-    rate
-        <= total
-            { blood =
-                if y.blood /= 0 then
-                    0
+    let
+        afford getter =
+            if getter y /= 0 then
+                0
 
-                else
-                    x.blood
-            , gen =
-                if y.gen /= 0 then
-                    0
-
-                else
-                    x.gen
-            , nin =
-                if y.nin /= 0 then
-                    0
-
-                else
-                    x.nin
-            , tai =
-                if y.tai /= 0 then
-                    0
-
-                else
-                    x.tai
-            , rand = 0
-            }
+            else
+                getter x
+    in
+    rate <= (afford .blood + afford .gen + afford .nin + afford .tai)
 
 
 lacks : Chakras -> Chakras -> Bool
-lacks x y =
-    x.blood
-        < y.blood
-        || x.gen
-        < y.gen
-        || x.nin
-        < y.nin
-        || x.tai
-        < y.tai
-        || x.rand
-        < y.rand
-        || x.rand
-        < total y
+lacks x { blood, gen, nin, tai, rand } =
+    (x.blood < blood)
+        || (x.gen < gen)
+        || (x.nin < nin)
+        || (x.tai < tai)
+        || (x.rand < rand)
+        || (x.rand < blood + gen + nin + tai + rand)
 
 
 canExchange : Chakras -> Bool
@@ -104,6 +102,7 @@ canExchange x =
         , { none | nin = 1 }
         , { none | tai = 1 }
         ]
+
 
 toPathPieces : Chakras -> List Int
 toPathPieces { blood, gen, nin, tai } =
