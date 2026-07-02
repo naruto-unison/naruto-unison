@@ -24,7 +24,6 @@ import Set exposing (Set)
 import Site.Render as Render
 import Sound exposing (Sound)
 import Task
-import Tuple exposing (first, second)
 import Url
 import User
 import Util exposing (ListChange(..), pure, showBool, showErr)
@@ -1161,6 +1160,10 @@ renderSkillPreview char slot skills i =
             H.section [] []
 
         Just skill ->
+            let
+                skillDesc =
+                    Render.skillDesc 0 skill
+            in
             H.section []
                 [ H.div []
                     [ Render.skillIcon char
@@ -1183,22 +1186,12 @@ renderSkillPreview char slot skills i =
                     H.text skill.name
                         :: Render.chakras skill.cost
                         ++ [ Render.classes skill.classes ]
-                , H.p []
-                    << (++) (Render.desc skill.desc)
-                    << List.map
-                        (H.span [ A.class "extra" ] << List.singleton << H.text << second)
-                  <|
-                    List.filter first
-                        [ ( skill.charges > 1
-                          , String.fromInt skill.charges ++ " charges."
-                          )
-                        , ( skill.charges == 1
-                          , "1 charge."
-                          )
-                        , ( skill.cooldown > 0
-                          , "CD: " ++ String.fromInt skill.cooldown
-                          )
-                        ]
+                , H.p [] <|
+                    if skill.cooldown > 0 then
+                        skillDesc ++ [ Render.extra <| "CD: " ++ String.fromInt skill.cooldown ]
+
+                    else
+                        skillDesc
                 ]
 
 

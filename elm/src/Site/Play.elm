@@ -1024,7 +1024,7 @@ renderAlternateButton class skill =
 
 
 renderViewSkill : Array Character -> Int -> Skill -> List (Html Msg)
-renderViewSkill characters charge skill =
+renderViewSkill characters charges skill =
     let
         character =
             Characters.get characters skill.owner
@@ -1064,22 +1064,7 @@ renderViewSkill characters charge skill =
             , H.dd [] [ H.text cooldown ]
             ]
         ]
-    , H.p [] <|
-        if skill.charges == 0 then
-            Render.desc skill.desc
-
-        else
-            Render.desc skill.desc
-                ++ [ H.span [ A.class "extra" ]
-                        [ H.text <|
-                            case skill.charges - charge of
-                                1 ->
-                                    "1 charge."
-
-                                y ->
-                                    String.fromInt y ++ " charges."
-                        ]
-                   ]
+    , H.p [] <| Render.skillDesc charges skill
     ]
 
 

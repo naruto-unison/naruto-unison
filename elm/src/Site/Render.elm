@@ -7,11 +7,13 @@ module Site.Render exposing
     , detailIcon
     , duration
     , effect
+    , extra
     , icon
     , name
     , rands
     , scroll
     , skillCost
+    , skillDesc
     , skillDuration
     , skillIcon
     , userStreak
@@ -252,15 +254,35 @@ effect characters removable x =
             else
                 []
     in
-    H.li meta
-        << desc
-    <|
+    H.li meta <|
         case x.slot of
             Nothing ->
-                x.desc
+                desc x.desc
 
             Just slot ->
-                x.desc ++ (Characters.get characters slot).name ++ "."
+                desc <| x.desc ++ (Characters.get characters slot).name ++ "."
+
+
+extra : String -> Html msg
+extra s =
+    H.span [ A.class "extra" ] [ H.text s ]
+
+
+skillDesc : Int -> Skill -> List (Html msg)
+skillDesc charges skill =
+    let
+        baseDesc =
+            desc skill.desc
+    in
+    case skill.charges - charges of
+        0 ->
+            baseDesc
+
+        1 ->
+            baseDesc ++ [ extra "1 charge." ]
+
+        n ->
+            baseDesc ++ [ extra <| String.fromInt n ++ " charges." ]
 
 
 desc : String -> List (Html msg)
