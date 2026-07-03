@@ -373,8 +373,6 @@ button.scroll:hover {
 
 .charicon {
     border: 2px solid #111;
-    width: 75px;
-    height: 75px;
 }
 
 .charWrapper {
@@ -441,8 +439,7 @@ button.scroll:hover {
 }
 
 #player0 .charhealth {
-    margin-left: 77px;
-    margin-right: auto;
+    margin-right: 4px;
 
     div {
         left: 0;
@@ -453,8 +450,7 @@ button.scroll:hover {
     }
 }
 #player1 .charhealth {
-    margin-right: 77px;
-    margin-left: auto;
+    margin-left: 4px;
 
     div {
         right: 0;
@@ -466,10 +462,8 @@ button.scroll:hover {
 }
 .charhealth {
     height: 8px;
-    margin-top: -12px;
     background-color: #111;
     border: 2px solid #111;
-    width: 297px;
     position: relative;
 
     .chardefense {
@@ -510,17 +504,10 @@ button.scroll:hover {
 
 .charmove {
     border: 1px solid #fff;
-    width: 62px;
-    height: 62px;
     margin: 0 6px;
     display: inline-block;
     position: relative;
     transition: 0.2s filter;
-
-    img {
-        width: 100%;
-        height: 100%;
-    }
 }
 
 #player1 .charmove {
@@ -1051,7 +1038,6 @@ p {
     height: 100%;
     position: absolute;
     top: 200px;
-    width: 383px;
     transition: 0.5s all;
 
     > section {
@@ -1105,12 +1091,12 @@ p {
 
 #player0 {
     right: 50%;
-    padding-right: 200px;
+    margin-right: 200px;
     text-align: left;
 }
 #player1 {
     left: 50%;
-    padding-left: 200px;
+    margin-left: 200px;
     text-align: right;
 
     .channels, .statuses {
@@ -1606,6 +1592,37 @@ svg {
             > section {
                 display: none;
             }
+        }
+    }
+}
+
+@media (max-width: 1300px) {
+    .charhealth {
+        margin-top: -12px;
+        width: 297px;
+    }
+
+    .player {
+        width: 383px;
+    }
+
+    #player0 .charhealth {
+        margin-left: 77px;
+        margin-right: auto;
+    }
+
+    #player1 .charhealth {
+        margin-left: auto;
+        margin-right: 77px;
+    }
+
+    .charmove {
+        width: 62px;
+        height: 62px;
+
+        img {
+            width: 100%;
+            height: 100%;
         }
     }
 }
