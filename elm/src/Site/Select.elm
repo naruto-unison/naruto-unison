@@ -9,7 +9,6 @@ import Game.Game as Game
 import Html as H exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
-import Html.Keyed as Keyed
 import Html.Lazy exposing (lazy2)
 import Http
 import Import.Flags exposing (Csrf, Flags, War)
@@ -150,15 +149,6 @@ type alias Model =
     }
 
 
-size : Model -> Int
-size { chars, condense } =
-    if condense then
-        chars.size
-
-    else
-        chars.groupSize
-
-
 alterTeam : (List Character -> List Character) -> Model -> Model
 alterTeam update st =
     { st | team = createTeam <| update st.team.list }
@@ -286,26 +276,6 @@ scrollViewport signum =
         |> Task.attempt handleResult
 
 
-applyScroll : Int -> Int -> Int -> Int
-applyScroll scrollBy index numChars =
-    if index >= numChars then
-        0
-
-    else if index >= 0 then
-        index
-
-    else
-        let
-            rem =
-                numChars |> remainderBy -scrollBy
-        in
-        if rem == 0 then
-            numChars + scrollBy
-
-        else
-            numChars - rem
-
-
 component :
     Ports Msg
     ->
@@ -408,7 +378,7 @@ component ports =
                 Scroll x ->
                     withSound Sound.Scroll <|
                         { st
-                            | index = applyScroll x (x + st.index) <| size st
+                            | index = x + st.index
                             , pageSize = abs x
                         }
 
@@ -668,11 +638,6 @@ charWrapper mchar { team, unlocked, user, war } char =
                 ]
 
 
-keyedCharWrapper : Maybe Character -> Model -> Character -> ( String, Html Msg )
-keyedCharWrapper mchar st char =
-    ( char.ident, charWrapper mchar st char )
-
-
 
 -- USERBOX
 
@@ -851,10 +816,12 @@ renderUserBox st formType team =
             }
         , H.div [ A.class "space" ] []
         , H.section [ A.id "teamContainer" ]
-            [ Keyed.node "div"
-                [ A.id "teamButtons", A.class "select" ]
-              <|
-                List.map (keyedCharWrapper Nothing st) team.list
+            [ Characters.keyed "div"
+                [ A.id "teamButtons"
+                , A.class "select"
+                ]
+                (charWrapper Nothing st)
+                team.list
             , H.div [ A.class "space" ] []
             , H.div [ A.id "underTeam", A.class "parchment" ] <|
                 Render.chakraTotals team.costs
@@ -870,6 +837,14 @@ renderUserBox st formType team =
 
 
 -- VSBOX
+
+
+renderVsIcon : Character -> Html Msg
+renderVsIcon char =
+    Render.charIcon char
+        [ A.class "char click"
+        , E.onClick <| Vs Delete char
+        ]
 
 
 renderVsBox : Stage -> List Character -> Html Msg
@@ -902,19 +877,12 @@ renderVsBox stage vs =
             ]
         , H.span []
             [ H.text "VS: " ]
-        , Keyed.node "div"
-            [ A.id "vsButtons", A.class "select" ]
-          <|
-            List.map
-                (\char ->
-                    ( char.ident
-                    , Render.charIcon char
-                        [ A.class "char click"
-                        , E.onClick <| Vs Delete char
-                        ]
-                    )
-                )
-                vs
+        , Characters.keyed "div"
+            [ A.id "vsButtons"
+            , A.class "select"
+            ]
+            renderVsIcon
+            vs
         ]
 
 
@@ -1062,9 +1030,7 @@ renderUserPreview avatars error { avatar, background, condense, name } =
 renderCharPreview : Model -> Character -> Html Msg
 renderCharPreview st char =
     H.article [ A.class "parchment" ] <|
-        [ Keyed.node "aside"
-            []
-          <|
+        [ Characters.keyed "aside" [] (charWrapper (Just char) st) <|
             case Characters.getGroup st.chars char of
                 Nothing ->
                     []
@@ -1073,7 +1039,7 @@ renderCharPreview st char =
                     []
 
                 Just (Nonempty x xs) ->
-                    List.map (keyedCharWrapper (Just char) st) <| x :: xs
+                    x :: xs
         , H.h3 [ A.class "charBanner" ] <|
             [ Render.charIcon char [ A.class "char" ]
             , if not <| locked st.unlocked char then
@@ -1199,73 +1165,45 @@ renderSkillPreview char slot skills i =
 -- LISTCHARS
 
 
-wraparound : Bool -> Int -> List a -> List a
-wraparound wrapping i xs =
-    let
-        ( before, after ) =
-            List.splitAt i xs
-    in
-    if wrapping then
-        after
-
-    else
-        after ++ before
-
-
 renderCharList : Model -> Html Msg
-renderCharList st =
+renderCharList ({ chars, condense, index, pageSize, stage } as st) =
     let
-        wrapping =
-            st.index + st.pageSize >= size st
+        hasMore =
+            (index + pageSize)
+                < (if condense then
+                    chars.groupSize
 
-        wrap =
-            wraparound wrapping st.index
+                   else
+                    chars.size
+                  )
 
-        displays =
-            if st.condense then
-                st.chars.groupList
+        wrap xs =
+            xs
+                |> List.drop index
+                |> List.take pageSize
+    in
+    H.section
+        [ A.class "chars"
+        , A.class "parchment"
+        , A.id "forTeam"
+        , A.hidden <| stage == Practicing
+        ]
+        [ Render.scroll [ A.id "prevPage" ] "left" (index /= 0) <| Page -1
+        , Render.scroll [ A.id "nextPage" ] "right" hasMore <| Page 1
+        , Characters.keyed "div"
+            [ A.id "teamScroll"
+            , A.class "charScroll"
+            ]
+            (charWrapper Nothing st)
+          <|
+            if condense then
+                chars.groupList
                     |> wrap
                     |> List.map Nonempty.head
 
             else
-                st.chars.list
+                chars.list
                     |> wrap
-
-        baseAttrs =
-            [ A.class "chars", A.class "parchment", A.id "forTeam" ]
-
-        attrs =
-            if st.stage == Practicing then
-                A.style "display" "none" :: baseAttrs
-
-            else
-                baseAttrs
-    in
-    H.section attrs
-        [ Render.scroll "prevPage"
-            (if st.index == 0 then
-                "close"
-
-             else
-                "left"
-            )
-          <|
-            Page -1
-        , Render.scroll "nextPage"
-            (if wrapping then
-                "close"
-
-             else
-                "right"
-            )
-          <|
-            Page 1
-        , Keyed.node "div"
-            [ A.id "teamScroll"
-            , A.class "charScroll"
-            ]
-          <|
-            List.map (keyedCharWrapper Nothing st) displays
         ]
 
 
@@ -1273,37 +1211,29 @@ renderCharList st =
 -- LISTVS
 
 
+renderVsChar : List Character -> Character -> Html Msg
+renderVsChar vs char =
+    H.div [ A.class "charWrapper", A.title char.name ]
+        [ Render.charIcon char
+            [ E.onClick <| Vs Add char
+            , A.class <|
+                if List.member char vs then
+                    "char disabled"
+
+                else
+                    "char click"
+            ]
+        ]
+
+
 renderVsList : Model -> Html Msg
 renderVsList { chars, stage, vs } =
-    let
-        charClass char =
-            if List.member char vs then
-                "char disabled"
-
-            else
-                "char click"
-
-        displayChar char =
-            ( char.ident
-            , H.div [ A.class "charWrapper", A.title char.name ]
-                [ Render.charIcon char
-                    [ E.onClick <| Vs Add char
-                    , A.class <| charClass char
-                    ]
-                ]
-            )
-
-        baseAttrs =
-            [ A.class "chars", A.class "parchment full", A.id "forVs" ]
-
-        attrs =
-            if stage /= Practicing then
-                A.style "display" "none" :: baseAttrs
-
-            else
-                baseAttrs
-    in
-    H.section attrs
-        [ Keyed.node "div" [ A.class "charScroll" ] <|
-            List.map displayChar chars.list
+    H.section
+        [ A.class "chars"
+        , A.class "parchment full"
+        , A.id "forVs"
+        , A.hidden <| stage /= Practicing
+        ]
+        [ Characters.keyed "div" [ A.class "charScroll" ] (renderVsChar vs) <|
+            chars.list
         ]

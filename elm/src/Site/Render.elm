@@ -34,12 +34,25 @@ import String.Extra as String
 import Util exposing (shorten)
 
 
-scroll : String -> String -> msg -> Html msg
-scroll id src cmd =
-    H.button [ A.id id, A.class "scroll click" ]
-        [ H.div [] []
-        , H.img [ A.src <| "/img/ui/scroll/" ++ src ++ ".png", E.onClick cmd ] []
-        ]
+scroll : List (H.Attribute msg) -> String -> Bool -> msg -> Html msg
+scroll attrs src available cmd =
+    if available then
+        H.button (A.class "scroll click" :: attrs)
+            [ H.div [] []
+            , H.img
+                [ A.src <| "/img/ui/scroll/" ++ src ++ ".png"
+                , E.onClick cmd
+                ]
+                []
+            ]
+
+    else
+        H.button (A.class "scroll noclick" :: attrs)
+            [ H.div [] []
+            , H.img
+                [ A.src "/img/ui/scroll/close.png" ]
+                []
+            ]
 
 
 userStreak : User -> Html msg

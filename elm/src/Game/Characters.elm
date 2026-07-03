@@ -3,12 +3,15 @@ module Game.Characters exposing
     , create
     , get
     , getGroup
+    , keyed
     , merge
     , root
     )
 
 import Array exposing (Array)
 import Dict exposing (Dict)
+import Html as H exposing (Html)
+import Html.Keyed as Keyed
 import Import.Model exposing (Category(..), Character, Ninja, Skill)
 import List.Extra as List
 import List.Nonempty as Nonempty exposing (Nonempty)
@@ -32,6 +35,11 @@ get xs slot =
     xs
         |> Array.get slot
         |> Maybe.withDefault unknown
+
+
+keyed : String -> List (H.Attribute msg) -> (Character -> Html msg) -> List Character -> Html msg
+keyed node attrs f xs =
+    Keyed.node node attrs <| List.map (\char -> ( char.ident, f char )) xs
 
 
 root : Array Character -> Skill -> Character
