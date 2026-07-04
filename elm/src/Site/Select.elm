@@ -1130,13 +1130,13 @@ renderSkillPreview char slot skills i =
                         , E.onClick <| Alternate slot -1
                         , A.hidden <| i <= 0
                         ]
-                        []
+                        [ H.text "◀" ]
                     , H.button
                         [ A.class "nextSkill click"
                         , E.onClick <| Alternate slot 1
                         , A.hidden <| i + 1 >= List.length skills
                         ]
-                        []
+                        [ H.text "▶" ]
                     ]
                 , H.h4 [] <|
                     H.text skill.name
@@ -1216,9 +1216,8 @@ renderVsChar vs char =
 renderVsList : Model -> Html Msg
 renderVsList { chars, stage, vs } =
     H.section
-        [ A.class "chars"
-        , A.class "parchment full"
-        , A.id "forVs"
+        [ A.id "forVs"
+        , A.class "parchment chars"
         , A.hidden <| stage /= Practicing
         ]
         [ Characters.keyed "div" [ A.class "charScroll" ] (renderVsChar vs) <|

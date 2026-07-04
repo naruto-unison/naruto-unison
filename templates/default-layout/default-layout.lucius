@@ -1,3 +1,7 @@
+:root {
+    --breadcrumb: #666;
+}
+
 a:hover {
     text-decoration: underline;
 }

@@ -1,7 +1,5 @@
 :root {
     --action: #09f;
-    --action-cancel: #ff0000;
-    --breadcrumb: #666;
     --button-bg: #dfdfdf;
     --button-hover: #ccc;
     --chakra-blood: #f0000a;
