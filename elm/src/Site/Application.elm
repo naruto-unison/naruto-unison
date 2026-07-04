@@ -297,7 +297,7 @@ renderSearching =
         ]
     , H.button
         [ A.id "cancel"
-        , A.class "parchment playButton click"
+        , A.class "parchment playButton"
         , E.onClick <| SelectMsg Select.Dequeue
         ]
         [ H.text "Cancel" ]

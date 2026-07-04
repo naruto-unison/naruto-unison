@@ -26,7 +26,7 @@ import Site.Render as Render
 import Sound exposing (Sound)
 import Task
 import User
-import Util exposing (ListChange(..), clickIf, pure, showErr)
+import Util exposing (ListChange(..), pure, showErr)
 
 
 type Viewable
@@ -515,7 +515,11 @@ renderCenter st =
 renderChakraButton : String -> msg -> Bool -> Html msg
 renderChakraButton text msg condition =
     H.button
-        (A.id text :: clickIf condition "chakraButton" msg)
+        [ A.id text
+        , A.class "chakraButton"
+        , E.onClick msg
+        , A.disabled <| not condition
+        ]
         [ H.text text ]
 
 
@@ -544,25 +548,26 @@ renderChakraModule { chakraSums, exchange, exchanged, ownTurn, randoms } =
 
 renderChakraPair : Bool -> Bool -> Chakras -> ChakraPair -> Html Msg
 renderChakraPair turn exchange chakras { chakra, spend, amount, random } =
-    let
-        classes =
-            "chakra " ++ chakra
-
-        meta =
-            if exchange then
-                clickIf (Chakras.affordable chakras spend) classes <|
-                    Exchange (Conclude spend)
-
-            else
-                [ A.class classes ]
-    in
     H.div []
-        [ H.div meta []
+        [ H.button
+            [ A.class <| "chakra " ++ chakra
+            , E.onClick <| Exchange <| Conclude spend
+            , A.disabled <| not <| exchange && Chakras.affordable chakras spend
+            ]
+            []
         , H.span []
             [ H.text <| String.fromInt amount ]
-        , H.button (clickIf (turn && random > 0) "more" <| Spend <| Chakras.negate spend)
+        , H.button
+            [ A.class "more"
+            , E.onClick <| Spend <| Chakras.negate spend
+            , A.disabled <| not turn || random <= 0
+            ]
             [ H.text "+" ]
-        , H.button (clickIf (turn && amount > 0) "less" <| Spend spend)
+        , H.button
+            [ A.class "less"
+            , E.onClick <| Spend spend
+            , A.disabled <| not turn || amount <= 0
+            ]
             [ H.text "—" ]
         , H.div [ A.class "chakra rand" ] []
         , H.span []
@@ -573,26 +578,37 @@ renderChakraPair turn exchange chakras { chakra, spend, amount, random } =
 renderActs : Model -> Html Msg
 renderActs { ownTurn, chakraSums, ninjas, acts } =
     let
-        readyMeta =
-            if not ownTurn then
-                [ A.class "noclick" ]
-
-            else if chakraSums.rand /= 0 then
-                [ A.class "noChakra" ]
-
-            else
-                [ A.class "click", E.onClick Ready ]
+        noChakra =
+            chakraSums.rand /= 0
     in
     H.section [ A.id "playqueuecont" ]
         [ H.div [ A.id "playqueue" ] <|
             List.map (renderAct ninjas) acts
-        , H.div (A.id "ready" :: readyMeta) []
+        , H.button
+            [ A.id "ready"
+            , A.classList [ ( "noChakra", noChakra ) ]
+            , E.onClick Ready
+            , A.disabled <| not ownTurn || noChakra
+            ]
+            [ H.text <|
+                if not ownTurn then
+                    "Waiting"
+
+                else if noChakra then
+                    "Choose Chakra"
+
+                else
+                    "Ready"
+            ]
         ]
 
 
 renderAct : Array Character -> Act -> Html Msg
 renderAct characters ({ skill } as act) =
-    H.div [ A.class "act click", E.onClick <| Enact Delete act ]
+    H.button
+        [ A.class "act"
+        , E.onClick <| Enact Delete act
+        ]
         [ Render.skillIcon (Characters.root characters skill) skill []
         , H.div [ A.class "actcost" ] <|
             Render.chakras skill.cost
@@ -626,7 +642,7 @@ renderGameOver player dna victors =
             [ H.text message ]
         , H.a
             [ A.id "return"
-            , A.class "playButton parchment click"
+            , A.class "playButton parchment"
             , A.href "/"
             ]
             [ H.text "Return" ]
@@ -719,58 +735,53 @@ renderSkill { user, freeChakras, active, characters } button targets skill =
             Dict.get key user.charges
                 |> Maybe.withDefault 0
 
-        noclick =
+        disabled =
             not active
                 || List.isEmpty targets
                 || Chakras.lacks freeChakras skill.cost
-    in
-    if noclick then
-        let
-            cooldown =
-                if user.health > 0 && skill.cooldown > 0 then
-                    Dict.get key user.cooldowns
-                        |> Maybe.withDefault 0
 
-                else
-                    0
-        in
-        H.div
-            [ A.class "charmove noclick"
-            , E.onMouseOver <| View <| ViewSkill [] charge skill
-            , E.onMouseLeave Unhighlight
-            ]
-        <|
-            if cooldown <= 0 then
-                [ icon ]
+        cooldown =
+            if disabled && user.health > 0 && skill.cooldown > 0 then
+                Dict.get key user.cooldowns
+                    |> Maybe.withDefault 0
 
             else
-                [ icon
-                , H.span [] [ H.text <| String.fromInt cooldown ]
-                ]
+                0
 
-    else
-        let
-            act : Act
-            act =
-                { user = slot
-                , skill = skill
-                , target = slot
-                , button = button
-                , targets = targets
-                }
-        in
-        H.div
-            [ A.class "charmove click"
-            , E.onMouseOver <| View <| ViewSkill targets charge skill
-            , E.onMouseLeave Unhighlight
-            , E.onClick <|
-                if Skill.targets slot skill == [ slot ] then
-                    Enact Add act
+        act : Act
+        act =
+            { user = slot
+            , skill = skill
+            , target = slot
+            , button = button
+            , targets = targets
+            }
 
-                else
-                    Toggle act
-            ]
+        onClick =
+            if disabled then
+                DoNothing
+
+            else if Skill.targets slot skill == [ slot ] then
+                Enact Add act
+
+            else
+                Toggle act
+    in
+    H.button
+        [ A.class "charmove"
+        , E.onMouseOver <| View <| ViewSkill [] charge skill
+        , E.onMouseLeave Unhighlight
+        , E.onClick onClick
+        , A.disabled disabled
+        ]
+    <|
+        if cooldown <= 0 then
             [ icon ]
+
+        else
+            [ icon
+            , H.span [] [ H.text <| String.fromInt cooldown ]
+            ]
 
 
 renderDetail : Bool -> Int -> Array Character -> Detail -> Html Msg
@@ -865,29 +876,6 @@ renderNinja { characters, acted, toggle, highlight, freeChakras, ownTurn } onTea
         toggled =
             List.member slot (Act.toggles toggle)
 
-        fullMeta =
-            let
-                mainMeta =
-                    [ A.classList
-                        [ ( "highlighted", List.member slot highlight )
-                        , ( "toggled skill", toggled )
-                        ]
-                    , E.onMouseOver <| View <| ViewCharacter character
-                    ]
-
-                onClick =
-                    toggle
-                        |> Maybe.filter (always toggled)
-                        |> Maybe.map
-                            (E.onClick << Enact Add << Act.targeted slot)
-            in
-            case onClick of
-                Just onclick ->
-                    onclick :: mainMeta
-
-                Nothing ->
-                    mainMeta
-
         faceIcon =
             case ninja.face of
                 Nothing ->
@@ -919,7 +907,20 @@ renderNinja { characters, acted, toggle, highlight, freeChakras, ownTurn } onTea
         [ renderDetails [ A.class "channels" ] <|
             List.map Detail.copy (Maybe.values ninja.copies)
                 ++ List.map (Detail.channel slot) ninja.channels
-        , H.section fullMeta
+        , H.button
+            [ A.classList
+                [ ( "face", True )
+                , ( "highlighted", List.member slot highlight )
+                , ( "toggled skill", toggled )
+                ]
+            , E.onMouseOver <| View <| ViewCharacter character
+            , case Maybe.filter (always toggled) toggle of
+                Just act ->
+                    E.onClick <| Enact Add { act | target = slot }
+
+                Nothing ->
+                    A.disabled True
+            ]
             [ faceIcon [ A.class "charicon" ] ]
         , H.div [ A.class "charmoves" ] <|
             List.map3

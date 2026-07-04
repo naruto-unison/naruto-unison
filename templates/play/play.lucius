@@ -1,3 +1,10 @@
+button {
+    appearance: none;
+    background: unset;
+    border: unset;
+    padding: unset;
+}
+
 @keyframes fadeIn {
     0% {
         opacity: 0;
@@ -16,39 +23,36 @@
 }
 
 .chars .selected,
-.chars .char.click:hover,
+.chars .char[role = "button"]:hover,
 #charSelect > article > aside .char:hover {
     outline: 2px solid #0099ff !important;
     filter: none;
 }
 .chars .selected,
-.chars .char.click.selected:hover {
+.chars .char[role = "button"].selected:hover {
     outline: 2px solid #ff0000 !important;
     filter: none;
 }
 
-.charmove.click:hover,
-.chakra.click:hover,
-#avatars img:hover {
+.charmove:enabled:hover,
+.chakra:enabled:hover,
+#avatars button:hover {
     border-color: #0099ff;
 }
 .toggled img {
     border-color: #fff !important;
 }
-#avatars img.noclick {
+#avatars button:disabled {
     border-color: #0099ff !important;
     filter: grayscale(0.8);
 }
 .toggled img:hover,
-.chakra.click:hover,
-#avatars img:hover,
-.player > section > section.click:hover {
+.chakra:enabled:hover,
+#avatars button:hover,
+.face:enabled:hover {
     border-color: #0099ff !important;
 }
-#avatars img.chosen {
-    border-color: #e11;
-}
-#ready.click:hover {
+#ready:enabled:hover {
     border-color: #fff;
 }
 #ready.noChakra:hover {
@@ -67,11 +71,11 @@ a:hover {
     border: 1px solid #e00 !important;
 }
 
-#playchakra .click {
+#playchakra button.chakra:enabled {
     color: #fff;
 }
 .userForm a,
-#playchakra .click:hover {
+#playchakra button.chakra:enabled:hover {
     color: #00a;
 }
 .userForm a:hover {
@@ -143,9 +147,13 @@ article,
     img {
         width: 45px;
         height: 45px;
+    }
+
+    button {
         border: 2px solid #000;
         margin: -2px 1px 4px 1px;
     }
+
 }
 
 #bg {
@@ -252,8 +260,7 @@ button.scroll:hover {
     height: 27px;
 }
 
-.chakra.click {
-    pointer-events: all;
+button.chakra:enabled {
     border-color: #fff;
 }
 
@@ -268,7 +275,6 @@ button.scroll:hover {
         sans-serif;
     margin-left: -26px;
     margin-top: 6px;
-    pointer-events: all;
     opacity: 0.5;
     background: none;
     border: none;
@@ -278,10 +284,10 @@ button.scroll:hover {
 .chakraButton:hover {
     background: none;
 }
-.chakraButton.click {
+.chakraButton:enabled {
     opacity: 1;
 }
-.chakraButton.click:hover {
+.chakraButton:enabled:hover {
     color: #00a;
 }
 
@@ -318,7 +324,7 @@ button.scroll:hover {
         filter: grayscale(0.8);
         outline-color: #888 !important;
     }
-    .char.click {
+    .char[role = "button"] {
         outline-color: #000;
         filter: none;
     }
@@ -439,8 +445,6 @@ button.scroll:hover {
 }
 
 #player0 .charhealth {
-    margin-right: 4px;
-
     div {
         left: 0;
     }
@@ -450,7 +454,6 @@ button.scroll:hover {
     }
 }
 #player1 .charhealth {
-    margin-left: 4px;
 
     div {
         right: 0;
@@ -461,6 +464,7 @@ button.scroll:hover {
     }
 }
 .charhealth {
+    margin-right: 4px;
     height: 8px;
     background-color: #111;
     border: 2px solid #111;
@@ -513,7 +517,7 @@ button.scroll:hover {
 #player1 .charmove {
     border-color: #000 !important;
 }
-#player0 .charmove.noclick,
+#player0 .charmove:disabled,
 .unable .charmove,
 .stunned .charmove,
 .unable.charmove,
@@ -898,7 +902,6 @@ li F {
     color: #000;
     -webkit-text-stroke: 1px rgba(255, 255, 255, 0.75);
     text-shadow: 0 0 1px rgba(255, 255, 255, 0.75);
-    appearance: none;
     background: none;
     border: none;
 }
@@ -931,8 +934,8 @@ p {
 #logoutButton {
     margin: 3px;
     padding: 4px 3px 2px 3px;
-    border: 2px solid #999;
-    color: #666;
+    border: 2px solid #dc2e3c;
+    color: #000;
     text-transform: uppercase;
     font-size: 15px;
     text-align: center;
@@ -953,11 +956,11 @@ p {
     margin-right: 0;
     float: right;
 }
-.playButton.click,
-#updateButton.click,
-#logoutButton.click {
-    border: 2px solid #dc2e3c;
-    color: #000 !important;
+.playButton:disabled,
+#updateButton:disabled,
+#logoutButton:disabled {
+    border: 2px solid #999;
+    color: #666;
 }
 .playButton {
     display: block;
@@ -968,9 +971,9 @@ p {
     box-sizing: initial;
     width: 100%;
 }
-.playButton.click:hover,
-#updateButton.click:hover,
-#logoutButton.click:hover {
+.playButton:enabled:hover,
+#updateButton:enabled:hover,
+#logoutButton:enabled:hover {
     border: 2px solid #0099ff !important;
 }
 
@@ -998,13 +1001,15 @@ p {
         color: #000;
         -webkit-user-select: none;
         user-select: none;
-        pointer-events: all;
         margin: 0.15em;
     }
-    button.more {
+    .more:enabled, .less:enabled {
+        color: #fff;
+    }
+    .more {
         margin-left: -0.45em;
     }
-    button.less {
+    .less {
         margin-right: 0.55em;
     }
 
@@ -1018,9 +1023,10 @@ p {
         width: 1.6em;
     }
 }
-.randbar a {
+.randbar button {
     opacity: 0;
     pointer-events: none !important;
+    cursor: unset !important;
 }
 .randT {
     font-weight: bold;
@@ -1067,7 +1073,7 @@ p {
             position: relative;
             float: left;
 
-            img.click {
+            button:enabled {
                 border-color: #fff !important;
             }
         }
@@ -1123,11 +1129,6 @@ p {
     }
 }
 
-#playqueuecont,
-#playchakra {
-    pointer-events: none;
-}
-
 #playqueuecont {
     position: absolute;
     top: 199px;
@@ -1136,10 +1137,6 @@ p {
     width: 245px;
     left: 0;
     right: 0;
-
-    div {
-        pointer-events: all;
-    }
 }
 
 #privatePopup {
@@ -1191,18 +1188,7 @@ p {
     border: 1px solid #000;
     padding: 3px 0;
     position: relative;
-}
-#ready::before {
-    content: "WAITING";
-}
-#ready.click::before {
-    content: "READY";
-}
-#ready.noChakra::before {
-    content: "CHOOSE CHAKRA";
-}
-#ready.noclick::before {
-    content: "WAITING" !important;
+    text-transform: uppercase;
 }
 
 #return {
@@ -1240,7 +1226,7 @@ p {
     .char {
         margin: 0 4px 0 6px;
     }
-    .char.click:hover {
+    .char[role = "button"]:hover {
         outline: 2px solid #ff0000;
     }
 

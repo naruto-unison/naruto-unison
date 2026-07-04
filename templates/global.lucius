@@ -36,19 +36,19 @@ html {
     margin-left: 3px;
 }
 .chakra.blood {
-    background-color: #f0000a;
+    background-color: #f0000a !important;
 }
 .chakra.gen {
-    background-color: #ffffff;
+    background-color: #ffffff !important;
 }
 .chakra.nin {
-    background-color: #00a9d5;
+    background-color: #00a9d5 !important;
 }
 .chakra.tai {
-    background-color: #0cdd2c;
+    background-color: #0cdd2c !important;
 }
 .chakra.rand {
-    background-color: #000000;
+    background-color: #000000 !important;
 }
 
 .char {

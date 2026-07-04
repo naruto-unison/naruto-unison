@@ -1,6 +1,5 @@
 module Game.Act exposing
     ( Act
-    , targeted
     , toPathPieces
     , toggles
     )
@@ -16,11 +15,6 @@ type alias Act =
     , skill : Skill
     , targets : List Int
     }
-
-
-targeted : Int -> Act -> Act
-targeted target act =
-    { act | target = target }
 
 
 toPathPieces : Act -> List Int

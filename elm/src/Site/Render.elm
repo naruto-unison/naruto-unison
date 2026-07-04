@@ -36,23 +36,20 @@ import Util exposing (shorten)
 
 scroll : List (H.Attribute msg) -> String -> Bool -> msg -> Html msg
 scroll attrs src available cmd =
-    if available then
-        H.button (A.class "scroll click" :: attrs)
-            [ H.div [] []
-            , H.img
-                [ A.src <| "/img/ui/scroll/" ++ src ++ ".png"
-                , E.onClick cmd
-                ]
-                []
-            ]
+    let
+        actualSrc =
+            if available then
+                src
 
-    else
-        H.button (A.class "scroll noclick" :: attrs)
-            [ H.div [] []
-            , H.img
-                [ A.src "/img/ui/scroll/close.png" ]
-                []
-            ]
+            else
+                "close"
+    in
+    H.button ([ A.class "scroll", E.onClick cmd, A.disabled <| not available ] ++ attrs)
+        [ H.div [] []
+        , H.img
+            [ A.src <| "/img/ui/scroll/" ++ actualSrc ++ ".png" ]
+            []
+        ]
 
 
 userStreak : User -> Html msg
@@ -94,9 +91,9 @@ rands amount random =
             [ H.text "T" ]
         , H.span []
             [ H.text <| String.fromInt amount ]
-        , H.button [ A.class "more noclick" ]
+        , H.button [ A.class "more", A.disabled True ]
             [ H.text "+" ]
-        , H.button [ A.class "less noclick" ]
+        , H.button [ A.class "less", A.disabled True ]
             [ H.text "—" ]
         , H.div [ A.class "chakra rand" ]
             []

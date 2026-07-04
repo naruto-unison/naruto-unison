@@ -1,7 +1,6 @@
 module Util exposing
     ( ListChange(..)
     , buildDict
-    , clickIf
     , groupBy
     , pure
     , shorten
@@ -12,9 +11,6 @@ module Util exposing
     )
 
 import Dict exposing (Dict)
-import Html as H
-import Html.Attributes as A
-import Html.Events as E
 import Http
 import List.Nonempty exposing (Nonempty(..))
 import Set exposing (Set)
@@ -23,15 +19,6 @@ import Set exposing (Set)
 buildDict : ( a -> comparable, a -> b ) -> List a -> Dict comparable b
 buildDict ( toKey, toValue ) =
     List.foldl (\x -> Dict.insert (toKey x) (toValue x)) Dict.empty
-
-
-clickIf : Bool -> String -> msg -> List (H.Attribute msg)
-clickIf condition class command =
-    if condition then
-        [ A.class <| class ++ " click", E.onClick command ]
-
-    else
-        [ A.class <| class ++ " noclick" ]
 
 
 groupBy : (a -> a -> Bool) -> List a -> List (Nonempty a)

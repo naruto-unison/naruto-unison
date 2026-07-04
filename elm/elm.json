@@ -1,8 +1,6 @@
 {
     "type": "application",
-    "source-directories": [
-        "src"
-    ],
+    "source-directories": ["src"],
     "elm-version": "0.19.1",
     "dependencies": {
         "direct": {
@@ -17,7 +15,8 @@
             "elm-community/list-extra": "8.7.0",
             "elm-community/maybe-extra": "5.3.0",
             "elm-community/string-extra": "4.0.1",
-            "mgold/elm-nonempty-list": "4.2.0"
+            "mgold/elm-nonempty-list": "4.2.0",
+            "tesk9/accessible-html": "6.2.0"
         },
         "indirect": {
             "elm/bytes": "1.0.8",

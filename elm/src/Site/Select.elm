@@ -1,5 +1,6 @@
 module Site.Select exposing (Model, Msg(..), Stage(..), component)
 
+import Accessibility.Role as Role
 import Browser.Dom as Dom
 import Browser.Navigation as Navigation
 import Dict
@@ -605,7 +606,7 @@ charWrapper mchar { team, unlocked, user, war } char =
                 "char on"
 
             else if not <| locked unlocked char then
-                "char click"
+                "char"
 
             else if affordable user char then
                 "char locked buy"
@@ -615,8 +616,9 @@ charWrapper mchar { team, unlocked, user, war } char =
     in
     H.div [ A.class "charWrapper" ] <|
         Render.charIcon char
-            [ E.onClick <| Preview <| PreviewChar char
-            , A.class charClass
+            [ A.class charClass
+            , E.onClick <| Preview <| PreviewChar char
+            , Role.button
             ]
             :: Maybe.values
                 [ if Maybe.isNothing user || locked unlocked char then
@@ -645,12 +647,13 @@ charWrapper mchar { team, unlocked, user, war } char =
 renderUserBoxNav : { loggedIn : Bool, teamFull : Bool } -> Html Msg
 renderUserBoxNav { loggedIn, teamFull } =
     let
-        meta onClick =
-            if teamFull then
-                [ A.class "parchment playButton click", E.onClick onClick ]
-
-            else
-                [ A.class "parchment playButton" ]
+        playButton name onClick =
+            H.button
+                [ A.class "parchment playButton"
+                , E.onClick onClick
+                , A.disabled <| not teamFull
+                ]
+                [ H.text name ]
     in
     H.nav [ A.id "playButtons" ] <|
         H.a
@@ -660,12 +663,9 @@ renderUserBoxNav { loggedIn, teamFull } =
             ]
             [ H.text "Main Site" ]
             :: (if loggedIn then
-                    [ H.button (meta <| Enqueue Quick)
-                        [ H.text "Start Quick Match" ]
-                    , H.button (meta <| SetStage Searching)
-                        [ H.text "Start Private Match" ]
-                    , H.button (meta <| SetStage Practicing)
-                        [ H.text "Start Practice Match" ]
+                    [ playButton "Start Quick Match" <| Enqueue Quick
+                    , playButton "Start Private Match" <| SetStage Searching
+                    , playButton "Start Practice Match" <| SetStage Practicing
                     ]
 
                 else
@@ -844,6 +844,7 @@ renderVsIcon char =
     Render.charIcon char
         [ A.class "char click"
         , E.onClick <| Vs Delete char
+        , Role.button
         ]
 
 
@@ -1001,26 +1002,20 @@ renderUserPreview avatars error { avatar, background, condense, name } =
               <|
                 List.map
                     (\ava ->
-                        if avatar == ava then
-                            H.img [ A.src ava, A.class "noclick" ] []
-
-                        else
-                            H.img
-                                [ A.src ava
-                                , A.class "click"
-                                , E.onClick <| UpdateForm <| Avatar ava
-                                ]
-                                []
+                        H.button
+                            [ A.disabled <| avatar == ava
+                            , E.onClick <| UpdateForm <| Avatar ava
+                            ]
+                            [ H.img [ A.src ava ] [] ]
                     )
                     avatars
             , H.button
                 [ A.id "updateButton"
-                , A.class "click"
                 , E.onClick TryUpdate
                 ]
                 [ H.text "Update" ]
             , H.a [ A.href "auth/logout" ]
-                [ H.button [ A.id "logoutButton", A.class "click" ]
+                [ H.button [ A.id "logoutButton" ]
                     [ H.text "Log out" ]
                 ]
             ]
@@ -1215,13 +1210,10 @@ renderVsChar : List Character -> Character -> Html Msg
 renderVsChar vs char =
     H.div [ A.class "charWrapper", A.title char.name ]
         [ Render.charIcon char
-            [ E.onClick <| Vs Add char
-            , A.class <|
-                if List.member char vs then
-                    "char disabled"
-
-                else
-                    "char click"
+            [ A.class "char"
+            , E.onClick <| Vs Add char
+            , A.disabled <| List.member char vs
+            , Role.button
             ]
         ]
 
