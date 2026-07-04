@@ -11,7 +11,7 @@ a:focus {
     pointer-events: none;
     animation: fadeOut 0.5s linear 3s 1 normal forwards;
     padding: 10px 30px;
-    color: #e00;
+    color: var(--danger);
     position: fixed;
     bottom: 0;
     left: 0;
@@ -37,7 +37,7 @@ body {
     text-align: left !important;
 
     margin-bottom: 1.25em;
-    color: #666;
+    color: var(--breadcrumb);
 
     li {
         display: inline-block;
@@ -59,13 +59,13 @@ body {
 
 button {
     border-radius: 0;
-    border: 1px solid #007acc;
+    border: 1px solid var(--action);
     padding: 0.4em 1em 0.3em 1em;
-    background-color: #dfdfdf;
+    background-color: var(--button-bg);
     cursor: pointer;
 }
 button:hover {
-    background-color: #ccc;
+    background-color: var(--button-hover);
 }
 
 main {
@@ -116,7 +116,7 @@ nav.jump {
     }
     a:hover {
         text-decoration: none;
-        color: #0099ff;
+        color: var(--action);
     }
 
     button {
@@ -138,8 +138,8 @@ nav.jump {
     }
 
     button:hover {
-        color: #007acc;
-        border-color: #007acc;
+        color: var(--action);
+        border-color: var(--action);
     }
 
     div {
@@ -180,7 +180,7 @@ nav.jump {
     border-bottom-style: solid;
 }
 #current {
-    border-bottom-color: #666;
+    border-bottom-color: var(--breadcrumb);
 }
 #sitenav,
 #sitenav button {

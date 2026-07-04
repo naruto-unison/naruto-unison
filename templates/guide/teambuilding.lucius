@@ -22,7 +22,7 @@
 
     .skill::after {
         content: " / ";
-        color: black;
+        color: #000;
     }
 
     .skill:last-child::after {

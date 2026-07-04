@@ -5,7 +5,7 @@
     position: relative;
 }
 .char:hover {
-    outline-color: #007acc;
+    outline-color: var(--action);
     z-index: 2;
 }
 

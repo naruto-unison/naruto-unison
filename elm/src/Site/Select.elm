@@ -657,7 +657,7 @@ renderUserBoxNav { loggedIn, teamFull } =
     H.nav [ A.id "playButtons" ] <|
         H.a
             [ A.id "mainsite"
-            , A.class "playButton parchment click blacked"
+            , A.class "playButton parchment click"
             , A.href "/home"
             ]
             [ H.text "Main Site" ]

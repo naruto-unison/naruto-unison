@@ -1,6 +1,5 @@
-body,
 main {
-    background-color: #1b4e66 !important;
+    background-color: unset !important;
 }
 
 body {
@@ -70,7 +69,7 @@ main {
         a sup,
         .name,
         .skill {
-            color: #0099ff;
+            color: var(--action);
         }
     }
 }

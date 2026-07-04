@@ -1,8 +1,25 @@
+:root {
+    --action-available: #fff;
+    --action-unavailable: #000;
+    --char-border: #111;
+    --palette-blue: #00a;
+    --palette-red: #a00;
+    --select-border: #dc2e3c;
+    --war-blue: #007acc;
+    --war-red: #e00;
+    --war-purple: purple;
+}
+
 button {
     appearance: none;
     background: unset;
     border: unset;
+    margin: unset;
     padding: unset;
+}
+
+button:hover {
+    background: initial;
 }
 
 @keyframes fadeIn {
@@ -22,45 +39,59 @@ button {
     }
 }
 
+#avatars button:disabled,
+#queueing #charSelect,
+#player0 .charmove:disabled,
+.chars .char:disabled,
+.dead,
+.ghost.chardefense,
+.ghost.detail img
+ {
+    filter: grayscale(0.8) !important;
+}
+
+.char:disabled {
+    outline-color: #555 !important;
+}
+
 .chars .selected,
 .chars .char[role = "button"]:hover,
 #charSelect > article > aside .char:hover {
-    outline: 2px solid #0099ff !important;
-    filter: none;
+    outline: 2px solid var(--action) !important;
+    filter: none !important;
 }
 .chars .selected,
 .chars .char[role = "button"].selected:hover {
-    outline: 2px solid #ff0000 !important;
-    filter: none;
+    outline: 2px solid var(--action-cancel) !important;
+    filter: none !important;
 }
 
 .charmove:enabled:hover,
 .chakra:enabled:hover,
 #avatars button:hover {
-    border-color: #0099ff;
+    border-color: var(--action);
 }
 .toggled img {
-    border-color: #fff !important;
+    border-color: var(--action-available) !important;
 }
 #avatars button:disabled {
-    border-color: #0099ff !important;
-    filter: grayscale(0.8);
+    border-color: var(--action) !important;
 }
 .toggled img:hover,
 .chakra:enabled:hover,
 #avatars button:hover,
 .face:enabled:hover {
-    border-color: #0099ff !important;
+    border-color: var(--action) !important;
 }
 #ready:enabled:hover {
-    border-color: #fff;
+    border-color: var(--action-available);
 }
 #ready.noChakra:hover {
-    border-color: #000 !important;
+    border-color: var(--action-unavailable) !important;
 }
 .nextSkill:hover,
 .prevSkill:hover {
-    color: #0099ff;
+    color: var(--action);
 }
 
 a:hover {
@@ -68,15 +99,15 @@ a:hover {
 }
 
 .act:hover {
-    border: 1px solid #e00 !important;
+    border: 1px solid var(--action-cancel) !important;
 }
 
 #playchakra button.chakra:enabled {
-    color: #fff;
+    color: var(--action-available);
 }
 .userForm a,
 #playchakra button.chakra:enabled:hover {
-    color: #00a;
+    color: var(--palette-blue);
 }
 .userForm a:hover {
     color: #000;
@@ -158,70 +189,58 @@ article,
 
 #bg {
     position: absolute;
-    top: -10px;
-    left: -10px;
-    right: -10px;
-    bottom: -10px;
+    inset: -10px;
     background-size: cover;
     background-position: center;
     z-index: -2;
 }
 
-.blacked {
-    border-color: #000 !important;
-}
-
 body {
     background: url("/img/bg/silhouette.jpg") no-repeat center center/cover !important;
-    font-family: "Trebuchet MS", sans-serif;
     overflow: hidden !important;
+}
+
+body, button {
+    font-family: "Trebuchet MS", sans-serif;
 }
 
 button {
     cursor: revert;
 }
 
+
 #controls {
     display: flex;
 
     button.switch {
-        border-color: white;
+        border-color: var(--action-available);
     }
 }
 
-button.scroll {
-    background: none;
-    border: none;
-    padding: 0;
+.scroll {
     position: relative;
 
     div {
         position: absolute;
         background-color: #222;
         display: block;
-        left: 20%;
-        top: 20%;
-        right: 20%;
-        bottom: 20%;
+        inset: 20%;
     }
 
     img {
         position: relative;
     }
 }
-button.scroll:hover {
-    background: none;
 
-    div {
-        background-color: #0099ff;
-    }
+.scroll:hover div {
+    background-color: var(--action);
 }
 
 .charBanner {
     button {
-        background-color: #dfdfdf;
+        background-color: var(--button-bg);
         border-radius: 0;
-        border: 1px solid #007acc;
+        border: 1px solid var(--action);
         font-size: 0.8em;
         margin: -0.1em 0.5em;
         padding: 0.1em 1em;
@@ -229,7 +248,7 @@ button.scroll:hover {
         vertical-align: top;
     }
     button:hover {
-        background-color: #ccc;
+        background-color: var(--button-hover);
     }
 }
 
@@ -261,7 +280,7 @@ button.scroll:hover {
 }
 
 button.chakra:enabled {
-    border-color: #fff;
+    border-color: var(--action-available);
 }
 
 .chakraButton {
@@ -270,25 +289,16 @@ button.chakra:enabled {
     text-transform: uppercase;
     font-size: 20px;
     text-align: center;
-    font-family:
-        Trebuchet MS,
-        sans-serif;
     margin-left: -26px;
     margin-top: 6px;
     opacity: 0.5;
-    background: none;
-    border: none;
-    padding: 0;
     width: 100%;
-}
-.chakraButton:hover {
-    background: none;
 }
 .chakraButton:enabled {
     opacity: 1;
 }
 .chakraButton:enabled:hover {
-    color: #00a;
+    color: var(--palette-blue);
 }
 
 .char.locked {
@@ -302,7 +312,7 @@ button.chakra:enabled {
 
 .chars,
 #vs {
-    border: 9px solid #dc2e3c;
+    border: 9px solid var(--select-border);
     -webkit-user-select: none;
     user-select: none;
 }
@@ -319,14 +329,7 @@ button.chakra:enabled {
         margin: 4px;
         width: 60px;
         height: 60px;
-    }
-    .char.deselected {
-        filter: grayscale(0.8);
-        outline-color: #888 !important;
-    }
-    .char[role = "button"] {
         outline-color: #000;
-        filter: none;
     }
 
     > button {
@@ -370,15 +373,15 @@ button.chakra:enabled {
 }
 .chardefense:hover {
     transition: none;
-    border-color: #00a;
+    border-color: var(--palette-blue);
 }
 .charbarrier:hover {
     transition: none;
-    border-color: #a00;
+    border-color: var(--palette-red);
 }
 
 .charicon {
-    border: 2px solid #111;
+    border: 2px solid var(--char-border);
 }
 
 .charWrapper {
@@ -386,8 +389,6 @@ button.chakra:enabled {
     position: relative;
 
     button {
-        padding: 0;
-        margin: 0;
         box-sizing: initial;
         width: 1em;
         height: 1em;
@@ -396,8 +397,7 @@ button.chakra:enabled {
         left: 5px;
         bottom: 5px;
         border-radius: 100%;
-        background: none;
-        border: 1px solid black;
+        border: 1px solid #000;
     }
 
     button:hover {
@@ -422,26 +422,26 @@ button.chakra:enabled {
     }
 
     .redblue {
-        background: purple;
+        background: var(--war-purple);
         border: 2px solid #000;
     }
     .red {
-        background: #e00;
+        background: var(--war-red);
         border: 2px solid #000;
     }
     .blue {
-        background: #007acc;
+        background: var(--war-blue);
         border: 2px solid #000;
     }
 }
 .redblue {
-    color: purple;
+    color: var(--war-purple);
 }
 .red {
-    color: #e00;
+    color: var(--war-red);
 }
 .blue {
-    color: #007acc;
+    color: var(--war-blue);
 }
 
 #player0 .charhealth {
@@ -466,8 +466,8 @@ button.chakra:enabled {
 .charhealth {
     margin-right: 4px;
     height: 8px;
-    background-color: #111;
-    border: 2px solid #111;
+    background-color: var(--char-border);
+    border: 2px solid var(--char-border);
     position: relative;
 
     .chardefense {
@@ -507,7 +507,7 @@ button.chakra:enabled {
 }
 
 .charmove {
-    border: 1px solid #fff;
+    border: 1px solid var(--action-available);
     margin: 0 6px;
     display: inline-block;
     position: relative;
@@ -515,23 +515,10 @@ button.chakra:enabled {
 }
 
 #player1 .charmove {
-    border-color: #000 !important;
+    border-color: var(--action-unavailable) !important;
 }
-#player0 .charmove:disabled,
-.unable .charmove,
-.stunned .charmove,
-.unable.charmove,
-.oncd,
-#player0 .noChakra {
-    filter: grayscale(0.8);
-    border-color: #000 !important;
-}
-.dead img {
-    filter: grayscale(0.8);
-}
-.unable .player > section > section img,
-.stunned .player > section > section img {
-    filter: grayscale(0.8);
+#player0 .charmove:disabled {
+    border-color: var(--action-unavailable) !important;
 }
 .charScroll {
     height: 100%;
@@ -575,12 +562,12 @@ button.chakra:enabled {
             }
 
             .char {
-                outline-color: black;
+                outline-color: #000;
                 outline-width: 1px !important;
             }
 
             .char.on {
-                outline: 2px white !important;
+                outline: 2px #fff !important;
                 outline-width: 2px !important;
                 outline-style: solid !important;
             }
@@ -694,41 +681,31 @@ button.chakra:enabled {
     }
 }
 .ghost {
-    color: #666;
+    --ghost: #666;
+    color: var(--ghost);
 }
 .ghost div {
-    border-color: #666;
-}
-.detail.ghost img,
-.ghost.chardefense {
-    filter: grayscale(0.8);
+    border-color: var(--ghost);
 }
 .invis {
     opacity: 0.65;
 }
 .remove div,
 .action div {
-    border-color: #00a;
+    border-color: var(--palette-blue);
 }
 #top > article .remove {
-    color: #00a;
+    color: var(--palette-blue);
 }
 #top > article .trap {
-    color: #e00;
+    color: var(--palette-red);
 }
 .trap div,
 .control div {
-    border-color: #a00;
+    border-color: var(--palette-red);
 }
 .fade {
     opacity: 0.5;
-}
-
-.disabled {
-    filter: grayscale(0.8) !important;
-}
-.char.disabled {
-    outline: 1px solid #555 !important;
 }
 
 dl {
@@ -835,7 +812,7 @@ dd {
 }
 
 #error {
-    color: #e00;
+    color: var(--danger);
     position: absolute;
     bottom: 10px;
     left: 10px;
@@ -844,11 +821,11 @@ dd {
 }
 
 #forfeit:hover {
-    color: #e00;
+    color: var(--danger);
 }
 
 .inactive {
-    color: #e00;
+    color: var(--danger);
     font-size: 2em;
 }
 
@@ -866,6 +843,10 @@ li F {
 #accountSettings {
     -webkit-user-select: none;
     user-select: none;
+}
+
+#mainsite {
+    border-color: #000 !important;
 }
 
 #mainsite::before,
@@ -902,8 +883,6 @@ li F {
     color: #000;
     -webkit-text-stroke: 1px rgba(255, 255, 255, 0.75);
     text-shadow: 0 0 1px rgba(255, 255, 255, 0.75);
-    background: none;
-    border: none;
 }
 .nextSkill {
     right: 5px;
@@ -934,14 +913,11 @@ p {
 #logoutButton {
     margin: 3px;
     padding: 4px 3px 2px 3px;
-    border: 2px solid #dc2e3c;
+    border: 2px solid var(--select-border);
     color: #000;
     text-transform: uppercase;
     font-size: 15px;
     text-align: center;
-    font-family:
-        Trebuchet MS,
-        sans-serif;
 }
 #updateButton,
 #logoutButton {
@@ -974,7 +950,7 @@ p {
 .playButton:enabled:hover,
 #updateButton:enabled:hover,
 #logoutButton:enabled:hover {
-    border: 2px solid #0099ff !important;
+    border: 2px solid var(--action) !important;
 }
 
 #playchakra {
@@ -993,11 +969,6 @@ p {
     padding-left: -27px;
 
     button {
-        appearance: none;
-        background: none;
-        border: none;
-        padding: 0;
-        margin: 0;
         color: #000;
         -webkit-user-select: none;
         user-select: none;
@@ -1074,7 +1045,7 @@ p {
             float: left;
 
             button:enabled {
-                border-color: #fff !important;
+                border-color: var(--action-available) !important;
             }
         }
         > section.highlighted {
@@ -1123,7 +1094,7 @@ p {
 
     .act {
         position: relative;
-        border: 1px solid #fff;
+        border: 1px solid var(--action-available);
         margin: 2px;
         display: inline-block;
     }
@@ -1176,7 +1147,6 @@ p {
 }
 
 .queueing #charSelect {
-    filter: grayscale(0.8);
     pointer-events: none;
 }
 
@@ -1195,7 +1165,7 @@ p {
     width: 5em;
     margin: auto;
     font-size: 1.3em;
-    border: 2px solid #dc2e3c;
+    border: 2px solid var(--select-border);
     padding-bottom: 0.5em;
 }
 #return::before,
@@ -1227,7 +1197,7 @@ p {
         margin: 0 4px 0 6px;
     }
     .char[role = "button"]:hover {
-        outline: 2px solid #ff0000;
+        outline: 2px solid var(--action-cancel);
     }
 
     img {
@@ -1254,10 +1224,7 @@ svg {
     width: 100%;
     height: 100%;
     position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
+    inset: 0;
     z-index: -1;
     background-color: #161616;
 }
@@ -1431,7 +1398,7 @@ svg {
 }
 
 #userfail {
-    color: #e00;
+    color: var(--danger);
     width: inherit;
     margin-left: 0.5em;
 }
@@ -1524,10 +1491,6 @@ svg {
         margin-top: 0.5em;
         font-size: 1.25em;
     }
-}
-
-.wraparound {
-    color: #fff !important;
 }
 
 @media (max-width: 1173px) {

@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return (queuedProgress = args);
         }
 
-        prog.path.setAttribute("stroke", from < to ? "#555" : "#0099ff");
+        prog.path.setAttribute("stroke", from < to ? "#555" : "var(--action)");
         prog.set(from);
 
         if (duration > 0) {
@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return false;
     }
 
-    const barOpts = { color: "#0099ff", fill: "#111" };
+    const barOpts = { color: "var(--action)", fill: "#111" };
     new MutationObserver((mutations) => {
         if (!wasGameAdded(mutations)) {
             return;

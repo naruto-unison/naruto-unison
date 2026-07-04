@@ -1,7 +1,24 @@
+:root {
+    --action: #09f;
+    --action-cancel: #ff0000;
+    --breadcrumb: #666;
+    --button-bg: #dfdfdf;
+    --button-hover: #ccc;
+    --chakra-blood: #f0000a;
+    --chakra-gen: #fff;
+    --chakra-nin: #00a9d5;
+    --chakra-tai: #0cdd2c;
+    --chakra-rand: #000;
+    --danger: #e00;
+    --desc-extra: #606060;
+    --rank-admin: #151c77;
+    --rank-moderator: #2d7715;
+}
+
 a,
 a sup,
 .skill {
-    color: #007acc;
+    color: var(--action);
     text-decoration: none;
 }
 
@@ -36,19 +53,19 @@ html {
     margin-left: 3px;
 }
 .chakra.blood {
-    background-color: #f0000a !important;
+    background-color: var(--chakra-blood) !important;
 }
 .chakra.gen {
-    background-color: #ffffff !important;
+    background-color: var(--chakra-gen) !important;
 }
 .chakra.nin {
-    background-color: #00a9d5 !important;
+    background-color: var(--chakra-nin) !important;
 }
 .chakra.tai {
-    background-color: #0cdd2c !important;
+    background-color: var(--chakra-tai) !important;
 }
 .chakra.rand {
-    background-color: #000000 !important;
+    background-color: var(--chakra-rand) !important;
 }
 
 .char {
@@ -157,7 +174,7 @@ li {
 
 .skillClasses {
     font-weight: normal;
-    color: #606060;
+    color: var(--desc-extra);
 }
 
 sup {
@@ -185,14 +202,14 @@ ul {
     white-space: nowrap;
 }
 
-.Admin {
-    color: #151c77;
-    border-color: #151c77;
-    outline-color: #151c77;
+.admin {
+    color: var(--rank-admin);
+    border-color: var(--rank-admin);
+    outline-color: var(--rank-admin);
 }
-.Moderator {
-    color: #2d7715;
-    border-color: #2d7715;
-    outline-color: #2d7715;
+.moderator {
+    color: var(--rank-moderator);
+    border-color: var(--rank-moderator);
+    outline-color: var(--rank-moderator);
 }
 

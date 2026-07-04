@@ -902,13 +902,14 @@ renderNinja { characters, acted, toggle, highlight, freeChakras, ownTurn } onTea
         renderDetails attrs els =
             H.aside attrs <| List.map render els
     in
-    H.section [ A.classList [ ( "dead", ninja.health == 0 ) ] ]
+    H.section []
         [ renderDetails [ A.class "channels" ] <|
             List.map Detail.copy (Maybe.values ninja.copies)
                 ++ List.map (Detail.channel slot) ninja.channels
         , H.button
             [ A.classList
                 [ ( "face", True )
+                , ( "dead", ninja.health == 0 )
                 , ( "highlighted", List.member slot highlight )
                 , ( "toggled skill", toggled )
                 ]
