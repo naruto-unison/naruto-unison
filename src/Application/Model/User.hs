@@ -1,8 +1,12 @@
-module Application.Model.User (Privilege(..), User(..), UserId, new) where
+module Application.Model.User
+    (Privilege(..)
+    , User(..), UserId, new
+    , level, levelXp, rank
+    ) where
 
 import ClassyPrelude
 
-import Application.Model.Internal (Privilege(..), User(..), UserId)
+import Application.Model.Internal (Privilege(..), User(..), UserId, level, levelXp, rank)
 
 new :: Text -> Maybe Text -> Day -> User
 new ident verkey day = User

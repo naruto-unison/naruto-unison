@@ -14,7 +14,7 @@ module Application.Model.Internal
     , News(..), NewsId
     , Unlocked(..), UnlockedId
     , Usage(..), UsageId
-    , User(..), UserId
+    , User(..), UserId, level, levelXp, rank
     , Privilege(..)
     , migrateAll) where
 
@@ -23,6 +23,8 @@ import Yesod
 
 import Database.Persist.Sql (fromSqlKey)
 import Text.Blaze (ToMarkup(..))
+
+import Util ((!?))
 
 -- | User privilege. Determines authorization level.
 data Privilege
@@ -103,8 +105,37 @@ share [ mkPersistWith (sqlSettings { mpsFieldLabelModifier = \_entityName fieldN
 instance Hashable (Key User) where
     hashWithSalt salt = hashWithSalt salt . fromEnum . fromSqlKey
 
+xpPerLevel :: Int
+xpPerLevel = 5000
+
+level :: User -> Int
+level User{xp} = (xp `quot` xpPerLevel) + 1
+
+levelXp :: User -> Int
+levelXp User{xp} = xp `rem` xpPerLevel
+
+rank :: User -> Text
+rank user@User{privilege = Normal} = fromMaybe "Hokage"
+    $ userRanks !? (level user - 1)
+  where
+    userRanks :: Vector Text
+    userRanks = fromList [ "Academy Student"
+                         , "Genin"
+                         , "Chūnin"
+                         , "Missing-Nin"
+                         , "Anbu"
+                         , "Jōnin"
+                         , "Sannin"
+                         , "Jinchūriki"
+                         , "Akatsuki"
+                         , "Kage"
+                         , "Hokage"
+                         ]
+rank User{privilege} = tshow privilege
+
+
 instance ToJSON User where
-    toJSON User
+    toJSON user@User
         { avatar
         , background
         , clan
@@ -116,13 +147,11 @@ instance ToJSON User where
         , record
         , streak
         , wins
-        , xp
         } = object
         [ "privilege"  .= privilege
         , "name"       .= name
         , "avatar"     .= avatar
         , "background" .= background
-        , "xp"         .= xp
         , "wins"       .= wins
         , "losses"     .= losses
         , "streak"     .= streak
@@ -130,4 +159,7 @@ instance ToJSON User where
         , "clan"       .= clan
         , "condense"   .= condense
         , "dna"        .= dna
+        , "rank"       .= rank user
+        , "level"      .= level user
+        , "xp"         .= levelXp user
         ]

@@ -15,10 +15,10 @@
     <dd>#{show joined}
     <dt>Level
     <dd>
-      <div .levelBg style="width: #{quot xp 5000}%;">
+      <div .levelBg style="width: #{levelXp}%;">
       <div .levelText>#{level}
     <dt>XP
-    <dd>#{xp}
+    <dd>#{levelXp}
     <dt>Wins
     <dd>#{wins}
     <dt>Losses

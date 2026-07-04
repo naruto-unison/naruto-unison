@@ -105,7 +105,6 @@ data User = User
     , name       :: Text
     , avatar     :: Text
     , background :: Maybe Text
-    , xp         :: Int
     , wins       :: Int
     , losses     :: Int
     , streak     :: Int
@@ -113,6 +112,9 @@ data User = User
     , clan       :: Maybe Text
     , condense   :: Bool
     , dna        :: Int
+    , rank       :: Text
+    , level      :: Int
+    , xp         :: Int
     }
 
 alterations :: ETypeDef -> ETypeDef

@@ -25,7 +25,6 @@ import Set exposing (Set)
 import Site.Render as Render
 import Sound exposing (Sound)
 import Task
-import User
 import Util exposing (ListChange(..), pure, showErr)
 
 
@@ -471,7 +470,7 @@ renderUserBox id user war inactive =
             [ H.h3 []
                 [ H.text user.name ]
             , H.p []
-                [ H.text <| User.rank user ]
+                [ H.text user.rank ]
             , H.p [ A.class "inactive" ] <| List.repeat inactive <| H.text "X"
             ]
         , H.div [ A.class "charWrapper" ]
@@ -1070,26 +1069,22 @@ renderViewSkill characters charges skill =
 
 
 renderViewUser : User -> Html msg
-renderViewUser user =
-    let
-        rank =
-            User.rank user
-    in
+renderViewUser ({ avatar, clan, level, name, rank } as user) =
     H.section []
         [ H.img
             [ A.class "char"
-            , A.src user.avatar
+            , A.src avatar
             ]
             []
         , H.dl []
             [ H.h4 []
-                [ H.text user.name ]
+                [ H.text name ]
             , H.p [ A.class <| String.toLower rank ]
                 [ H.text rank ]
             , H.dt [] [ H.text "Clan" ]
-            , H.dd [] [ H.text <| Maybe.withDefault "Clanless" user.clan ]
+            , H.dd [] [ H.text <| Maybe.withDefault "Clanless" clan ]
             , H.dt [] [ H.text "Level" ]
-            , H.dd [] [ H.text <| String.fromInt <| User.level user ]
+            , H.dd [] [ H.text <| String.fromInt level ]
             , H.dt [] [ H.text "Record" ]
             , H.dd [] [ Render.userStreak user ]
             ]

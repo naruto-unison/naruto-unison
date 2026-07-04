@@ -727,7 +727,6 @@ type alias User  =
    , name: String
    , avatar: String
    , background: (Maybe String)
-   , xp: Int
    , wins: Int
    , losses: Int
    , streak: Int
@@ -735,6 +734,9 @@ type alias User  =
    , clan: (Maybe String)
    , condense: Bool
    , dna: Int
+   , rank: String
+   , level: Int
+   , xp: Int
    }
 
 jsonDecUser : Json.Decode.Decoder ( User )
@@ -744,7 +746,6 @@ jsonDecUser =
    |> required "name" (Json.Decode.string)
    |> required "avatar" (Json.Decode.string)
    |> fnullable "background" (Json.Decode.string)
-   |> required "xp" (Json.Decode.int)
    |> required "wins" (Json.Decode.int)
    |> required "losses" (Json.Decode.int)
    |> required "streak" (Json.Decode.int)
@@ -752,6 +753,9 @@ jsonDecUser =
    |> fnullable "clan" (Json.Decode.string)
    |> required "condense" (Json.Decode.bool)
    |> required "dna" (Json.Decode.int)
+   |> required "rank" (Json.Decode.string)
+   |> required "level" (Json.Decode.int)
+   |> required "xp" (Json.Decode.int)
 
 jsonEncUser : User -> Value
 jsonEncUser  val =
@@ -760,7 +764,6 @@ jsonEncUser  val =
    , ("name", Json.Encode.string val.name)
    , ("avatar", Json.Encode.string val.avatar)
    , ("background", (maybeEncode (Json.Encode.string)) val.background)
-   , ("xp", Json.Encode.int val.xp)
    , ("wins", Json.Encode.int val.wins)
    , ("losses", Json.Encode.int val.losses)
    , ("streak", Json.Encode.int val.streak)
@@ -768,6 +771,9 @@ jsonEncUser  val =
    , ("clan", (maybeEncode (Json.Encode.string)) val.clan)
    , ("condense", Json.Encode.bool val.condense)
    , ("dna", Json.Encode.int val.dna)
+   , ("rank", Json.Encode.string val.rank)
+   , ("level", Json.Encode.int val.level)
+   , ("xp", Json.Encode.int val.xp)
    ]
 
 

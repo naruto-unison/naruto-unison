@@ -25,7 +25,6 @@ import Site.Render as Render
 import Sound exposing (Sound)
 import Task
 import Url
-import User
 import Util exposing (ListChange(..), pure, showBool, showErr)
 
 
@@ -765,7 +764,7 @@ renderUserBoxLoggedOut formType csrf =
 
 
 renderUserBoxLoggedIn : User -> Html Msg
-renderUserBoxLoggedIn ({ avatar, clan, dna, name, xp } as user) =
+renderUserBoxLoggedIn ({ avatar, clan, dna, level, name, rank, xp } as user) =
     H.div
         [ A.id "userBox"
         , A.class "parchment loggedin"
@@ -782,7 +781,7 @@ renderUserBoxLoggedIn ({ avatar, clan, dna, name, xp } as user) =
             , H.text name
             ]
         , H.p []
-            [ H.text <| User.rank user ]
+            [ H.text rank ]
         , H.dt [] [ H.text "Clan" ]
         , H.dd []
             [ H.text <|
@@ -790,11 +789,7 @@ renderUserBoxLoggedIn ({ avatar, clan, dna, name, xp } as user) =
             ]
         , H.dt [] [ H.text "Level" ]
         , H.dd []
-            [ H.text <|
-                String.fromInt (xp // 1000)
-                    ++ " ("
-                    ++ String.fromInt (xp |> remainderBy 1000)
-                    ++ " XP)"
+            [ H.text <| String.fromInt level ++ " (" ++ String.fromInt xp ++ " XP)"
             ]
         , H.dt [] [ H.text "Rank" ]
         , H.dd [] [ H.text "None" ]
