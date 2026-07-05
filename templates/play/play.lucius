@@ -38,6 +38,11 @@ button:hover {
         opacity: 0;
     }
 }
+@keyframes expand {
+    0% {
+        width: 0;
+    }
+}
 
 #avatars button:disabled,
 .queueing #charSelect,
@@ -340,48 +345,6 @@ button.chakra:enabled {
     }
 }
 
-.chardefense,
-.charbarrier {
-    width: 0;
-    border: 2px solid #000;
-    margin: -2px 0;
-    transition: 0.1s border;
-}
-
-#player1 .chardefense,
-#player1 .charbarrier {
-    border-right: none;
-}
-
-#player0 .chardefense,
-#player0 .charbarrier {
-    border-left: none;
-}
-
-.exposed .chardefense {
-    background-color: #999;
-}
-
-
-.chardefense {
-    background-color: #08b;
-    z-index: 2;
-}
-
-.charbarrier {
-    background-color: #e00;
-}
-
-.chardefense:hover {
-    transition: none;
-    border-color: var(--palette-blue);
-}
-
-.charbarrier:hover {
-    transition: none;
-    border-color: var(--palette-red);
-}
-
 .charicon {
     border: 2px solid var(--char-border);
 }
@@ -439,8 +402,63 @@ button.chakra:enabled {
     }
 }
 
+.charhealthbar {
+    height: 12px;
+    background-color: var(--char-border);
+    position: relative;
 
-#player0 .charhealth {
+    span, div {
+        transition: left 1s, right 1s, top 1s, bottom 1s, width 1s;
+    }
+
+    span {
+        z-index: 2;
+        font-size: 9px;
+        color: #fff;
+        position: absolute;
+        left: 0;
+        right: 0;
+    }
+
+    div {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        border: 2px solid var(--char-border);
+        box-sizing: border-box;
+        width: 0;
+        animation: expand 0.5s linear;
+    }
+
+    .charhealth {
+        animation: none;
+        background-color: #0a0;
+    }
+
+    .chardefense {
+        background-color: #08b;
+        z-index: 2;
+    }
+
+    .charbarrier {
+        background-color: #e00;
+    }
+
+    .chardefense:hover {
+        border-color: var(--palette-blue);
+    }
+
+    .charbarrier:hover {
+        border-color: var(--palette-red);
+    }
+
+}
+
+.exposed .chardefense {
+    background-color: #999;
+}
+
+#player0 .charhealthbar {
     margin-right: 4px;
 
     div {
@@ -451,7 +469,7 @@ button.chakra:enabled {
         left: 100%;
     }
 }
-#player1 .charhealth {
+#player1 .charhealthbar {
     margin-left: 4px;
 
     div {
@@ -460,32 +478,6 @@ button.chakra:enabled {
 
     span {
         right: 100%;
-    }
-}
-.charhealth {
-    height: 8px;
-    background-color: var(--char-border);
-    border: 2px solid var(--char-border);
-    position: relative;
-
-    div {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 100%;
-        background-color: #0a0;
-        transition: all 1s;
-    }
-
-    span {
-        z-index: 2;
-        font-size: 9px;
-        color: #fff;
-        position: absolute;
-        top: -1px;
-        transition: all 1s;
-        left: 0;
-        right: 0;
     }
 }
 
@@ -501,6 +493,12 @@ button.chakra:enabled {
     display: inline-block;
     position: relative;
     transition: 0.2s filter;
+
+    span {
+        position: absolute;
+        inset: 0;
+        font-size: 65px;
+    }
 }
 
 .charmove:disabled {
@@ -1030,6 +1028,10 @@ p {
     .face {
         float: left;
     }
+
+    .charbarrier, .chardefense {
+        border-left: none;
+    }
 }
 #player1 {
     left: 50%;
@@ -1042,6 +1044,10 @@ p {
 
     .face {
         float: right;
+    }
+
+    .charbarrier, .chardefense {
+        border-right: none;
     }
 }
 #account1 .charicon,

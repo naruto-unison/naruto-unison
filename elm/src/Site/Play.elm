@@ -12,6 +12,7 @@ import Game.Skill as Skill
 import Html as H exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
+import Html.Keyed as Keyed
 import Html.Lazy exposing (lazy2, lazy4)
 import Http
 import Import.Flags exposing (Flags)
@@ -654,26 +655,30 @@ renderGameOver player dna victors =
 -- NINJA
 
 
-renderHealth : String -> Int -> List (Html msg)
+renderHealth : String -> Int -> List ( String, Html msg )
 renderHealth anchor health =
-    [ H.div [ A.style "width" <| String.fromInt health ++ "%" ]
-        []
-    , H.span
-        [ A.class "charhealthtext"
-        , A.style anchor (String.fromInt (health * 93 // 100) ++ "%")
-        ]
-      <|
-        if health /= 0 then
-            [ H.text <| String.fromInt health ]
-
-        else
+    [ ( "healthtext"
+      , H.div
+            [ A.class "charhealth"
+            , A.style "width" <| String.fromInt health ++ "%"
+            ]
             []
+      )
+    , ( "health"
+      , H.span [ A.style anchor (String.fromInt (health * 93 // 100) ++ "%") ] <|
+            if health /= 0 then
+                [ H.text <| String.fromInt health ]
+
+            else
+                []
+      )
     ]
 
 
-renderDestructible : String -> String -> Int -> Destructible -> Html Msg
+renderDestructible : String -> String -> Int -> Destructible -> ( String, Html Msg )
 renderDestructible anchor class track x =
-    H.div
+    ( class ++ String.fromInt x.user ++ x.skill.name
+    , H.div
         [ A.classList
             [ ( class, True )
             , ( "ghost", x.dur == Just 0 )
@@ -683,9 +688,10 @@ renderDestructible anchor class track x =
         , E.onMouseOver <| View <| ViewDestructible x
         ]
         []
+    )
 
 
-renderHpBar : String -> Ninja -> List (Html Msg)
+renderHpBar : String -> Ninja -> List ( String, Html Msg )
 renderHpBar anchor { barrier, defense, health } =
     let
         fold class x ( xs, amount ) =
@@ -928,7 +934,7 @@ renderNinja { characters, acted, toggle, highlight, freeChakras, ownTurn } onTea
                 (List.range 0 10 {- doesn't matter, not the limiter -})
                 targets
                 ninja.skills
-        , H.div [ A.class "charhealth" ] <|
+        , Keyed.node "div" [ A.class "charhealthbar" ] <|
             renderHpBar anchor ninja
         , renderDetails [ A.class "statuses" ] <|
             Detail.get ninja
