@@ -780,17 +780,11 @@ renderUserBoxLoggedIn ({ avatar, clan, dna, level, name, rank, xp } as user) =
                 [ H.text <| String.fromInt dna ]
             , H.text name
             ]
-        , H.p []
-            [ H.text rank ]
+        , H.p [] [ H.text rank ]
         , H.dt [] [ H.text "Clan" ]
-        , H.dd []
-            [ H.text <|
-                Maybe.withDefault "Clanless" clan
-            ]
+        , H.dd [] [ H.text <| Maybe.withDefault "Clanless" clan ]
         , H.dt [] [ H.text "Level" ]
-        , H.dd []
-            [ H.text <| String.fromInt level ++ " (" ++ String.fromInt xp ++ " XP)"
-            ]
+        , H.dd [] [ H.text <| String.fromInt level ++ " (" ++ String.fromInt xp ++ " XP)" ]
         , H.dt [] [ H.text "Rank" ]
         , H.dd [] [ H.text "None" ]
         , H.dt [] [ H.text "Record" ]
@@ -871,8 +865,7 @@ renderVsBox stage vs =
                 ]
                 [ H.text "Cancel" ]
             ]
-        , H.span []
-            [ H.text "VS: " ]
+        , H.span [] [ H.text "VS: " ]
         , Characters.keyed "div"
             [ A.id "vsButtons"
             , A.class "select"
@@ -899,8 +892,7 @@ renderSearchBox error search =
             , E.onClick <| SetStage Browsing
             ]
             [ H.text "Cancel" ]
-        , H.span []
-            [ H.text "VS: " ]
+        , H.span [] [ H.text "VS: " ]
         , H.input
             [ A.type_ "text"
             , A.name "search"
@@ -945,8 +937,7 @@ renderWarPreview { red, blue } =
             , H.h1 [] [ H.text "Today's War" ]
             , renderWar [ A.class "blue" ] blue
             ]
-        , H.p []
-            [ H.text "Choose a side! Make a full team from one side and earn bonus DNA for defeating full teams from the other side." ]
+        , H.p [] [ H.text "Choose a side! Make a full team from one side and earn bonus DNA for defeating full teams from the other side." ]
         ]
 
 
@@ -955,8 +946,7 @@ renderUserPreview avatars error { avatar, background, condense, name } =
     H.article [ A.class "parchment" ]
         [ H.div [ A.id "accountSettings" ]
             [ H.p [] <|
-                [ H.label []
-                    [ H.text "Name" ]
+                [ H.label [] [ H.text "Name" ]
                 , H.input
                     [ A.type_ "text"
                     , A.name "name"
@@ -967,8 +957,7 @@ renderUserPreview avatars error { avatar, background, condense, name } =
                 ]
                     ++ renderWarning error
             , H.p []
-                [ H.label []
-                    [ H.text "Background" ]
+                [ H.label [] [ H.text "Background" ]
                 , H.input
                     [ A.type_ "text"
                     , A.name "background"
@@ -989,12 +978,8 @@ renderUserPreview avatars error { avatar, background, condense, name } =
                     [ H.text "Show only the first version of each character in the selection grid" ]
                 ]
             , H.p []
-                [ H.span []
-                    [ H.text "Avatars" ]
-                ]
-            , H.section
-                [ A.id "avatars" ]
-              <|
+                [ H.span [] [ H.text "Avatars" ] ]
+            , H.section [ A.id "avatars" ] <|
                 List.map
                     (\ava ->
                         H.button

@@ -479,10 +479,8 @@ renderUserBox id user war inactive =
         , E.onMouseOver <| View <| ViewUser user
         ]
         [ H.section []
-            [ H.h3 []
-                [ H.text user.name ]
-            , H.p []
-                [ H.text user.rank ]
+            [ H.h3 [] [ H.text user.name ]
+            , H.p [] [ H.text user.rank ]
             , H.p [ A.class "inactive" ] <| List.repeat inactive <| H.text "X"
             ]
         , H.div [ A.class "charWrapper" ]
@@ -566,8 +564,7 @@ renderChakraPair turn exchange chakras { chakra, spend, amount, random } =
             , A.disabled <| not <| exchange && Chakras.affordable chakras spend
             ]
             []
-        , H.span []
-            [ H.text <| String.fromInt amount ]
+        , H.span [] [ H.text <| String.fromInt amount ]
         , H.button
             [ A.class "more"
             , E.onClick <| Spend <| Chakras.negate spend
@@ -581,8 +578,7 @@ renderChakraPair turn exchange chakras { chakra, spend, amount, random } =
             ]
             [ H.text "—" ]
         , H.div [ A.class "chakra rand" ] []
-        , H.span []
-            [ H.text <| String.fromInt random ]
+        , H.span [] [ H.text <| String.fromInt random ]
         ]
 
 
@@ -649,8 +645,7 @@ renderGameOver player dna victors =
                     "Tie"
     in
     [ H.div [ A.id "endgame" ]
-        [ H.p []
-            [ H.text message ]
+        [ H.p [] [ H.text message ]
         , H.a
             [ A.id "return"
             , A.class "playButton parchment"
@@ -966,10 +961,8 @@ renderViewCharacter char =
     H.section []
         [ Render.charIcon char [ A.class "char" ]
         , H.section []
-            [ H.h4 [] <|
-                Render.name char
-            , H.p [] <|
-                Render.desc char.bio
+            [ H.h4 [] <| Render.name char
+            , H.p [] <| Render.desc char.bio
             ]
         ]
 
@@ -986,8 +979,7 @@ renderViewDestructible characters { amount, dur, skill, user } =
     H.section []
         [ Render.icon source name [ A.class "char" ]
         , H.dl []
-            [ H.h4 []
-                [ H.text name ]
+            [ H.h4 [] [ H.text name ]
             , H.dt [] [ H.text "Amount" ]
             , H.dd [] [ H.text <| String.fromInt amount ]
             , H.dt [] [ H.text "Duration" ]
@@ -1076,8 +1068,7 @@ renderViewSkill characters charges skill =
                     |> Maybe.map (renderAlternateButton "nextSkill")
                 ]
         , H.dl []
-            [ H.h4 []
-                [ H.text skill.name ]
+            [ H.h4 [] [ H.text skill.name ]
             , Render.classes skill.classes
             , H.dt [] [ H.text "Cost" ]
             , H.dd [] <| Render.skillCost skill.cost
@@ -1100,8 +1091,7 @@ renderViewUser ({ avatar, clan, level, name, rank } as user) =
             ]
             []
         , H.dl []
-            [ H.h4 []
-                [ H.text name ]
+            [ H.h4 [] [ H.text name ]
             , H.p [ A.class <| String.toLower rank ]
                 [ H.text rank ]
             , H.dt [] [ H.text "Clan" ]

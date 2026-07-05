@@ -274,7 +274,8 @@ app websocket ports =
 
 renderError : String -> Html msg
 renderError err =
-    H.div [ A.id "error" ] [ H.text err ]
+    H.div [ A.id "error" ]
+        [ H.text err ]
 
 
 renderBg : String -> Html msg
