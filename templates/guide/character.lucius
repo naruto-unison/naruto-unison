@@ -1,9 +1,3 @@
-.char.head {
-    float: right;
-    position: relative;
-    margin: 3px 0 10px 10px;
-}
-
 dl {
     margin-bottom: 0;
 }
@@ -20,25 +14,31 @@ section {
     padding-top: 0.5em;
     clear: both;
 
-    .char {
-        margin: 0.5em 1em 0 0;
-        position: relative;
-        top: 5px;
-    }
-
     section {
         display: flex;
         padding-top: 0;
         padding-bottom: 0.5em;
         min-height: 100px;
     }
+
+    .char {
+        margin: 0.5em 1em 0 0;
+        position: relative;
+        top: 5px;
+    }
+}
+
+ul {
+    margin-bottom: revert !important;
+}
+
+.char.head {
+    float: right;
+    position: relative;
+    margin: 3px 0 10px 10px;
 }
 
 .skillClasses {
     margin: 0.25em 0;
     clear: both;
-}
-
-ul {
-    margin-bottom: revert !important;
 }

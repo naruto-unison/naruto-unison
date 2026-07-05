@@ -1,9 +1,67 @@
+body {
+    padding: 0 !important;
+}
+
 main {
     background-color: unset !important;
 }
 
-body {
-    padding: 0 !important;
+main {
+    padding-bottom: 0 !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    max-width: 1500px !important;
+    display: flex;
+
+    > aside,
+    > section {
+        padding-top: 1em !important;
+    }
+
+    > aside {
+        color: #fff;
+        flex: 1 0 230px;
+
+        a,
+        a sup,
+        .name,
+        .skill {
+            color: var(--action);
+        }
+
+        h2 {
+            margin-bottom: 0.2em;
+        }
+
+        ul {
+            font-size: 0.95em;
+
+            ul {
+                padding-left: 1em;
+            }
+        }
+
+        > ul > li {
+            margin-bottom: 6px;
+        }
+    }
+
+    > section {
+        text-align: left;
+        background-color: #fff;
+        border-top: none;
+        border-bottom: none;
+        border-width: 1px;
+        box-shadow: 0 10px 10px rgba(0, 0, 0, 0.25);
+        box-sizing: border-box;
+        flex: 0 1 800px;
+        padding: 0 1em;
+    }
+}
+
+section > aside {
+    color: #606060;
+    margin-bottom: -0.5em;
 }
 
 #changelog {
@@ -21,73 +79,12 @@ body {
     margin: 1px 0px 2px 2px !important;
 }
 
-main {
-    padding-bottom: 0 !important;
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-    max-width: 1500px !important;
-    display: flex;
-
-    > aside,
-    > section {
-        padding-top: 1em !important;
-    }
-
-    > section {
-        text-align: left;
-        background-color: #fff;
-        border-top: none;
-        border-bottom: none;
-        border-width: 1px;
-        box-shadow: 0 10px 10px rgba(0, 0, 0, 0.25);
-        box-sizing: border-box;
-        flex: 0 1 800px;
-        padding: 0 1em;
-    }
-
-    > aside {
-        color: #fff;
-        flex: 1 0 230px;
-
-        ul {
-            font-size: 0.95em;
-
-            ul {
-                padding-left: 1em;
-            }
-        }
-
-        > ul > li {
-            margin-bottom: 6px;
-        }
-
-        h2 {
-            margin-bottom: 0.2em;
-        }
-
-        a,
-        a sup,
-        .name,
-        .skill {
-            color: var(--action);
-        }
-    }
-}
-
-section > aside {
-    color: #606060;
-    margin-bottom: -0.5em;
-}
-
 .skill {
     display: block;
     padding-bottom: 2px;
 }
 
 @media (max-width: 1000px) {
-    #changelog .char {
-        display: none;
-    }
     main {
         padding: 1em 1.5em 5em 1.5em;
 
@@ -95,6 +92,9 @@ section > aside {
             font-size: 0.8em;
             flex: 1 0 165px;
         }
+    }
+    #changelog .char {
+        display: none;
     }
     .skill {
         margin-right: 0;

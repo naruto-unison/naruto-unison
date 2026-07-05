@@ -13,71 +13,40 @@
     --rank-moderator: #2d7715;
 }
 
-a,
-a sup,
-.skill {
-    color: var(--action);
+a {
     text-decoration: none;
+
+    &:active,
+    &:focus {
+        outline-style: none;
+    }
+
+    sup {
+        text-decoration: none;
+    }
 }
 
-a:active,
-a:focus {
-    outline-style: none;
-}
-article h1 sup,
-article h2 sup,
-article h3 sup,
-article h4 sup,
-article h5 sup,
-article h6 sup {
-  margin-left: 1px;
-}
+article {
+    sup {
+        margin-left: -4px;
+    }
 
-article sup {
-  margin-left: -4px;
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        sup {
+            margin-left: 1px;
+        }
+    }
 }
 
 body,
 html {
     width: 100%;
     height: 100%;
-}
-
-.chakra {
-    display: inline-block;
-    height: 0.6em;
-    width: 0.6em;
-    border: 1px solid #222;
-    margin-left: 3px;
-}
-.chakra.blood {
-    background-color: var(--chakra-blood) !important;
-}
-.chakra.gen {
-    background-color: var(--chakra-gen) !important;
-}
-.chakra.nin {
-    background-color: var(--chakra-nin) !important;
-}
-.chakra.tai {
-    background-color: var(--chakra-tai) !important;
-}
-.chakra.rand {
-    background-color: var(--chakra-rand) !important;
-}
-
-.char {
-    display: inline-block;
-    outline: 1px solid #000;
-    margin: 5px;
-    vertical-align: top;
-}
-
-.complete {
-    color: rgb(0, 150, 0);
-}
-.incomplete {
-    color: rgb(200, 0, 0);
 }
 
 dl {
@@ -94,26 +63,6 @@ dt::after {
 dd {
     margin-bottom: 0.25em;
     margin-left: 6.5em;
-}
-
-.dna::after,
-.locked::after {
-    margin-left: 0.15em;
-    vertical-align: middle;
-    filter: saturate(0) brightness(0);
-    line-height: 0;
-    font-weight: normal;
-}
-.dna::after {
-    content: "🧬";
-}
-.locked::after {
-    content: "🔒";
-}
-
-.extra {
-    color: #606060;
-    margin-left: 0.4em;
 }
 
 h1,
@@ -139,16 +88,6 @@ h3 {
 h4 {
     font-size: 1.15em;
 }
-h1 aside,
-h2 aside,
-h3 aside,
-h4 aside,
-h5 aside,
-h6 aside {
-    float: right;
-    font-weight: normal !important;
-    opacity: 0.9;
-}
 
 i {
     color: #600;
@@ -170,20 +109,11 @@ li {
     }
 }
 
-.skillClasses {
-    font-weight: normal;
-    color: var(--desc-extra);
-}
-
 sup {
     font-style: italic;
     font-size: 0.7em;
     display: inline-block;
     text-decoration: none !important;
-}
-
-.space {
-    flex-grow: 1;
 }
 
 ul {
@@ -194,6 +124,62 @@ ul {
         padding-left: 1.5em;
         padding-bottom: 0.2em;
     }
+}
+
+.chakra {
+    display: inline-block;
+    height: 0.6em;
+    width: 0.6em;
+    border: 1px solid #222;
+    margin-left: 3px;
+
+    &.blood {
+        background-color: var(--chakra-blood) !important;
+    }
+    &.gen {
+        background-color: var(--chakra-gen) !important;
+    }
+    &.nin {
+        background-color: var(--chakra-nin) !important;
+    }
+    &.tai {
+        background-color: var(--chakra-tai) !important;
+    }
+    &.rand {
+        background-color: var(--chakra-rand) !important;
+    }
+}
+
+.char {
+    display: inline-block;
+    outline: 1px solid #000;
+    margin: 5px;
+    vertical-align: top;
+}
+
+.complete {
+    color: rgb(0, 150, 0);
+}
+.incomplete {
+    color: rgb(200, 0, 0);
+}
+
+.extra {
+    color: #606060;
+    margin-left: 0.4em;
+}
+
+.skill {
+    color: var(--action);
+}
+
+.skillClasses {
+    font-weight: normal;
+    color: var(--desc-extra);
+}
+
+.space {
+    flex-grow: 1;
 }
 
 .wrap {
@@ -210,4 +196,3 @@ ul {
     border-color: var(--rank-moderator);
     outline-color: var(--rank-moderator);
 }
-

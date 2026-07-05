@@ -2,15 +2,6 @@ article {
     display: flex;
 }
 
-.char {
-    width: 50px;
-}
-.char.avatar {
-    margin: 1em 0 0 2px;
-    width: initial;
-    outline-width: 2px;
-}
-
 dl {
     margin-left: 25px;
     flex-grow: 1;
@@ -25,17 +16,29 @@ main > section {
 p {
     margin-top: 0;
     margin-bottom: 0.25em;
+
+    &.label {
+        font-weight: initial;
+        text-decoration: underline;
+    }
 }
-p.label {
-    font-weight: initial;
-    text-decoration: underline;
+
+.char {
+    width: 50px;
+
+    &.avatar {
+        margin: 1em 0 0 2px;
+        width: initial;
+        outline-width: 2px;
+    }
 }
 
 .row {
     padding: 0.75em 1em 0 2.5em !important;
-}
-.row:last-child {
-    padding: 0 0 1em !important;
+
+    &:last-child {
+        padding: 0 0 1em !important;
+    }
 }
 
 .team {

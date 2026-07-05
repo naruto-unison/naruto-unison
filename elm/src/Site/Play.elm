@@ -888,9 +888,6 @@ renderNinja { characters, acted, toggled, toggle, targetable, untargetable, free
         { slot } =
             ninja
 
-        isToggled =
-            Set.member slot toggled
-
         faceIcon =
             case ninja.face of
                 Nothing ->
@@ -928,12 +925,15 @@ renderNinja { characters, acted, toggled, toggle, targetable, untargetable, free
                 , ( "dead", ninja.health == 0 )
                 , ( "targetable", Set.member slot targetable )
                 , ( "untargetable", Set.member slot untargetable )
-                , ( "toggled skill", isToggled )
                 ]
             , E.onMouseOver <| View <| ViewCharacter character
-            , case Maybe.filter (always isToggled) toggle of
+            , case toggle of
                 Just act ->
-                    E.onClick <| Enact Add { act | target = slot }
+                    if Set.member slot toggled then
+                        E.onClick <| Enact Add { act | target = slot }
+
+                    else
+                        A.disabled True
 
                 Nothing ->
                     A.disabled True

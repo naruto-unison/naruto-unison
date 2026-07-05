@@ -1,4 +1,61 @@
 table {
+    border-spacing: 0;
+    margin: auto;
     max-width: 40em;
-    margin: auto !important;
+    text-align: center;
+    width: 100%;
+
+    h2 {
+        margin-bottom: 0;
+    }
+
+    h3 {
+        margin: 0.25em 0em 0.1em;
+    }
+
+    h4 {
+        margin-bottom: 0;
+    }
+}
+
+td:first-child,
+th:first-child {
+    text-align: left;
+}
+
+td {
+    &:last-child a span {
+        font-size: 1.6em;
+        line-height: 0.625em;
+        vertical-align: text-bottom;
+        margin-right: -0.1em;
+    }
+
+    header div {
+        font-size: 0.9em;
+        color: #606060;
+    }
+}
+
+th {
+    vertical-align: baseline;
+
+    &:first-child {
+        color: inherit;
+        display: table-cell;
+
+        th {
+            display: table-cell;
+        }
+    }
+
+    h3 a {
+        font-weight: normal;
+        margin-left: 0.5em;
+    }
+}
+
+thead {
+    vertical-align: baseline;
+    text-transform: uppercase;
 }

@@ -1115,13 +1115,13 @@ renderSkillPreview char slot skills i =
                         , E.onClick <| Alternate slot -1
                         , A.hidden <| i <= 0
                         ]
-                        [ H.text "◀" ]
+                        []
                     , H.button
                         [ A.class "nextSkill click"
                         , E.onClick <| Alternate slot 1
                         , A.hidden <| i + 1 >= List.length skills
                         ]
-                        [ H.text "▶" ]
+                        []
                     ]
                 , H.h4 [] <|
                     H.text skill.name

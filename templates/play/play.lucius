@@ -10,16 +10,10 @@
     --war-purple: purple;
 }
 
-button {
-    appearance: none;
-    background: unset;
-    border: unset;
-    margin: unset;
-    padding: unset;
-}
-
-button:hover {
-    background: initial;
+@keyframes expand {
+    0% {
+        width: 0;
+    }
 }
 
 @keyframes fadeIn {
@@ -38,15 +32,75 @@ button:hover {
         opacity: 0;
     }
 }
-@keyframes expand {
-    0% {
-        width: 0;
+
+a:hover {
+    text-decoration: none !important;
+}
+
+article {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+body {
+    background: url("/img/bg/silhouette.jpg") no-repeat center center/cover !important;
+    overflow: hidden !important;
+}
+
+body,
+button {
+    font-family: "Trebuchet MS", sans-serif;
+}
+
+button {
+    appearance: none;
+    background: unset;
+    border: unset;
+    margin: unset;
+    padding: unset;
+
+    &:hover {
+        background: initial;
     }
+}
+
+dl {
+    width: 100%;
+    margin-bottom: 0 !important;
+}
+dd {
+    margin-bottom: 0 !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    aside {
+        float: right;
+        font-weight: normal !important;
+        opacity: 0.9;
+    }
+}
+
+p {
+    margin: 0;
+}
+
+svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: #161616;
 }
 
 #avatars button:disabled,
 .queueing #charSelect,
-#player0 .charmove:disabled,
 .chars .char:disabled,
 .dead,
 .ghost.charbarrier,
@@ -55,59 +109,45 @@ button:hover {
     filter: grayscale(0.8) !important;
 }
 
-.char:disabled {
-    outline-color: #555 !important;
+.dna::after,
+.locked::after {
+    margin-left: 0.15em;
+    vertical-align: middle;
+    filter: saturate(0) brightness(0);
+    line-height: 0;
+    font-weight: normal;
+}
+.dna::after {
+    content: "🧬";
+}
+.locked::after {
+    content: "🔒";
 }
 
 .chars .selected,
-.chars .char[role = "button"]:hover,
+.chars .char[role="button"]:hover,
 #charSelect > article > aside .char:hover {
     outline: 2px solid var(--action) !important;
     filter: none !important;
 }
 
-.charmove:enabled:hover,
-.chakra:enabled:hover,
-#avatars button:hover {
-    border-color: var(--action);
-}
-.toggled img {
-    border-color: var(--action-available) !important;
-}
-#avatars button:disabled {
-    border-color: var(--action) !important;
-}
-.toggled img:hover,
-.chakra:enabled:hover,
-#avatars button:hover,
-.face:enabled:hover {
-    border-color: var(--action) !important;
-}
-#ready:enabled:hover {
-    border-color: var(--action-available);
-}
-.nextSkill:hover,
-.prevSkill:hover {
-    color: var(--action);
-}
+#avatars button,
+.charmove,
+button.chakra,
+.face {
+    border: 1px solid var(--action-available);
 
-a:hover {
-    text-decoration: none !important;
+    &:hover {
+        border-color: var(--action);
+    }
+
+    &:disabled {
+        border-color: #000 !important;
+    }
 }
 
 .act:hover {
     border: 1px solid var(--action-cancel) !important;
-}
-
-#playchakra .chakra:enabled {
-    color: var(--action-available);
-}
-.userForm a,
-#playchakra .chakra:enabled:hover {
-    color: var(--palette-blue);
-}
-.userForm a:hover {
-    color: #000;
 }
 
 #account0 {
@@ -130,10 +170,10 @@ a:hover {
 
     input {
         margin-right: 0.5em;
-    }
 
-    input[type="text"] {
-        width: 15em;
+        &[type="text"] {
+            width: 15em;
+        }
     }
 
     p {
@@ -152,12 +192,6 @@ a:hover {
     }
 }
 
-article,
-#userBox {
-    -webkit-user-select: text;
-    user-select: text;
-}
-
 .avatar {
     border: 2px solid #333;
     width: 75px;
@@ -172,16 +206,15 @@ article,
     padding-left: 1px;
     text-align: center;
 
+    button {
+        border-width: 2px;
+        margin: -2px 1px 4px 1px;
+    }
+
     img {
         width: 45px;
         height: 45px;
     }
-
-    button {
-        border: 2px solid #000;
-        margin: -2px 1px 4px 1px;
-    }
-
 }
 
 #bg {
@@ -190,59 +223,6 @@ article,
     background-size: cover;
     background-position: center;
     z-index: -2;
-}
-
-body {
-    background: url("/img/bg/silhouette.jpg") no-repeat center center/cover !important;
-    overflow: hidden !important;
-}
-
-body, button {
-    font-family: "Trebuchet MS", sans-serif;
-}
-
-#controls {
-    display: flex;
-
-    .switch {
-        border-color: #fff;
-    }
-}
-
-.scroll {
-    position: relative;
-
-    div {
-        position: absolute;
-        background-color: #222;
-        display: block;
-        inset: 20%;
-    }
-
-    img {
-        position: relative;
-    }
-}
-
-.scroll:hover div {
-    background-color: var(--action);
-}
-
-.charBanner {
-    button {
-        background-color: var(--button-bg);
-        border-radius: 0;
-        border: 1px solid var(--action);
-        font-size: 0.8em;
-        margin: -0.1em 0.5em;
-        padding: 0.1em 1em;
-        text-transform: uppercase;
-        vertical-align: top;
-    }
-
-    button:hover {
-        background-color: var(--button-hover);
-    }
 }
 
 #cancel {
@@ -255,8 +235,29 @@ body, button {
     height: 27px;
 }
 
-button.chakra:enabled {
-    border-color: var(--action-available);
+.charBanner {
+    button {
+        background-color: var(--button-bg);
+        border-radius: 0;
+        border: 1px solid var(--action);
+        font-size: 0.8em;
+        margin: -0.1em 0.5em;
+        padding: 0.1em 1em;
+        text-transform: uppercase;
+        vertical-align: top;
+
+        &:hover {
+            background-color: var(--button-hover);
+        }
+    }
+}
+
+#controls {
+    display: flex;
+
+    .switch {
+        border-color: #fff;
+    }
 }
 
 .chakraButton {
@@ -267,23 +268,30 @@ button.chakra:enabled {
     text-align: center;
     margin-left: -26px;
     margin-top: 6px;
-    opacity: 0.5;
     width: 100%;
-}
-.chakraButton:enabled {
-    opacity: 1;
-}
-.chakraButton:enabled:hover {
-    color: var(--palette-blue);
+
+    &:disabled {
+        opacity: 0.5;
+    }
+
+    &:enabled:hover {
+        color: var(--palette-blue);
+    }
 }
 
-.char.locked {
-    opacity: 0.75;
-    outline-color: #999;
-}
-.char.locked.buy {
-    outline-color: #0a0;
-    outline-width: 2px;
+.char {
+    &:disabled {
+        outline-color: #555 !important;
+    }
+
+    &.locked {
+        opacity: 0.75;
+        outline-color: #999;
+    }
+    &.locked.buy {
+        outline-color: #0a0;
+        outline-width: 2px;
+    }
 }
 
 .chars,
@@ -292,6 +300,7 @@ button.chakra:enabled {
     -webkit-user-select: none;
     user-select: none;
 }
+
 .chars {
     text-align: center;
     position: absolute;
@@ -301,18 +310,19 @@ button.chakra:enabled {
     padding: 5px;
     padding-top: 3px;
 
+    > button {
+        position: absolute;
+        top: -17px;
+    }
+
     .char {
         margin: 4px;
         width: 60px;
         height: 60px;
         outline-color: #000;
     }
-
-    > button {
-        position: absolute;
-        top: -17px;
-    }
 }
+
 #forTeam {
     border-left: none;
     border-right: none;
@@ -349,19 +359,6 @@ button.chakra:enabled {
     border: 2px solid var(--char-border);
 }
 
-.redblue {
-    --war-color: purple;
-}
-.red {
-    --war-color: #e00;
-}
-.blue {
-    --war-color: #007acc;
-}
-.redblue, .red, .blue {
-    color: var(--war-color);
-}
-
 .charWrapper {
     display: inline-block;
     position: relative;
@@ -382,14 +379,6 @@ button.chakra:enabled {
         transform: scale(1.1);
     }
 
-    .add {
-        background-image: url("/img/ui/select/add.svg");
-    }
-
-    .remove {
-        background-image: url("/img/ui/select/remove.svg");
-    }
-
     div {
         border-radius: 100%;
         width: 15px;
@@ -400,6 +389,14 @@ button.chakra:enabled {
         background: var(--war-color);
         border: 2px solid #000;
     }
+
+    .add {
+        background-image: url("/img/ui/select/add.svg");
+    }
+
+    .remove {
+        background-image: url("/img/ui/select/remove.svg");
+    }
 }
 
 .charhealthbar {
@@ -407,8 +404,14 @@ button.chakra:enabled {
     background-color: var(--char-border);
     position: relative;
 
-    span, div {
-        transition: left 1s, right 1s, top 1s, bottom 1s, width 1s;
+    span,
+    div {
+        transition:
+            left 1s,
+            right 1s,
+            top 1s,
+            bottom 1s,
+            width 1s;
     }
 
     span {
@@ -430,34 +433,28 @@ button.chakra:enabled {
         animation: expand 0.5s linear;
     }
 
-    .charhealth {
-        animation: none;
-        background-color: #0a0;
+    .charbarrier {
+        background-color: #e00;
+
+        &:hover {
+            border-color: var(--palette-red);
+        }
     }
 
     .chardefense {
         background-color: #08b;
         z-index: 2;
+
+        &:hover {
+            border-color: var(--palette-blue);
+        }
     }
 
-    .charbarrier {
-        background-color: #e00;
+    .charhealth {
+        animation: none;
+        background-color: #0a0;
     }
-
-    .chardefense:hover {
-        border-color: var(--palette-blue);
-    }
-
-    .charbarrier:hover {
-        border-color: var(--palette-red);
-    }
-
 }
-
-.exposed .chardefense {
-    background-color: #999;
-}
-
 #player0 .charhealthbar {
     margin-right: 4px;
 
@@ -481,14 +478,7 @@ button.chakra:enabled {
     }
 }
 
-.charmoves {
-    display: inline-block;
-    vertical-align: top;
-    height: 79px;
-}
-
 .charmove {
-    border: 1px solid var(--action-available);
     margin: 0 6px;
     display: inline-block;
     position: relative;
@@ -501,8 +491,10 @@ button.chakra:enabled {
     }
 }
 
-.charmove:disabled {
-    border: 1px solid #000;
+.charmoves {
+    display: inline-block;
+    vertical-align: top;
+    height: 79px;
 }
 
 .charScroll {
@@ -540,33 +532,28 @@ button.chakra:enabled {
             left: -65px;
             font-size: 16px;
 
+            .char {
+                outline-color: #000;
+                outline-width: 1px !important;
+
+                &.on {
+                    outline: 2px #fff !important;
+                    outline-width: 2px !important;
+                    outline-style: solid !important;
+                }
+            }
+
             .charWrapper {
                 button {
                     bottom: 1px;
                 }
             }
-
-            .char {
-                outline-color: #000;
-                outline-width: 1px !important;
-            }
-
-            .char.on {
-                outline: 2px #fff !important;
-                outline-width: 2px !important;
-                outline-style: solid !important;
-            }
-        }
-
-        .char {
-            height: 50px;
-            width: 50px;
-            margin: 3px 5px;
         }
 
         h4 {
             margin-bottom: -0.1em !important;
         }
+
         h3 {
             margin-top: 0.2em !important;
             font-size: 18px;
@@ -602,11 +589,12 @@ button.chakra:enabled {
                 margin: 0.1em 0.1em 0 0.1em;
             }
         }
-    }
 
-    .chakra {
-        margin-left: 3px;
-        margin-right: 1px;
+        .char {
+            height: 50px;
+            width: 50px;
+            margin: 3px 5px;
+        }
     }
 
     > header {
@@ -649,7 +637,6 @@ button.chakra:enabled {
         display: block;
     }
 }
-
 .channels {
     margin-bottom: 2px;
     display: flex;
@@ -658,7 +645,6 @@ button.chakra:enabled {
         flex-direction: column-reverse;
     }
 }
-
 .statuses {
     margin-top: 2px;
     display: flex;
@@ -667,44 +653,25 @@ button.chakra:enabled {
         flex-direction: column;
     }
 }
-
 .ghost {
     --ghost: #666;
     color: var(--ghost);
-}
 
-.ghost div {
-    border-color: var(--ghost);
+    div {
+        border-color: var(--ghost);
+    }
 }
-
 .invis {
     opacity: 0.65;
 }
-
 .remove div,
 .action div {
     border-color: var(--palette-blue);
 }
 
-#top > article .remove {
-    color: var(--palette-blue);
-}
-
-#top > article .trap {
-    color: var(--palette-red);
-}
-
 .trap div,
 .control div {
     border-color: var(--palette-red);
-}
-
-dl {
-    width: 100%;
-    margin-bottom: 0 !important;
-}
-dd {
-    margin-bottom: 0 !important;
 }
 
 #endgame {
@@ -851,16 +818,24 @@ dd {
     color: #000;
     -webkit-text-stroke: 1px rgba(255, 255, 255, 0.75);
     text-shadow: 0 0 1px rgba(255, 255, 255, 0.75);
+
+    &:hover {
+        color: var(--action);
+    }
 }
 .nextSkill {
     right: 5px;
+
+    &::after {
+        content: "▶";
+    }
 }
 .prevSkill {
     left: 5px;
-}
 
-p {
-    margin: 0;
+    &::after {
+        content: "◀";
+    }
 }
 
 #playButtons {
@@ -878,6 +853,15 @@ p {
     text-transform: uppercase;
     font-size: 15px;
     text-align: center;
+
+    &:hover {
+        border: 2px solid var(--action);
+    }
+
+    &:disabled {
+        border: 2px solid #999 !important;
+        color: #666;
+    }
 }
 #updateButton,
 #logoutButton {
@@ -892,23 +876,12 @@ p {
     margin-right: 0;
     float: right;
 }
-.playButton:disabled,
-#updateButton:disabled,
-#logoutButton:disabled {
-    border: 2px solid #999;
-    color: #666;
-}
 .playButton {
     display: block;
     text-decoration: none;
     height: 17px;
     box-sizing: initial;
     width: 100%;
-}
-.playButton:enabled:hover,
-#updateButton:enabled:hover,
-#logoutButton:enabled:hover {
-    border: 2px solid var(--action) !important;
 }
 
 #playchakra {
@@ -932,7 +905,8 @@ p {
         user-select: none;
         margin: 0.15em;
     }
-    .more:enabled, .less:enabled {
+    .more:enabled,
+    .less:enabled {
         color: #fff;
     }
     .more {
@@ -944,6 +918,14 @@ p {
 
     .chakra {
         margin-right: 0.4em;
+
+        &:enabled {
+            color: var(--action-available);
+
+            &:hover {
+                color: var(--palette-blue);
+            }
+        }
     }
 
     span {
@@ -998,24 +980,25 @@ p {
             position: relative;
             float: left;
 
+            &.targetable {
+                background-color: #0f0;
+
+                img {
+                    border-color: rgb(19, 112, 19);
+                    opacity: 0.75;
+                }
+            }
+            &.untargetable {
+                background-color: rgb(170, 0, 0);
+
+                img {
+                    border-color: rgb(119, 1, 1);
+                    opacity: 0.75;
+                }
+            }
+
             button:enabled {
                 border-color: var(--action-available) !important;
-            }
-        }
-        .face.targetable {
-            background-color: #0f0;
-
-            img {
-                border-color: rgb(19, 112, 19);
-                opacity: 0.75;
-            }
-        }
-        .face.untargetable {
-            background-color: rgb(170, 0, 0);
-
-            img {
-                border-color: rgb(119, 1, 1);
-                opacity: 0.75;
             }
         }
     }
@@ -1026,12 +1009,13 @@ p {
     margin-right: 200px;
     text-align: left;
 
-    .face {
-        float: left;
+    .charbarrier,
+    .chardefense {
+        border-left: none;
     }
 
-    .charbarrier, .chardefense {
-        border-left: none;
+    .face {
+        float: left;
     }
 }
 #player1 {
@@ -1039,16 +1023,18 @@ p {
     margin-left: 200px;
     text-align: right;
 
-    .channels, .statuses {
+    .channels,
+    .statuses {
         flex-direction: row-reverse;
+    }
+
+    .charbarrier,
+    .chardefense {
+        border-right: none;
     }
 
     .face {
         float: right;
-    }
-
-    .charbarrier, .chardefense {
-        border-right: none;
     }
 }
 #account1 .charicon,
@@ -1101,6 +1087,25 @@ p {
     padding: 3px 0;
     position: relative;
     text-transform: uppercase;
+
+    &:enabled:hover {
+        border-color: var(--action-available);
+    }
+}
+
+.redblue {
+    --war-color: purple;
+}
+.red {
+    --war-color: #e00;
+}
+.blue {
+    --war-color: #007acc;
+}
+.redblue,
+.red,
+.blue {
+    color: var(--war-color);
 }
 
 #return {
@@ -1109,10 +1114,6 @@ p {
     font-size: 1.3em;
     border: 2px solid var(--select-border);
     padding-bottom: 0.5em;
-}
-#return::before,
-#return::after {
-    content: none;
 }
 
 #searching {
@@ -1136,17 +1137,37 @@ p {
 }
 
 .select {
-    .char {
-        margin: 0 4px 0 6px;
-    }
-    .char[role = "button"]:hover {
-        outline: 2px solid var(--action-cancel);
-    }
-
     img {
         width: 75px;
         height: 75px;
         outline: 2px solid #000;
+    }
+
+    .char {
+        margin: 0 4px 0 6px;
+
+        &[role="button"]:hover {
+            outline: 2px solid var(--action-cancel);
+        }
+    }
+}
+
+.scroll {
+    position: relative;
+
+    div {
+        position: absolute;
+        background-color: #222;
+        display: block;
+        inset: 20%;
+    }
+
+    &:hover div {
+        background-color: var(--action);
+    }
+
+    img {
+        position: relative;
     }
 }
 
@@ -1160,16 +1181,6 @@ p {
     display: block;
     font-size: 1em;
     margin-left: 0;
-}
-
-svg {
-    display: block;
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background-color: #161616;
 }
 
 #teamButtons {
@@ -1218,11 +1229,6 @@ svg {
             position: relative;
         }
 
-        .char {
-            margin-bottom: 0;
-            height: 75px;
-        }
-
         li {
             margin-bottom: -0.25em;
         }
@@ -1248,6 +1254,19 @@ svg {
             font-weight: bold;
             padding-left: 1em;
             margin: 1em 0 0.5em 0;
+        }
+
+        .char {
+            margin-bottom: 0;
+            height: 75px;
+        }
+
+        .remove {
+            color: var(--palette-blue);
+        }
+
+        .trap {
+            color: var(--palette-red);
         }
     }
 
@@ -1303,9 +1322,10 @@ svg {
 
     span {
         flex-grow: 1;
-    }
-    span:first-child {
-        flex-grow: unset;
+
+        &:first-child {
+            flex-grow: unset;
+        }
     }
 }
 
@@ -1317,10 +1337,8 @@ svg {
     text-align: left;
     font-size: 14px;
     position: relative;
-
-    .dna {
-        float: right;
-    }
+    -webkit-user-select: text;
+    user-select: text;
 
     dt {
         width: 4.8em;
@@ -1338,6 +1356,10 @@ svg {
         width: 5em;
         display: inline-block;
     }
+
+    .dna {
+        float: right;
+    }
 }
 
 #userfail {
@@ -1349,6 +1371,14 @@ svg {
 .userForm {
     text-align: center;
     padding-right: 8px;
+
+    a {
+        color: var(--palette-blue);
+
+        &:hover {
+            color: #000;
+        }
+    }
 
     div {
         margin-top: 4px;
@@ -1407,9 +1437,10 @@ svg {
     span {
         margin: 0 0.5em 0 1em;
     }
-}
-#vs.vsPractice {
-    border-bottom: none;
+
+    &.vsPractice {
+        border-bottom: none;
+    }
 }
 
 .war {
@@ -1606,7 +1637,6 @@ svg {
         width: 50px;
         height: 50px;
     }
-
 }
 
 @media (max-width: 560px) {

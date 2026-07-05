@@ -1,8 +1,3 @@
-.char {
-    float: left;
-    margin: 1px 21px 0 -19px !important;
-}
-
 i {
     font-style: normal; /* s e m a n t i c s */
 }
@@ -12,13 +7,19 @@ li li {
 
     .skill {
         display: inline-block;
-    }
-    .skill::after {
-        content: " |";
-        color: #666;
-    }
 
-    .skill:last-child::after {
-        content: none;
+        &::after {
+            content: " |";
+            color: #666;
+        }
+
+        &:last-child::after {
+            content: none;
+        }
     }
+}
+
+.char {
+    float: left;
+    margin: 1px 21px 0 -19px !important;
 }

@@ -1,13 +1,3 @@
-.guide {
-    display: block;
-    margin-bottom: 1em;
-}
-
-.guide::after {
-    content: " →";
-    font-weight: normal;
-}
-
 h3,
 a {
     line-height: 0.75em;
@@ -15,4 +5,14 @@ a {
 
 h3 {
     padding-top: 0.75em;
+}
+
+.guide {
+    display: block;
+    margin-bottom: 1em;
+
+    &::after {
+        content: " →";
+        font-weight: normal;
+    }
 }
