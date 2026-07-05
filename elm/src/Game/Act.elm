@@ -6,6 +6,7 @@ module Game.Act exposing
 
 import Game.Skill as Skill
 import Import.Model exposing (Skill)
+import Set exposing (Set)
 
 
 type alias Act =
@@ -13,7 +14,7 @@ type alias Act =
     , button : Int
     , target : Int
     , skill : Skill
-    , targets : List Int
+    , targets : Set Int
     }
 
 
@@ -22,12 +23,12 @@ toPathPieces { user, button, target } =
     [ user, button, target ]
 
 
-toggles : Maybe Act -> List Int
+toggles : Maybe Act -> Set Int
 toggles x =
     case x of
         Nothing ->
-            []
+            Set.empty
 
         Just { user, skill, targets } ->
-            Skill.targets user skill
-                |> List.filter (\target -> List.member target targets)
+            Skill.targetSlots user skill
+                |> Set.intersect targets

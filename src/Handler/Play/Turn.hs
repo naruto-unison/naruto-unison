@@ -23,7 +23,7 @@ import           Game.Model.Ninja (Ninja(Ninja), is)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Player (Player)
 import qualified Game.Model.Requirement as Requirement
-import           Game.Model.Slot (Slot, SlotSet)
+import           Game.Model.Slot (SlotSet)
 import           Util ((∈), (∉))
 
 -- | Intermediate type for marshaling to JSON.
@@ -34,7 +34,7 @@ data Turn = Turn
     , victor    :: EnumSet Player
     , inactive  :: (Int, Int)
     , ninjas    :: [Ninja]
-    , targets   :: [[[Slot]]]
+    , targets   :: [[SlotSet]]
     } deriving (Generic)
 
 instance ToJSON Turn
@@ -51,10 +51,11 @@ new player ninjas Game{chakra, inactive, playing, victor} = Turn
     }
   where
     censored = censorNinjas player ninjas
-    skillTargets n skill = N.slot <$> Requirement.targets censored n skill
+    skillTargets n skill = setFromList
+                         $ N.slot <$> Requirement.targets censored n skill
     targets n@Ninja{skills}
       | Parity.allied player n = skillTargets n <$> toList skills
-      | otherwise              = replicate (length skills) []
+      | otherwise              = replicate (length skills) mempty
 
 censorNinjas :: Player -> [Ninja] -> [Ninja]
 censorNinjas player ninjas = censorNinja revealed <$> ninjas

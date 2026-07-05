@@ -320,9 +320,7 @@ instance ToJSON Skill where
         , dur
         , start
         , always
-        , stunned
         , effects
-        , end
         , owner
         } = object
         [ "name"     .= name
@@ -332,13 +330,14 @@ instance ToJSON Skill where
         , "cooldown" .= cooldown
         , "charges"  .= charges
         , "dur"      .= dur
-        , "start"    .= start
-        , "always"   .= always
-        , "stunned"  .= stunned
-        , "effects"  .= effects
-        , "end"      .= end
+        , "targets"  .= toList targets
         , "owner"    .= owner
         ]
+      where
+        targetsOf :: [Runnable Target] -> EnumSet Target
+        targetsOf efs = setFromList $ (.target) <$> efs
+        targets :: EnumSet Target
+        targets = targetsOf start ++ targetsOf always ++ targetsOf effects
 
 instance Classed Skill where
     getClasses Skill{classes} = classes

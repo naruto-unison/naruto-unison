@@ -86,7 +86,7 @@ toChar (Slot x) = toEnum $ x + 48
 
 
 newtype SlotSet = SlotSet { toEnumSet :: EnumSet Word Int }
-    deriving (Eq, Ord, Semigroup, Monoid)
+    deriving (Eq, Ord, Semigroup, Monoid, ToJSON)
 
 type instance Element SlotSet = Slot
 

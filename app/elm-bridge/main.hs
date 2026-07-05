@@ -24,7 +24,6 @@ import           Game.Model.Destructible (Destructible)
 import           Game.Model.Duration (Duration)
 import           Game.Model.Face (Face)
 import           Game.Model.Player (Player(..))
-import           Game.Model.Runnable (Runnable)
 import           Game.Model.Skill (Target)
 import           Game.Model.Slot (Slot)
 import           Game.Model.Status (Status, Bomb(..))
@@ -63,10 +62,7 @@ data Skill = Skill
     , cooldown  :: Int
     , charges   :: Int
     , dur       :: Channeling
-    , start     :: [Runnable Target]
-    , always    :: [Runnable Target]
-    , effects   :: [Runnable Target]
-    , end       :: [Runnable Target]
+    , targets   :: [Target]
     , owner     :: Slot
     }
 
@@ -128,6 +124,8 @@ alterations = recAlterType alter
     alter (ETyCon (ETCon "EnumSet"))  = ETyCon (ETCon "Set")
     alter (ETyCon (ETCon "Group"))    = ETyCon (ETCon "String")
     alter (ETyCon (ETCon "Slot"))     = ETyCon (ETCon "Int")
+    alter (ETyCon (ETCon "SlotSet"))  = ETyApp (ETyCon (ETCon "Set"))
+                                      $ ETyCon (ETCon "Int")
     alter (ETyCon (ETCon "Trigger"))  = ETyCon (ETCon "String")
     alter ty                          = defaultTypeAlterations ty
 

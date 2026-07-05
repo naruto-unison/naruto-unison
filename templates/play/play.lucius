@@ -1002,7 +1002,7 @@ p {
                 border-color: var(--action-available) !important;
             }
         }
-        .face.highlighted {
+        .face.targetable {
             background-color: #0f0;
 
             img {
@@ -1010,11 +1010,12 @@ p {
                 opacity: 0.75;
             }
         }
-        .face.highlighted.nohighlight {
+        .face.untargetable {
             background-color: rgb(170, 0, 0);
 
             img {
                 border-color: rgb(119, 1, 1);
+                opacity: 0.75;
             }
         }
     }

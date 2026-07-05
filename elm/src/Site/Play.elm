@@ -33,7 +33,7 @@ type Viewable
     = ViewCharacter Character
     | ViewDestructible Destructible
     | ViewDetail (Effect -> Bool) Detail
-    | ViewSkill (List Int) Int Skill
+    | ViewSkill (Set Int) Int Skill
     | ViewUser User
 
 
@@ -66,7 +66,7 @@ getChakraPairs net randoms =
 type alias NinjaBundle =
     { character : Character
     , ninja : Ninja
-    , targets : List (List Int)
+    , targets : List (Set Int)
     }
 
 
@@ -93,7 +93,8 @@ type alias Model =
     , chakraSums : ChakraSums
     , exchange : Bool
     , viewing : Viewable
-    , highlight : List Int
+    , targetable : Set Int
+    , untargetable : Set Int
     , toggled : Maybe Act
     , acts : List Act
     , dna : List Reward
@@ -226,7 +227,8 @@ component ports =
                         }
                     , exchange = False
                     , viewing = ViewUser info.opponent
-                    , highlight = []
+                    , targetable = Set.empty
+                    , untargetable = Set.empty
                     , toggled = Nothing
                     , acts = []
                     , dna = []
@@ -276,8 +278,13 @@ component ports =
         update : Msg -> Model -> ( Model, Cmd Msg )
         update msg st =
             case msg of
-                View ((ViewSkill targets _ _) as viewing) ->
-                    pure { st | viewing = viewing, highlight = targets }
+                View ((ViewSkill targets user skill) as viewing) ->
+                    pure
+                        { st
+                            | viewing = viewing
+                            , targetable = targets
+                            , untargetable = Set.diff (Skill.affectedSlots user skill) targets
+                        }
 
                 View viewing ->
                     pure { st | viewing = viewing }
@@ -286,7 +293,11 @@ component ports =
                     pure st
 
                 Unhighlight ->
-                    pure { st | highlight = [] }
+                    pure
+                        { st
+                            | targetable = Set.empty
+                            , untargetable = Set.empty
+                        }
 
                 Toggle skill ->
                     withSound Sound.Target <|
@@ -722,7 +733,7 @@ skillKey { name, owner } =
 renderSkill :
     SkillData
     -> Int
-    -> List Int
+    -> Set Int
     -> Skill
     -> Html Msg
 renderSkill { user, freeChakras, active, characters } button targets skill =
@@ -742,7 +753,7 @@ renderSkill { user, freeChakras, active, characters } button targets skill =
 
         disabled =
             not active
-                || List.isEmpty targets
+                || Set.isEmpty targets
                 || Chakras.lacks freeChakras skill.cost
 
         cooldown =
@@ -766,15 +777,15 @@ renderSkill { user, freeChakras, active, characters } button targets skill =
             if disabled then
                 DoNothing
 
-            else if Skill.targets slot skill == [ slot ] then
-                Enact Add act
+            else if Skill.isTargeted skill then
+                Toggle act
 
             else
-                Toggle act
+                Enact Add act
     in
     H.button
         [ A.class "charmove"
-        , E.onMouseOver <| View <| ViewSkill [] charge skill
+        , E.onMouseOver <| View <| ViewSkill targets charge skill
         , E.onMouseLeave Unhighlight
         , E.onClick onClick
         , A.disabled disabled
@@ -842,20 +853,24 @@ renderDetail onTeam slot characters ({ classes } as detail) =
 
 type alias NinjaData =
     { characters : Array Character
-    , acted : List Int
+    , acted : Set Int
     , toggle : Maybe Act
-    , highlight : List Int
+    , toggled : Set Int
+    , targetable : Set Int
+    , untargetable : Set Int
     , freeChakras : Chakras
     , ownTurn : Bool
     }
 
 
 createNinjaData : Model -> NinjaData
-createNinjaData { acts, chakraSums, highlight, ownTurn, ninjas, toggled } =
+createNinjaData { acts, chakraSums, targetable, untargetable, ownTurn, ninjas, toggled } =
     { characters = ninjas
-    , acted = List.map .user acts
+    , acted = Set.fromList <| List.map .user acts
     , toggle = toggled
-    , highlight = highlight
+    , toggled = Act.toggles toggled
+    , targetable = targetable
+    , untargetable = untargetable
     , freeChakras = chakraSums.free
     , ownTurn = ownTurn
     }
@@ -866,7 +881,7 @@ renderNinja :
     -> Bool
     -> NinjaBundle
     -> Html Msg
-renderNinja { characters, acted, toggle, highlight, freeChakras, ownTurn } onTeam { character, ninja, targets } =
+renderNinja { characters, acted, toggled, toggle, targetable, untargetable, freeChakras, ownTurn } onTeam { character, ninja, targets } =
     let
         anchor =
             if onTeam then
@@ -878,8 +893,8 @@ renderNinja { characters, acted, toggle, highlight, freeChakras, ownTurn } onTea
         { slot } =
             ninja
 
-        toggled =
-            List.member slot (Act.toggles toggle)
+        isToggled =
+            Set.member slot toggled
 
         faceIcon =
             case ninja.face of
@@ -899,7 +914,7 @@ renderNinja { characters, acted, toggle, highlight, freeChakras, ownTurn } onTea
                 onTeam
                     && ownTurn
                     && (ninja.health > 0)
-                    && not (List.member slot acted)
+                    && not (Set.member slot acted)
             }
 
         render =
@@ -916,11 +931,12 @@ renderNinja { characters, acted, toggle, highlight, freeChakras, ownTurn } onTea
             [ A.classList
                 [ ( "face", True )
                 , ( "dead", ninja.health == 0 )
-                , ( "highlighted", List.member slot highlight )
-                , ( "toggled skill", toggled )
+                , ( "targetable", Set.member slot targetable )
+                , ( "untargetable", Set.member slot untargetable )
+                , ( "toggled skill", isToggled )
                 ]
             , E.onMouseOver <| View <| ViewCharacter character
-            , case Maybe.filter (always toggled) toggle of
+            , case Maybe.filter (always isToggled) toggle of
                 Just act ->
                     E.onClick <| Enact Add { act | target = slot }
 
@@ -1025,7 +1041,7 @@ renderAlternateButton : String -> Skill -> Html Msg
 renderAlternateButton class skill =
     H.button
         [ A.class <| class ++ " click"
-        , E.onClick <| View <| ViewSkill [] 0 { skill | charges = 0 }
+        , E.onClick <| View <| ViewSkill Set.empty 0 { skill | charges = 0 }
         ]
         []
 

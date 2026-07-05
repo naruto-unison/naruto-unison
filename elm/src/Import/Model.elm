@@ -538,10 +538,7 @@ type alias Skill  =
    , cooldown: Int
    , charges: Int
    , dur: Channeling
-   , start: (List Target)
-   , always: (List Target)
-   , effects: (List Target)
-   , end: (List Target)
+   , targets: (List Target)
    , owner: Int
    }
 
@@ -555,10 +552,7 @@ jsonDecSkill =
    |> required "cooldown" (Json.Decode.int)
    |> required "charges" (Json.Decode.int)
    |> required "dur" (jsonDecChanneling)
-   |> required "start" (Json.Decode.list (jsonDecTarget))
-   |> required "always" (Json.Decode.list (jsonDecTarget))
-   |> required "effects" (Json.Decode.list (jsonDecTarget))
-   |> required "end" (Json.Decode.list (jsonDecTarget))
+   |> required "targets" (Json.Decode.list (jsonDecTarget))
    |> required "owner" (Json.Decode.int)
 
 jsonEncSkill : Skill -> Value
@@ -571,10 +565,7 @@ jsonEncSkill  val =
    , ("cooldown", Json.Encode.int val.cooldown)
    , ("charges", Json.Encode.int val.charges)
    , ("dur", jsonEncChanneling val.dur)
-   , ("start", (Json.Encode.list jsonEncTarget) val.start)
-   , ("always", (Json.Encode.list jsonEncTarget) val.always)
-   , ("effects", (Json.Encode.list jsonEncTarget) val.effects)
-   , ("end", (Json.Encode.list jsonEncTarget) val.end)
+   , ("targets", (Json.Encode.list jsonEncTarget) val.targets)
    , ("owner", Json.Encode.int val.owner)
    ]
 
@@ -696,7 +687,7 @@ type alias Turn  =
    , victor: (List Player)
    , inactive: (Int, Int)
    , ninjas: (List Ninja)
-   , targets: (List (List (List Int)))
+   , targets: (List (List (Set Int)))
    }
 
 jsonDecTurn : Json.Decode.Decoder ( Turn )
@@ -707,7 +698,7 @@ jsonDecTurn =
    |> required "victor" (Json.Decode.list (jsonDecPlayer))
    |> required "inactive" (Json.Decode.map2 tuple2 (Json.Decode.index 0 (Json.Decode.int)) (Json.Decode.index 1 (Json.Decode.int)))
    |> required "ninjas" (Json.Decode.list (jsonDecNinja))
-   |> required "targets" (Json.Decode.list (Json.Decode.list (Json.Decode.list (Json.Decode.int))))
+   |> required "targets" (Json.Decode.list (Json.Decode.list (decodeSet (Json.Decode.int))))
 
 jsonEncTurn : Turn -> Value
 jsonEncTurn  val =
@@ -717,7 +708,7 @@ jsonEncTurn  val =
    , ("victor", (Json.Encode.list jsonEncPlayer) val.victor)
    , ("inactive", (\(t1,t2) -> Json.Encode.list identity [(Json.Encode.int) t1,(Json.Encode.int) t2]) val.inactive)
    , ("ninjas", (Json.Encode.list jsonEncNinja) val.ninjas)
-   , ("targets", (Json.Encode.list (Json.Encode.list (Json.Encode.list Json.Encode.int))) val.targets)
+   , ("targets", (Json.Encode.list (Json.Encode.list (encodeSet Json.Encode.int))) val.targets)
    ]
 
 
