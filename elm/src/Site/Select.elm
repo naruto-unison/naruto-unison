@@ -1107,9 +1107,7 @@ renderSkillPreview char slot skills i =
             in
             H.section []
                 [ H.div []
-                    [ Render.skillIcon char
-                        skill
-                        [ A.class "char" ]
+                    [ Render.skillIcon char skill [ A.class "char" ]
                     , H.button
                         [ A.class "prevSkill click"
                         , E.onClick <| Alternate slot -1

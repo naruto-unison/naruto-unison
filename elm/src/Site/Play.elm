@@ -894,9 +894,7 @@ renderNinja { characters, acted, toggled, toggle, targetable, untargetable, free
                     Render.charIcon character
 
                 Just face ->
-                    Render.icon (Characters.get characters face.user) <|
-                        "icon"
-                            ++ face.icon
+                    Render.icon (Characters.get characters face.user) <| "icon" ++ face.icon
 
         skillData =
             { user = ninja
@@ -1002,9 +1000,7 @@ viewIgnoredClasses =
 renderViewDetail : Array Character -> (Effect -> Bool) -> Detail -> List (Html msg)
 renderViewDetail characters removable detail =
     [ H.section []
-        [ Render.detailIcon (Characters.get characters detail.source)
-            detail
-            [ A.class "char" ]
+        [ Render.detailIcon (Characters.get characters detail.source) detail [ A.class "char" ]
         , H.dl [] <|
             [ H.h4 [] [ H.span [] [ H.text detail.name ] ]
             , Render.classes <| Set.diff detail.classes viewIgnoredClasses
