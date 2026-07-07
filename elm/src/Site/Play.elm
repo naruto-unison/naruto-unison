@@ -26,7 +26,7 @@ import Set exposing (Set)
 import Site.Render as Render
 import Sound exposing (Sound)
 import Task
-import Util exposing (ListChange(..), pure, showErr)
+import Util exposing (ListChange(..), pure, showErr, toAsciiDigit)
 
 
 type Viewable
@@ -589,7 +589,7 @@ renderActs { ownTurn, chakraSums, ninjas, acts } =
             chakraSums.rand /= 0
     in
     H.section [ A.id "playqueuecont" ]
-        [ H.div [ A.id "playqueue" ] <|
+        [ Keyed.node "div" [ A.id "playqueue" ] <|
             List.map (renderAct ninjas) acts
         , H.button
             [ A.id "ready"
@@ -610,9 +610,10 @@ renderActs { ownTurn, chakraSums, ninjas, acts } =
         ]
 
 
-renderAct : Array Character -> Act -> Html Msg
-renderAct characters ({ skill } as act) =
-    H.button
+renderAct : Array Character -> Act -> ( String, Html Msg )
+renderAct characters ({ skill, user } as act) =
+    ( String.fromChar <| toAsciiDigit user
+    , H.button
         [ A.class "act"
         , E.onClick <| Enact Delete act
         ]
@@ -620,6 +621,7 @@ renderAct characters ({ skill } as act) =
         , H.div [ A.class "actcost" ] <|
             Render.chakras skill.cost
         ]
+    )
 
 
 renderDna : Reward -> List (Html Msg)
@@ -683,7 +685,7 @@ renderHealth anchor health =
 
 renderDestructible : String -> String -> Int -> Destructible -> ( String, Html Msg )
 renderDestructible anchor class track x =
-    ( class ++ String.fromInt x.user ++ x.skill.name
+    ( class ++ String.cons (toAsciiDigit x.user) x.skill.name
     , H.div
         [ A.classList
             [ ( class, True )
@@ -722,7 +724,7 @@ type alias SkillData =
 
 skillKey : Skill -> String
 skillKey { name, owner } =
-    String.cons (Char.fromCode <| owner + 48) name
+    String.cons (toAsciiDigit owner) name
 
 
 renderSkill :
@@ -837,12 +839,14 @@ renderDetail onTeam slot characters ({ classes } as detail) =
 
             else
                 [ icon ]
-        , H.p [] <|
-            if Set.member "Continues" classes then
-                [ H.text "•" ]
+        , H.p []
+            [ H.text <|
+                if Set.member "Continues" classes then
+                    "•"
 
-            else
-                [ H.text <| Render.duration "\u{00A0}" detail.dur ]
+                else
+                    Render.duration "\u{00A0}" detail.dur
+            ]
         ]
 
 
@@ -863,11 +867,17 @@ createNinjaData { acts, chakraSums, targetable, untargetable, ownTurn, ninjas, t
     { characters = ninjas
     , acted = Set.fromList <| List.map .user acts
     , toggle = toggled
-    , toggled = Act.toggles toggled
     , targetable = targetable
     , untargetable = untargetable
     , freeChakras = chakraSums.free
     , ownTurn = ownTurn
+    , toggled =
+        case toggled of
+            Just act ->
+                Act.targetSlots act
+
+            Nothing ->
+                Set.empty
     }
 
 
@@ -1025,11 +1035,16 @@ renderViewDetail characters removable detail =
     ]
 
 
-renderAlternateButton : String -> Skill -> Html Msg
-renderAlternateButton class skill =
+renderAlternateButton : String -> Maybe Skill -> Html Msg
+renderAlternateButton class mskill =
     H.button
-        [ A.class <| class ++ " click"
-        , E.onClick <| View <| ViewSkill Set.empty 0 { skill | charges = 0 }
+        [ A.class class
+        , case mskill of
+            Just skill ->
+                E.onClick <| View <| ViewSkill Set.empty 0 { skill | charges = 0 }
+
+            Nothing ->
+                A.hidden True
         ]
         []
 
@@ -1055,14 +1070,13 @@ renderViewSkill characters charges skill =
             List.findMap (List.splitWhen (\y -> y.name == name)) character.skills
     in
     [ H.section []
-        [ H.div [] <|
-            Maybe.values
-                [ Just <| Render.skillIcon character skill [ A.class "char" ]
-                , Maybe.andThen (Tuple.first >> List.last) skillSplit
-                    |> Maybe.map (renderAlternateButton "prevSkill")
-                , Maybe.andThen (Tuple.second >> List.getAt 1) skillSplit
-                    |> Maybe.map (renderAlternateButton "nextSkill")
-                ]
+        [ H.div []
+            [ Render.skillIcon character skill [ A.class "char" ]
+            , renderAlternateButton "prevSkill" <|
+                Maybe.andThen (Tuple.first >> List.last) skillSplit
+            , renderAlternateButton "nextsSkill" <|
+                Maybe.andThen (Tuple.second >> List.getAt 1) skillSplit
+            ]
         , H.dl []
             [ H.h4 [] [ H.text skill.name ]
             , Render.classes skill.classes

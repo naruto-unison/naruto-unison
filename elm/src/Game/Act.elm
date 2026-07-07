@@ -1,7 +1,7 @@
 module Game.Act exposing
     ( Act
+    , targetSlots
     , toPathPieces
-    , toggles
     )
 
 import Game.Skill as Skill
@@ -23,12 +23,7 @@ toPathPieces { user, button, target } =
     [ user, button, target ]
 
 
-toggles : Maybe Act -> Set Int
-toggles x =
-    case x of
-        Nothing ->
-            Set.empty
-
-        Just { user, skill, targets } ->
-            Skill.targetSlots user skill
-                |> Set.intersect targets
+targetSlots : Act -> Set Int
+targetSlots { user, skill, targets } =
+    Skill.targetSlots user skill
+        |> Set.intersect targets

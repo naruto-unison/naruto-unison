@@ -10,6 +10,7 @@ import Game.Game as Game
 import Html as H exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
+import Html.Keyed as Keyed
 import Html.Lazy exposing (lazy2)
 import Http
 import Import.Flags exposing (Csrf, Flags, War)
@@ -339,22 +340,23 @@ component ports =
                     st.userBoxFormType
                     st.team
                     :: (case st.stage of
-                            Queued ->
-                                []
-
-                            _ ->
-                                [ case st.stage of
-                                    Practicing ->
-                                        renderVsBox st.stage st.vs
-
-                                    Searching ->
-                                        renderSearchBox st.error st.search
-
-                                    _ ->
-                                        renderPreviewBox st
+                            Browsing ->
+                                [ renderPreviewBox st
                                 , renderCharList st
+                                ]
+
+                            Searching ->
+                                [ renderSearchBox st.error st.search
+                                , renderCharList st
+                                ]
+
+                            Practicing ->
+                                [ renderVsBox st.stage st.vs
                                 , renderVsList st
                                 ]
+
+                            Queued ->
+                                []
                        )
 
         update : Msg -> Model -> ( Model, Cmd Msg )
@@ -643,59 +645,42 @@ charWrapper mchar { team, unlocked, user, war } char =
 -- USERBOX
 
 
-renderUserBoxNav : { loggedIn : Bool, teamFull : Bool } -> Html Msg
-renderUserBoxNav { loggedIn, teamFull } =
-    let
-        playButton name onClick =
-            H.button
-                [ A.class "parchment playButton"
-                , E.onClick onClick
-                , A.disabled <| not teamFull
-                ]
-                [ H.text name ]
-    in
-    H.nav [ A.id "playButtons" ] <|
-        H.a
-            [ A.id "mainsite"
-            , A.class "playButton parchment click"
-            , A.href "/home"
-            ]
-            [ H.text "Main Site" ]
-            :: (if loggedIn then
-                    [ playButton "Start Quick Match" <| Enqueue Quick
-                    , playButton "Start Private Match" <| SetStage Searching
-                    , playButton "Start Practice Match" <| SetStage Practicing
-                    ]
+submitLoginAttrs : List (H.Attribute msg)
+submitLoginAttrs =
+    [ A.class "playButtton", A.type_ "submit" ]
 
-                else
-                    []
-               )
+
+switchLoginAttrs : List (H.Attribute Msg)
+switchLoginAttrs =
+    [ A.class "playButton switch", E.onClick SwitchLogin, A.type_ "button" ]
 
 
 renderUserBoxLoggedOut : UserBoxFormType -> Csrf -> Html Msg
 renderUserBoxLoggedOut formType csrf =
+    let
+        { formTypeString, hidePassword, loginAttrs, registerAttrs } =
+            case formType of
+                Login ->
+                    { formTypeString = "login"
+                    , hidePassword = False
+                    , loginAttrs = submitLoginAttrs
+                    , registerAttrs = switchLoginAttrs
+                    }
+
+                Register ->
+                    { formTypeString = "register"
+                    , hidePassword = True
+                    , loginAttrs = switchLoginAttrs
+                    , registerAttrs = submitLoginAttrs
+                    }
+    in
     H.div [ A.id "userBox", A.class "parchment" ]
         [ H.form
-            [ A.id <|
-                case formType of
-                    Login ->
-                        "loginForm"
-
-                    Register ->
-                        "registerForm"
+            [ A.id <| formTypeString ++ "Form"
             , A.class "userForm"
             , A.method "POST"
-            , A.action <|
-                "/auth/page/email/"
-                    ++ (case formType of
-                            Login ->
-                                "login"
-
-                            Register ->
-                                "register"
-                       )
+            , A.action <| "/auth/page/email/" ++ formTypeString
             ]
-          <|
             [ H.input
                 [ A.type_ "hidden"
                 , A.name csrf.param
@@ -708,58 +693,28 @@ renderUserBoxLoggedOut formType csrf =
                     , A.name "email"
                     , A.type_ "email"
                     , A.required True
-
-                    -- , A.autofocus   True
                     , A.placeholder "Email"
                     ]
                     []
                 ]
+            , H.div []
+                [ H.input
+                    [ A.class "password"
+                    , A.name "password"
+                    , A.type_ "password"
+                    , A.required True
+                    , A.placeholder "Password"
+                    , A.disabled hidePassword
+                    , A.hidden hidePassword
+                    ]
+                    []
+                ]
+            , H.div [ A.class "space" ] []
+            , H.div [ A.id "controls" ]
+                [ H.button loginAttrs [ H.text "Log in" ]
+                , H.button registerAttrs [ H.text "Register" ]
+                ]
             ]
-                ++ (case formType of
-                        Login ->
-                            [ H.div []
-                                [ H.input
-                                    [ A.class "password"
-                                    , A.name "password"
-                                    , A.type_ "password"
-                                    , A.required True
-                                    , A.placeholder "Password"
-                                    ]
-                                    []
-                                ]
-                            , H.div [ A.class "space" ] []
-                            , H.div [ A.id "controls" ]
-                                [ H.button
-                                    [ A.class "playButton click"
-                                    , A.type_ "submit"
-                                    ]
-                                    [ H.text "Log in" ]
-                                , H.button
-                                    [ A.class "playButton click switch"
-                                    , A.type_ "button"
-                                    , E.onClick SwitchLogin
-                                    ]
-                                    [ H.text "Register" ]
-                                ]
-                            ]
-
-                        Register ->
-                            [ H.div [ A.class "space" ] []
-                            , H.div [ A.id "controls" ]
-                                [ H.button
-                                    [ A.class "playButton click switch"
-                                    , E.onClick SwitchLogin
-                                    , A.type_ "button"
-                                    ]
-                                    [ H.text "Log in" ]
-                                , H.button
-                                    [ A.class "playButton click"
-                                    , A.type_ "submit"
-                                    ]
-                                    [ H.text "Register" ]
-                                ]
-                            ]
-                   )
         ]
 
 
@@ -799,10 +754,35 @@ renderUserBox :
     -> Html Msg
 renderUserBox st formType team =
     H.header []
-        [ renderUserBoxNav
-            { loggedIn = Maybe.isJust st.user
-            , teamFull = Set.size team.set == Game.teamSize
-            }
+        [ H.nav [ A.id "playButtons" ] <|
+            H.a
+                [ A.id "mainsite"
+                , A.class "playButton parchment"
+                , A.href "/home"
+                ]
+                [ H.text "Main Site" ]
+                :: (case st.user of
+                        Just _ ->
+                            let
+                                teamNotFull =
+                                    Set.size team.set /= Game.teamSize
+
+                                playButton name onClick =
+                                    H.button
+                                        [ A.class "parchment playButton"
+                                        , E.onClick onClick
+                                        , A.disabled teamNotFull
+                                        ]
+                                        [ H.text name ]
+                            in
+                            [ playButton "Start Quick Match" <| Enqueue Quick
+                            , playButton "Start Private Match" <| SetStage Searching
+                            , playButton "Start Practice Match" <| SetStage Practicing
+                            ]
+
+                        Nothing ->
+                            []
+                   )
         , H.div [ A.class "space" ] []
         , H.section [ A.id "teamContainer" ]
             [ Characters.keyed "div"
@@ -831,7 +811,7 @@ renderUserBox st formType team =
 renderVsIcon : Character -> Html Msg
 renderVsIcon char =
     Render.charIcon char
-        [ A.class "char click"
+        [ A.class "char"
         , E.onClick <| Vs Delete char
         , Role.button
         ]
@@ -840,9 +820,9 @@ renderVsIcon char =
 renderVsBox : Stage -> List Character -> Html Msg
 renderVsBox stage vs =
     let
-        meta =
+        attrs =
             if List.length vs == Game.teamSize then
-                [ A.class "parchment playButton click"
+                [ A.class "parchment playButton"
                 , E.onClick <| Enqueue Practice
                 ]
 
@@ -857,10 +837,10 @@ renderVsBox stage vs =
             ]
         ]
         [ H.nav []
-            [ H.button meta
+            [ H.button attrs
                 [ H.text "Ready" ]
             , H.button
-                [ A.class "parchment playButton click"
+                [ A.class "parchment playButton"
                 , E.onClick <| SetStage Browsing
                 ]
                 [ H.text "Cancel" ]
@@ -883,12 +863,12 @@ renderSearchBox : Maybe String -> String -> Html Msg
 renderSearchBox error search =
     H.section [ A.id "vs", A.class "parchment" ] <|
         [ H.button
-            [ A.class "parchment playButton click"
+            [ A.class "parchment playButton"
             , E.onClick <| Enqueue Private
             ]
             [ H.text "Ready" ]
         , H.button
-            [ A.class "parchment playButton click"
+            [ A.class "parchment playButton"
             , E.onClick <| SetStage Browsing
             ]
             [ H.text "Cancel" ]
@@ -979,14 +959,16 @@ renderUserPreview avatars error { avatar, background, condense, name } =
                 ]
             , H.p []
                 [ H.span [] [ H.text "Avatars" ] ]
-            , H.section [ A.id "avatars" ] <|
+            , Keyed.node "section" [ A.id "avatars" ] <|
                 List.map
                     (\ava ->
-                        H.button
+                        ( ava
+                        , H.button
                             [ A.disabled <| avatar == ava
                             , E.onClick <| UpdateForm <| Avatar ava
                             ]
                             [ H.img [ A.src ava ] [] ]
+                        )
                     )
                     avatars
             , H.button
@@ -1109,13 +1091,13 @@ renderSkillPreview char slot skills i =
                 [ H.div []
                     [ Render.skillIcon char skill [ A.class "char" ]
                     , H.button
-                        [ A.class "prevSkill click"
+                        [ A.class "prevSkill"
                         , E.onClick <| Alternate slot -1
                         , A.hidden <| i <= 0
                         ]
                         []
                     , H.button
-                        [ A.class "nextSkill click"
+                        [ A.class "nextSkill"
                         , E.onClick <| Alternate slot 1
                         , A.hidden <| i + 1 >= List.length skills
                         ]

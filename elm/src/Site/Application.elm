@@ -4,6 +4,7 @@ import Browser exposing (Document)
 import Html as H exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
+import Html.Keyed as Keyed
 import Import.Flags as Flags exposing (Flags, printFailure)
 import Import.Model as Model exposing (QueueFailure(..), QueueMessage(..))
 import Json.Decode as D exposing (Value)
@@ -119,13 +120,12 @@ app websocket ports =
 
                 contents els =
                     if isQueued st then
-                        H.div [ A.id "main", A.class "queueing" ] <|
+                        Keyed.node "div" [ A.id "main", A.class "queueing" ] <|
                             renderSearching
                                 ++ els
 
                     else
-                        H.div [ A.id "main" ]
-                            els
+                        Keyed.node "div" [ A.id "main" ] els
             in
             Document "Naruto Unison"
                 << List.singleton
@@ -134,11 +134,11 @@ app websocket ports =
             <|
                 case st.component of
                     SelectModel model ->
-                        [ H.map SelectMsg <| select.view model ]
+                        [ ( "select", H.map SelectMsg <| select.view model ) ]
 
                     PlayModel model ->
                         [ renderBg st.bg
-                        , H.map PlayMsg <| play.view model
+                        , ( "play", H.map PlayMsg <| play.view model )
                         ]
 
         update : Msg -> Model -> ( Model, Cmd Msg )
@@ -272,34 +272,42 @@ app websocket ports =
     }
 
 
-renderError : String -> Html msg
+renderError : String -> ( String, Html msg )
 renderError err =
-    H.div [ A.id "error" ]
+    ( "error"
+    , H.div [ A.id "error" ]
         [ H.text err ]
+    )
 
 
-renderBg : String -> Html msg
+renderBg : String -> ( String, Html msg )
 renderBg url =
-    H.div
+    ( "bg"
+    , H.div
         [ A.id "bg"
         , A.style "background-image" url
         ]
         []
+    )
 
 
-renderSearching : List (Html Msg)
+renderSearching : List ( String, Html Msg )
 renderSearching =
-    [ H.div [ A.id "searching" ]
-        [ H.img
-            [ A.src "/img/spin.gif"
-            , A.alt "Spinning loading indicator"
+    [ ( "searching"
+      , H.div [ A.id "searching" ]
+            [ H.img
+                [ A.src "/img/spin.gif"
+                , A.alt "Spinning loading indicator"
+                ]
+                []
             ]
-            []
-        ]
-    , H.button
-        [ A.id "cancel"
-        , A.class "parchment playButton"
-        , E.onClick <| SelectMsg Select.Dequeue
-        ]
-        [ H.text "Cancel" ]
+      )
+    , ( "cancel"
+      , H.button
+            [ A.id "cancel"
+            , A.class "parchment playButton"
+            , E.onClick <| SelectMsg Select.Dequeue
+            ]
+            [ H.text "Cancel" ]
+      )
     ]

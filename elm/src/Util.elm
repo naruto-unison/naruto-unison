@@ -7,6 +7,7 @@ module Util exposing
     , showBool
     , showErr
     , sumBy
+    , toAsciiDigit
     , unaccent
     )
 
@@ -95,6 +96,11 @@ illegal =
     " -:()®./?'"
         |> String.toList
         |> Set.fromList
+
+
+toAsciiDigit : Int -> Char
+toAsciiDigit n =
+    Char.fromCode <| n + 48
 
 
 unaccentDict : Dict Char Char

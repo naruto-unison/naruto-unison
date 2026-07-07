@@ -250,7 +250,7 @@ classes xs =
 effect : Array Character -> (Effect -> Bool) -> Effect -> Html msg
 effect characters removable x =
     let
-        meta =
+        attrs =
             if x.trap then
                 [ A.class "trap" ]
 
@@ -260,7 +260,7 @@ effect characters removable x =
             else
                 []
     in
-    H.li meta <|
+    H.li attrs <|
         case x.slot of
             Nothing ->
                 desc x.desc
@@ -271,7 +271,8 @@ effect characters removable x =
 
 extra : String -> Html msg
 extra s =
-    H.span [ A.class "extra" ] [ H.text s ]
+    H.span [ A.class "extra" ]
+        [ H.text s ]
 
 
 skillDesc : Int -> Skill -> List (Html msg)
