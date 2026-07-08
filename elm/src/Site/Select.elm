@@ -421,7 +421,7 @@ component ports =
                         else
                             { st | vs = st.vs ++ [ char ] }
 
-                Vs Delete char ->
+                Vs Remove char ->
                     withSound Sound.Cancel
                         { st | vs = List.remove char st.vs }
 
@@ -647,7 +647,7 @@ charWrapper mchar { team, unlocked, user, war } char =
 
 submitLoginAttrs : List (H.Attribute msg)
 submitLoginAttrs =
-    [ A.class "playButtton", A.type_ "submit" ]
+    [ A.class "playButton", A.type_ "submit" ]
 
 
 switchLoginAttrs : List (H.Attribute Msg)
@@ -812,7 +812,7 @@ renderVsIcon : Character -> Html Msg
 renderVsIcon char =
     Render.charIcon char
         [ A.class "char"
-        , E.onClick <| Vs Delete char
+        , E.onClick <| Vs Remove char
         , Role.button
         ]
 

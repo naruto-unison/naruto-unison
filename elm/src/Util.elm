@@ -38,7 +38,7 @@ groupBy pred xxs =
 
 type ListChange
     = Add
-    | Delete
+    | Remove
 
 
 sumBy : (a -> number) -> List a -> number

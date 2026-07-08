@@ -331,7 +331,7 @@ component ports =
                                 , toggled = Nothing
                             }
 
-                Enact Delete act ->
+                Enact Remove act ->
                     withSound Sound.Cancel <|
                         recalculateChakra
                             { st
@@ -614,7 +614,7 @@ renderAct characters ({ skill, user } as act) =
     ( String.fromChar <| toAsciiDigit user
     , H.button
         [ A.class "act"
-        , E.onClick <| Enact Delete act
+        , E.onClick <| Enact Remove act
         ]
         [ Render.skillIcon (Characters.root characters skill) skill []
         , H.div [ A.class "actcost" ] <|
