@@ -10,7 +10,6 @@ module Site.Render exposing
     , extra
     , icon
     , name
-    , rands
     , scroll
     , skillCost
     , skillDesc
@@ -82,22 +81,6 @@ fromChakras { blood, gen, nin, tai, rand } =
         ++ List.repeat nin "nin"
         ++ List.repeat tai "tai"
         ++ List.repeat rand "rand"
-
-
-rands : Int -> Int -> Html msg
-rands amount random =
-    H.div [ A.class "randbar" ]
-        [ H.span [ A.class "randT" ]
-            [ H.text "T" ]
-        , H.span [] [ H.text <| String.fromInt amount ]
-        , H.button [ A.class "more", A.disabled True ]
-            [ H.text "+" ]
-        , H.button [ A.class "less", A.disabled True ]
-            [ H.text "—" ]
-        , H.div [ A.class "chakra rand" ]
-            []
-        , H.span [] [ H.text <| String.fromInt random ]
-        ]
 
 
 chakraTotals : Chakras -> List (Html msg)

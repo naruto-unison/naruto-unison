@@ -1,11 +1,12 @@
 module Game.Game exposing
-    ( died
+    ( allied
+    , died
     , forfeit
     , split
     , teamSize
     )
 
-import Import.Model as Player exposing (Ninja, Player, Turn)
+import Import.Model as Player exposing (Player, Turn)
 import List.Extra as List
 import Util exposing (sumBy)
 
@@ -15,8 +16,8 @@ teamSize =
     3
 
 
-allied : Player -> Ninja -> Bool
-allied player { slot } =
+allied : Player -> Int -> Bool
+allied player slot =
     (slot < teamSize) == (player == Player.A)
 
 
@@ -59,7 +60,7 @@ forfeit : Player -> Turn -> Turn
 forfeit player game =
     let
         forfeitN n =
-            if allied player n then
+            if allied player n.slot then
                 { n | health = 0 }
 
             else

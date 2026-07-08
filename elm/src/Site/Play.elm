@@ -16,7 +16,7 @@ import Html.Keyed as Keyed
 import Html.Lazy exposing (lazy2, lazy4)
 import Http
 import Import.Flags exposing (Flags)
-import Import.Model as Model exposing (Chakras, Character, Destructible, Effect, GameInfo, GameMessage(..), Ninja, Player(..), Reward, Skill, Turn, User, War(..))
+import Import.Model as Model exposing (Chakras, Character, Destructible, Effect, GameInfo, GameMessage(..), Ninja, Player(..), Reward, Skill, Target(..), Turn, User, War(..))
 import Json.Decode as D
 import List.Extra as List
 import Maybe.Extra as Maybe
@@ -33,11 +33,11 @@ type Viewable
     = ViewCharacter Character
     | ViewDestructible Destructible
     | ViewDetail (Effect -> Bool) Detail
-    | ViewSkill (Set Int) Int Skill
+    | ViewSkill Int (Set Int) Int Skill
     | ViewUser User
 
 
-type alias ChakraPair =
+type alias ChakraSpend =
     { chakra : String
     , spend : Chakras
     , amount : Int
@@ -45,10 +45,10 @@ type alias ChakraPair =
     }
 
 
-getChakraPairs : Chakras -> Chakras -> List ChakraPair
-getChakraPairs net randoms =
+getChakraSpend : ChakraSums -> Chakras -> List ChakraSpend
+getChakraSpend { net, rand } randoms =
     let
-        pair : String -> (Chakras -> Int) -> Chakras -> ChakraPair
+        pair : String -> (Chakras -> Int) -> Chakras -> ChakraSpend
         pair chakra get spend =
             { chakra = chakra
             , spend = spend
@@ -60,6 +60,7 @@ getChakraPairs net randoms =
     , pair "gen" .gen { none | gen = 1 }
     , pair "nin" .nin { none | nin = 1 }
     , pair "tai" .tai { none | tai = 1 }
+    , ChakraSpend "rand" none rand 0
     ]
 
 
@@ -248,6 +249,9 @@ component ports =
 
                 ninjaData =
                     createNinjaData st
+
+                { victor } =
+                    st.game
             in
             H.div
                 [ A.id "game"
@@ -261,8 +265,12 @@ component ports =
                     List.map (renderNinja ninjaData True) allies
                 , H.section [ A.id "player1", A.class "player" ] <|
                     List.map (renderNinja ninjaData False) enemies
+                , if List.isEmpty victor then
+                    renderCenter st
+
+                  else
+                    renderGameOver st.player st.dna victor
                 ]
-                    ++ renderCenter st
 
         setGameAnd : Turn -> Model -> List (Cmd Msg) -> ( Model, Cmd Msg )
         setGameAnd game st cmds =
@@ -278,13 +286,21 @@ component ports =
         update : Msg -> Model -> ( Model, Cmd Msg )
         update msg st =
             case msg of
-                View ((ViewSkill targets user skill) as viewing) ->
-                    pure
-                        { st
-                            | viewing = viewing
-                            , targetable = targets
-                            , untargetable = Set.diff (Skill.affectedSlots user skill) targets
-                        }
+                View ((ViewSkill user targets _ skill) as viewing) ->
+                    pure <|
+                        if
+                            (user >= 0)
+                                && Game.allied st.player user
+                                && List.any (\t -> t /= Self) skill.targets
+                        then
+                            { st
+                                | viewing = viewing
+                                , targetable = targets
+                                , untargetable = Set.diff (Skill.affectedSlots user skill) targets
+                            }
+
+                        else
+                            { st | viewing = viewing }
 
                 View viewing ->
                     pure { st | viewing = viewing }
@@ -506,107 +522,90 @@ renderUserBox id user war inactive =
 -- CENTER
 
 
-renderCenter : Model -> List (Html Msg)
-renderCenter st =
-    let
-        { victor } =
-            st.game
-    in
-    if List.isEmpty victor then
-        [ renderChakraModule st
-        , renderActs st
-        ]
-
-    else
-        renderGameOver st.player st.dna victor
-
-
-renderChakraButton : String -> msg -> Bool -> Html msg
-renderChakraButton text msg condition =
-    H.button
-        [ A.id text
-        , A.class "chakraButton"
-        , E.onClick msg
-        , A.disabled <| not condition
-        ]
-        [ H.text text ]
-
-
-renderChakraModule : Model -> Html Msg
-renderChakraModule { chakraSums, exchange, exchanged, ownTurn, randoms } =
+renderCenter : Model -> Html Msg
+renderCenter { acts, chakraSums, exchange, exchanged, ownTurn, ninjas, randoms } =
     let
         { free, net, rand } =
             chakraSums
 
         chakraPairs =
-            getChakraPairs net randoms
+            getChakraSpend chakraSums randoms
     in
-    H.section [ A.id "playchakra" ] <|
-        List.map (renderChakraPair ownTurn exchange net) chakraPairs
-            ++ [ Render.rands (Chakras.total { net | rand = 0 }) rand
-               , renderChakraButton "exchange" (Exchange Begin) <|
-                    (free.rand >= Chakras.rate)
-                        && Chakras.canExchange net
-                        && ownTurn
-               , renderChakraButton "reset" (Exchange Reset) <|
-                    (exchanged /= Chakras.none)
-                        || (randoms /= Chakras.none)
-               , renderChakraButton "forfeit" Forfeit ownTurn
-               ]
+    H.div [ A.id "center" ]
+        [ Keyed.node "div" [ A.id "playqueue" ] <|
+            List.map (renderAct ninjas) acts
+        , renderReadyButton ownTurn <| rand /= 0
+        , H.div [ A.id "spend" ] <|
+            H.div [ A.class "space" ] []
+                :: List.concatMap (renderChakraSpend ownTurn exchange net) chakraPairs
+                ++ [ H.div [ A.class "space" ] [] ]
+        , H.button
+            [ A.id "exchange"
+            , E.onClick <| Exchange Begin
+            , A.disabled <|
+                not ownTurn
+                    || (free.rand < Chakras.rate)
+                    || not (Chakras.canExchange net)
+            ]
+            [ H.text "Exchange" ]
+        , H.button
+            [ A.id "reset"
+            , E.onClick <| Exchange Reset
+            , A.disabled <| exchanged == Chakras.none && randoms == Chakras.none
+            ]
+            [ H.text "Reset" ]
+        , H.button
+            [ A.id "forfeit"
+            , E.onClick Forfeit
+            , A.disabled <| not ownTurn
+            ]
+            [ H.text "Forfeit" ]
+        ]
 
 
-renderChakraPair : Bool -> Bool -> Chakras -> ChakraPair -> Html Msg
-renderChakraPair turn exchange chakras { chakra, spend, amount, random } =
-    H.div []
+renderChakraSpend : Bool -> Bool -> Chakras -> ChakraSpend -> List (Html Msg)
+renderChakraSpend turn exchange chakras { chakra, spend, amount, random } =
+    [ H.div []
         [ H.button
+            [ A.class "more"
+            , E.onClick <| Spend <| Chakras.negate spend
+            , A.disabled <| not turn || random <= 0
+            ]
+            []
+        , H.button
             [ A.class <| "chakra " ++ chakra
             , E.onClick <| Exchange <| Conclude spend
             , A.disabled <| not <| exchange && Chakras.affordable chakras spend
             ]
             []
-        , H.span [] [ H.text <| String.fromInt amount ]
-        , H.button
-            [ A.class "more"
-            , E.onClick <| Spend <| Chakras.negate spend
-            , A.disabled <| not turn || random <= 0
-            ]
-            [ H.text "+" ]
         , H.button
             [ A.class "less"
             , E.onClick <| Spend spend
-            , A.disabled <| not turn || amount <= 0
+            , A.disabled <| not turn || amount <= 0 || chakra == "rand"
             ]
-            [ H.text "—" ]
-        , H.div [ A.class "chakra rand" ] []
-        , H.span [] [ H.text <| String.fromInt random ]
+            []
         ]
+    , H.span [] [ H.text <| String.fromInt amount ]
+    ]
 
 
-renderActs : Model -> Html Msg
-renderActs { ownTurn, chakraSums, ninjas, acts } =
-    let
-        noChakra =
-            chakraSums.rand /= 0
-    in
-    H.section [ A.id "playqueuecont" ]
-        [ Keyed.node "div" [ A.id "playqueue" ] <|
-            List.map (renderAct ninjas) acts
-        , H.button
-            [ A.id "ready"
-            , A.classList [ ( "noChakra", noChakra ) ]
-            , E.onClick Ready
-            , A.disabled <| not ownTurn || noChakra
-            ]
-            [ H.text <|
-                if not ownTurn then
-                    "Waiting"
+renderReadyButton : Bool -> Bool -> Html Msg
+renderReadyButton ownTurn noChakra =
+    H.button
+        [ A.id "ready"
+        , A.classList [ ( "noChakra", noChakra ) ]
+        , E.onClick Ready
+        , A.disabled <| not ownTurn || noChakra
+        ]
+        [ H.text <|
+            if not ownTurn then
+                "Waiting"
 
-                else if noChakra then
-                    "Choose Chakra"
+            else if noChakra then
+                "Choose Chakra"
 
-                else
-                    "Ready"
-            ]
+            else
+                "Ready"
         ]
 
 
@@ -631,7 +630,7 @@ renderDna { amount, reason } =
     ]
 
 
-renderGameOver : Player -> List Reward -> List Player -> List (Html Msg)
+renderGameOver : Player -> List Reward -> List Player -> Html Msg
 renderGameOver player dna victors =
     let
         message =
@@ -646,7 +645,7 @@ renderGameOver player dna victors =
                 _ ->
                     "Tie"
     in
-    [ H.div [ A.id "endgame" ]
+    H.div [ A.id "endgame" ]
         [ H.p [] [ H.text message ]
         , H.a
             [ A.id "return"
@@ -656,7 +655,6 @@ renderGameOver player dna victors =
             [ H.text "Return" ]
         , H.dl [] <| List.concatMap renderDna dna
         ]
-    ]
 
 
 
@@ -782,7 +780,7 @@ renderSkill { user, freeChakras, active, characters } button targets skill =
     in
     H.button
         [ A.class "charmove"
-        , E.onMouseOver <| View <| ViewSkill targets charge skill
+        , E.onMouseOver <| View <| ViewSkill slot targets charge skill
         , E.onMouseLeave Unhighlight
         , E.onClick onClick
         , A.disabled disabled
@@ -1041,7 +1039,7 @@ renderAlternateButton class mskill =
         [ A.class class
         , case mskill of
             Just skill ->
-                E.onClick <| View <| ViewSkill Set.empty 0 { skill | charges = 0 }
+                E.onClick <| View <| ViewSkill -1 Set.empty 0 { skill | charges = 0 }
 
             Nothing ->
                 A.hidden True
@@ -1127,7 +1125,7 @@ renderView characters viewing =
             ViewDetail removable x ->
                 renderViewDetail characters removable x
 
-            ViewSkill _ charge x ->
+            ViewSkill _ _ charge x ->
                 renderViewSkill characters charge x
 
             ViewUser x ->
