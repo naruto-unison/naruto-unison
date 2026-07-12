@@ -93,16 +93,6 @@ p {
     margin: 0;
 }
 
-svg {
-    display: block;
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background-color: #161616;
-}
-
 #avatars button:disabled,
 .queueing #charSelect,
 .chars .char:disabled,
@@ -128,9 +118,8 @@ svg {
     content: "🔒";
 }
 
-.chars .selected,
 .chars .char[role="button"]:hover,
-#charSelect > article > aside .char:hover {
+.alts .char:hover {
     outline: 2px solid var(--action) !important;
     filter: none !important;
 }
@@ -154,6 +143,21 @@ button.chakra,
     border: 1px solid var(--action-cancel) !important;
 }
 
+.account {
+    display: flex;
+    align-items: end;
+    flex-grow: 1;
+
+    section {
+        color: #eee;
+        display: inline-block;
+        vertical-align: top;
+        width: 10em;
+        text-transform: uppercase;
+        margin: -1px 6px;
+        flex-grow: 1;
+    }
+}
 #account0 {
     text-align: right;
 }
@@ -167,9 +171,13 @@ button.chakra,
     padding: 0.5em 1.3em;
 
     label {
-        min-width: 11em;
-        display: inline-block;
-        font-weight: bold;
+        display: block;
+
+        span {
+            min-width: 11em;
+            display: inline-block;
+            font-weight: bold;
+        }
     }
 
     input {
@@ -178,10 +186,6 @@ button.chakra,
         &[type="text"] {
             width: 15em;
         }
-    }
-
-    p {
-        margin: 0.5em 0;
     }
 }
 
@@ -196,6 +200,29 @@ button.chakra,
     }
 }
 
+.alts {
+    width: 75px;
+    position: absolute;
+    bottom: -1px;
+    left: -65px;
+    font-size: 16px;
+
+    .char {
+        outline: 1px solid #000;
+
+        &.on {
+            outline: 2px solid #fff !important;
+            cursor: unset !important;
+        }
+    }
+
+    .charWrapper {
+        button {
+            bottom: 1px;
+        }
+    }
+}
+
 .avatar {
     border: 2px solid #333;
     width: 75px;
@@ -205,6 +232,7 @@ button.chakra,
     height: 209px;
     overflow-y: scroll;
     border: 2px solid #000;
+    margin-top: 0.5em;
     border-left: none;
     border-right: none;
     padding-left: 1px;
@@ -229,6 +257,80 @@ button.chakra,
     z-index: -2;
 }
 
+#bottom {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-grow: 1;
+
+    article {
+        text-align: left;
+        font-size: 13px;
+        padding: 5px;
+        line-height: 1.22;
+        border: 2px solid #444;
+        flex-grow: 100;
+        max-width: 900px;
+
+        aside {
+            position: relative;
+        }
+
+        li {
+            margin-bottom: -0.25em;
+        }
+
+        span {
+            display: block;
+        }
+
+        section {
+            flex-grow: 1;
+        }
+
+        > section {
+            display: flex;
+            margin-bottom: 0.25em;
+
+            > div {
+                position: relative;
+            }
+        }
+
+        ul {
+            font-weight: bold;
+            padding-left: 1em;
+            margin: 1em 0 0.5em 0;
+        }
+
+        .char {
+            margin-bottom: 0;
+            height: 75px;
+        }
+
+        .remove {
+            color: var(--palette-blue);
+        }
+
+        .trap {
+            color: var(--palette-red);
+        }
+    }
+
+    h3 {
+        font-weight: bold;
+        font-size: 16px;
+        margin: 0;
+    }
+
+    h4 {
+        margin-top: 3px;
+        margin-bottom: 0;
+    }
+}
+
 #cancel {
     position: absolute;
     left: 0;
@@ -242,7 +344,7 @@ button.chakra,
 #center,
 .player {
     position: absolute;
-    top: 200px;
+    top: 20px;
 }
 
 #center {
@@ -287,16 +389,17 @@ button.chakra,
         display: flex;
         flex-direction: column;
         align-items: center;
+    }
 
-        div {
-            flex-direction: row;
-        }
+    div:first-of-type {
+        margin-left: 1.5em;
     }
 
     span {
-        margin: 0 0.5em 0 0.1em;
+        margin-left: 0.2em;
         display: block;
         font-size: 0.9em;
+        width: 1.5em;
     }
 
     .chakra {
@@ -384,11 +487,6 @@ button.chakra,
     right: 55px;
     padding: 5px;
     padding-top: 3px;
-
-    > button {
-        position: absolute;
-        top: -17px;
-    }
 
     .char {
         margin: 4px;
@@ -559,10 +657,17 @@ button.chakra,
     position: relative;
     transition: 0.2s filter;
 
-    span {
+    .cd {
+        display: block;
         position: absolute;
-        inset: 0;
-        font-size: 65px;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        color: #fff;
+        text-align: center;
+        margin-top: -1em;
+        font-size: 3em;
+        -webkit-text-stroke: 2px rgba(0, 0, 0, 0.8);
     }
 }
 
@@ -599,31 +704,6 @@ button.chakra,
         padding: 5px 10px;
         width: 100%;
         z-index: 1;
-
-        > aside {
-            width: 75px;
-            position: absolute;
-            bottom: -1px;
-            left: -65px;
-            font-size: 16px;
-
-            .char {
-                outline-color: #000;
-                outline-width: 1px !important;
-
-                &.on {
-                    outline: 2px #fff !important;
-                    outline-width: 2px !important;
-                    outline-style: solid !important;
-                }
-            }
-
-            .charWrapper {
-                button {
-                    bottom: 1px;
-                }
-            }
-        }
 
         h4 {
             margin-bottom: -0.1em !important;
@@ -707,9 +787,16 @@ button.chakra,
         width: 30px;
     }
 
-    span {
-        margin: 1px;
+    .amount {
         display: block;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        color: #fff;
+        text-align: center;
+        font-size: 2em;
+        -webkit-text-stroke: 2px rgba(0, 0, 0, 0.8);
     }
 }
 .channels {
@@ -913,6 +1000,41 @@ button.chakra,
     }
 }
 
+.ninja {
+    margin-bottom: 15px;
+}
+.details {
+    font-family: Verdana, sans-serif;
+    height: 52px;
+    color: #eee;
+}
+.face {
+    z-index: 5;
+    position: relative;
+    float: left;
+
+    &.targetable {
+        background-color: #0f0;
+
+        img {
+            border-color: rgb(19, 112, 19);
+            opacity: 0.75;
+        }
+    }
+    &.untargetable {
+        background-color: rgb(170, 0, 0);
+
+        img {
+            border-color: rgb(119, 1, 1);
+            opacity: 0.75;
+        }
+    }
+
+    button:enabled {
+        border-color: var(--action-available) !important;
+    }
+}
+
 #playButtons {
     margin: -3px;
     align-self: end;
@@ -962,61 +1084,10 @@ button.chakra,
 .player {
     height: 100%;
     transition: 0.5s all;
-
-    > section {
-        margin-bottom: 15px;
-
-        > aside {
-            font-family: Verdana, sans-serif;
-            height: 52px;
-            color: #eee;
-        }
-
-        > div > div > span {
-            display: block;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            color: #fff;
-            text-align: center;
-            margin-top: -1em;
-            font-size: 3em;
-            -webkit-text-stroke: 2px rgba(0, 0, 0, 0.8);
-        }
-
-        .face {
-            z-index: 5;
-            position: relative;
-            float: left;
-
-            &.targetable {
-                background-color: #0f0;
-
-                img {
-                    border-color: rgb(19, 112, 19);
-                    opacity: 0.75;
-                }
-            }
-            &.untargetable {
-                background-color: rgb(170, 0, 0);
-
-                img {
-                    border-color: rgb(119, 1, 1);
-                    opacity: 0.75;
-                }
-            }
-
-            button:enabled {
-                border-color: var(--action-available) !important;
-            }
-        }
-    }
 }
 
 #player0 {
-    right: 50%;
-    margin-right: 200px;
+    right: calc(50% + 200px);
     text-align: left;
 
     .charbarrier,
@@ -1029,8 +1100,7 @@ button.chakra,
     }
 }
 #player1 {
-    left: 50%;
-    margin-left: 200px;
+    left: calc(50% + 200px);
     text-align: right;
 
     .channels,
@@ -1054,6 +1124,7 @@ button.chakra,
 
 #playqueue {
     height: 81px;
+    text-align: center;
 
     .act {
         position: relative;
@@ -1094,6 +1165,16 @@ button.chakra,
 
     &:enabled:hover {
         border-color: var(--action-available);
+    }
+
+    svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background-color: #161616;
     }
 }
 
@@ -1157,7 +1238,8 @@ button.chakra,
 }
 
 .scroll {
-    position: relative;
+    position: absolute;
+    top: -17px;
 
     div {
         position: absolute;
@@ -1207,102 +1289,6 @@ button.chakra,
 
     .charWrapper div {
         bottom: -2px;
-    }
-}
-
-#top {
-    position: absolute;
-    top: 10px;
-    left: 0;
-    right: 0;
-    text-align: center;
-    max-width: 1746px;
-    margin: auto;
-
-    article {
-        text-align: left;
-        font-size: 13px;
-        padding: 5px;
-        line-height: 1.22;
-        border: 2px solid #444;
-        left: 290px;
-        position: absolute;
-        right: 290px;
-
-        aside {
-            position: relative;
-        }
-
-        li {
-            margin-bottom: -0.25em;
-        }
-
-        span {
-            display: block;
-        }
-
-        section {
-            flex-grow: 1;
-        }
-
-        > section {
-            display: flex;
-            margin-bottom: 0.25em;
-
-            > div {
-                position: relative;
-            }
-        }
-
-        ul {
-            font-weight: bold;
-            padding-left: 1em;
-            margin: 1em 0 0.5em 0;
-        }
-
-        .char {
-            margin-bottom: 0;
-            height: 75px;
-        }
-
-        .remove {
-            color: var(--palette-blue);
-        }
-
-        .trap {
-            color: var(--palette-red);
-        }
-    }
-
-    h3 {
-        font-weight: bold;
-        font-size: 16px;
-        margin: 0;
-    }
-
-    h4 {
-        margin-top: 3px;
-        margin-bottom: 0;
-    }
-
-    > section {
-        width: 285px;
-        position: absolute;
-        display: flex;
-
-        aside {
-            display: inline-block;
-            vertical-align: top;
-        }
-
-        > section {
-            display: inline-block;
-            vertical-align: top;
-            width: 10em;
-            text-transform: uppercase;
-            margin: -1px 6px;
-            flex-grow: 1;
-        }
     }
 }
 
@@ -1471,7 +1457,43 @@ button.chakra,
     }
 }
 
+@media (max-width: 1300px) {
+    .charhealthbar {
+        margin-top: -10px;
+        width: 293px;
+    }
+
+    .player {
+        width: 383px;
+    }
+
+    #player0 .charhealthbar {
+        margin-left: 79px;
+        margin-right: auto;
+    }
+
+    #player1 .charhealthbar {
+        margin-left: auto;
+        margin-right: 79px;
+    }
+
+    .charmove {
+        width: 62px;
+        height: 62px;
+
+        img {
+            width: 100%;
+            height: 100%;
+        }
+    }
+}
+
 @media (max-width: 1173px) {
+    #center {
+        left: initial;
+        right: 140px;
+    }
+
     .player {
         top: 125px;
 
@@ -1490,9 +1512,9 @@ button.chakra,
         right: 25px;
         width: 200px;
 
-        .charhealth {
+        .charhealthbar {
             margin-right: 0 !important;
-            width: 75px;
+            width: 81px;
             z-index: 10;
         }
 
@@ -1514,37 +1536,6 @@ button.chakra,
             > section {
                 display: none;
             }
-        }
-    }
-}
-
-@media (max-width: 1300px) {
-    .charhealth {
-        margin-top: -12px;
-        width: 297px;
-    }
-
-    .player {
-        width: 383px;
-    }
-
-    #player0 .charhealth {
-        margin-left: 77px;
-        margin-right: auto;
-    }
-
-    #player1 .charhealth {
-        margin-left: auto;
-        margin-right: 77px;
-    }
-
-    .charmove {
-        width: 62px;
-        height: 62px;
-
-        img {
-            width: 100%;
-            height: 100%;
         }
     }
 }

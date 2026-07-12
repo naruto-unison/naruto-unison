@@ -318,11 +318,12 @@ component ports =
             , pageSize = 36
             , search = ""
             , unlocked =
-                if Maybe.isJust flags.user then
-                    flags.unlocked
+                case flags.user of
+                    Just _ ->
+                        flags.unlocked
 
-                else
-                    Set.empty
+                    Nothing ->
+                        Set.empty
             , condense =
                 case flags.user of
                     Just user ->
@@ -335,7 +336,7 @@ component ports =
 
         view : Model -> Html Msg
         view st =
-            H.section [ A.id "charSelect" ] <|
+            H.div [ A.id "charSelect" ] <|
                 lazy2 (renderUserBox st)
                     st.userBoxFormType
                     st.team
@@ -647,12 +648,17 @@ charWrapper mchar { team, unlocked, user, war } char =
 
 submitLoginAttrs : List (H.Attribute msg)
 submitLoginAttrs =
-    [ A.class "playButton", A.type_ "submit" ]
+    [ A.class "playButton"
+    , A.type_ "submit"
+    ]
 
 
 switchLoginAttrs : List (H.Attribute Msg)
 switchLoginAttrs =
-    [ A.class "playButton switch", E.onClick SwitchLogin, A.type_ "button" ]
+    [ A.class "playButton switch"
+    , E.onClick SwitchLogin
+    , A.type_ "button"
+    ]
 
 
 renderUserBoxLoggedOut : UserBoxFormType -> Csrf -> Html Msg
@@ -720,7 +726,7 @@ renderUserBoxLoggedOut formType csrf =
 
 renderUserBoxLoggedIn : User -> Html Msg
 renderUserBoxLoggedIn ({ avatar, clan, dna, level, name, rank, xp } as user) =
-    H.div
+    H.section
         [ A.id "userBox"
         , A.class "parchment loggedin"
         , E.onClick <| Preview <| PreviewUser user
@@ -767,24 +773,24 @@ renderUserBox st formType team =
                                 teamNotFull =
                                     Set.size team.set /= Game.teamSize
 
-                                playButton name onClick =
+                                matchButton name onClick =
                                     H.button
                                         [ A.class "parchment playButton"
                                         , E.onClick onClick
                                         , A.disabled teamNotFull
                                         ]
-                                        [ H.text name ]
+                                        [ H.text <| "Start " ++ name ++ " Match" ]
                             in
-                            [ playButton "Start Quick Match" <| Enqueue Quick
-                            , playButton "Start Private Match" <| SetStage Searching
-                            , playButton "Start Practice Match" <| SetStage Practicing
+                            [ matchButton "Quick" <| Enqueue Quick
+                            , matchButton "Private" <| SetStage Searching
+                            , matchButton "Practice" <| SetStage Practicing
                             ]
 
                         Nothing ->
                             []
                    )
         , H.div [ A.class "space" ] []
-        , H.section [ A.id "teamContainer" ]
+        , H.div [ A.id "teamContainer" ]
             [ Characters.keyed "div"
                 [ A.id "teamButtons"
                 , A.class "select"
@@ -829,7 +835,7 @@ renderVsBox stage vs =
             else
                 [ A.class "parchment playButton" ]
     in
-    H.section
+    H.div
         [ A.id "vs"
         , A.classList
             [ ( "parchment", True )
@@ -861,7 +867,7 @@ renderVsBox stage vs =
 
 renderSearchBox : Maybe String -> String -> Html Msg
 renderSearchBox error search =
-    H.section [ A.id "vs", A.class "parchment" ] <|
+    H.div [ A.id "vs", A.class "parchment" ] <|
         [ H.button
             [ A.class "parchment playButton"
             , E.onClick <| Enqueue Private
@@ -925,8 +931,8 @@ renderUserPreview : List String -> Maybe String -> Form -> Html Msg
 renderUserPreview avatars error { avatar, background, condense, name } =
     H.article [ A.class "parchment" ]
         [ H.div [ A.id "accountSettings" ]
-            [ H.p [] <|
-                [ H.label [] [ H.text "Name" ]
+            [ H.label [] <|
+                [ H.span [] [ H.text "Name" ]
                 , H.input
                     [ A.type_ "text"
                     , A.name "name"
@@ -936,8 +942,8 @@ renderUserPreview avatars error { avatar, background, condense, name } =
                     []
                 ]
                     ++ renderWarning error
-            , H.p []
-                [ H.label [] [ H.text "Background" ]
+            , H.label []
+                [ H.span [] [ H.text "Background" ]
                 , H.input
                     [ A.type_ "text"
                     , A.name "background"
@@ -946,7 +952,7 @@ renderUserPreview avatars error { avatar, background, condense, name } =
                     ]
                     []
                 ]
-            , H.p []
+            , H.label []
                 [ H.input
                     [ A.type_ "checkbox"
                     , A.name "condense"
@@ -954,11 +960,9 @@ renderUserPreview avatars error { avatar, background, condense, name } =
                     , E.onInput <| always <| UpdateForm <| Condense <| not condense
                     ]
                     []
-                , H.label []
+                , H.span []
                     [ H.text "Show only the first version of each character in the selection grid" ]
                 ]
-            , H.p []
-                [ H.span [] [ H.text "Avatars" ] ]
             , Keyed.node "section" [ A.id "avatars" ] <|
                 List.map
                     (\ava ->
@@ -987,7 +991,7 @@ renderUserPreview avatars error { avatar, background, condense, name } =
 renderCharPreview : Model -> Character -> Html Msg
 renderCharPreview st char =
     H.article [ A.class "parchment" ] <|
-        [ Characters.keyed "aside" [] (charWrapper (Just char) st) <|
+        [ Characters.keyed "aside" [ A.class "alts" ] (charWrapper (Just char) st) <|
             case Characters.getGroup st.chars char of
                 Nothing ->
                     []
@@ -1138,8 +1142,7 @@ renderCharList ({ chars, condense, index, pageSize, stage } as st) =
                 |> List.take pageSize
     in
     H.section
-        [ A.class "chars"
-        , A.class "parchment"
+        [ A.class "chars parchment"
         , A.id "forTeam"
         , A.hidden <| stage == Practicing
         ]

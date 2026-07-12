@@ -260,16 +260,16 @@ component ports =
             <|
                 [ H.div [ A.id "error" ]
                     [ H.text st.error ]
-                , renderTop st st.ninjas
-                , H.section [ A.id "player0", A.class "player" ] <|
+                , H.div [ A.id "player0", A.class "player" ] <|
                     List.map (renderNinja ninjaData True) allies
-                , H.section [ A.id "player1", A.class "player" ] <|
+                , H.div [ A.id "player1", A.class "player" ] <|
                     List.map (renderNinja ninjaData False) enemies
                 , if List.isEmpty victor then
                     renderCenter st
 
                   else
                     renderGameOver st.player st.dna victor
+                , renderBottom st st.ninjas
                 ]
 
         setGameAnd : Turn -> Model -> List (Cmd Msg) -> ( Model, Cmd Msg )
@@ -459,7 +459,7 @@ component ports =
 
 
 
--- TOP
+-- BOTTOM
 
 
 warInverse : War -> War
@@ -472,8 +472,8 @@ warInverse war =
             Red
 
 
-renderTop : Model -> Array Character -> Html Msg
-renderTop { game, user, viewing, vs, war } characters =
+renderBottom : Model -> Array Character -> Html Msg
+renderBottom { game, user, viewing, vs, war } characters =
     let
         vsWar =
             Maybe.map warInverse war
@@ -481,7 +481,7 @@ renderTop { game, user, viewing, vs, war } characters =
         ( playerInactive, vsInactive ) =
             game.inactive
     in
-    H.section [ A.id "top" ]
+    H.div [ A.id "bottom" ]
         [ lazy4 renderUserBox "account0" user war playerInactive
         , lazy2 renderView characters viewing
         , lazy4 renderUserBox "account1" vs vsWar vsInactive
@@ -490,8 +490,9 @@ renderTop { game, user, viewing, vs, war } characters =
 
 renderUserBox : String -> User -> Maybe War -> Int -> Html Msg
 renderUserBox id user war inactive =
-    H.section
+    H.div
         [ A.id id
+        , A.class "account"
         , E.onMouseOver <| View <| ViewUser user
         ]
         [ H.section []
@@ -499,22 +500,22 @@ renderUserBox id user war inactive =
             , H.p [] [ H.text user.rank ]
             , H.p [ A.class "inactive" ] <| List.repeat inactive <| H.text "X"
             ]
-        , H.div [ A.class "charWrapper" ]
-            [ H.img
+        , H.div [ A.class "charWrapper" ] <|
+            H.img
                 [ A.class "charicon"
                 , A.src user.avatar
                 ]
                 []
-            , case war of
-                Just Red ->
-                    H.div [ A.class "red" ] []
+                :: (case war of
+                        Just Red ->
+                            [ H.div [ A.class "red" ] [] ]
 
-                Just Blue ->
-                    H.div [ A.class "blue" ] []
+                        Just Blue ->
+                            [ H.div [ A.class "blue" ] [] ]
 
-                Nothing ->
-                    H.div [] []
-            ]
+                        Nothing ->
+                            []
+                   )
         ]
 
 
@@ -791,7 +792,7 @@ renderSkill { user, freeChakras, active, characters } button targets skill =
 
         else
             [ icon
-            , H.span [] [ H.text <| String.fromInt cooldown ]
+            , H.span [ A.class "cd" ] [ H.text <| String.fromInt cooldown ]
             ]
 
 
@@ -831,13 +832,13 @@ renderDetail onTeam slot characters ({ classes } as detail) =
         ]
         [ H.div [] <|
             if detail.amount > 1 then
-                [ H.span [] [ H.text <| String.fromInt detail.amount ]
+                [ H.span [ A.class "amount" ] [ H.text <| String.fromInt detail.amount ]
                 , icon
                 ]
 
             else
                 [ icon ]
-        , H.p []
+        , H.span [ A.class "duration" ]
             [ H.text <|
                 if Set.member "Continues" classes then
                     "•"
@@ -921,8 +922,8 @@ renderNinja { characters, acted, toggled, toggle, targetable, untargetable, free
         renderDetails attrs els =
             H.aside attrs <| List.map render els
     in
-    H.section []
-        [ renderDetails [ A.class "channels" ] <|
+    H.div [ A.class "ninja" ]
+        [ renderDetails [ A.class "details channels" ] <|
             List.map Detail.copy (Maybe.values ninja.copies)
                 ++ List.map (Detail.channel slot) ninja.channels
         , H.button
@@ -953,7 +954,7 @@ renderNinja { characters, acted, toggled, toggle, targetable, untargetable, free
                 ninja.skills
         , Keyed.node "div" [ A.class "charhealthbar" ] <|
             renderHpBar anchor ninja
-        , renderDetails [ A.class "statuses" ] <|
+        , renderDetails [ A.class "details statuses" ] <|
             Detail.get ninja
         ]
 
@@ -966,7 +967,7 @@ renderViewCharacter : Character -> Html msg
 renderViewCharacter char =
     H.section []
         [ Render.charIcon char [ A.class "char" ]
-        , H.section []
+        , H.div []
             [ H.h4 [] <| Render.name char
             , H.p [] <| Render.desc char.bio
             ]
