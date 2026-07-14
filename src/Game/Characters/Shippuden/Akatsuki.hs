@@ -64,8 +64,8 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user amount "Susanoo"
-                damage (30 + 5 * stacks)
+                bonus <- 5 `bonusPer` user amount "Susanoo"
+                damage (30 + bonus)
           ]
         }
       ]
@@ -220,8 +220,8 @@ characters =
         , Skill.cooldown  = 3
         , Skill.effects   =
           [ To Enemies do
-                stacks <- user amount "Iron Sand"
-                pierce (10 + 5 * stacks)
+                bonus <- 5 `bonusPer` user amount "Iron Sand"
+                pierce (10 + bonus)
           ]
         }
       ]
@@ -323,7 +323,7 @@ characters =
         , Skill.cost      = [Gen]
         , Skill.effects   =
           [ To Self do
-                stacks <- user amount "jashin"
+                stacks <- 1 `bonusPer` user amount "jashin"
                 apply (fromIntegral $ 1 + stacks) "Prayer" [Endure]
                 hide Permanent "jashin" []
           ,  To Enemy do
@@ -534,8 +534,8 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user amount "Hundred Hungry Sharks"
-                pierce (5 * stacks)
+                bonus <- 5 `bonusPer` user amount "Hundred Hungry Sharks"
+                pierce bonus
           , To Self do
                 remove "Hundred Hungry Sharks"
                 cancelChannel "Thousand Hungry Sharks"
@@ -1350,8 +1350,8 @@ characters =
           ]
         , Skill.effects   =
           [ To Self do
-                controlStacks <- user amount "Control"
-                let maxReduce = min 25 $ 10 + 5 * controlStacks
+                bonus <- 5 `bonusPer` user amount "Control"
+                let maxReduce = min 25 $ 10 + bonus
                 apply 1 skillName
                     [ Reduce [All] Flat maxReduce
                     , Alternate "Summoning: Gedo Statue"
@@ -1385,8 +1385,8 @@ characters =
         , Skill.effects   =
           [ To Self $ tag 1 skillName
           , To Enemy do
-                controlStacks <- user amount "Control"
-                pierce (20 + 5 * controlStacks)
+                bonus <- 5 `bonusPer` user amount "Control"
+                pierce (20 + bonus)
           ]
         , Skill.changes   = changeWithChannel "Summoning: Gedo Statue"
                           $ setCost [Gen]

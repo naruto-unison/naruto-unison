@@ -211,9 +211,9 @@ characters =
           [ To Self $ trapFrom 2 skillName (OnHarmed All) $
                 apply Permanent skillName [Plague]
           , To Enemy do
-                stacksA <- target amount "Conserving Bee Twin Blades"
-                stacksB <- target amount "Magnetic Current"
-                damage (20 + 5 * stacksA + 5 * stacksB)
+                bonusA <- 5 `bonusPer` target amount "Conserving Bee Twin Blades"
+                bonusB <- 5 `bonusPer` target amount "Magnetic Current"
+                damage (20 + bonusA + bonusB)
           ]
         }
       ]
@@ -236,8 +236,8 @@ characters =
         , Skill.classes   = [Physical, Ranged]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- target amount "Magnetic Current"
-                pierce (10 + 5 * stacks)
+                bonus <- 5 `bonusPer` target amount "Magnetic Current"
+                pierce (10 + bonus)
                 addStack skillName
           ]
         }
@@ -250,8 +250,8 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemies do
-                stacks <- target amount "Conserving Bee Twin Blades"
-                pierce (10 + 5 * stacks)
+                bonus <- 5 `bonusPer` target amount "Conserving Bee Twin Blades"
+                pierce (10 + bonus)
                 addStack skillName
           ]
         }
@@ -284,8 +284,8 @@ characters =
         , Skill.effects   =
           [ To Self $ apply Permanent skillName [Reduce [Affliction] Percent 10]
           , To Enemy do
-                stacks <- target amount "Chakra Arms"
-                damage (30 + 5 * stacks)
+                bonus <- 5 `bonusPer` target amount "Chakra Arms"
+                damage (30 + bonus)
           ]
         }
       ]
@@ -297,8 +297,8 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                stacks <- target amount "Chakra Arms"
-                pierce (15 + 5 * stacks)
+                bonus <- 5 `bonusPer` target amount "Chakra Arms"
+                pierce (15 + bonus)
                 apply 1 skillName
                     [ Stun Chakra
                     , Stun Ranged

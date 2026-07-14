@@ -97,8 +97,8 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- target amount "Sand Bomb"
-                damage (15 + 5 * stacks)
+                bonus <- 5 `bonusPer` target amount "Sand Bomb"
+                damage (15 + bonus)
                 apply Permanent "Sand Bomb" []
           ]
         , Skill.changes   = changeWithDefense "Mother's Embrace" targetAll
@@ -124,8 +124,8 @@ characters =
         , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemies do
-                stacks <- target amount "Sand Bomb"
-                damage (15 + 5 * stacks)
+                bonus <- 5 `bonusPer` target amount "Sand Bomb"
+                damage (15 + bonus)
                 apply 1 skillName [Exhaust [All]]
           , To Everyone $ remove "Sand Bomb"
           ]
@@ -681,8 +681,8 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user amount "Amaterasu"
-                afflict (10 + 5 * stacks)
+                bonus <- 5 `bonusPer` user amount "Amaterasu"
+                afflict (10 + bonus)
                 trap 1 skillName (OnAction All) $ asAction $
                     afflict 20
           ]
@@ -856,8 +856,8 @@ characters =
                             "Paper Shuriken"
                 ]
           , To Enemy do
-                stacks <- target amount "Paper Shuriken"
-                damage (15 + 10 * stacks)
+                bonus <- 10 `bonusPer` target amount "Paper Shuriken"
+                damage (15 + bonus)
           ]
         }
       , Skill.new

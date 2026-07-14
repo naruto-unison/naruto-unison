@@ -170,14 +170,14 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Converging Murder"
-        , Skill.desc      = "Aoba directs all of his crows at an enemy, dealing 45 damage to them. Deals 5 additional damage for each stack of [Scattering Crow Swarm] on the target."
+        , Skill.desc      = "Aoba directs all of his crows at an enemy, dealing 45 damage to them. Deals 5 additional damage per stack of [Scattering Crow Swarm] on the target."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Gen, Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                stacks <- target amount "Scattering Crow Swarm"
-                damage (45 + 5 * stacks)
+                bonus <- 5 `bonusPer` target amount "Scattering Crow Swarm"
+                damage (45 + bonus)
           ]
         }
       ]
@@ -210,8 +210,8 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user amount skillName
-                damage (15 + 5 * stacks)
+                bonus <- 5 `bonusPer` user amount skillName
+                damage (15 + bonus)
           , To Self $ remove skillName
           ]
         }
@@ -256,8 +256,8 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user amount "Moon Haze"
-                damage (50 + 25 * stacks)
+                bonus <- 25 `bonusPer` user amount "Moon Haze"
+                damage (50 + bonus)
           , To Self $ remove "Moon Haze"
           ]
         }

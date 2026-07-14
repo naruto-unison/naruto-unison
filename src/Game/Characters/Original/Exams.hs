@@ -82,8 +82,8 @@ characters =
         , Skill.classes   = [Physical]
         , Skill.effects   =
           [ To Self do
-                stacks <- user amount "Umbrella"
-                apply 1 skillName [Reduce [All] Flat (stacks * 10)]
+                bonus <- 10 `bonusPer` user amount "Umbrella"
+                apply 1 skillName [Reduce [All] Flat bonus]
                 remove "Umbrella"
           ]
         }
@@ -108,8 +108,8 @@ characters =
         , Skill.classes   = [Physical, Ranged]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user amount "Umbrella"
-                damage (15 * stacks)
+                bonus <- 15 `bonusPer` user amount "Umbrella"
+                damage bonus
           , To Self $ remove "Umbrella"
           ]
         , Skill.changes   = changePer "Umbrella" \i ->

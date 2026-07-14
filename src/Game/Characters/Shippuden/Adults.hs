@@ -135,8 +135,8 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemies do
-                stacks <- target amount "Burning Ash"
-                afflict (10 * stacks)
+                bonus <- 10 `bonusPer` target amount "Burning Ash"
+                afflict bonus
           , To Self do
                 cancelChannel "Burning Ash"
                 targeting Everyone $ remove "Burning Ash"
@@ -174,8 +174,8 @@ characters =
                 if afterFirstTurn then
                     damage 10
                 else do
-                    stacks <- user amount "Single Gate Release"
-                    damage (10 + 5 * stacks)
+                    bonus <- 5 `bonusPer` user amount "Single Gate Release"
+                    damage (10 + bonus)
           ]
         }
       ]
@@ -186,8 +186,8 @@ characters =
         , Skill.cost      = [Blood, Tai]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user amount "Single Gate Release"
-                damage (35 + 5 * stacks)
+                bonus <- 5 `bonusPer` user amount "Single Gate Release"
+                damage (35 + bonus)
                 apply 1 skillName [Weaken [All] Flat 20]
           ]
         }

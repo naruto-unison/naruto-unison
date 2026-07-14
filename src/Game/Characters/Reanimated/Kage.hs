@@ -178,8 +178,8 @@ characters =
         , Skill.effects   =
           [ To Enemy $ damage 20
           , To Enemies do
-                stacks <- target amount "Space-Time Marking"
-                damage (20 * stacks)
+                bonus <- 20 `bonusPer` target amount "Space-Time Marking"
+                damage bonus
           ]
         }
       ]
@@ -312,16 +312,16 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user amount "Hell Stab"
+                bonus <- 5 `bonusPer` user amount "Hell Stab"
                 targetHealth <- target health
-                damage (20 + 5 * stacks)
+                damage (20 + bonus)
                 targetHealth' <- target health
                 when (targetHealth' < targetHealth) $
                     alterCooldown "Lighting Armor" -1
                 unlessM (target has "Aftershocks") do
                     apply 1 skillName [Stun All]
-                    bonus <- 1 `bonusIf` user has "One-Fingered Assault"
-                    tag (4 - bonus) "Aftershocks"
+                    bonusDur <- 1 `bonusIf` user has "One-Fingered Assault"
+                    tag (4 - bonusDur) "Aftershocks"
           ]
         }
       ]

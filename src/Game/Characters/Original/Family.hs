@@ -51,8 +51,8 @@ characters =
         , Skill.dur       = Action 3
         , Skill.effects   =
           [ To Enemy do
-                helpful <- user numHelpful
-                damage (10 + 5 * helpful)
+                bonus <- 5 `bonusPer` user numHelpful
+                damage (10 + bonus)
           ]
         }
       ]
@@ -63,8 +63,8 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                helpful <- user numHelpful
-                damage (10 + 10 * helpful)
+                bonus <- 10 `bonusPer` user numHelpful
+                damage (10 + bonus)
           ]
         }
       ]

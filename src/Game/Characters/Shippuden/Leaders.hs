@@ -67,8 +67,8 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                stacks <- target amount "Toad Oil Bomb"
-                afflict (10 * stacks)
+                bonus <- 10 `bonusPer` target amount "Toad Oil Bomb"
+                afflict bonus
           , To Self $ apply Permanent skillName
                 [ Alternate "Giant Flame Bomb"
                             "Toad Oil Bomb"

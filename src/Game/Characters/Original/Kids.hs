@@ -195,8 +195,8 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 absorb 1
-                stacks <- target amount "Parasite"
-                afflict (20 + 5 * stacks)
+                bonus <- 5 `bonusPer` target amount "Parasite"
+                afflict (20 + bonus)
           ]
         }
       ]
@@ -649,11 +649,11 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemies do
-                stacks <- target amount "Unsealing Technique"
-                damage (5 + 10 * stacks)
-                bonus <- 1 `bonusIf` user has "Rising Twin Dragons"
-                apply (1 + bonus) skillName
-                    [Weaken [Physical, Chakra, Summon] Flat (5 + 10 * stacks)]
+                bonus <- 10 `bonusPer` target amount "Unsealing Technique"
+                damage (5 + bonus)
+                durBonus <- 1 `bonusIf` user has "Rising Twin Dragons"
+                apply (1 + durBonus) skillName
+                    [Weaken [Physical, Chakra, Summon] Flat (5 + bonus)]
                 remove "Unsealing Technique"
           ,  To Self $ remove "Rising Twin Dragons"
           ]

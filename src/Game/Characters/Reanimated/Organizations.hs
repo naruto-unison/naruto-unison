@@ -292,8 +292,8 @@ characters =
         , Skill.cooldown  = 4
         , Skill.effects   =
           [ To Enemy do
-                affected <- numAffected "Electricity"
-                pierce (30 + 10 * affected)
+                bonus <- 10 `bonusPer` numAffected "Electricity"
+                pierce (30 + bonus)
                 targeting Everyone $ hasten 1 "Electricity"
           ]
         }
@@ -312,10 +312,10 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                affected <- numAffected skillName
+                bonus <- 5 `bonusPer` numAffected skillName
                 targeting Everyone $ whenM (target has skillName) $
                     prolong 1 skillName
-                pierce (20 + 5 * affected)
+                pierce (20 + bonus)
                 userSlot <- user slot
                 bomb 1 skillName
                     [ Block userSlot ]
@@ -541,10 +541,10 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                stacksA <- target amount "Chakra Clay Trap"
-                stacksB <- target amount "Sonar Bat Bombs"
-                stacksC <- target amount "Jellyfish Explosives"
-                pierce (20 + 5 * stacksA + 5 * stacksB + 10 * stacksC)
+                bonusA <- 5 `bonusPer` target amount "Chakra Clay Trap"
+                bonusB <- 5 `bonusPer` target amount "Sonar Bat Bombs"
+                bonusC <- 10 `bonusPer` target amount "Jellyfish Explosives"
+                pierce (20 + bonusA + bonusB + bonusC)
           , To Self $ apply 1 skillName [Invulnerable Mental]
           ]
         }

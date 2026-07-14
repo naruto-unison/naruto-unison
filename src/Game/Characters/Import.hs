@@ -12,7 +12,7 @@ module Game.Characters.Import
   , channeling, inGroup
   , trigger
   , targeting
-  , bonusIf
+  , bonusIf, bonusPer
   , anyoneHas
   , numAffected, numDeadAllies
   ) where
@@ -111,6 +111,10 @@ bonusIf bonus condition = getBonus <$> condition
   where
     getBonus True  = bonus
     getBonus False = 0
+
+-- | Returns the bonus times the monadic condition succeeds.
+bonusPer :: ∀ m. MonadPlay m => Int -> m Int -> m Int
+bonusPer bonus condition = (bonus *) <$> condition
 
 -- | True if user 'N.isChanneling'.
 channeling :: ∀ m. MonadPlay m => Text -> m Bool
