@@ -573,7 +573,7 @@ button.chakra,
 }
 
 .charhealthbar {
-    height: 12px;
+    height: 15px;
     background-color: var(--char-border);
     position: relative;
 
@@ -588,12 +588,12 @@ button.chakra,
     }
 
     span {
-        z-index: 2;
         font-size: 9px;
         color: #fff;
         position: absolute;
         left: 0;
         right: 0;
+        top: 2px;
     }
 
     div {
@@ -795,7 +795,8 @@ button.chakra,
         right: 0;
         color: #fff;
         text-align: center;
-        font-size: 2em;
+        font-size: 18px;
+        font-weight: bold;
         -webkit-text-stroke: 2px rgba(0, 0, 0, 0.8);
     }
 }
@@ -818,6 +819,7 @@ button.chakra,
 .ghost {
     --ghost: #666;
     color: var(--ghost);
+    opacity: 0.65;
 
     div {
         border-color: var(--ghost);

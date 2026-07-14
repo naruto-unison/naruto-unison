@@ -26,23 +26,6 @@ a {
     }
 }
 
-article {
-    sup {
-        margin-left: -4px;
-    }
-
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-        sup {
-            margin-left: 1px;
-        }
-    }
-}
-
 body,
 html {
     width: 100%;

@@ -9,6 +9,7 @@ html {
         auto;
 }
 
+a,
 button,
 img[role="button"] {
     cursor:
