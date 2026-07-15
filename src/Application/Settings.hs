@@ -13,14 +13,14 @@ module Application.Settings
 import ClassyPrelude
 import Yesod.Static
 
-import qualified Control.Exception as Exception
-import           Data.Aeson ((.!=), (.:), (.:?), FromJSON, Result(..), Value)
+import           Data.Aeson ((.!=), (.:), (.:?), FromJSON(..), Result(..), Value)
 import qualified Data.Aeson as A
 import qualified Data.Char as Char
 import           Data.Default (def)
 import qualified Data.FileEmbed as FileEmbed
 import qualified Data.Yaml as Yaml
 import           Database.Persist.Postgresql (PostgresConf)
+import           GHC.Stack (HasCallStack)
 import qualified Language.Haskell.TH.Syntax as TH
 import qualified Network.Wai.Handler.Warp as Warp
 import qualified Yesod.Default.Config2 as DefaultConfig
@@ -171,30 +171,27 @@ widgetFileSettings = def
 -- The rest of this file contains settings which rarely need changing by a
 -- user.
 
-widgetFile :: String -> TH.Q TH.Exp
-widgetFile
-    | reloadTemplates compileTimeAppSettings =
-                  Util.widgetFileReload widgetFileSettings
-    | otherwise = Util.widgetFileNoReload widgetFileSettings
-
--- | Raw bytes at compile time of @config/settings.yml@
-configSettingsYmlBS :: ByteString
-configSettingsYmlBS = $(FileEmbed.embedFile DefaultConfig.configSettingsYml)
-
 -- | @config/settings.yml@, parsed to a @Value@.
-configSettingsYmlValue :: Value
-configSettingsYmlValue = case Yaml.decodeEither' configSettingsYmlBS of
-    Left decodeError -> Exception.throw decodeError
+configSettingsYmlValue :: HasCallStack => Value
+configSettingsYmlValue = case Yaml.decodeEither' embeddedBS of
+    Left decodeError -> error $ show decodeError
     Right decoded    -> decoded
+  where
+    embeddedBS = $(FileEmbed.embedFile DefaultConfig.configSettingsYml)
 
 -- | A version of @Settings@ parsed at compile time from @config/settings.yml@.
-compileTimeAppSettings :: Settings
+compileTimeAppSettings :: HasCallStack => Settings
 compileTimeAppSettings = case A.fromJSON json of
     Error e          -> error e
     Success settings -> settings
   where
     json = DefaultConfig.applyEnvValue False mempty configSettingsYmlValue
 
+widgetFile :: String -> TH.Q TH.Exp
+widgetFile
+    | compileTimeAppSettings.reloadTemplates =
+                  Util.widgetFileReload widgetFileSettings
+    | otherwise = Util.widgetFileNoReload widgetFileSettings
 
 -- | How static files should be combined.
 combineSettings :: CombineSettings
