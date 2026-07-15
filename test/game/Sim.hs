@@ -83,6 +83,7 @@ targetSlot Enemy    = Slot.all !! 3
 targetSlot Enemies  = Slot.all !! 3
 targetSlot XEnemies = Slot.all !! 4
 targetSlot REnemy   = Slot.all !! 5
+targetSlot RXEnemy  = Slot.all !! 5
 targetSlot Everyone = Slot.all !! 0
 
 targets :: ∀ m. MonadGame m => Target -> m Ninja
