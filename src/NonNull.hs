@@ -44,9 +44,10 @@ type instance Element (NonNull f a) = Element (f a)
 
 instance IsList (f a) => IsList (NonNull f a) where
     type Item (NonNull f a) = Item (f a)
-    fromList [] = error "NonNull.fromList: empty list"
-    fromList xs = NonNull $ fromList xs
-    toList      = toList . toNullable
+    fromList []    = error "NonNull.fromList: empty list"
+    fromList xs    = NonNull $ fromList xs
+    fromListN i xs = NonNull $ fromListN i xs
+    toList         = toList . toNullable
 
 instance MonoTraversable (f a) => MonoTraversable (NonNull f a) where
     otraverse f (NonNull xs) =  NonNull <$> otraverse f xs
