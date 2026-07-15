@@ -23,6 +23,7 @@ import qualified Class.Play as P
 import           Class.Random (MonadRandom)
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
+import qualified Game.Model.Class as Class
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
@@ -239,7 +240,7 @@ makeTrap ctx@Context { continues
       | continues && dur <= 1 = insertSet Continues
       | continues || new      = deleteSet Continues
       | otherwise             = deleteSet Continues . deleteSet Invisible
-    baseClasses = classes ++ skill.classes
+    baseClasses = classes ++ (skill.classes `intersection` Class.inherited)
     extra = insertIf (Hidden ∈ baseClasses) Unremovable
           . insertSet Nonstacking
           . setContinues

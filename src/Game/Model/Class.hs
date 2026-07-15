@@ -1,6 +1,7 @@
 module Game.Model.Class
   ( Class(..)
   , name, lower
+  , inherited
   , visible
   ) where
 
@@ -9,7 +10,7 @@ import ClassyPrelude
 import           Data.Aeson (ToJSON(..))
 import qualified Data.Aeson as A
 import qualified Data.Enum.Memo as Enum
-import           Data.Enum.Set (AsEnumSet(..))
+import           Data.Enum.Set (AsEnumSet(..), EnumSet)
 import           Text.Blaze (ToMarkup(..))
 
 import Class.Display (Display(..))
@@ -75,6 +76,24 @@ instance Display Class where
 
 visible :: Class -> Bool
 visible = (< Hidden)
+
+inherited :: EnumSet Class
+inherited = setFromList
+    [ Invisible
+    , Soulbound
+    , Controlled
+    , Bane
+    , Necromancy
+    , Reanimation
+    , Unremovable
+    , Hidden
+    , Resource
+    , Nonstacking
+    , Atemporal
+    , All
+    , NonBane
+    , Continues
+    ]
 
 name :: Class -> Text
 name Nonstacking    = "Non-stacking"

@@ -14,6 +14,7 @@ import qualified Class.Play as P
 import qualified Game.Engine.Effects as Effects
 import qualified Game.Engine.Ninjas as Ninjas
 import           Game.Model.Channel (Channeling(..))
+import qualified Game.Model.Class as Class
 import           Game.Model.Class (Class(..))
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context as Context
@@ -141,7 +142,7 @@ makeStatus StatusParams
       | continues && dur <= 1 = insertSet Continues
       | continues || new      = deleteSet Continues
       | otherwise             = deleteSet Continues . deleteSet Invisible
-    baseClasses = classes ++ skill.classes
+    baseClasses = classes ++ (skill.classes `intersection` Class.inherited)
     noremove    = null effects && Bane ∉ baseClasses
                   || Hidden ∈ baseClasses
                   || user == target && any (not . Effect.helpful) effects

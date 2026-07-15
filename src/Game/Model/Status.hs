@@ -9,6 +9,7 @@ module Game.Model.Status
 import ClassyPrelude
 
 import           Data.Enum.Set (EnumSet)
+import qualified Game.Model.Class as Class
 import           Game.Model.Class (Class)
 import           Game.Model.Duration (Duration)
 import           Game.Model.Effect (Effect)
@@ -25,8 +26,8 @@ new user dur skill = Status
     , user
     , skill
     , effects = mempty
-    , classes = skill.classes
-    , bombs   =  mempty
+    , classes = skill.classes `intersection` Class.inherited
+    , bombs   = mempty
     , dur
     }
 
