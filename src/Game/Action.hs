@@ -171,6 +171,8 @@ chooseTargets XEnemies = fromContext \Context{target, user} ->
 
 chooseTargets REnemy = chooseRandomTarget =<< chooseTargets Enemies
 
+chooseTargets RXEnemy = chooseRandomTarget =<< chooseTargets XEnemies
+
 chooseTargets Everyone = return Slot.all
 
 -- | Directs an effect tuple in a 'Skill' to a target. Uses 'wrap' internally.

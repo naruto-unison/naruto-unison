@@ -142,11 +142,12 @@ swap skill@Skill{classes}
     f Allies   = Enemies
     f XAllies  = Enemies
     f RAlly    = REnemy
-    f RXAlly   = REnemy
+    f RXAlly   = RXEnemy
     f Enemy    = RAlly
     f REnemy   = RAlly
     f Enemies  = Allies
     f XEnemies = XAllies
+    f RXEnemy  = RXAlly
     f Everyone = Everyone
 
 -- | Turns single-target effects into AoE effects.

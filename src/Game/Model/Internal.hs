@@ -379,6 +379,7 @@ data Target
     | Enemy    -- ^ Specific enemy
     | Enemies  -- ^ All enemies
     | REnemy   -- ^ Random enemy
+    | RXEnemy -- ^ Random enemy excluding 'Enemy'
     | XEnemies -- ^ Enemies excluding 'Enemy'
     | Everyone -- ^ All 'Ninja's
     deriving (Bounded, Enum, Eq, Ord, Show, Generic)

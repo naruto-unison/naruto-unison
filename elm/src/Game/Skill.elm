@@ -86,6 +86,9 @@ isEnemy target =
         REnemy ->
             True
 
+        RXEnemy ->
+            True
+
         XEnemies ->
             True
 

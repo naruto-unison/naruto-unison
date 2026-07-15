@@ -620,12 +620,13 @@ type Target  =
     | Enemy
     | Enemies
     | REnemy
+    | RXEnemy
     | XEnemies
     | Everyone
 
 jsonDecTarget : Json.Decode.Decoder ( Target )
 jsonDecTarget =
-    let jsonDecDictTarget = Dict.fromList [("Self", Self), ("Ally", Ally), ("Allies", Allies), ("XAlly", XAlly), ("XAllies", XAllies), ("RAlly", RAlly), ("RXAlly", RXAlly), ("Enemy", Enemy), ("Enemies", Enemies), ("REnemy", REnemy), ("XEnemies", XEnemies), ("Everyone", Everyone)]
+    let jsonDecDictTarget = Dict.fromList [("Self", Self), ("Ally", Ally), ("Allies", Allies), ("XAlly", XAlly), ("XAllies", XAllies), ("RAlly", RAlly), ("RXAlly", RXAlly), ("Enemy", Enemy), ("Enemies", Enemies), ("REnemy", REnemy), ("RXEnemy", RXEnemy), ("XEnemies", XEnemies), ("Everyone", Everyone)]
     in  decodeSumUnaries "Target" jsonDecDictTarget
 
 jsonEncTarget : Target -> Value
@@ -641,6 +642,7 @@ jsonEncTarget  val =
         Enemy -> Json.Encode.string "Enemy"
         Enemies -> Json.Encode.string "Enemies"
         REnemy -> Json.Encode.string "REnemy"
+        RXEnemy -> Json.Encode.string "RXEnemy"
         XEnemies -> Json.Encode.string "XEnemies"
         Everyone -> Json.Encode.string "Everyone"
 
