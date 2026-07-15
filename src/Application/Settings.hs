@@ -1,10 +1,9 @@
-{-# LANGUAGE CPP             #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 -- | Yesod settings.
 module Application.Settings
   ( Settings(..)
-  , configSettingsYmlValue
+  , compileTimeAppSettings, configSettingsYmlValue
   , widgetFile
   , DNA(..)
   , combineStylesheets
@@ -27,6 +26,8 @@ import qualified Network.Wai.Handler.Warp as Warp
 import qualified Yesod.Default.Config2 as DefaultConfig
 import           Yesod.Default.Util (WidgetFileSettings)
 import qualified Yesod.Default.Util as Util
+
+import Application.Definitions (isDevelopment)
 
 dashCase :: String -> String
 dashCase (x:xs)
@@ -117,7 +118,7 @@ instance FromJSON Settings where
         port                   <- o .: "port"
         ipFromHeader           <- o .: "ip-from-header"
 
-        dev                    <- o .:? "development"      .!= defaultDev
+        dev                    <- o .:? "development"      .!= isDevelopment
 
         detailedRequestLogging <- o .:? "detailed-logging" .!= dev
         shouldLogAll           <- o .:? "should-log-all"   .!= dev
@@ -157,12 +158,6 @@ instance FromJSON Settings where
             , analytics
             , authDummyLogin
             }
-      where
-#ifdef DEVELOPMENT
-            defaultDev = True
-#else
-            defaultDev = False
-#endif
 
 -- | Settings for 'widgetFile', such as which template languages to support and
 -- default Hamlet settings.
@@ -207,10 +202,10 @@ combineSettings = def
 
 combineStylesheets :: TH.Name -> [Route Static] -> TH.Q TH.Exp
 combineStylesheets = combineStylesheets'
-    (skipCombining compileTimeAppSettings)
+    compileTimeAppSettings.skipCombining
     combineSettings
 
 combineScripts :: TH.Name -> [Route Static] -> TH.Q TH.Exp
 combineScripts = combineScripts'
-    (skipCombining compileTimeAppSettings)
+    compileTimeAppSettings.skipCombining
     combineSettings

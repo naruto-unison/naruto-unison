@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP             #-}
 {-# LANGUAGE QuasiQuotes     #-}
 {-# LANGUAGE TemplateHaskell #-}
 
@@ -29,10 +28,7 @@ import           Data.Cache (Cache)
 import qualified Data.CaseInsensitive
 import           Data.HashTable (HashTable)
 import qualified Data.Time.Format as Format
-import           Database.Persist.Sql (ConnectionPool, SqlBackend, SqlPersistT, runSqlPool)
-#ifndef DEVELOPMENT
-import           Database.Persist.Sql (fromSqlKey)
-#endif
+import           Database.Persist.Sql (ConnectionPool, SqlBackend, SqlPersistT, fromSqlKey, runSqlPool)
 import           Network.HTTP.Client.Conduit (HasHttpManager(..), Manager)
 import qualified Network.Mail.Mime as Mail
 import qualified Text.Blaze.Html.Renderer.Utf8 as Blaze
@@ -147,16 +143,14 @@ origin x             = x
 -- Incorrect usage will lead to clients seeing outdated cached versions of pages
 -- because the server refuses to send them updates.
 unchanged304 :: Handler ()
-#ifdef DEVELOPMENT
-unchanged304 = return ()
-#else
-unchanged304 = whenM (isNothing <$> getMessage) do
+unchanged304
+  | Settings.compileTimeAppSettings.reloadTemplates = return ()
+  | otherwise = whenM (isNothing <$> getMessage) do
     tag <- maybeAdd <$> getsYesod timestamp <*> maybeAuthId
     setEtag $ tshow tag
   where
     maybeAdd x (Just key) = fromSqlKey key + x
     maybeAdd x Nothing    = x
-#endif
 
 -- | Sets the
 -- [Last-Modified](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Last-Modified)

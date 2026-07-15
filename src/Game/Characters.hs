@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP             #-}
+{-# LANGUAGE CPP #-}
 -- | The character database.
 -- Contains everything in the [Characters](src/Characters/) folder.
 module Game.Characters
