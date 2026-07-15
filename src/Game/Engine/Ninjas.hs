@@ -261,20 +261,14 @@ checkDestructibleEffects xs n
    hasEffects Destructible{effects} = not $ null effects
 
 addBarrier :: Context -> Destructible -> Ninja -> Ninja
-addBarrier context barrier n = case barrier'.amount `compare` 0 of
-    LT -> n { N.defense = Destructible.negate barrier' .: n.defense }
-    EQ -> n
-    GT -> checkEffects barrier'.effects n { N.barrier = barrier' .: n.barrier }
-  where
-    barrier' = turnBonus context n barrier
+addBarrier context barrier@Destructible{effects} n =
+    checkEffects effects
+    n { N.barrier = turnBonus context n barrier .: n.barrier }
 
 addDefense :: Context -> Destructible -> Ninja -> Ninja
-addDefense context defense n = case defense'.amount `compare` 0 of
-    LT -> n { N.barrier = Destructible.negate defense' .: n.barrier }
-    EQ -> n
-    GT -> checkEffects defense'.effects n { N.defense = defense' .: n.defense }
-  where
-    defense' = turnBonus context n defense
+addDefense context defense@Destructible{effects} n =
+    checkEffects effects
+    n { N.defense = turnBonus context n defense .: n.defense }
 
 increaseDefense :: Int -- ^ 'Destructible.amount'.
                 -> ID -- ^ 'Destructible.name'.

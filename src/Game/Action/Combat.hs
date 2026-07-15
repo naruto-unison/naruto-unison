@@ -97,10 +97,10 @@ barricade dur amount = barricade' dur amount []
 -- destroy the user's 'N.barrier' before they can damage the target.
 -- Destructible barrier can be temporary or permanent.
 barricade' :: ∀ m. MonadPlay m => Duration -> Int -> [Effect] -> m ()
-barricade' dur amount effects = do
+barricade' dur amount effects = void $ runMaybeT do
+    destr <- Combat.build dur amount effects
     context@Context{target} <- P.context
-    P.modify target . Ninjas.addBarrier context
-        =<< Combat.build dur amount effects
+    P.modify target $ Ninjas.addBarrier context destr
 
 -- | Adds new 'Destructible' 'N.defense'.
 -- Destructible defense acts as an extra bar in front of the 'N.health'
@@ -116,12 +116,10 @@ defend dur amount = defend' dur amount []
 -- destroy the target's 'N.defense' before they can damage the target.
 -- Destructible defense can be temporary or permanent.
 defend' :: ∀ m. MonadPlay m => Duration -> Int -> [Effect] -> m ()
-defend' dur amount effects = do
-    context@Context{user, target} <- P.context
-    P.modify target . Ninjas.addDefense context
-        =<< Combat.build dur amount effects
-    when (amount > 0)
-        $ P.trigger user [OnDefend]
+defend' dur amount effects = void $ runMaybeT do
+    destr <- Combat.build dur amount effects
+    context@Context{target} <- P.context
+    P.modify target $ Ninjas.addDefense context destr
 
 -- | Kills the target if their health is below a threshold.
 -- The target can survive if it has the 'Endure' effect.

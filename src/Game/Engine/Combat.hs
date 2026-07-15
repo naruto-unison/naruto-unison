@@ -29,15 +29,17 @@ import qualified Game.Model.Ninja as N
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Trigger (Trigger(..))
 
-build :: ∀ m. MonadPlay m => Duration -> Int -> [Effect] -> m Destructible
+build :: ∀ m. MonadPlay m => Duration -> Int -> [Effect] -> MaybeT m Destructible
 build dur amount effects = do
-    Context{skill, user} <- P.context
     n <- P.nUser
+    let amount' = amount + Effects.build n
+    guard $ amount' > 0
+    Context{skill, user} <- P.context
     return Destructible
         { user
         , skill
         , dur
-        , amount = amount + Effects.build n
+        , amount = amount'
         , effects
         }
 

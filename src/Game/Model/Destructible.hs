@@ -1,7 +1,6 @@
 module Game.Model.Destructible
     ( Destructible(..)
     , name
-    , negate
     ) where
 
 import ClassyPrelude hiding (negate)
@@ -11,6 +10,3 @@ import qualified Game.Model.Internal
 
 name :: Destructible -> Text
 name Destructible{skill = Skill{name = skillName}} = skillName
-
-negate :: Destructible -> Destructible
-negate b = b { amount = -b.amount, effects = mempty }
