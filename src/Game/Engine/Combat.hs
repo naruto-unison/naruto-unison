@@ -76,22 +76,22 @@ userAdjust atk classes nUser x = x
     - weaken Flat
   where
     strengthen = Effects.strengthen classes nUser
-    weaken
-      | atk == Attack.Afflict = const 0
-      | otherwise             = Effects.weaken classes nUser
+    weaken     = Effects.weaken weakenClasses nUser
+    weakenClasses
+      | atk == Attack.Afflict = singleton Affliction
+      | otherwise             = insertSet Affliction classes
 
 targetAdjust :: Attack -> EnumSet Class -> Ninja -> Float -> Float
 targetAdjust atk classes nTarget x = x
-    * max 0 (1 + bleed Percent - reduceAfflic Percent - reduce Percent)
+    * max 0 (1 + bleed Percent - reduce Percent)
     + bleed Flat
-    - reduceAfflic Flat
     - reduce Flat
   where
-    bleed        = Effects.bleed classes nTarget
-    reduceAfflic = Effects.reduce (singleton Affliction) nTarget
-    reduce amt
-      | atk == Attack.Damage = Effects.reduce classes nTarget amt
-      | otherwise            = 0
+    bleed  = Effects.bleed classes nTarget
+    reduce = Effects.reduce reduceClasses nTarget
+    reduceClasses
+      | atk == Attack.Damage = insertSet Affliction classes
+      | otherwise            = singleton Affliction
 
 -- | Damage formula.
 formula :: Attack -- ^ Attack type.

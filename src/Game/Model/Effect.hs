@@ -496,6 +496,10 @@ instance Display Effect where
     display (Unreduce x) =
         "Reduces damage reduction skills by " ++ display x ++ "."
 
+    display (Weaken (member Affliction -> True) amt x) =
+        "Weakens all damage—including piercing and affliction—by "
+        ++ displayAmt amt x ++ "."
+
     display (Weaken classes amt x) =
         "Weakens " ++ list classes ++ " damage by " ++ displayAmt amt x
         ++ ". Does not affect affliction damage."
