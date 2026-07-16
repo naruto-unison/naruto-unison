@@ -136,7 +136,7 @@ instance Parseable LText where
 
 parseOnly :: ∀ a i. (Parse a, Parseable i, Parsed (ParseBacking i))
           => i -> Either String a
-parseOnly = parseOnly' $ parser @a @(ParseBacking i)
+parseOnly = parseOnly' parser
 
 parseToEnd :: ∀ a i. (Parse a, Parseable i, Parsed (ParseBacking i))
            => i -> Either String a
