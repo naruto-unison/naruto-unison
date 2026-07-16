@@ -12,11 +12,9 @@ import Data.Text (dropWhileEnd)
 import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
 import           Game.Model.Chakras (Chakra(..))
-import           Game.Model.Class (Class(..))
 import           Game.Model.Group (Group(..))
-import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
-import           Util ((∈), (∉), (?), insertIf, lazyMapFromKeyed)
+import           Util ((∈), (?), insertIf, lazyMapFromKeyed)
 
 #ifdef DEVELOPMENT
 import qualified Game.Characters.Development
@@ -57,7 +55,7 @@ processCharacter :: Character -> Character
 processCharacter char =
     char { Character.ident  = Character.identFrom char.category char.name
          , Character.groups = groups ++ char.groups
-         , Character.skills = (processSkill <$>) <$> char.skills
+         , Character.skills = (Skill.withExtraClasses <$>) <$> char.skills
          }
   where
     chakras = concatMap Skill.cost $ join char.skills
@@ -80,10 +78,3 @@ dedupAlternates char@Character{skills}
       where
         deduped = filter ((/= x.name) . dropWhileEnd (== ' ') . Skill.name) xs
 
-processSkill :: Skill -> Skill
-processSkill skill@Skill{classes} = skill { Skill.classes = added ++ classes }
-  where
-    added = insertIf (Bane ∉ classes) NonBane
-          . insertIf (Mental ∉ classes) NonMental
-          . insertIf (Ranged ∉ classes) NonRanged
-          $ singleton All
