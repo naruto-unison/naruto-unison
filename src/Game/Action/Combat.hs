@@ -118,7 +118,8 @@ defend dur amount = defend' dur amount []
 defend' :: ∀ m. MonadPlay m => Duration -> Int -> [Effect] -> m ()
 defend' dur amount effects = void $ runMaybeT do
     destr <- Combat.build dur amount effects
-    context@Context{target} <- P.context
+    context@Context{target, user} <- P.context
+    P.trigger user [OnDefend]
     P.modify target $ Ninjas.addDefense context destr
 
 -- | Kills the target if their health is below a threshold.
