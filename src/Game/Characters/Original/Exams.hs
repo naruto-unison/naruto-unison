@@ -30,7 +30,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Eight Trigrams Palm Rotation"
-        , Skill.desc      = "Hanabi spins at an enemy, dealing 15 damage to them for 2 turns. If they use a skill that stuns or disables, they will be stunned for 1 turn. Costs [r] during [Unyielding Tenacity]."
+        , Skill.desc      = "Hanabi spins at an enemy, dealing 15 damage to them for 2 turns. If they use a skill that stuns or disables while active, they will be stunned for 1 turn. Costs [r] during [Unyielding Tenacity]."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
@@ -397,7 +397,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Chakra Focus"
-        , Skill.desc      = "Yoroi infuses his attacks with a field of chakra. For 2 turns, using a skill causes it to absorb 1 random chakra from the enemy team each turn of its action duration."
+        , Skill.desc      = "Yoroi infuses his attacks with a field of chakra. For 2 turns, his other skills also absorb 1 random chakra from the enemy team."
         , Skill.classes   = [Chakra, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3
@@ -413,7 +413,7 @@ characters =
     [SoundVillage, Orochimaru, Genin, Rogue, Water]
     [ [ Skill.new
         { Skill.name      = "Flexible Twisting Joints"
-        , Skill.desc      = "Misumi latches on to a target with his startlingly loose joints, providing 15 points of damage reduction for 1 turn to an ally or 15 damage to an enemy."
+        , Skill.desc      = "Misumi latches on to a target with his startlingly loose joints, providing 15 points of damage reduction for 1 turn to an ally or dealing 15 damage to an enemy."
         , Skill.classes   = [Physical, Melee, Bypassing]
         , Skill.cost      = [Rand]
         , Skill.effects   =
@@ -424,7 +424,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Soft Physique Modification"
-        , Skill.desc      = "Misumi wraps around an enemy. For 2 turns, skills that enemies use on Misumi are reflected onto the target. During this time, the target cannot reduce damage or become invulnerable."
+        , Skill.desc      = "Misumi wraps around an enemy. For 2 turns, skills that enemies use on Misumi are reflected onto the target. While active, the target cannot reduce damage or become invulnerable."
         , Skill.classes   = [Physical, Melee, Soulbound, Unremovable, Uncounterable, Unreflectable, Atemporal]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 4

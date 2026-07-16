@@ -62,7 +62,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Adamantine Sealing Chains"
-        , Skill.desc      = "A cage of chain-shaped chakra seals an enemy, removing the effects of helpful skills from them and stunning them for 2 turns. While active, the target is invulnerable to allies as well as enemies."
+        , Skill.desc      = "A cage of chain-shaped chakra seals an enemy, removing the effects of helpful skills from them and stunning them for 2 turns. While active, the target is invulnerable to both enemies and allies."
         , Skill.classes   = [Chakra, Ranged, Bypassing, Uncounterable, Unreflectable]
         , Skill.cost      = [Blood, Gen]
         , Skill.cooldown  = 4
@@ -85,7 +85,7 @@ characters =
     [LeafVillage, Jonin, Jinchuriki, Sage, Sensor, TeamLeader, Fire, Wind, Lightning, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Flying Raijin"
-        , Skill.desc      = "Minato teleports to a target, becoming invulnerable for 1 turn. If he teleports to an enemy, he deals 30 damage. If he teleports to an ally, the ally becomes invulnerable for 1 turn."
+        , Skill.desc      = "Minato teleports to a target, becoming invulnerable for 1 turn. If he teleports to an enemy, he deals 30 damage to them. If he teleports to an ally, he provides them with invulnerability for 1 turn."
         , Skill.classes   = [Physical, Melee, Bypassing]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
@@ -177,7 +177,7 @@ characters =
     [LeafVillage, Kage, Sage, Earth, Water, Fire, Wind, Lightning, Yin, Yang, Senju]
     [ [ Skill.new
         { Skill.name      = "Wooden Dragon"
-        , Skill.desc      = "A vampiric dragon made of wood drains chakra from Hashirama's enemies, making him invulnerable to chakra skills for 2 turns. Each turn, Hashirama absorbs 1 random chakra from his enemies."
+        , Skill.desc      = "A vampiric dragon made of wood drains chakra from Hashirama's enemies, making him invulnerable to chakra skills for 2 turns. Each turn, Hashirama absorbs 1 random chakra from the enemy team. Costs [b] and lasts for 3 turns during [Veritable 1000-Armed Kannon]."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 2
@@ -193,7 +193,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Wood Golem"
-        , Skill.desc      = "A giant humanoid statue attacks an enemy, dealing 20 damage for 2 turns. While active, Hashirama is invulnerable to physical skills."
+        , Skill.desc      = "A giant humanoid statue attacks an enemy, dealing 20 damage for 2 turns. While active, Hashirama is invulnerable to physical skills. Costs [b] and lasts for 3 turns during [Veritable 1000-Armed Kannon]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 2
@@ -208,7 +208,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Veritable 1000-Armed Kannon"
-        , Skill.desc      = "A titanic many-handed Buddha statue looms over the battlefield, providing 30 permanent destructible defense to Hashirama and his allies. For the next 3 turns, [Wooden Dragon] and [Wood Golem] cost [b] and last 1 additional turn."
+        , Skill.desc      = "A titanic many-handed Buddha statue looms over the battlefield, providing 30 permanent destructible defense to Hashirama and his allies and empowering his other skills for 3 turns."
         , Skill.classes   = [Physical, Nonstacking]
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 5
@@ -357,7 +357,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sharingan"
-        , Skill.desc      = "Obito targets an ally. For 4 turns, Obito gains 15 points of damage reduction, and if Obito dies, the ally will gain 5 points of damage reduction and deal 5 additional non-affliction damage."
+        , Skill.desc      = "Obito targets an ally. For 4 turns, Obito gains 15 points of damage reduction, and if Obito dies, he permanently provides the ally with 5 points of damage reduction and strengthens their non-affliction damage by 5."
         , Skill.classes   = [Mental, Unreflectable, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4

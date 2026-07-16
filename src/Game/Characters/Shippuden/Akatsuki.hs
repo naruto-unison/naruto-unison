@@ -784,7 +784,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Doppelgänger"
-        , Skill.desc      = "Zetsu seizes an enemy and alters his chakra to match their own, dealing 20 damage, absorbing 1 random chakra, and stunning their non-mental skills for 1 turn. The last skill they used replaces this skill for 1 turn. Copied skills cannot copy other skills and do not transform into alternates. As Black Zetsu, this skill becomes [Body Coating][b][g]."
+        , Skill.desc      = "Zetsu seizes an enemy and alters his chakra to match their own, dealing 20 damage, absorbing 1 random chakra, and stunning their physical and chakra skills for 1 turn. The last skill they used replaces this skill for 1 turn. Copied skills cannot copy other skills and do not transform into alternates. As Black Zetsu, this skill becomes [Body Coating][b][g]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 1
@@ -823,7 +823,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Kamui"
-        , Skill.desc      = "Tobi uses a rare space-time technique to banish a target to his pocket dimension for 3 turns, making them invulnerable to allies as well as enemies and unable to affect anyone else. If used on an ally, cures all harmful effects on them. If used on an enemy, deals 20 piercing damage, purges them of helpful effects, and prevents them from reducing damage or becoming invulnerable. Ends if Tobi uses [Kamui] or [Kamui Strike] on someone else."
+        , Skill.desc      = "Tobi uses a rare space-time technique to banish a target to his pocket dimension for 3 turns, making them invulnerable to both enemies and allies and unable to affect anyone else. If used on an ally, cures all harmful effects on them. If used on an enemy, deals 20 piercing damage, purges them of helpful effects, and prevents them from reducing damage or becoming invulnerable. Ends if Tobi uses [Kamui] or [Kamui Strike] on someone else."
         , Skill.classes   = [Chakra, Ranged, Unreflectable, Unremovable]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =

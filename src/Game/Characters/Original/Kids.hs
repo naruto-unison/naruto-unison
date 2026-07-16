@@ -203,7 +203,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Parasite"
         , Skill.desc      = "Shino directs one of his bugs to attach itself to an enemy. For 4 turns, the target's damage is weakened by 5."
-        , Skill.classes   = [Bane, Physical, Ranged]
+        , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
@@ -689,7 +689,7 @@ characters =
     [LeafVillage, Eleven, Genin, Fire, Earth, Water, Hyuga]
     [ [ Skill.new
         { Skill.name      = "Gentle Fist"
-        , Skill.desc      = "Using the Hyūga clan's signature taijutsu, Neji deals 25 damage to an enemy for 2 turns. During this time, that enemy's damage is weakened by 5."
+        , Skill.desc      = "Using the Hyūga clan's signature taijutsu, Neji deals 25 damage to an enemy for 2 turns. While active, that enemy's damage is weakened by 5."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 1
@@ -832,7 +832,7 @@ characters =
     [SandVillage, Genin, Wind, SandClan]
     [ [ Skill.new
         { Skill.name       = "Cyclone Scythe"
-        , Skill.desc       = "Temari creates a razor sharp wind with her fan that hits an enemy, dealing 20 damage. The following turn, she is invulnerable to non-mental skills."
+        , Skill.desc       = "Temari creates a razor sharp wind with her fan that hits an enemy, dealing 20 damage and becoming invulnerable to non-mental skills for 1 turn."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =

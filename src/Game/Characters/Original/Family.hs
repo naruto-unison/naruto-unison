@@ -110,7 +110,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Tunneling Fang"
-        , Skill.desc      = "Spinning like a buzzsaw, Tsume deals 15 piercing damage to an enemy for 2 turns. Deals 5 additional damage during [Call Kuromaru]. While active, all stun and disabling effects applied by the target will have their duration reduced by 2 turns."
+        , Skill.desc      = "Spinning like a buzzsaw, Tsume deals 15 piercing damage to an enemy for 2 turns. While active, all stun and disabling effects applied by the target will have their duration reduced by 2 turns. Deals 5 additional damage during [Call Kuromaru]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.dur       = Action 2
@@ -160,7 +160,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Eight Trigrams Palm Rotation"
-        , Skill.desc      = "Hiashi spins toward an enemy, becoming invulnerable for 2 turns and dealing 15 damage to the target and 10 to all other enemies each turn."
+        , Skill.desc      = "Hiashi spins toward an enemy for 2 turns, dealing 15 damage to them and 10 damage to all other enemies each turn. While active, Hiashi is invulnerable."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 3
@@ -190,7 +190,7 @@ characters =
     [LeafVillage, Jonin, Sensor, Water, Yamanaka]
     [ [ Skill.new
         { Skill.name      = "Psycho Mind Transmission"
-        , Skill.desc      = "Inoichi invades the mind of an enemy, dealing 20 damage to them for 2 turns and disabling the countering and reflecting effects of their skills."
+        , Skill.desc      = "Inoichi invades the mind of an enemy, disabling the countering and reflecting effects of their skills and dealing 20 damage to them for 2 turns."
         , Skill.classes   = [Mental, Melee, Uncounterable, Unreflectable]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1

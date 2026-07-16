@@ -429,7 +429,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Proxy Surveillance"
-        , Skill.desc      = "Ino's will takes over the battlefield. For 3 turns, she detects invisible effects and enemy cooldowns. While active, the enemy team's damage reduction, destructible defense, and destructible barrier skills are reduced by 15. Negative damage reduction increases damage received, negative destructible defense translates to destructible barrier, and negative destructible barrier translates to destructible defense."
+        , Skill.desc      = "Ino's will takes over the battlefield. For 3 turns, she detects invisible effects and enemy cooldowns. While active, the enemy team's damage reduction, destructible defense, and destructible barrier skills are reduced by 15."
         , Skill.classes   = [Mental, Invisible, Uncounterable, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 3

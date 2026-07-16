@@ -262,7 +262,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Three-Fingered Assault"
-        , Skill.desc      = "A switches to his three-fingered style, gaining a stack of [Hell Stab]. For the rest of the game, whenever A is damaged, the cooldown of [Lightning Armor] decreases by 1 turn. Once used, this skill becomes [One-Fingered Assault][r][r][r]."
+        , Skill.desc      = "A switches to his three-fingered style, gaining a stack of [Hell Stab]. For the rest of the game, whenever an enemy uses a skill that deals damage to A, the cooldown of [Lightning Armor] decreases by 1 turn. Once used, this skill becomes [One-Fingered Assault][r][r][r]."
         , Skill.classes   = [Chakra, Melee, Unremovable]
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =

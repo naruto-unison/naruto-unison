@@ -15,7 +15,7 @@ characters =
     [LeafVillage, Chunin, Water, Yin]
     [ [ Skill.new
         { Skill.name      = "Mace Crush"
-        , Skill.desc      = "Kotetsu slams an enemy with his mace, dealing 30 damage. Deals 10 additional damage if the target is affected by [Syrup Trap]."
+        , Skill.desc      = "Kotetsu slams an enemy with his mace, dealing 30 damage. Deals 10 additional damage if the target is stunned by [Syrup Trap]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
@@ -42,7 +42,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Devastate"
-        , Skill.desc      = "Izumo flanks an enemy from the left, making them vulnerable to Kotetsu's [Annihilate] for 3 turns. If the target is affected by [Annihilate], Izumo instead deals 65 damage to them. If Izumo uses [Tag Team], this skill becomes [Annihilate][t]."
+        , Skill.desc      = "Izumo flanks an enemy from the left for 3 turns. If the target is affected by [Annihilate], Izumo instead deals 65 damage to them. If Izumo uses [Tag Team], this skill becomes [Annihilate][t]."
         , Skill.classes   = [Physical, Melee, Nonstacking]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
@@ -57,7 +57,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Annihilate"
-        , Skill.desc      = "Kotetsu flanks an enemy from the right, making them vulnerable to Izumo's [Devastate] for 3 turns. If the target is affected by [Devastate], Kotetsu instead deals 65 damage to them. If Kotetsu uses [Tag Team], this skill becomes [Devastate][t]."
+        , Skill.desc      = "Kotetsu flanks an enemy from the right for 3 turns. If the target is affected by [Devastate], Kotetsu instead deals 65 damage to them. If Kotetsu uses [Tag Team], this skill becomes [Devastate][t]."
         , Skill.classes   = [Physical, Melee, Nonstacking]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 2
@@ -189,7 +189,7 @@ characters =
     [LeafVillage, Jonin]
     [ [ Skill.new
         { Skill.name      = "Biding Time"
-        , Skill.desc      = "Provides 10 points of permanent damage reduction to Ibiki. Whenever an enemy uses a skill that deals damage to Ibiki, he gains a stack of [Payback]. Once used, this skill becomes [Payback][r]."
+        , Skill.desc      = "Provides 10 points of permanent damage reduction to Ibiki. Whenever an enemy uses a skill that deals damage to Ibiki, Ibiki gains a stack of [Payback]. Once used, this skill becomes [Payback][r]."
         , Skill.classes   = [Mental, Melee]
         , Skill.cost      = [Rand]
         , Skill.effects   =
@@ -327,7 +327,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Poison Gauntlet"
-        , Skill.desc      = "Gōzu and Meizu attack an enemy with their gauntlets, dealing 30 damage. Deals 10 additional damage if the target is affected by [Chain Wrap]. The metal claws leave behind a slow poison that deals 1 affliction damage every turn until the target takes new non-affliction damage or uses a skill that sacrifices their own health."
+        , Skill.desc      = "Gōzu and Meizu attack an enemy with their gauntlets, dealing 30 damage. Deals 10 additional damage if the target is affected by [Chain Wrap]. The metal claws leave behind a slow poison that deals 1 affliction damage every turn until the target uses a skill that sacrifices their own health or takes new non-affliction damage."
         , Skill.classes   = [Physical, Melee, Bane]
         , Skill.cost      = [Rand, Rand]
         , Skill.effects   =
@@ -423,7 +423,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Water Dragon"
-        , Skill.desc      = "A torrent of water shaped like a giant dragon attacks all enemies, dealing 10 damage. Its ferocious attacks knocks back targets, stunning their physical and bane skills for 1 turn."
+        , Skill.desc      = "A torrent of water shaped like a giant dragon attacks all enemies, dealing 10 damage. Its ferocious attacks knock back targets, stunning their physical and bane skills for 1 turn."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 3

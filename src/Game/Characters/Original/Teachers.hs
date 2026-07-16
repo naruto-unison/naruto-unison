@@ -119,7 +119,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Dragon Flame"
-        , Skill.desc      = "Fire scorches the battlefield, dealing 10 affliction damage to all enemies for 2 turns and causing them to receive 5 additional damage from bane effects. During [Dual Pin], this skill becomes [Twin Snake Sacrifice][n][n]."
+        , Skill.desc      = "Fire scorches the battlefield, dealing 10 affliction damage to all enemies for 2 turns and causing them to receive 5 additional damage from bane effects while active. During [Dual Pin], this skill becomes [Twin Snake Sacrifice][n][n]."
         , Skill.classes   = [Bane, Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
@@ -174,7 +174,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Crescent Moon Dance"
-        , Skill.desc      = "Performing a genjutsu-aided triple sword strike, Hayate deals 30 damage to an enemy. Catching his opponents off guard, he also counters the first skill an enemy uses on him in next turn."
+        , Skill.desc      = "Performing a genjutsu-aided triple sword strike, Hayate deals 30 damage to an enemy. Catching his opponents off guard, he also counters the first skill an enemy uses on him next turn."
         , Skill.classes   = [Mental, Melee]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
@@ -186,7 +186,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Transparency Technique"
-        , Skill.desc      = "Hayate melds into shadows, increasing his damage by 10 for 3 turns. He gains 10 points of damage reduction for one turn, another 10 points of damage reduction for two turns, and another 5 points of damage reduction for three turns."
+        , Skill.desc      = "Hayate melds into shadows, increasing his damage by 10 for 3 turns. He gains 10 points of damage reduction for 1 turn, another 10 points of damage reduction for 2 turns, and another 5 points of damage reduction for 3 turns."
         , Skill.classes   = [Mental, Unremovable]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
@@ -319,7 +319,7 @@ characters =
     [LeafVillage, Jonin, TeamLeader, Wind, Fire, Sarutobi]
     [ [ Skill.new
         { Skill.name      = "Flying Swallow"
-        , Skill.desc      = "Asuma carries out a series of chakra-enhanced knife attacks. For 2 turns, he deals 15 damage to all enemies and provides 15 points of damage reduction to his team. While active, this skill becomes [Finishing Blow][n][r] and [Sharpen Blades] becomes [Flying Kick][t][r]."
+        , Skill.desc      = "Asuma carries out a series of chakra-enhanced knife attacks. For 2 turns, he deals 15 damage to all enemies and provides 15 points of damage reduction to his team. While active, this skill becomes [Finishing Blow][n][r]."
         , Skill.classes   = [Physical, Melee, Uncounterable, Unreflectable]
         , Skill.cost      = [Nin, Tai]
         , Skill.cooldown  = 2
@@ -359,7 +359,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sharpen Blades"
-        , Skill.desc      = "Asuma hones his blades with a coating of wind chakra, increasing the duration of his next [Flying Swallow] by 1 additional turn."
+        , Skill.desc      = "Asuma hones his blades with a coating of wind chakra, increasing the duration of his next [Flying Swallow] by 1 additional turn. During [Flying Swallow], this skill becomes [Flying Kick][t][r]."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Rand]
         , Skill.effects   =

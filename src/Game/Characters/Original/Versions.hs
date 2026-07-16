@@ -78,7 +78,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Dark Void"
-        , Skill.desc      = "Corrupt chakra engulfs an enemy, stunning them for 2 turns. While active, the target is invulnerable to allies as well as enemies. When this skill ends, the enemy receives 55 damage. Costs [r][r] during [Curse Mark]."
+        , Skill.desc      = "Corrupt chakra engulfs an enemy, stunning them for 2 turns. While active, the target is invulnerable to both enemies and allies. When this skill ends, the enemy receives 55 damage. Costs [r][r] during [Curse Mark]."
         , Skill.classes   = [Bane, Chakra, Ranged, Soulbound]
         , Skill.cost      = [Nin, Nin, Rand]
         , Skill.cooldown  = 5
@@ -226,7 +226,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Shukaku Full Release"
-        , Skill.desc      = "Shukaku unleashes the full extent of its power, doubling the damage of its skills for 1 turn."
+        , Skill.desc      = "Shukaku unleashes the full extent of its power, doubling its damage for 1 turn."
         , Skill.classes   = [Mental, Unremovable]
         , Skill.cost      = [Blood]
         , Skill.effects   =
@@ -289,7 +289,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sand Tsunami"
-        , Skill.desc      = "Massive waves of sand flood the battlefield. For 4 turns, all enemies take 15 damage, their destructible skills are weakened by 10, and the destructible skills of Gaara's team are increased by 10. If they use a skill with negative destructible defense, their target gains destructible barrier equal to its amount. If they use a skill with negative destructible barrier, their target gains destructible defense equal to its amount."
+        , Skill.desc      = "Massive waves of sand flood the battlefield. For 4 turns, all enemies take 15 damage, their destructible skills are weakened by 10, and the destructible skills of Gaara's team are increased by 10."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin, Nin]
         , Skill.cooldown  = 4
