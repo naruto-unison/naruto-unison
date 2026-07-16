@@ -195,7 +195,7 @@ heal1 ninjas player n Status{effects, user}
   | summed == 0 || not (Parity.allied player user) = 0
   | otherwise = boost user n * summed + bless (ninjas `Slot.index` user)
   where
-    summed = sum [hp' | Heal hp' <- effects]
+    summed = sum [h | Heal h <- effects]
 
 afflictClasses :: EnumSet Class
 afflictClasses = setFromList [Affliction, All]
@@ -218,7 +218,7 @@ afflict1 ninjas player t Status{classes, effects, user}
   where
     nt     = ninjas `Slot.index` t
     n      = ninjas `Slot.index` user
-    summed = fromIntegral $ sum [hp' | Afflict hp' <- effects]
+    summed = fromIntegral $ sum [h | Afflict h <- effects]
     damage = truncate $ scale * (summed + ext)
     classes'
       | Bane ∈ classes = insertSet Bane afflictClasses
