@@ -1,9 +1,10 @@
 module Handler.Play.GameInfo (GameInfo(..)) where
 
-import ClassyPrelude
+import ClassyPrelude hiding (Vector)
 
 import Data.Aeson ((.=), ToJSON(..), object)
 import Database.Persist (Entity(..))
+import Data.Vector.Strict (Vector)
 
 import           Application.Model.User (User)
 import           Game.Model.Game (Game)

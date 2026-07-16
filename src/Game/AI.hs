@@ -5,7 +5,6 @@ import ClassyPrelude
 import Control.Monad.Trans.Maybe (MaybeT(..), hoistMaybe)
 
 import           Class.Hook (MonadHook)
-import qualified Class.Parity as Parity
 import           Class.Play (MonadGame)
 import qualified Class.Play as P
 import           Class.Random (MonadRandom)
@@ -67,8 +66,8 @@ run vendetta n = runMaybeT do
 -- | Returns @Nothing@ only if all enemies are dead.
 chooseVendetta :: ∀ m. (MonadGame m, MonadRandom m) => m (Maybe Slot)
 chooseVendetta = do
-    ninjas <- P.ninjas
-    ninja  <- R.choose . filter N.alive $ Parity.half Player.A ninjas
+    ninjas <- P.allies Player.A
+    ninja  <- R.choose $ filter N.alive ninjas
     let v   = N.slot <$> ninja
     P.alterGame $ Game.setVendetta v
     return v
@@ -90,9 +89,9 @@ runTurn = do
     case vendetta of
         Nothing -> Engine.runTurn [] -- All enemies are dead
         Just v  -> do
-            ninjas   <- P.ninjas
-            acts     <- mapM (run v) $ Parity.half Player.B ninjas
-            contexts <- R.shuffle $ catMaybes acts
+            ninjas   <- P.allies Player.B
+            acts     <- mapM (run v) $ filter N.alive $ toList ninjas
+            contexts <- R.shuffle $ fromList @(Vector _) $ catMaybes acts
             Game{chakra = (_, chakras)} <- P.game
             let (contexts', chakras') = buyActs (toList contexts) chakras
             P.alterGame $ Game.setChakra Player.B chakras'

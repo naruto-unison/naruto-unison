@@ -16,7 +16,7 @@ import ClassyPrelude
 
 import           Control.Monad.Trans.Maybe (MaybeT(..))
 import           Data.Enum.Set (EnumSet)
-import qualified Data.Vector as Vector
+import qualified Data.Vector.Generic as Vector
 
 import           Class.Classed (Classed(..))
 import           Class.Play (MonadPlay)

@@ -19,7 +19,6 @@ import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context
 import           Game.Model.Game (Game(Game))
 import qualified Game.Model.Game as Game
-import qualified Game.Model.Ninja as N
 import qualified Game.Model.Player as Player
 import           Game.Model.Trigger (Trigger(..))
 import           Util ((∈))
@@ -35,7 +34,7 @@ remove amount
         P.trigger user [OnChakra]
         let opponent = Parity.opponent user
         Game{chakra} <- P.game
-        let chakras = fromList . toList . Chakras.set Rand 0
+        let chakras = fromList @(Vector _) . toList . Chakras.set Rand 0
                     $ Parity.getOf opponent chakra
         removed <- fromList . toList . take amount <$> R.shuffle chakras
         P.alterGame $ Game.removeChakra opponent removed
@@ -76,6 +75,6 @@ gainPerAlive :: ∀ m. (MonadGame m, MonadRandom m) => m ()
 gainPerAlive = do
     Game{playing} <- P.game
     let player = Player.opponent playing
-    living  <- length . filter N.alive <$> P.allies player
+    living  <- P.numAlive player
     randoms <- Chakras.random living
     P.alterGame $ Game.addChakra player randoms

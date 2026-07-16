@@ -76,7 +76,7 @@ processTurn runner = do
     Game{playing = player} <- P.game
     runner
     Traps.runExpirations
-    channels <- getChannels <$> P.allies player
+    channels <- getChannels . toList <$> P.allies player
     mapM_ Action.act channels
     Traps.runTurn initial
     doSkillEnds

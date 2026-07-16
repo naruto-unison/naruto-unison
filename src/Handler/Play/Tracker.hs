@@ -12,11 +12,12 @@ module Handler.Play.Tracker
   , trackTurn
   ) where
 
-import ClassyPrelude hiding (empty)
+import ClassyPrelude hiding (Vector, empty)
 
-import qualified Data.Vector as Vector
-import           Data.Vector.Mutable (MVector)
-import qualified Data.Vector.Mutable as MVector
+import qualified Data.Vector.Generic as Vector
+import qualified Data.Vector.Generic.Mutable as MVector
+import           Data.Vector.Strict (Vector)
+import qualified Data.Vector.Unboxed.Mutable as UMVector
 
 import qualified Class.Parity as Parity
 import           Game.Model.Chakras (Chakras)
@@ -36,6 +37,8 @@ import           Mission.Objective (Span(..))
 import           Mission.Progress (Progress(Progress), Store)
 import           Util ((!?), (?))
 
+type UMVector s = UMVector.MVector s
+
 infixl 9 ??
 (??) :: ∀ k v. Hashable k => HashMap k [v] -> k -> [v]
 m ?? k = fromMaybe [] $ m ? k
@@ -44,8 +47,8 @@ data Track s = Track
     { slot     :: Slot
     , hooks    :: Hooks
     , skills   :: STRef s [Text]
-    , store    :: MVector s Store
-    , progress :: MVector s Int
+    , store    :: UMVector s Store
+    , progress :: UMVector s Int
     }
 
 resetGoal :: Goal -> Int -> Int
@@ -154,7 +157,7 @@ trackAll :: ∀ m. PrimMonad m
 trackAll f (Tracker xs) = mapM_ f xs
 
 gFreeze :: ∀ m. PrimMonad m
-        => (∀ a. MVector (PrimState m) a -> m (Vector a))
+        => (∀ a. Unbox a => UMVector (PrimState m) a -> m (UVector a))
         -> Tracker (PrimState m) -> m [Progress]
 gFreeze freezer (Tracker xs) = concat <$> mapM freezeTrack xs
   where

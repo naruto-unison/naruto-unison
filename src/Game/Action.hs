@@ -237,7 +237,8 @@ act context@Context { user
 
             let allEffects = startEffects ++ mainEffects
 
-            countering  <- Counter.filterCounters allEffects <$> P.enemies user
+            countering   <- Counter.filterCounters allEffects . toList
+                            <$> P.enemies user
             forM_ countering \n ->
                 when (n `is` Absorb) $ P.alterGame $ Game.addChakra n skill.cost
 

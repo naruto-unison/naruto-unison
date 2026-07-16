@@ -141,9 +141,9 @@ numAffected name = do
 -- | Number of user's allies who are dead.
 numDeadAllies :: ∀ m. MonadPlay m => m Int
 numDeadAllies = do
-    slot   <- userSlot
-    allies <- P.allies slot
-    return $ length $ filter (not . alive) allies
+    slot     <- userSlot
+    numAlive <- P.numAlive slot
+    return $ teamSize - numAlive
 
 class NinjaGetter (m :: Type -> Type) a where
     type Getter (m :: Type -> Type) a

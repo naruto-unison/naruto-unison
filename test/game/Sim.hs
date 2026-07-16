@@ -111,7 +111,7 @@ enemies :: ∀ a m. (MonadPlay m) => (Ninja -> a) -> m [a]
 enemies f = do
     Context{user} <- P.context
     ninjas <- P.enemies user
-    return $ f <$> ninjas
+    return $ f <$> toList ninjas
 
 turns :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m) => Int -> m ()
 turns 0 = return ()

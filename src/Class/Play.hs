@@ -7,6 +7,7 @@ module Class.Play
   , nUser, nTarget
   , allies
   , enemies
+  , numAlive
   -- * Transformation
   , withContext
   , withTarget, withTargets
@@ -33,6 +34,7 @@ import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as N
 import qualified Game.Model.Skill
 import           Game.Model.Slot (Slot)
+import qualified Game.Model.Slot as Slot
 import           Game.Model.Trigger (Trigger(..))
 import qualified Game.Model.Trigger as Trigger
 
@@ -49,12 +51,28 @@ nTarget :: ∀ m. MonadPlay m => m Ninja
 nTarget = ninja =<< Context.target <$> context
 
 -- | Returns the half of 'ninjas' allied with an argument.
-allies :: ∀ p m. (MonadGame m, Parity p) => p -> m [Ninja]
-allies p = toList . Parity.half p <$> ninjas
+allies :: ∀ p m. (MonadGame m, Parity p) => p -> m (Vector Ninja)
+allies p = splitHalf Slot.teamSize <$> ninjas
+  where
+    splitHalf
+      | Parity.even p = take
+      | otherwise     = drop
 
 -- | Returns the half of 'ninjas' not allied with an argument.
-enemies :: ∀ p m. (MonadGame m, Parity p) => p -> m [Ninja]
+enemies :: ∀ p m. (MonadGame m, Parity p) => p -> m (Vector Ninja)
 enemies p = allies $ Parity.opponent p
+
+-- | Returns the half of 'ninjas' allied with an argument that are alive.
+numAlive :: ∀ p m. (MonadGame m, Parity p) => p -> m Int
+numAlive p = foldM go 0 $ Slot.allies p
+  where
+    go :: Int -> Slot -> m Int
+    go acc slot = do
+        n <- ninja slot
+        return if N.alive n then
+            acc + 1
+        else
+            acc
 
 -- | Runs an action in a localized state where 'target' is replaced.
 withTarget :: ∀ a m. MonadPlay m => Slot -> m a -> m a

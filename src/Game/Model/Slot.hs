@@ -15,6 +15,10 @@ import           Data.Aeson (ToJSON)
 import           Data.Bits
 import           Data.Enum.Set.Base (EnumSet)
 import qualified Data.Enum.Set.Base as EnumSet
+import qualified Data.Vector.Generic as G
+import qualified Data.Vector.Generic.Mutable as M
+import qualified Data.Vector.Primitive as P
+import qualified Data.Vector.Unboxed as U
 import           GHC.Exts (IsList)
 import qualified GHC.Exts
 import           Text.Read
@@ -90,7 +94,7 @@ toChar (Slot x) = toEnum $ x + 48
 
 
 newtype SlotSet = SlotSet { toEnumSet :: EnumSet Word Int }
-    deriving (Eq, Ord, Semigroup, Monoid, ToJSON)
+    deriving (Eq, Ord, Semigroup, Monoid, NFData, P.Prim, Storable, Unbox, ToJSON)
 
 type instance Element SlotSet = Slot
 
@@ -180,6 +184,53 @@ instance Show SlotSet where
     showsPrec p xs = showParen (p > 10) $
         showString "fromList " . shows (toList xs)
     {-# INLINABLE showsPrec #-}
+
+newtype instance U.MVector s SlotSet = MV_SlotSet (P.MVector s SlotSet)
+newtype instance U.Vector    SlotSet = V_SlotSet  (P.Vector    SlotSet)
+
+instance G.Vector U.Vector SlotSet where
+    basicUnsafeFreeze (MV_SlotSet v) = V_SlotSet <$> G.basicUnsafeFreeze v
+    {-# INLINE basicUnsafeFreeze #-}
+    basicUnsafeThaw (V_SlotSet v) = MV_SlotSet <$> G.basicUnsafeThaw v
+    {-# INLINE basicUnsafeThaw #-}
+    basicLength (V_SlotSet v) = G.basicLength v
+    {-# INLINE basicLength #-}
+    basicUnsafeSlice i n (V_SlotSet v) = V_SlotSet $ G.basicUnsafeSlice i n v
+    {-# INLINE basicUnsafeSlice #-}
+    basicUnsafeIndexM (V_SlotSet v) i = G.basicUnsafeIndexM v i
+    {-# INLINE basicUnsafeIndexM #-}
+    basicUnsafeCopy (MV_SlotSet mv) (V_SlotSet v) = G.basicUnsafeCopy mv v
+    {-# INLINE basicUnsafeCopy #-}
+    elemseq _ = seq
+    {-# INLINE elemseq #-}
+
+instance M.MVector U.MVector SlotSet where
+    basicLength (MV_SlotSet v) = M.basicLength v
+    {-# INLINE basicLength #-}
+    basicUnsafeSlice i n (MV_SlotSet v) = MV_SlotSet $ M.basicUnsafeSlice i n v
+    {-# INLINE basicUnsafeSlice #-}
+    basicOverlaps (MV_SlotSet v1) (MV_SlotSet v2) = M.basicOverlaps v1 v2
+    {-# INLINE basicOverlaps #-}
+    basicUnsafeNew n = MV_SlotSet <$> M.basicUnsafeNew n
+    {-# INLINE basicUnsafeNew #-}
+    basicInitialize (MV_SlotSet v) = M.basicInitialize v
+    {-# INLINE basicInitialize #-}
+    basicUnsafeReplicate n x = MV_SlotSet <$> M.basicUnsafeReplicate n x
+    {-# INLINE basicUnsafeReplicate #-}
+    basicUnsafeRead (MV_SlotSet v) i = M.basicUnsafeRead v i
+    {-# INLINE basicUnsafeRead #-}
+    basicUnsafeWrite (MV_SlotSet v) i x = M.basicUnsafeWrite v i x
+    {-# INLINE basicUnsafeWrite #-}
+    basicClear (MV_SlotSet v) = M.basicClear v
+    {-# INLINE basicClear #-}
+    basicSet (MV_SlotSet v) x = M.basicSet v x
+    {-# INLINE basicSet #-}
+    basicUnsafeCopy (MV_SlotSet v1) (MV_SlotSet v2) = M.basicUnsafeCopy v1 v2
+    {-# INLINE basicUnsafeCopy #-}
+    basicUnsafeMove (MV_SlotSet v1) (MV_SlotSet v2) = M.basicUnsafeMove v1 v2
+    {-# INLINE basicUnsafeMove #-}
+    basicUnsafeGrow (MV_SlotSet v) n = MV_SlotSet <$> M.basicUnsafeGrow v n
+    {-# INLINE basicUnsafeGrow #-}
 
 mapSlot :: (Slot -> Slot) -> Int -> Int
 mapSlot f = toInt . f . Slot

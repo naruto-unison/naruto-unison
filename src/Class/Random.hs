@@ -4,7 +4,7 @@ module Class.Random
   , choose
   ) where
 
-import ClassyPrelude
+import ClassyPrelude hiding (Vector)
 
 import Control.Monad.ST (ST)
 import Control.Monad.Trans.Accum (AccumT)
@@ -13,6 +13,7 @@ import Control.Monad.Trans.Identity (IdentityT)
 import Control.Monad.Trans.Maybe (MaybeT)
 import Control.Monad.Trans.Select (SelectT)
 import Control.Monad.Trans.Writer (WriterT)
+import Data.Vector.Generic (Vector)
 import System.Random.MWC (Gen)
 import System.Random.MWC.Distributions (uniformShuffle)
 import System.Random.Stateful (Uniform(..), UniformRange(..))
@@ -27,7 +28,7 @@ class Monad m => MonadRandom m where
     -- | Selects a value in an inclusive range.
     range  :: ∀ a. UniformRange a => (a, a) -> m a
     -- | Randomly shuffles elements in a list.
-    shuffle :: Vector a -> m (Vector a)
+    shuffle :: ∀ v a. Vector v a => v a -> m (v a)
 
     default random :: (Lift MonadRandom m, Uniform a)
                    => m a
@@ -37,8 +38,8 @@ class Monad m => MonadRandom m where
                   => (a, a) -> m a
     range = lift . range
     {-# INLINE range #-}
-    default shuffle :: Lift MonadRandom m
-                    => Vector a -> m (Vector a)
+    default shuffle :: (Lift MonadRandom m, Vector v a)
+                    => v a -> m (v a)
     shuffle = lift . shuffle
     {-# INLINE shuffle #-}
 

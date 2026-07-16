@@ -8,11 +8,13 @@ module Handler.Play.Wrapper
   , Wrapper(..), new, freeze, toTurn, runGame
   ) where
 
-import ClassyPrelude
+import ClassyPrelude hiding (Vector)
 
-import qualified Data.Vector as Vector
-import           Data.Vector.Mutable (STVector)
-import qualified Data.Vector.Mutable as MVector
+import qualified Data.Vector.Generic as Vector
+import qualified Data.Vector.Generic.Mutable as MVector
+import           Data.Vector.Strict (Vector)
+import qualified Data.Vector.Strict as Vector (toLazy)
+import           Data.Vector.Strict.Mutable (MVector)
 
 import           Class.Hook (MonadHook(..))
 import           Class.Play (MonadGame)
@@ -39,7 +41,7 @@ import           Mission.Progress (Progress)
 data STWrapper s = STWrapper
     { tracker   :: Tracker s
     , gameRef   :: STRef s Game
-    , ninjasRef :: STVector s Ninja
+    , ninjasRef :: MVector s Ninja
     }
 
 type IOWrapper = STWrapper RealWorld
@@ -49,7 +51,7 @@ instance (PrimMonad m, s ~ PrimState m) => MonadGame (ReaderT (STWrapper s) m) w
     {-# INLINABLE game #-}
     alterGame f = asks gameRef >>= flip modifyRef' f
     {-# INLINABLE alterGame #-}
-    ninjas      = asks ninjasRef >>= Vector.freeze
+    ninjas      = Vector.toLazy <$> (asks ninjasRef >>= Vector.freeze)
     {-# INLINABLE ninjas #-}
     ninja i     = asks ninjasRef >>= flip MVector.unsafeRead (Slot.toInt i)
     {-# INLINABLE ninja #-}
