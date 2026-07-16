@@ -49,7 +49,6 @@ data Class
     | NonAffliction
     | NonBane
     | NonMental
-    | NonRanged
     | Continues
     | Bloodline
     | Genjutsu
@@ -100,7 +99,6 @@ name Nonstacking    = "Non-stacking"
 name NonAffliction  = "Non-affliction"
 name NonBane        = "Non-bane"
 name NonMental      = "Non-mental"
-name NonRanged      = "Non-ranged"
 name x              = tshow x
 
 nameMemo :: Class -> Text

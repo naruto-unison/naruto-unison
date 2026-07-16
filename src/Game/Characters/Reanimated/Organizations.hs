@@ -611,12 +611,12 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Ally Control"
-        , Skill.desc      = "Sasori manipulates an ally with puppeteering threads. All non-ranged skills that enemies use on the target next turn will be reflected back at them."
+        , Skill.desc      = "Sasori manipulates an ally with puppeteering threads. All melee skills that enemies use on the target next turn will be reflected back at them."
         , Skill.classes   = [Physical, Invisible]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To XAlly $ apply 1 skillName [ReflectAll NonRanged] ]
+          [ To XAlly $ apply 1 skillName [ReflectAll Melee] ]
         }
       ]
     , [ Skill.new
@@ -830,10 +830,10 @@ reanimations =
         }
     , Skill.new
         { Skill.name    = "Sasori: Ally Control"
-        , Skill.desc    = "Sasori manipulates an ally with puppeteering threads. All non-ranged skills that enemies use on the target next turn will be reflected back at them."
+        , Skill.desc    = "Sasori manipulates an ally with puppeteering threads. All melee skills that enemies use on the target next turn will be reflected back at them."
         , Skill.classes = [Physical, Invisible]
         , Skill.effects =
-          [ To XAlly $ apply 1 "Ally Control" [ReflectAll NonRanged] ]
+          [ To XAlly $ apply 1 "Ally Control" [ReflectAll Melee] ]
         }
     , Skill.new
         { Skill.name    = "Nagato: Naraka Path"

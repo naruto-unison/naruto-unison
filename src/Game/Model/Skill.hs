@@ -70,7 +70,6 @@ withExtraClasses skill@Skill{classes} = skill { classes = added ++ classes }
   where
     added = insertIf (Bane ∉ classes) NonBane
           . insertIf (Mental ∉ classes) NonMental
-          . insertIf (Ranged ∉ classes) NonRanged
           $ singleton All
 
 -- | All targets that a @Skill@ effects.

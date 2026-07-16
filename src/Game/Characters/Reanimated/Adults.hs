@@ -344,13 +344,13 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Army of Illusions"
-        , Skill.desc      = "Chiyo takes control of multiple bodies and attacks an enemy, dealing 20 damage and becoming invulnerable to non-ranged skills for 1 turn."
+        , Skill.desc      = "Chiyo takes control of multiple bodies and attacks an enemy, dealing 20 damage and becoming invulnerable to melee skills for 1 turn."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy $ damage 20
-          , To Self $ apply 1 skillName [Invulnerable NonRanged]
+          , To Self $ apply 1 skillName [Invulnerable Melee]
           ]
         }
       ]
@@ -457,11 +457,11 @@ reanimations =
         }
     , Skill.new
         { Skill.name    = "Chiyo: Army of Illusions"
-        , Skill.desc    = "Chiyo takes control of multiple bodies and attacks an enemy, dealing 20 damage and making her reanimator invulnerable to non-ranged skills for 1 turn."
+        , Skill.desc    = "Chiyo takes control of multiple bodies and attacks an enemy, dealing 20 damage and making her reanimator invulnerable to melee skills for 1 turn."
         , Skill.classes = [Physical, Ranged]
         , Skill.effects   =
           [ To Enemy $ damage 20
-          , To Self $ apply 1 "Army of Illusions" [Invulnerable NonRanged]
+          , To Self $ apply 1 "Army of Illusions" [Invulnerable Melee]
           ]
         }
     , Skill.new
