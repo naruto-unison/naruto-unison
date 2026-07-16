@@ -65,7 +65,7 @@ characters =
         { Skill.name      = "Summoning: Earth Prison Golem"
         , Skill.desc      = "Jirōbō spends two Scattered Rocks to summon a golem, gaining 35 destructible defense for 2 turns. While Jirōbō has destructible defense from this skill, all enemies are his Rivals and can only target him. The first enemy to use a skill on him each turn is instantly affected by [Earth Dome Prison]."
         , Skill.require   = [UserHas AtLeast 2 "Scattered Rock"]
-        , Skill.classes   = [Summon, Soulbound, Bypassing]
+        , Skill.classes   = [Summon, Soulbound, Bypassing, Nonstacking]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 4
         , Skill.dur       = Passive
@@ -649,7 +649,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Deva Path"
         , Skill.desc      = "Nagato creates a gravitational anchor that pulls in the enemy team and accumulates a rough sphere of rock and debris around them, applying 25 destructible barrier for 3 turns. While enemies have destructible barrier from this skill, the non-damage effects of their skills on allies and enemies are disabled. At the end of the 3 turns, enemies take damage equal to the remaining destructible barrier from this skill."
-        , Skill.classes    = [Physical, Ranged]
+        , Skill.classes    = [Physical, Ranged, Nonstacking]
         , Skill.cost       = [Blood, Gen, Tai]
         , Skill.cooldown   = 3
         , Skill.start      =

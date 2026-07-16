@@ -229,7 +229,7 @@ characters =
         { Skill.name      = "Poison Blade Assault"
         , Skill.desc      = "Sasori directs the Kazekage puppet to single out an enemy and gains 20 destructible defense for 2 turns. While Sasori has destructible defense from this skill, he deals 10 damage and 10 affliction damage to the target."
         , Skill.require   = [UserHas AtLeast 1 "Iron Sand"]
-        , Skill.classes   = [Bane, Physical, Melee]
+        , Skill.classes   = [Bane, Physical, Melee, Nonstacking]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
         , Skill.dur       = Passive
@@ -963,7 +963,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Planetary Devastation"
         , Skill.desc      = "Pain creates a gravitational anchor that pulls in an enemy and accumulates a rough sphere of rock and debris around them, applying 80 destructible barrier for 3 turns. While the target has destructible barrier from this skill, they are invulnerable to allies as well as enemies. At the end of the 3 turns, the target will take damage equal to the remaining destructible barrier from this skill."
-        , Skill.classes   = [Physical, Ranged]
+        , Skill.classes   = [Physical, Ranged, Nonstacking]
         , Skill.cost      = [Blood, Gen, Tai]
         , Skill.cooldown  = 3
         , Skill.effects   =

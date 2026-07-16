@@ -246,10 +246,10 @@ characters =
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
         , Skill.dur       = Action 3
+        , Skill.start     =
+          [ To Self $ defend 3 35 ]
         , Skill.effects   =
-          [ To Self $ defend 1 35
-          , To Enemy $ damage 15
-          ]
+          [ To Enemy $ damage 15 ]
         }
       ]
     , [ Skill.new

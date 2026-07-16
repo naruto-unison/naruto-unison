@@ -608,15 +608,16 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Earth Dome Prison"
-        , Skill.desc      = "Jirōbō provides 35 destructible defense to his team for 3 turns. Every turn that Jirōbō has destructible defense from [Earth Dome Prison], he absorbs 1 random chakra from the enemy team. Cannot be used while active."
-        , Skill.require   = [UserDefense AtMost 0 "Earth Dome Prison"]
-        , Skill.classes   = [Chakra, Ranged]
+        , Skill.desc      = "Jirōbō provides 35 destructible defense to his team for 3 turns. Every turn that Jirōbō has destructible defense from [Earth Dome Prison], he absorbs 1 random chakra from the enemy team."
+        , Skill.classes   = [Chakra, Ranged, Nonstacking]
         , Skill.cost      = [Nin, Nin, Rand]
         , Skill.cooldown  = 6
         , Skill.dur       = Passive
         , Skill.start     =
           [ To Allies $ defend 3 5
-          , To Self $ onBreak $ cancelChannel skillName
+          , To Self do
+                replaceChannel
+                onBreak $ cancelChannel skillName
           ]
         , Skill.effects   =
           [ To Self $ absorb 1 ]

@@ -86,7 +86,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Flying Raijin"
         , Skill.desc      = "Minato teleports to a target, becoming invulnerable for 1 turn. If he teleports to an enemy, he deals 30 damage to them. If he teleports to an ally, he provides them with invulnerability for 1 turn."
-        , Skill.classes   = [Physical, Melee, Bypassing]
+        , Skill.classes   = [Physical, Melee, Bypassing, Nonstacking]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
         [ To Self $ apply 1 skillName [Invulnerable All]
