@@ -464,13 +464,16 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sharp Hair Spear"
-        , Skill.desc      = "Fuguki extends his hair to skewer enemies around him, dealing 10 damage to the enemy team and stunning their non-mental skills for 1 turn. Deals 5 additional damage and pierces during [Chakra Weave]."
+        , Skill.desc      = "Fuguki extends his hair to skewer enemies around him, dealing 10 damage to the enemy team and stunning their physical and chakra skills for 1 turn. Deals 5 additional damage and pierces during [Chakra Weave]."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemies do
-                apply 1 skillName [Stun NonMental]
+                apply 1 skillName
+                    [ Stun Physical
+                    , Stun Chakra
+                    ]
                 weave <- channeling "Chakra Weave"
                 if weave then pierce 15 else damage 10
           ]
@@ -792,12 +795,15 @@ reanimations =
         }
     , Skill.new
         { Skill.name    = "Fuguki Suikazan: Sharp Hair Spear"
-        , Skill.desc    = "Fuguki extends his hair to skewer enemies around him, dealing 10 damage to the enemy team and stunning their non-mental skills for 1 turn."
+        , Skill.desc    = "Fuguki extends his hair to skewer enemies around him, dealing 10 damage to the enemy team and stunning their physical and chakra skills for 1 turn."
         , Skill.classes = [Physical, Ranged]
         , Skill.effects =
           [ To Enemies do
                 damage 10
-                apply 1 "Sharp Hair Spear" [Stun NonMental]
+                apply 1 "Sharp Hair Spear"
+                    [ Stun Physical
+                    , Stun Chakra
+                    ]
           ]
         }
     , Skill.new

@@ -298,11 +298,14 @@ characters =
     [MistVillage, Chunin, Rogue, Earth, Water]
     [ [ Skill.new
         { Skill.name      = "Chain Wrap"
-        , Skill.desc      = "Gōzu throws his chains around an enemy, stunning their non-mental skills for 1 turn. The following turn, this skill becomes [Chain Shred][t]."
+        , Skill.desc      = "Gōzu throws his chains around an enemy, stunning their physical and chakra skills for 1 turn. The following turn, this skill becomes [Chain Shred][t]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
-          [ To Enemy $ apply 1 skillName [Stun NonMental]
+          [ To Enemy $ apply 1 skillName
+                [ Stun Physical
+                , Stun Chakra
+                ]
           , To Self $ apply 1 skillName
                 [ Alternate "Chain Wrap"
                             "Chain Shred"
@@ -311,7 +314,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Chain Shred"
-        , Skill.desc      = "Meizu tears his chains through the target of [Chain Wrap], dealing 45 piercing damage and reapplying [Chain Wrap], stunning the target's non-mental skills for 1 turn."
+        , Skill.desc      = "Meizu tears his chains through the target of [Chain Wrap], dealing 45 piercing damage and reapplying [Chain Wrap], stunning the target's physical and chakra skills for another turn."
         , Skill.require   = [TargetHas AtLeast 1 "Chain Wrap"]
         , Skill.classes   = [Physical, Melee, Nonstacking]
         , Skill.cost      = [Tai]
@@ -794,14 +797,14 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Bracken Dance"
-        , Skill.desc      = "A forest of razor-sharp bones erupts from the ground, dealing 30 damage to all enemies and reducing all enemy physical, chakra, and summon damage by 20 for 1 turn. Kimimaro takes 15 affliction damage at the end of his turn for 2 turns."
+        , Skill.desc      = "A forest of razor-sharp bones erupts from the ground, dealing 30 damage to all enemies and reducing all enemy non-mental damage by 20 for 1 turn. Kimimaro takes 15 affliction damage at the end of his turn for 2 turns."
         , Skill.classes   = [Physical, Ranged, Uncounterable, Unreflectable, Unremovable]
         , Skill.cost      = [Blood, Rand, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemies do
                 damage 30
-                apply 1 skillName [Weaken [Physical, Chakra, Summon] Flat 20]
+                apply 1 skillName [Weaken [NonMental] Flat 20]
           , To Self $ applyWith [Bane] -2 skillName [Afflict 15]
           ]
         }

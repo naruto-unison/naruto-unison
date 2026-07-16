@@ -792,7 +792,10 @@ characters =
           [ To Enemy do
                 absorb 1
                 copyLast -2
-                apply 1 skillName [Stun NonMental]
+                apply 1 skillName
+                    [ Stun Physical
+                    , Stun Chakra
+                    ]
                 damage 20
           ]
         }
@@ -1304,14 +1307,17 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Choke Hold"
-        , Skill.desc      = "Pain seizes an enemy by the throat, dealing 20 damage to them and stunning their non-mental skills for 1 turn."
+        , Skill.desc      = "Pain seizes an enemy by the throat, dealing 20 damage to them and stunning their physical and chakra skills for 1 turn."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
                 damage 20
-                apply 1 skillName [Stun NonMental]
+                apply 1 skillName
+                    [ Stun Physical
+                    , Stun Chakra
+                    ]
           ]
         }
       ]

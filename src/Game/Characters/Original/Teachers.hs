@@ -37,14 +37,14 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Capture and Arrest"
-        , Skill.desc      = "Iruka traps an enemy in an area filled with his paper bombs. If the target uses a skill on Iruka or his allies during their next turn, they will take 40 damage, and physical, chakra, and summon skills will deal 25 additional damage to them for 1 turn."
+        , Skill.desc      = "Iruka traps an enemy in an area filled with his paper bombs. If the target uses a skill on Iruka or his allies during their next turn, they will take 40 damage, and non-mental skills will deal 25 additional damage to them for 1 turn."
         , Skill.classes   = [Chakra, Ranged, Bypassing, Invisible]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy $ trap 1 skillName OnHarm $ asAction do
                 damage 40
-                apply 1 skillName [Bleed [Physical, Chakra, Summon] Flat 25]
+                apply 1 skillName [Bleed [NonMental] Flat 25]
           ]
         }
       ]
@@ -219,12 +219,17 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Summoning: Ninja Hounds"
-        , Skill.desc      = "A pack of giant dogs bite at an enemy, stunning the target's non-mental skills for 1 turn."
+        , Skill.desc      = "A pack of giant dogs bite at an enemy, stunning the target's physical and chakra skills for 1 turn."
         , Skill.classes   = [Summon, Ranged]
         , Skill.cost      = [Nin, Rand]
+        , Skill.dur       = Control 1
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy $ apply 1 skillName [Stun NonMental] ]
+          [ To Enemy $ control
+                [ Stun Physical
+                , Stun Chakra
+                ]
+          ]
         }
       ]
     , [ Skill.new

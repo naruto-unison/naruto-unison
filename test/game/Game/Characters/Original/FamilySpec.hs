@@ -131,7 +131,7 @@ spec = parallel do
                 Sim.act
                 Sim.turns 2
                 targetStunned <- target Effects.stun
-                targetStunned `shouldBe` [ NonMental ]
+                targetStunned `shouldBe` [Chakra, Physical]
             it "does not stun an additional turn otherwise" do
                 Sim.act
                 Sim.turns 2
@@ -158,7 +158,7 @@ spec = parallel do
                 Sim.act
                 Sim.turns 1
                 targetStunned <- target Effects.stun
-                targetStunned `shouldBe` [NonMental]
+                targetStunned `shouldBe` [Chakra, Physical]
             it "does not stun an additional turn otherwise" do
                 Sim.act
                 Sim.turns 1

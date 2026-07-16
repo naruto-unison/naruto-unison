@@ -462,14 +462,17 @@ characters =
     [LeafVillage, Eleven, AlliedForces, Chunin, Fire, Earth, Yin, Nara]
     [ [ Skill.new
         { Skill.name      = "Shadow Sewing"
-        , Skill.desc      = "Delicate tendrils of shadow wrap around an enemy, dealing 35 damage and stunning their non-mental skills for 1 turn. While this skill's effect is active, it becomes [Shadow Sewing: Hold][g]."
+        , Skill.desc      = "Delicate tendrils of shadow wrap around an enemy, dealing 35 damage and stunning their physical and chakra skills for 1 turn. While this skill's effect is active, it becomes [Shadow Sewing: Hold][g]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
                 damage 35
-                apply 1 skillName [Stun NonMental]
+                apply 1 skillName
+                    [ Stun Physical
+                    , Stun Chakra
+                    ]
                 targeting Self $ apply 1 skillName
                     [ Alternate "Shadow Sewing"
                                 "Shadow Sewing: Hold"

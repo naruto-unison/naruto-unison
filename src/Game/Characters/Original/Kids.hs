@@ -272,12 +272,13 @@ characters =
     [LeafVillage, Eleven, Genin, Sensor, Earth, Water, Fire, Yin, Yang, Yamanaka]
     [ [ Skill.new
         { Skill.name      = "Mind Destruction"
-        , Skill.desc      = "Ino launches a mental assault on an enemy, stunning their non-mental skills and preventing them from reducing damage or becoming invulnerable for 1 turn. Acting through them, she lashes out and deals 30 piercing damage to a random enemy."
+        , Skill.desc      = "Ino launches a mental assault on an enemy, stunning their physical and chakra skills and preventing them from reducing damage or becoming invulnerable for 1 turn. Acting through them, she lashes out and deals 30 piercing damage to a random enemy."
         , Skill.classes   = [Mental, Ranged, Bypassing]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
           [ To Enemy $ apply 1 skillName
-                [ Stun NonMental
+                [ Stun Physical
+                , Stun Chakra
                 , Expose
                 ]
           , To REnemy $ pierce 30
@@ -357,14 +358,17 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Shadow Possession"
-        , Skill.desc      = "Shikamaru captures all enemies in shadows, stunning their non-mental skills for 1 turn. Lasts 1 additional turn on enemies affected by [Meditate]."
+        , Skill.desc      = "Shikamaru captures all enemies in shadows, stunning their physical and chakra skills for 1 turn. Lasts 1 additional turn on enemies affected by [Meditate]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 3
         , Skill.dur       = Control 1
         , Skill.start     =
           [ To Enemies do
-                control [Stun NonMental]
+                control
+                    [ Stun Physical
+                    , Stun Chakra
+                    ]
                 whenM (target has "Meditate") $
                     prolong 1 skillName
           ]
@@ -644,7 +648,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Rising Dragon Control"
-        , Skill.desc      = "Tenten's weapons scattered across the battlefield shoot upward, spending all stacks of [Unsealing Technique] to deal 5 damage plus 10 per stack to all enemies. For 1 turn, physical, chakra, and summon damage of all enemies is weakened by 5 plus 10 per stack spent."
+        , Skill.desc      = "Tenten's weapons scattered across the battlefield shoot upward, spending all stacks of [Unsealing Technique] to deal 5 damage plus 10 per stack to all enemies. For 1 turn, non-mental damage of all enemies is weakened by 5 plus 10 per stack spent."
         , Skill.classes   = [Physical, Ranged, Uncounterable]
         , Skill.cost      = [Rand]
         , Skill.effects   =
@@ -653,7 +657,7 @@ characters =
                 damage (5 + bonus)
                 durBonus <- 1 `bonusIf` user has "Rising Twin Dragons"
                 apply (1 + durBonus) skillName
-                    [Weaken [Physical, Chakra, Summon] Flat (5 + bonus)]
+                    [Weaken [NonMental] Flat (5 + bonus)]
                 remove "Unsealing Technique"
           ,  To Self $ remove "Rising Twin Dragons"
           ]
@@ -730,7 +734,7 @@ characters =
     [SandVillage, Genin, Jinchuriki, Sensor, Wind, Earth, Lightning, SandClan]
     [ [ Skill.new
         { Skill.name      = "Sand Coffin"
-        , Skill.desc      = "Sand surrounds an enemy, stunning their non-mental skills for 2 turns. While active, the enemy cannot reduce damage or become invulnerable and this skill becomes [Sand Burial][n][n]."
+        , Skill.desc      = "Sand surrounds an enemy, stunning their physical and chakra skills for 2 turns. While active, the enemy cannot reduce damage or become invulnerable and this skill becomes [Sand Burial][n][n]."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 2
@@ -738,7 +742,8 @@ characters =
         , Skill.start     =
           [ To Enemy $ control
                 [ Expose
-                , Stun NonMental
+                , Stun Physical
+                , Stun Chakra
                 ]
           , To Self $ control
                 [ Alternate "Sand Coffin"

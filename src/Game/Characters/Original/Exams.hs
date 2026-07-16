@@ -173,7 +173,7 @@ characters =
     [LeafVillage, Orochimaru, Anbu, Genin, Rogue, Sage, TeamLeader, Earth, Water, Wind, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Chakra Scalpel"
-        , Skill.desc      = "Kabuto slices an enemy with a medical scalpel made of chakra, dealing 20 piercing damage. For 1 turn, the target's skills cost 1 additional arbitrary chakra and they receive 5 additional damage from physical, chakra, and summon damaging skills."
+        , Skill.desc      = "Kabuto slices an enemy with a medical scalpel made of chakra, dealing 20 piercing damage. For 1 turn, the target's skills cost 1 additional arbitrary chakra and they receive 5 additional damage from non-mental damaging skills."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Nin]
         , Skill.effects   =
@@ -181,7 +181,7 @@ characters =
                 pierce 20
                 apply 1 skillName
                     [ Exhaust [All]
-                    , Bleed [Physical, Chakra, Summon] Flat 5
+                    , Bleed [NonMental] Flat 5
                     ]
           ]
         }
@@ -201,7 +201,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Temple of Nirvana"
-        , Skill.desc      = "Illusory white feathers descend upon the battlefield and lull the enemy team to sleep. Unless an enemy uses a skill next turn, they will be stunned for 1 turn, during which they will receive 10 additional damage from physical, chakra, and summon skills."
+        , Skill.desc      = "Illusory white feathers descend upon the battlefield and lull the enemy team to sleep. Unless an enemy uses a skill next turn, they will be stunned for 1 turn, during which they will receive 10 additional damage from non-mental skills."
         , Skill.classes   = [Mental, Ranged, Invisible]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
@@ -209,7 +209,7 @@ characters =
           [ To Enemies $ trap 1 skillName OnNoAction $ asAction $
                 apply 1 skillName
                     [ Stun All
-                    , Bleed [Physical, Chakra, Summon] Flat 10
+                    , Bleed [NonMental] Flat 10
                     ]
           ]
         }

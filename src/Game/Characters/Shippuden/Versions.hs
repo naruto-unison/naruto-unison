@@ -479,7 +479,7 @@ characters =
     [LeafVillage, AlliedForces, Jonin, TeamLeader, Fire, Lightning]
     [ [ Skill.new
         { Skill.name      = "Evening Elephant"
-        , Skill.desc      = "Using a devastating sequence of punches, Guy deals 20 damage to an enemy. For 1 turn, they are invulnerable to allies and their non-mental skills are stunned. Guy loses 20 health down to a minimum of 1. Every time this skill is used, its damage increases by 20 and its cost increases by 1 additional arbitrary chakra."
+        , Skill.desc      = "Using a devastating sequence of punches, Guy deals 20 damage to an enemy. For 1 turn, they are invulnerable to allies and their physical and chakra skills are stunned. Guy loses 20 health down to a minimum of 1. Every time this skill is used, its damage increases by 20 and its cost increases by 1 additional arbitrary chakra."
         , Skill.classes   = [Physical, Melee, Uncounterable, Unreflectable]
         , Skill.cost      = [Tai]
         , Skill.effects   =
@@ -488,7 +488,8 @@ characters =
                 damage (20 + 20 * stacks)
                 apply 1 skillName
                     [ Alone
-                    , Stun NonMental
+                    , Stun Physical
+                    , Stun Chakra
                     ]
           , To Self do
                 sacrifice 1 20
@@ -901,7 +902,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Immortality Transference"
-        , Skill.desc      = "Orochimaru forces his soul on an enemy, dealing 15 damage to them for 3 turns and stunning their non-mental skills. If the target dies while affected by this skill, Orochimaru regains all lost health. If Orochimaru acquires a new body, this skill becomes [Eight-Headed Serpent][b][t]."
+        , Skill.desc      = "Orochimaru forces his soul on an enemy, dealing 15 damage to them for 3 turns and stunning their physical and chakra skills. If the target dies while affected by this skill, Orochimaru regains all lost health. If Orochimaru acquires a new body, this skill becomes [Eight-Headed Serpent][b][t]."
         , Skill.require   = [TargetHealth AtLeast 1]
         , Skill.classes   = [Physical, Melee, Necromancy]
         , Skill.cost      = [Gen, Nin]
@@ -909,7 +910,10 @@ characters =
         , Skill.dur       = Control 3
         , Skill.start     =
           [ To Enemy do
-                control [Stun NonMental]
+                control
+                    [ Stun Physical
+                    , Stun Chakra
+                    ]
                 controlTrap OnDeath $ targeting Self do
                     cancelChannel skillName
                     setHealth 100

@@ -263,7 +263,7 @@ characters =
     [LeafVillage, Jonin, Yin, Nara]
     [ [ Skill.new
         { Skill.name      = "Shadow Possession"
-        , Skill.desc      = "Shikaku captures an enemy in shadows, stunning their non-mental skills for 2 turns and dealing 20 damage. Deals 10 additional damage if the target is affected by [Black Spider Lily]. The following turn, this skill becomes [Shadow Dispersion][g]."
+        , Skill.desc      = "Shikaku captures an enemy in shadows, stunning their physical and chakra skills for 2 turns and dealing 20 damage. Deals 10 additional damage if the target is affected by [Black Spider Lily]. The following turn, this skill becomes [Shadow Dispersion][g]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen, Rand]
         , Skill.dur       = Control 2
@@ -272,7 +272,10 @@ characters =
           [ To Enemy do
                 bonus <- 10 `bonusIf` target has' traps "Black Spider Lily"
                 damage (20 + bonus)
-                control [Stun NonMental]
+                control
+                    [ Stun Physical
+                    , Stun Chakra
+                    ]
                 whenM (target has "Ensnared") $
                     prolong 1 skillName
           , To Self $ apply 1 skillName
@@ -283,7 +286,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Shadow Dispersion"
-        , Skill.desc      = "Extending his shadow tendrils, Shikaku deals 20 damage to all enemies not affected by [Shadow Possession] and stuns their non-mental skills for 1 turn. Deals 10 additional damage to targets affected by [Black Spider Lily]."
+        , Skill.desc      = "Extending his shadow tendrils, Shikaku deals 20 damage to all enemies not affected by [Shadow Possession] and stuns their physical and chakra skills for 1 turn. Deals 10 additional damage to targets affected by [Black Spider Lily]."
         , Skill.require   = [TargetHas AtMost 0 "Shadow Possession"]
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Gen]
@@ -292,7 +295,10 @@ characters =
                 bonus <- 10 `bonusIf` target has' traps "Black Spider Lily"
                 damage (20 + bonus)
                 bonusDur <- target amount "Ensnared"
-                apply (1 + fromIntegral bonusDur) skillName [Stun NonMental]
+                apply (1 + fromIntegral bonusDur) skillName
+                    [ Stun Physical
+                    , Stun Chakra
+                    ]
           ]
         }
       ]
@@ -331,7 +337,7 @@ characters =
     [LeafVillage, AlliedForces, Jonin, TeamLeader, Yang, Akimichi]
     [ [ Skill.new
         { Skill.name      = "Chain Bind"
-        , Skill.desc      = "Chōza slows an enemy, dealing 5 damage and weakening their physical, chakra, and summon damage by 10 for 1 turn. Lasts an additional turn during [Human Boulder]. Chōza's team gains 5 permanent destructible defense."
+        , Skill.desc      = "Chōza slows an enemy, dealing 5 damage and weakening their non-mental damage by 10 for 1 turn. Lasts an additional turn during [Human Boulder]. Chōza's team gains 5 permanent destructible defense."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.effects   =
@@ -339,7 +345,7 @@ characters =
                 damage 5
                 bonus <- 1 `bonusIf` target has "Human Boulder"
                 apply (1 + bonus) skillName
-                    [Weaken [Physical, Chakra, Summon] Flat 10]
+                    [Weaken [NonMental] Flat 10]
           , To Allies $ defend Permanent 5
           ]
         }

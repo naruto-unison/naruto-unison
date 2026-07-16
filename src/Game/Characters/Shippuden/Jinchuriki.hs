@@ -315,14 +315,17 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Clasp"
-        , Skill.desc      = "Naruto breaks through an enemy's defenses and takes hold of their head, dealing 10 damage and stunning their non-mental skills for 1 turn."
+        , Skill.desc      = "Naruto breaks through an enemy's defenses and takes hold of their head, dealing 10 damage and stunning their physical and chakra skills for 1 turn."
         , Skill.classes   = [Physical, Melee, Bypassing]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
                 damage 10
-                apply 1 skillName [Stun NonMental]
+                apply 1 skillName
+                    [ Stun Physical
+                    , Stun Chakra
+                    ]
           ]
         }
       , Skill.new

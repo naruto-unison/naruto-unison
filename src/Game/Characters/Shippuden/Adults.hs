@@ -300,13 +300,16 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Three Treasure Suction Crush"
-        , Skill.desc      = "Three puppets in a triangle formation create a vacuum hurricane which sucks in an enemy, dealing 30 damage to them and stunning their non-mental skills for 1 turn. Deals affliction damage if the target is affected by [Lion Sealing]."
+        , Skill.desc      = "Three puppets in a triangle formation create a vacuum hurricane which sucks in an enemy, dealing 30 damage to them and stunning their physical and chakra skills for 1 turn. Deals affliction damage if the target is affected by [Lion Sealing]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                apply 1 skillName [Stun NonMental]
+                apply 1 skillName
+                    [ Stun Physical
+                    , Stun Chakra
+                    ]
                 sealed <- target has "Lion Roar Sealing"
                 if sealed then afflict 30 else damage 30
           ]
