@@ -9,6 +9,7 @@ module ClassyPrelude
   , module Prelude
   , module Data.Kind
   , module NonNull
+  , HasCallStack
   , maybeToList
   , pattern Empty, pattern (:<), pattern (:>)
   ) where
@@ -25,6 +26,7 @@ import "classy-prelude" ClassyPrelude as CP hiding
     , maximum, minimum, maximumBy, minimumBy)
 import Prelude (type (~), MonadFail(..), errorWithoutStackTrace, ShowS, Show(..), shows, showChar, showString, showParen)
 import Data.Kind (Constraint, Type)
+import GHC.Stack (HasCallStack)
 import NonNull
 
 maybeToList :: ∀ o. (Monoid o, MonoPointed o) => Maybe (Element o) -> o

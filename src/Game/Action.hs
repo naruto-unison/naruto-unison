@@ -48,7 +48,7 @@ import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
 import qualified Game.Model.Status as Status
 import           Game.Model.Trigger (Trigger(..))
-import           Util ((!!), (∈), (∉), intersects)
+import           Util ((∈), (∉), intersects)
 
 -- | Conditions that have already affected an action in progress.
 -- Permits passive effects to bypass steps in the process and prevents infinite
@@ -123,7 +123,7 @@ targeted targets = do
         choices <- chooseTargets target
         return [ To t runner | t <- choices,
                                Requirement.targetable skill nUser
-                               $ ninjas !! Slot.toInt t ]
+                               $ ninjas `Slot.index` t ]
 
 fromContext :: ∀ a m. MonadPlay m => (Context -> a) -> m a
 fromContext f = f <$> P.context
@@ -132,9 +132,9 @@ chooseRandomTarget :: ∀ m. MonadPlay m => [Slot] -> m [Slot]
 chooseRandomTarget slots = do
     Context{skill, user} <- P.context
     ninjas <- P.ninjas
-    let nUser = ninjas !! Slot.toInt user
+    let nUser = ninjas `Slot.index` user
     let isValidSlot slot = Requirement.targetable skill nUser
-                         $ ninjas !! Slot.toInt slot
+                         $ ninjas `Slot.index` slot
     target <- R.choose $ filter isValidSlot slots
     return $ maybeToList target
 

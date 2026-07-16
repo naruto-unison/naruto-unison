@@ -2,13 +2,14 @@
 -- It must be guaranteed that all Slots are within their 'Bounded' range.
 module Game.Model.Slot
   ( Slot, toInt
+  , index
   , teamSize
   , all, allies, enemies
   , toChar
   , SlotSet
   ) where
 
-import ClassyPrelude hiding (all)
+import ClassyPrelude hiding (all, index)
 
 import           Data.Aeson (ToJSON)
 import           Data.Bits
@@ -37,6 +38,9 @@ maxVal = teamSize * 2 - 1
 -- This has the added advantage of making function signatures more readable!
 newtype Slot = Slot { toInt :: Int }
     deriving (Eq, Ord, Show, Display, Hashable, ToJSON)
+
+index :: ∀ o. (IsSequence o, Int ~ Index o) => o -> Slot -> Element o
+index xs (Slot x) = xs `unsafeIndex` x
 
 trySlot :: ∀ f. Alternative f => Int -> f Slot
 trySlot i

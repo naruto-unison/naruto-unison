@@ -59,7 +59,7 @@ data Wrapper = Wrapper
     , ninjas :: Ninjas
     }
 
-new :: [Ninja] -> Wrapper
+new :: HasCallStack => [Ninja] -> Wrapper
 new [a, b, c, d, e, f] = Wrapper Game.new $ Ninjas a b c d e f
 new _                  = error "wrong number of ninjas"
 

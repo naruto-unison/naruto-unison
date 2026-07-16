@@ -20,7 +20,6 @@ import           Data.Default (def)
 import qualified Data.FileEmbed as FileEmbed
 import qualified Data.Yaml as Yaml
 import           Database.Persist.Postgresql (PostgresConf)
-import           GHC.Stack (HasCallStack)
 import qualified Language.Haskell.TH.Syntax as TH
 import qualified Network.Wai.Handler.Warp as Warp
 import qualified Yesod.Default.Config2 as DefaultConfig

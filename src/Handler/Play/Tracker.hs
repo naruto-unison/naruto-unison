@@ -20,8 +20,6 @@ import qualified Data.Vector.Mutable as MVector
 
 import qualified Class.Parity as Parity
 import           Game.Model.Chakras (Chakras)
-import           Game.Model.Character (Character(Character))
-import qualified Game.Model.Character as Character
 import           Game.Model.Ninja (Ninja(Ninja))
 import qualified Game.Model.Ninja
 import           Game.Model.Player (Player)
@@ -36,7 +34,11 @@ import           Mission.Hooks (Hooks(Hooks))
 import qualified Mission.Hooks as Hooks
 import           Mission.Objective (Span(..))
 import           Mission.Progress (Progress(Progress), Store)
-import           Util ((!!), (!))
+import           Util ((!?), (?))
+
+infixl 9 ??
+(??) :: ∀ k v. Hashable k => HashMap k [v] -> k -> [v]
+m ?? k = fromMaybe [] $ m ? k
 
 data Track s = Track
     { slot     :: Slot
@@ -55,13 +57,14 @@ reset :: ∀ m. PrimMonad m => Track (PrimState m) -> m ()
 reset Track{hooks = Hooks{goals}, progress} = mapM_ f . zip [0..] $ toList goals
   where
     f (i, goal@(Reach Turn _ _ _)) = MVector.unsafeModify progress
-                                         (resetGoal goal) i
+                                       (resetGoal goal) i
     f _ = return ()
 
 addProgress :: ∀ m. PrimMonad m => Track (PrimState m) -> Int -> Int -> m ()
 addProgress _ _ 0   = return ()
-addProgress Track{hooks = Hooks{goals}, progress} i amt = case goals !! i of
-    Reach Moment amount _ _ | amt < amount -> return ()
+addProgress Track{hooks = Hooks{goals}, progress} i amt = case goals !? i of
+    Nothing -> return ()
+    Just (Reach Moment amount _ _) | amt < amount -> return ()
     _ -> MVector.unsafeModify progress (max 0 . (+ amt)) i
 
 trackStore :: ∀ m. PrimMonad m
@@ -78,13 +81,13 @@ trackAction1 skill ns track@Track { hooks
                                   , skills
                                   , slot
                                   } = do
-    sequence_ $ tracker <$> ns <*> hooks.actions ! skill
-    sequence_ $ tracker' <$> ns <*> hooks.stores ! skill
+    sequence_ $ tracker <$> ns <*> hooks.actions ?? skill
+    sequence_ $ tracker' <$> ns <*> hooks.stores ?? skill
     modifyRef' skills (skill :)
     used <- readRef skills
     mapM_ (consec used) hooks.consecs
   where
-    user = snd $ ns !! Slot.toInt slot
+    user = snd $ ns `Slot.index` slot
     consec used (i, match)
       | match /= sort (zipWith const used match) = return ()
       | otherwise = MVector.unsafeModify progress (+ 1) i
@@ -95,7 +98,7 @@ trackChakra1 :: ∀ m. PrimMonad m
              => Text -> (Chakras, Chakras) -> (Chakras, Chakras)
              -> Track (PrimState m) -> m ()
 trackChakra1 skill chaks chaks' track@Track{hooks, slot} =
-    sequence_ $ tracker <$> hooks.chakras ! skill
+    sequence_ $ tracker <$> hooks.chakras ?? skill
   where
     tracker (i, f) = addProgress track i
                    $ f (swapOwned chaks) (swapOwned chaks')
@@ -104,14 +107,14 @@ trackChakra1 skill chaks chaks' track@Track{hooks, slot} =
 trackTrap1 :: ∀ m. PrimMonad m
            => Text -> Slot -> Ninja -> Track (PrimState m) -> m ()
 trackTrap1 trap user n track@Track{hooks} =
-    sequence_ $ tracker <$> hooks.traps ! trap
+    sequence_ $ tracker <$> hooks.traps ?? trap
   where
     tracker (i, f) = trackStore track i $ f user n
 
 trackTrigger1 :: ∀ m. PrimMonad m
               => Trigger -> Ninja -> Track (PrimState m) -> m ()
 trackTrigger1 trigger n track@Track{hooks} =
-    sequence_ $ tracker <$> hooks.triggers ! trigger
+    sequence_ $ tracker <$> hooks.triggers ?? trigger
   where
     tracker (i, f)
       | f n       = addProgress track i 1
@@ -125,11 +128,11 @@ trackTurn1 p ns track@Track{skills, slot, hooks} = do
         $ modifyRef' skills $ fromMaybe [] . initMay
       reset track
   where
-    user = snd $ ns !! Slot.toInt slot
+    user = snd $ ns `Slot.index` slot
     tracker (n, n') (i, f) = trackStore track i $ f p user n n'
 
 new :: ∀ m. PrimMonad m => Ninja -> m (Track (PrimState m))
-new Ninja{character = Character{ident}, slot} = do
+new Ninja{character, slot} = do
     skills   <- newRef mempty
     store    <- MVector.replicate storeSize mempty
     progress <- MVector.replicate storeSize 0
@@ -141,7 +144,7 @@ new Ninja{character = Character{ident}, slot} = do
         , progress
         }
   where
-    hooks = Hooks.forCharacter ident
+    hooks = Hooks.forCharacter character
     storeSize = length hooks.goals
 
 newtype Tracker s = Tracker (Vector (Track s))

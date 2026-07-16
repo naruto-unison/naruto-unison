@@ -19,7 +19,6 @@ import           Control.Monad.Trans.Class (MonadTrans)
 import           Control.Monad.Trans.Maybe (MaybeT(..))
 import           Control.Monad.Error.Class (MonadError(..))
 import qualified Data.HashMap.Lazy as LHashMap
-import           GHC.Stack (HasCallStack)
 
 -- If a function doesn't seem like it should be inlined, it probably doesn't go
 -- here.
@@ -32,7 +31,7 @@ infixl 9 !?
 
 -- | 'unsafeIndex'.
 infixl 9 !!
-(!!) :: ∀ o. IsSequence o => o -> Index o -> Element o
+(!!) :: ∀ o. (HasCallStack, IsSequence o) => o -> Index o -> Element o
 (!!) = unsafeIndex
 {-# INLINE (!!) #-}
 

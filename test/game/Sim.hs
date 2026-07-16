@@ -58,8 +58,7 @@ describeCategory category name specs =
   where
     matchChar x = x.name == name && x.category == category
 
-use :: ∀ m. (HasCallStack, MonadHook m, MonadPlay m)
-    => Text -> m ()
+use :: ∀ m. (HasCallStack, MonadHook m, MonadPlay m) => Text -> m ()
 use name = do
     ninjas <- P.ninjas
     case getSkill $ unsafeHead ninjas of

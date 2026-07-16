@@ -34,8 +34,8 @@ data Hooks = Hooks
     , goals    :: Vector Goal
     }
 
-forCharacter :: Text -> Hooks
-forCharacter ident = forAllCharacters ! ident
+forCharacter :: Character -> Hooks
+forCharacter Character{ident} = forAllCharacters ! ident
 
 forAllCharacters :: HashMap Text Hooks
 forAllCharacters = lazyMapFromKeyed (Character.ident, new) Characters.list

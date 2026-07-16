@@ -41,7 +41,7 @@ import           Game.Model.Slot (Slot, SlotSet)
 import qualified Game.Model.Slot as Slot
 import           Game.Model.Status (Status(Status))
 import qualified Game.Model.Status
-import           Util ((!!), (∈), intersects)
+import           Util ((∈), intersects)
 
 -- | Adds 'Flat' amounts and multiplies by 'Percent' amounts.
 total :: Amount -> Int -> Float
@@ -198,7 +198,7 @@ heal ninjas player n@Ninja{statuses}
 heal1 :: ∀ o. IsNinjaSequence o => o -> Player -> Ninja -> Status -> Int
 heal1 ninjas player n Status{effects, user}
   | summed == 0 || not (Parity.allied player user) = 0
-  | otherwise = boost user n * summed + bless (ninjas !! Slot.toInt user)
+  | otherwise = boost user n * summed + bless (ninjas `Slot.index` user)
   where
     summed = sum [hp' | Heal hp' <- effects]
 
@@ -221,8 +221,8 @@ afflict1 ninjas player t Status{classes, effects, user}
   | not $ Parity.allied player user = 0
   | otherwise                       = damage
   where
-    nt     = ninjas !! Slot.toInt t
-    n      = ninjas !! Slot.toInt user
+    nt     = ninjas `Slot.index` t
+    n      = ninjas `Slot.index` user
     summed = fromIntegral $ sum [hp' | Afflict hp' <- effects]
     damage = truncate $ scale * (summed + ext)
     classes'
