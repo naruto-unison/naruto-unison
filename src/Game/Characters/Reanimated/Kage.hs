@@ -313,10 +313,10 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 bonus <- 5 `bonusPer` user amount "Hell Stab"
-                targetHealth <- target health
+                healthBefore <- target health
                 damage (20 + bonus)
-                targetHealth' <- target health
-                when (targetHealth' < targetHealth) $
+                healthAfter <- target health
+                when (healthAfter < healthBefore) $
                     alterCooldown "Lighting Armor" -1
                 unlessM (target has "Aftershocks") do
                     apply 1 skillName [Stun All]

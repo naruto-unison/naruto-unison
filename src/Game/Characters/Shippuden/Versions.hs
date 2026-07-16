@@ -425,10 +425,10 @@ characters =
         , Skill.effects   =
           [ To Self $ targeting Enemies $ apply 1 skillName [Restrict]
           , To Enemies do
-                targetHealth <- target health
+                healthBefore <- target health
                 damage 10
-                targetHealth' <- target health
-                when (targetHealth' < targetHealth)
+                healthAfter <- target health
+                when (healthAfter < healthBefore)
                     rechargeAll
           ]
         , Skill.changes   = withMode \m -> setCost [m]

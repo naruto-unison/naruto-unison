@@ -20,10 +20,10 @@ characters =
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy do
-                targetHealth <- target health
+                healthBefore <- target health
                 pierce 25
-                targetHealth' <- target health
-                when (targetHealth' < targetHealth) $
+                healthAfter <- target health
+                when (healthAfter < healthBefore) $
                     apply 1 skillName [Stun All]
           , To Self $ apply 1 skillName
                 [ Alternate "Lightning Beast Fang"
