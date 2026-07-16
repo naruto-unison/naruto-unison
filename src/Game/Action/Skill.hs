@@ -129,11 +129,11 @@ teach dur name slots = do
 factory :: ∀ m. MonadPlay m => m ()
 factory = do
     Context{target, user} <- P.context
-    alive <- N.alive <$> P.nTarget
+    aliveBefore <- N.alive <$> P.nTarget
     P.modify target Ninjas.factory
     P.modifyAll $ unSoulbound target
-    alive' <- N.alive <$> P.nTarget
-    when (alive' && not alive) do
+    aliveAfter <- N.alive <$> P.nTarget
+    when (aliveAfter && not aliveBefore) do
         P.trigger user [OnHeal]
         P.trigger target [OnResurrected]
 
