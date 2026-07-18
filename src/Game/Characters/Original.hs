@@ -22,6 +22,6 @@ characters = (\c -> c Original "")
     ++ Game.Characters.Original.Teachers.characters
     ++ Game.Characters.Original.Organizations.characters
     ++ Game.Characters.Original.Leaders.characters
-    ++ Game.Characters.Original.Versions.characters
     ++ Game.Characters.Original.Family.characters
     ++ Game.Characters.Original.Flashbacks.characters
+    ++ Game.Characters.Original.Versions.characters

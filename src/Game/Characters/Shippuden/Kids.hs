@@ -407,56 +407,6 @@ characters =
     , [ invuln "Byakugan Foresight" "Hinata" [Mental] ]
     ]
   , Character
-    "Ino Yamanaka" 0
-    "Now a chūnin, Ino takes control of every fight she faces. Her overpowering will steals the skills and secrets of her enemies and forces her allies to fight on no matter the cost. "
-    [LeafVillage, Eleven, AlliedForces, Chunin, Sensor, Earth, Water, Fire, Yin, Yang, Yamanaka]
-    [ [ Skill.new
-        { Skill.name      = "Mind Destruction"
-        , Skill.desc      = "Ino infiltrates an enemy's mind and prepares to strike at a moment of weakness. Next turn, the target receives 15 damage. If they use a skill on Ino or her allies next turn, they will be countered and this skill will be replaced by that skill for 1 turn. Copied skills cannot copy other skills and do not transform into alternates."
-        , Skill.classes   = [Mental, Ranged, Invisible, Unreflectable, Unremovable]
-        , Skill.cost      = [Gen]
-        , Skill.cooldown  = 1
-        , Skill.dur       = Control 2
-        , Skill.start     =
-          [ To Enemy $ trap 1 skillName (Countered All) $
-                copyLast 1
-          ]
-        , Skill.effects   =
-          [ To Enemy $ whenM (channeling skillName) $
-                damage 15
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Proxy Surveillance"
-        , Skill.desc      = "Ino's will takes over the battlefield. For 3 turns, she detects invisible effects and enemy cooldowns. While active, the enemy team's damage reduction, destructible defense, and destructible barrier skills are reduced by 15."
-        , Skill.classes   = [Mental, Invisible, Uncounterable, Unreflectable]
-        , Skill.cost      = [Rand]
-        , Skill.cooldown  = 3
-        , Skill.dur       = Control 3
-        , Skill.start     =
-          [ To Enemies $ control
-                [ Reveal
-                , Build -15
-                , Unreduce 15
-                ]
-          ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Mind Transfer Clone"
-        , Skill.desc      = "Ino takes control of her allies, forcing them to fight on no matter their condition. For 2 turns, her allies ignore harmful non-damaging status effects."
-        , Skill.classes   = [Mental, Invisible]
-        , Skill.cost      = [Gen]
-        , Skill.cooldown  = 2
-        , Skill.dur       = Control 2
-        , Skill.start     =
-          [ To XAllies $ control [Enrage] ]
-        }
-      ]
-    , [ invuln "Hide" "Ino" [Mental] ]
-    ]
-  , Character
     "Shikamaru Nara" 0
     "Despite losing his match, Shikamaru was the only candidate promoted to chūnin after the exams that Orochimaru disrupted, and he has maintained that lead ever since. Once known for his laziness, Shikamaru has worked tirelessly to become a leader. With years of experience, his plans have become even more convoluted and intricate."
     [LeafVillage, Eleven, AlliedForces, Chunin, Fire, Earth, Yin, Nara]
@@ -622,6 +572,56 @@ characters =
         }
       ]
     , [ (invuln "Block" "Chōji" [Physical]) { Skill.changes = caloricCost } ]
+    ]
+  , Character
+    "Ino Yamanaka" 0
+    "Now a chūnin, Ino takes control of every fight she faces. Her overpowering will steals the skills and secrets of her enemies and forces her allies to fight on no matter the cost. "
+    [LeafVillage, Eleven, AlliedForces, Chunin, Sensor, Earth, Water, Fire, Yin, Yang, Yamanaka]
+    [ [ Skill.new
+        { Skill.name      = "Mind Destruction"
+        , Skill.desc      = "Ino infiltrates an enemy's mind and prepares to strike at a moment of weakness. Next turn, the target receives 15 damage. If they use a skill on Ino or her allies next turn, they will be countered and this skill will be replaced by that skill for 1 turn. Copied skills cannot copy other skills and do not transform into alternates."
+        , Skill.classes   = [Mental, Ranged, Invisible, Unreflectable, Unremovable]
+        , Skill.cost      = [Gen]
+        , Skill.cooldown  = 1
+        , Skill.dur       = Control 2
+        , Skill.start     =
+          [ To Enemy $ trap 1 skillName (Countered All) $
+                copyLast 1
+          ]
+        , Skill.effects   =
+          [ To Enemy $ whenM (channeling skillName) $
+                damage 15
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Proxy Surveillance"
+        , Skill.desc      = "Ino's will takes over the battlefield. For 3 turns, she detects invisible effects and enemy cooldowns. While active, the enemy team's damage reduction, destructible defense, and destructible barrier skills are reduced by 15."
+        , Skill.classes   = [Mental, Invisible, Uncounterable, Unreflectable]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 3
+        , Skill.dur       = Control 3
+        , Skill.start     =
+          [ To Enemies $ control
+                [ Reveal
+                , Build -15
+                , Unreduce 15
+                ]
+          ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Mind Transfer Clone"
+        , Skill.desc      = "Ino takes control of her allies, forcing them to fight on no matter their condition. For 2 turns, her allies ignore harmful non-damaging status effects."
+        , Skill.classes   = [Mental, Invisible]
+        , Skill.cost      = [Gen]
+        , Skill.cooldown  = 2
+        , Skill.dur       = Control 2
+        , Skill.start     =
+          [ To XAllies $ control [Enrage] ]
+        }
+      ]
+    , [ invuln "Hide" "Ino" [Mental] ]
     ]
   , Character
     "Rock Lee" 0

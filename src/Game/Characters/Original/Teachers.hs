@@ -205,6 +205,45 @@ characters =
     , [ invuln "Dodge" "Hayate" [Physical] ]
     ]
   , Character
+    "Shizune" 0
+    "A jōnin from the Hidden Leaf Village, Shizune is a talented medical-nin apprenticed to Tsunade. She is agile and fast, fully capable of holding her own in a fight whenever she isn't healing one of her allies."
+    [LeafVillage, AlliedForces, Jonin]
+    [ [ Skill.new
+        { Skill.name      = "Poison Needle Volley"
+        , Skill.desc      = "Shizune shoots hidden needles at an enemy, dealing 15 damage."
+        , Skill.classes   = [Bane, Physical, Ranged]
+        , Skill.cost      = [Rand]
+        , Skill.effects   =
+          [ To Enemy $ damage 15 ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Poison Fog"
+        , Skill.desc      = "Shizune spews forth a toxic cloud to poison an enemy, causing them to receive 10 affliction damage for 3 turns. Cannot be used on an enemy already affected by [Poison Fog]."
+        , Skill.require   = [TargetHas AtMost 0 "Poison Fog"]
+        , Skill.classes   = [Bane, Ranged]
+        , Skill.cost      = [Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To Enemy $ apply 3 skillName [Afflict 10] ]
+        }
+      ]
+    , [ Skill.new
+        { Skill.name      = "Regenerative Healing Technique"
+        , Skill.desc      = "Using a notoriously difficult healing technique, Shizune restores 35 health to herself or an ally and cures the target of baneful effects."
+        , Skill.classes   = [Chakra]
+        , Skill.cost      = [Rand, Rand]
+        , Skill.cooldown  = 1
+        , Skill.effects   =
+          [ To XAlly do
+                cureBane
+                heal 35
+          ]
+        }
+      ]
+    , [ invuln "Dodge" "Shizune" [Physical] ]
+    ]
+  , Character
     "Kakashi Hatake" 0
     "Team 7's jōnin squad leader, Kakashi puts the life of his teammates above all else. Known as the Copy Ninja, Kakashi analyzes and duplicates abilities used against him."
     [LeafVillage, Jonin, TeamLeader, Lightning, Water, Earth, Fire, Wind, Yin, Yang]
@@ -492,44 +531,5 @@ characters =
         }
       ]
     , [ invuln "Teleport" "Baki" [Chakra] ]
-    ]
-  , Character
-    "Shizune" 0
-    "A jōnin from the Hidden Leaf Village, Shizune is a talented medical-nin apprenticed to Tsunade. She is agile and fast, fully capable of holding her own in a fight whenever she isn't healing one of her allies."
-    [LeafVillage, AlliedForces, Jonin]
-    [ [ Skill.new
-        { Skill.name      = "Poison Needle Volley"
-        , Skill.desc      = "Shizune shoots hidden needles at an enemy, dealing 15 damage."
-        , Skill.classes   = [Bane, Physical, Ranged]
-        , Skill.cost      = [Rand]
-        , Skill.effects   =
-          [ To Enemy $ damage 15 ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Poison Fog"
-        , Skill.desc      = "Shizune spews forth a toxic cloud to poison an enemy, causing them to receive 10 affliction damage for 3 turns. Cannot be used on an enemy already affected by [Poison Fog]."
-        , Skill.require   = [TargetHas AtMost 0 "Poison Fog"]
-        , Skill.classes   = [Bane, Ranged]
-        , Skill.cost      = [Rand]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To Enemy $ apply 3 skillName [Afflict 10] ]
-        }
-      ]
-    , [ Skill.new
-        { Skill.name      = "Regenerative Healing Technique"
-        , Skill.desc      = "Using a notoriously difficult healing technique, Shizune restores 35 health to herself or an ally and cures the target of baneful effects."
-        , Skill.classes   = [Chakra]
-        , Skill.cost      = [Rand, Rand]
-        , Skill.cooldown  = 1
-        , Skill.effects   =
-          [ To XAlly do
-                cureBane
-                heal 35
-          ]
-        }
-      ]
-    , [ invuln "Dodge" "Shizune" [Physical] ]
     ]
   ]
