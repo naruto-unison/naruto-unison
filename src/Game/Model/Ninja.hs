@@ -71,8 +71,8 @@ isChanneling (ID.fromOwner -> skillID) n = any matches n.channels
     matches chan@Channel{new = False} = ID.from chan == skillID
     matches _ = False
 
-has' :: ∀ a. HasID a
-     => (Ninja -> [a])
+has' :: ∀ o. MonoFoldable o => HasID (Element o)
+     => (Ninja -> o)
      -> ID -- ^ 'Status.name'.
      -> Ninja -> Bool
 has' getter itemID n = any ((== itemID) . ID.from) $ getter n

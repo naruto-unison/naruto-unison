@@ -120,8 +120,8 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To REnemy do
-                stacks <- user amount skillName
-                damage (20 + 5 * stacks)
+                bonus <- 5 `bonusPer` user amount skillName
+                damage (20 + bonus)
           , To Self $ addStack skillName
           ]
         , Skill.changes   = changeWithChannel "Drunken Fist" \x -> x
@@ -254,21 +254,17 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sand Burial Prison"
-        , Skill.desc      = "Gaara traps all enemies in a sinking pit of sand, increasing the costs of their non-mental skills by 1 arbitrary chakra each turn. If an enemy uses a non-mental skill, they are freed from [Sand Burial Prison]. Next turn, this skill becomes [Giant Sand Burial][n][n]."
+        , Skill.desc      = "Gaara traps all enemies in a sinking pit of sand, increasing the costs of their non-mental skills by 1 arbitrary chakra for 1 turn. This skill becomes [Giant Sand Burial][n][n] the following turn unless an enemy uses a non-mental skill next turn."
         , Skill.classes   = [Physical, Ranged, Unreflectable]
         , Skill.cost      = [Nin]
-        , Skill.dur       = Ongoing Permanent
-        , Skill.start     =
+        , Skill.effects   =
         [ To Self $ apply 1 skillName
                 [ Alternate "Sand Burial Prison"
                             "Giant Sand Burial"
                 ]
-        ]
-        , Skill.effects   =
-          [ To Enemies do
-                apply Permanent skillName [Exhaust [NonMental]]
-                trap 1 skillName (OnAction NonMental) do
-                    cancelChannel skillName
+        , To Enemies do
+                apply 1 skillName [Exhaust [NonMental]]
+                trap 1 skillName (OnAction NonMental) $
                     targeting Everyone do
                         remove skillName
                         removeTrap skillName
@@ -277,7 +273,6 @@ characters =
       , Skill.new
         { Skill.name      = "Giant Sand Burial"
         , Skill.desc      = "Demolishes Gaara's destructible barrier and the destructible defense of enemies affected by [Sand Burial Prison], then deals 40 piercing damage to them."
-        , Skill.require   = [TargetHas AtLeast 1 "Sand Burial Prison"]
         , Skill.classes   = [Physical, Ranged, Unreflectable]
         , Skill.cost      = [Blood, Nin]
         , Skill.effects   =

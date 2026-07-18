@@ -170,12 +170,12 @@ instance MonadPlay m => NinjaGetter m (ID -> Ninja -> a) where
     target f name = f <$> P.createID name <*> P.nTarget
     user   f name = f <$> P.createID name <*> P.nUser
 
-instance MonadPlay m => NinjaGetter m ((Ninja -> [b]) -> ID -> Ninja -> a) where
-    type Getter m ((Ninja -> [b]) -> ID -> Ninja -> a) = (Ninja -> [b]) -> Text -> m a
+instance MonadPlay m => NinjaGetter m ((Ninja -> b) -> ID -> Ninja -> a) where
+    type Getter m ((Ninja -> b) -> ID -> Ninja -> a) = (Ninja -> b) -> Text -> m a
     target f getter name = f getter <$> P.createID name <*> P.nTarget
     user   f getter name = f getter <$> P.createID name <*> P.nUser
 
-instance MonadPlay m => NinjaGetter m ((Ninja -> [b]) -> Ninja -> a) where
-    type Getter m ((Ninja -> [b]) -> Ninja -> a) = (Ninja -> [b]) -> m a
+instance MonadPlay m => NinjaGetter m ((Ninja -> b) -> Ninja -> a) where
+    type Getter m ((Ninja -> b) -> Ninja -> a) = (Ninja -> b) -> m a
     target f getter = f getter <$> P.nTarget
     user   f getter = f getter <$> P.nUser

@@ -457,7 +457,7 @@ characters =
     [LeafVillage, Akatsuki, Rogue, SRank, Fire, Wind, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
         { Skill.name      = "Mangekyō Sharingan"
-        , Skill.desc      = "Itachi becomes invulnerable, but takes 15 affliction damage every turn and cannot be healed or cured. While active, the cooldowns and chakra costs of his other skills are doubled. This skill can be used again with no chakra cost to cancel its effect."
+        , Skill.desc      = "Itachi becomes invulnerable, but takes 15 affliction damage every turn and cannot be healed or cured. While active, [Amaterasu] and [Tsukuyomi] cost twice as much chakra and their cooldowns are increased by 2. This skill can be used again with no chakra cost to cancel its effect."
         , Skill.classes   = [Mental, Unremovable]
         , Skill.cost      = [Blood]
         , Skill.effects   =
@@ -491,7 +491,7 @@ characters =
           ]
         , Skill.changes = changeWith "Mangekyō Sharingan" \x -> x
                 { Skill.cost     = [Nin, Nin]
-                , Skill.cooldown = 2
+                , Skill.cooldown = 3
                 , Skill.effects  =
                   [ To Enemies do
                         afflict 20
@@ -513,9 +513,9 @@ characters =
           ]
         , Skill.changes = changeWith "Mangekyō Sharingan" \x -> x
                 { Skill.cost     = [Gen, Gen]
-                , Skill.cooldown = 2
+                , Skill.cooldown = 3
                 , Skill.effects  =
-                  [ To Enemies do
+                  [ To Enemy do
                         damage 20
                         apply 3 skillName [Stun All]
                   ]

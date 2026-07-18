@@ -141,7 +141,7 @@ characters =
     [LeafVillage, Jonin, Hyuga]
     [ [ Skill.new
         { Skill.name      = "Gentle Fist"
-        , Skill.desc      = "Hiashi slams an enemy, dealing 20 damage and depleting 1 random chakra. Next turn, he repeats the attack on a random enemy."
+        , Skill.desc      = "Hiashi slams an enemy, dealing 20 damage and depleting 1 random chakra. Next turn, he repeats the attack on a different random enemy."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 2
@@ -152,7 +152,7 @@ characters =
                 damage 20
           ]
         , Skill.effects   =
-          [ To REnemy $ whenM (channeling skillName) do
+          [ To RXEnemy $ whenM (channeling skillName) do
                 deplete 1
                 damage 20
           ]

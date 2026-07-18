@@ -40,8 +40,8 @@ spec = parallel do
             it "takes turns normally" do
                 damaged <- measureDamage Sim.act
                 damaged `shouldBe` 15
-            it "damages instantly during Successful Ambush" do
-                targeting Self $ tag Permanent "Successful Ambush"
+            it "damages instantly during Genjutsu Ambush Tactics" do
+                targeting Self $ tag Permanent "Genjutsu Ambush Tactics"
                 damaged <- measureDamage Sim.act
                 damaged `shouldBe` 30
 
@@ -53,8 +53,8 @@ spec = parallel do
                 damage (20 * 2)
                 damaged <- measureDamage Sim.act
                 damaged `shouldBe` 10 + 2 * 10
-            it "deals bonus damage during Successful Ambush" do
-                targeting Self $ tag Permanent "Successful Ambush"
+            it "deals bonus damage during Genjutsu Ambush Tactics" do
+                targeting Self $ tag Permanent "Genjutsu Ambush Tactics"
                 damaged <- measureDamage Sim.act
                 damaged `shouldBe` 10 + 30
 
@@ -76,7 +76,7 @@ spec = parallel do
             it "tags user if not damaged" do
                 Sim.act
                 Sim.turns 1
-                user has "Successful Ambush"
+                user has "Genjutsu Ambush Tactics"
 
     describeCharacter "Anko Mitarashi" do
         useOn Enemy "Dual Pin" do

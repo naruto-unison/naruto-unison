@@ -665,8 +665,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Rising Twin Dragons"
-        , Skill.desc      = "Summoning scrolls conceal Tenten in a cloud of smoke, rendering her invulnerable to physical, chakra, and summon skills for 1 turn. The scrolls aid her the next time she uses one of her other skills. If she uses [Unsealing Technique], it adds 1 additional stack of [Unsealing Technique]. If she uses [Rising Dragon Control], the duration of its effect is increased by 1 turn. Cannot be used while active."
-        , Skill.require   = [UserHas AtMost 0 "Rising Twin Dragons"]
+        , Skill.desc      = "Summoning scrolls conceal Tenten in a cloud of smoke, rendering her invulnerable to physical, chakra, and summon skills for 1 turn. The scrolls aid her the next time she uses one of her other skills. If she uses [Unsealing Technique], it adds 1 additional stack of [Unsealing Technique]. If she uses [Rising Dragon Control], the duration of its effect is increased by 1 turn."
         , Skill.classes   = [Physical, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1

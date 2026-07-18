@@ -56,42 +56,43 @@ characters =
     [LeafVillage, Orochimaru, Chunin, Rogue, Earth, Yin]
     [ [ Skill.new
         { Skill.name      = "Kunai Assault"
-        , Skill.desc      = "Mizuki throws a series of kunai at an enemy, dealing 15 damage for 2 turns. Deals all 30 damage instantly during [Successful Ambush]."
+        , Skill.desc      = "Mizuki throws a series of kunai at an enemy, dealing 15 damage for 2 turns. Deals all 30 damage instantly during the invulnerability of [Genjutsu Ambush Tactics]."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.dur       = Action 2
         , Skill.effects   =
-          [ To Enemy do
-                bonus <- 15 `bonusIf` user has "Successful Ambush"
-                damage (15 + bonus)
-          ]
-        , Skill.changes   = changeWith "Successful Ambush" $ setDur Instant
+          [ To Enemy $ damage 15 ]
+        , Skill.changes   = changeWith "Genjutsu Ambush Tactics" \x -> x
+            { Skill.dur     = Instant
+            , Skill.effects =
+              [ To Enemy $ damage 30 ]
+            }
         }
       ]
     , [ Skill.new
         { Skill.name      = "Execution Shuriken"
-        , Skill.desc      = "Mizuki throws one of his two giant shurikens at an enemy, dealing 10 damage plus 10 per 20 health the target has lost. Deals 30 additional damage during [Successful Ambush]."
+        , Skill.desc      = "Mizuki throws one of his two giant shurikens at an enemy, dealing 10 damage plus 10 per 20 health the target has lost. Deals 30 additional damage during the invulnerability of [Genjutsu Ambush Tactics]."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Tai, Rand]
         , Skill.charges   = 2
         , Skill.effects   =
           [ To Enemy do
                 targetHealth <- target health
-                bonus        <- 30 `bonusIf` user has "Successful Ambush"
+                bonus        <- 30 `bonusIf` user has "Genjutsu Ambush Tactics"
                 damage $ 10 + bonus + 10 * ((100 - targetHealth) `quot` 20)
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Genjutsu Ambush Tactics"
-        , Skill.desc      = "Mizuki lurks in the shadows. If no enemy uses a skill that deals damage to him, he becomes invulnerable for 1 turn as a Successful Ambush."
+        , Skill.desc      = "Mizuki lurks in the shadows. If no enemy uses a skill that deals damage to him during the next turn, he becomes invulnerable for 1 turn."
         , Skill.classes   = [Mental, Invisible]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.start     =
           [ To Self $ trap 1 skillName OnNotDamaged $
-                apply 1 "Successful Ambush" [Invulnerable All]
+                apply 1 skillName [Invulnerable All]
           ]
         }
       ]
@@ -103,13 +104,13 @@ characters =
     [LeafVillage, AlliedForces, Jonin, Fire, Yin]
     [ [ Skill.new
         { Skill.name      = "Dual Pin"
-        , Skill.desc      = "Anko pins herself to an enemy by stabbing a kunai through her hand, preventing the target from reducing damage or becoming invulnerable for 1 turn and dealing 5 damage. Deals 5 additional damage if the target is affected by [Dragon Flame]."
+        , Skill.desc      = "Anko pins herself to an enemy by stabbing a kunai through her hand, dealing 5 damage and preventing the target from reducing damage or becoming invulnerable for 1 turn. Deals 5 additional damage if the target is affected by [Dragon Flame]."
         , Skill.classes   = [Physical, Melee]
         , Skill.effects   =
           [ To Enemy do
-                apply 1 skillName [Expose]
                 bonus <- 5 `bonusIf` target has "Dragon Flame"
                 damage (5 + bonus)
+                apply 1 skillName [Expose]
           , To Self $ apply 1 skillName
                 [ Alternate "Dragon Flame"
                             "Twin Snake Sacrifice"
@@ -240,9 +241,11 @@ characters =
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                pierce 50
-                whenM (target has "Summoning: Ninja Hounds")
+                hounds <- target has "Summoning: Ninja Hounds"
+                if hounds then
                     kill
+                else
+                    pierce 50
           ]
         }
       ]
@@ -254,19 +257,19 @@ characters =
     [LeafVillage, Jonin, Sensor, TeamLeader, Yin, Sarutobi]
     [ [ Skill.new
         { Skill.name      = "Demonic Illusion: Entrap"
-        , Skill.desc      = "Kurenai hinders an enemy with her genjutsu. For 2 turns, the target's damage is weakened by 10, the chakra costs of their skills is increased by 1 arbitrary chakra, and they cannot reduce damage or become invulnerable. Kurenai then deals 10 damage to the target. Adds 5 destructible defense to Kurenai's next [Illusory Tree Meld]."
+        , Skill.desc      = "Kurenai hinders an enemy with her genjutsu, dealing 10 damage to them. For 2 turns, the target's damage is weakened by 10, the chakra costs of their skills are increased by 1 arbitrary chakra, and they cannot reduce damage or become invulnerable. Adds 5 destructible defense to Kurenai's next [Illusory Tree Meld]."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Enemy do
+          [ To Self $ addStack "Illusion"
+          , To Enemy do
+                damage 10
                 apply 2 skillName
                     [ Weaken [All] Flat 10
                     , Exhaust [All]
                     , Expose
                     ]
-                damage 10
-          , To Self $ addStack "Illusion"
           ]
         }
       ]

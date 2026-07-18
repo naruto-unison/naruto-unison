@@ -107,27 +107,17 @@ spec = parallel do
         useOn Enemies "Sand Burial Prison" do
             it "exhausts targets" do
                 Sim.act
-                Sim.withClass Mental $ Sim.as XEnemies $ return ()
                 targetExhausted <- Effects.exhaust [NonMental]
                                    <$> Sim.targets XEnemies
                 targetExhausted `shouldBe` [Rand]
-            it "increases every turn" do
+            it "alternates if no enemy uses a non-mental skill" do
                 Sim.act
-                Sim.turns 1
                 Sim.withClass Mental $ Sim.as XEnemies $ return ()
-                targetExhausted <- Effects.exhaust [NonMental]
-                                   <$> Sim.targets XEnemies
-                targetExhausted `shouldBe` [Rand, Rand]
-            it "ends if target uses non-mental" do
-                Sim.act
-                Sim.turns 1
-                Sim.withClass NonMental $ Sim.as XEnemies $ return ()
-                targetExhausted <- Effects.exhaust [NonMental] <$>
-                                   Sim.targets XEnemies
-                targetExhausted `shouldBe` []
-            it "alternates" do
-                Sim.act
                 user $ hasSkill "Giant Sand Burial"
+            it "does not alternate if an enemy uses a non-mental skill" do
+                Sim.act
+                Sim.withClass NonMental $ Sim.as XEnemies $ return ()
+                not <$> user (hasSkill "Giant Sand Burial")
   where
     describeCharacter = describeCategory Original
     testStacks = 3

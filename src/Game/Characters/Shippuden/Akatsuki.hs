@@ -633,12 +633,12 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Amaterasu"
-        , Skill.desc      = "Itachi sets an enemy on fire, dealing 15 affliction damage to them every turn until he uses [Susanoo]. Does not stack. During [Susanoo], this skill becomes [Totsuka Blade][g]."
+        , Skill.desc      = "Itachi sets an enemy on fire, dealing 15 affliction damage to them for 2 turns. Does not stack. During [Susanoo], this skill becomes [Totsuka Blade][g]."
         , Skill.classes   = [Bane, Chakra, Ranged, Nonstacking]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy $ apply Permanent skillName [Afflict 15] ]
+          [ To Enemy $ apply 2 skillName [Afflict 15] ]
         }
       , Skill.new
         { Skill.name      = "Totsuka Blade"

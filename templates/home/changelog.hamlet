@@ -31,8 +31,6 @@
   <li>
     The <i>Unique</i> class has been removed.
   <li>
-    Classes always apply to the entire skill.
-  <li>
     In addition to <i>Chakra</i>, <i>Mental</i>, and <i>Physical</i> skills, there are now <i>Summon</i> skills. <i>Summon</i> skills are difficult to stun, but easy to avoid.
   <li>
     The <i>Instant</i>, <i>Action</i>, and <i>Control</i> classes have been moved to a new field, Duration, which also indicates how long the skill lasts.
@@ -101,9 +99,9 @@
 <h3 #minor-adjustments>Minor Adjustments
 <ul>
   <li>
-    Skills that sacrifice the user's health, such as ^{Link.skill "Rock Lee" Original "Fifth Gate Opening"} and ^{Link.skill "Karin" Shippuden "Heal Bite"}, are treated as a direct loss of health rather than self-directed affliction damage. The main distinction is that if a character gains a status effect that increases all affliction damage they deal, it will not cause them to sacrifice more health.
+    Skills that sacrifice the user's health, such as ^{Link.skill "Rock Lee" Original "Fifth Gate Opening"} and ^{Link.skill "Karin" Shippuden "Heal Bite"}, are treated as a direct loss of health rather than self-directed affliction damage.
   <li>
-    Chakra cost changes are affected by skills that negate harmful effects, such as ^{Link.skill "Sakura Haruno" Original "Inner Sakura"}.
+    Skills that negate harmful effects, such as ^{Link.skill "Sakura Haruno" Original "Inner Sakura"}, no longer exclude chakra cost changes.
   <li>
     ^{Link.skill "Yoroi Akadō" Original "Draining Assault"} applies its weakening and strengthening status effects for all turns of its duration, rather than for 2 turns at the start of its 3 turn duration.
   <li>
@@ -111,15 +109,21 @@
   <li>
     ^{Link.skill "Anko Mitarashi" Original "Twin Snake Sacrifice"} bypasses invulnerability.
   <li>
-    The ^{Link.skill "Demon Brothers" Original "Poison Gauntlet"} applies a weak, slow-acting poison that can easily be cured by stabbing oneself (or getting someone else to do it).
+    The ^{Link.skill "Demon Brothers" Original "Poison Gauntlet"} applies a weak, slow-acting poison.
   <li>
-    The weak-to-affliction status effect from ^{Link.skill "Jiraiya" Original "Major Summoning: Gamabunta"} ends when Jiraiya dies, in order to be consistent with the other Sannin.
-  <li>
-    ^{Link.skill "Jiraiya" Original "Toad Oil Bomb"} deals affliction damage, in order to be consistent with other damage-over-time fire attacks and to benefit from ^{Link.skill "Jiraiya" Original "Major Summoning: Gamabunta"}.
+    The fire technique skills that did not deal affliction damage now deal affliction damage instead:
+    <ul>
+      <li>^{Link.skill "Jiraiya" Original "Giant Flame Bomb"}
+      <li>^{Link.skill "Jiraiya" Original "Toad Oil Bomb"}
+      <li>^{Link.skill "Atsui" Shippuden "Flame Slice"}
+      <li>^{Link.skill "Madara Uchiha" Shippuden "Majestic Destroyer Flame"}
+      <li>^{Link.skill "Yugito Nii" Shippuden "Flaming Cat Roar"}
   <li>
     ^{Link.skill "Hiruzen Sarutobi" Original "Reaper Death Seal"} bypasses invulnerability.
   <li>
     ^{Link.skill "Hiashi Hyūga" Original "Eight Trigrams Air Palm Wall"} reflects skills onto their user, rather than a random enemy.
+  <li>
+    ^{Link.skill "Young Kakashi" Original "Sharingan"} causes him to gain 1 random chakra if the target uses a skill that gains chakra.
   <li>
     ^{Link.skill "Naruto Uzumaki" Shippuden "Rasen Shuriken"} and ^{Link.skill "Sage Mode Naruto" Shippuden "Rasen Shuriken"} permanently weaken the target's chakra damage.
   <li>
@@ -129,9 +133,9 @@
   <li>
     Applying negative destructible defense (which can occur due to ^{Link.skill "Ino Yamanaka" Shippuden "Proxy Surveillance"} or ^{Link.skill "Rehabilitated Gaara" Original "Sand Tsunami"}) causes destructible barrier rather than negative damage reduction.
   <li>
-    ^{Link.skill "Kabuto Yakushi" Shippuden "Chakra Absorbing Snakes"} no longer stuns healing effects for 1 turn. Instead, if the target heals next turn, all of their skills will be stunned for 2 turns.
+    ^{Link.skill "Kabuto Yakushi" Shippuden "Chakra Absorbing Snakes"} no longer stuns healing effects for 1 turn. Instead, if the target restores health to anyone next turn, all of their skills will be stunned for 2 turns.
   <li>
-    ^{Link.skill "Maki" Shippuden "Humidified Cloth"} block the target from affecting the user's team at all.
+    ^{Link.skill "Maki" Shippuden "Humidified Cloth"} blocks the target from affecting the user's team at all.
   <li>
     ^{Link.skill "C" Shippuden "Flash Pillar"} deals piercing damage, in order to be consistent with other lightning attacks.
   <li>
@@ -141,17 +145,11 @@
   <li>
     ^{Link.skill "Sai" Shippuden "Ink Mist"} bypasses invulnerability.
   <li>
-    ^{Link.skill "Itachi Uchiha" Shippuden "Amaterasu"} lasts until ^{Link.skill "Itachi Uchiha" Shippuden "Susanoo"} is used.
-  <li>
     ^{Link.skill "Jiraiya" Shippuden "Toad Oil Bomb"} interrupts <i>Action</i> skills as well as <i>Control</i> skills.
-  <li>
-    ^{Link.skill "Killer B" Shippuden "Lariat"} makes him invulnerable to skills that cost genjutsu chakra for one turn.
   <li>
     ^{Link.skill "Hashirama Senju" Reanimated "Deep Forest Creation"} increases the cooldown of all skills, not just non-mental skills.
   <li>
-    ^{Link.skill "Hashirama Senju" Reanimated "Deep Forest Creation"} only resets the cooldowns of [Instant] skills.
-  <li>
-    ^{Link.skill "Chukichi" Reanimated "Hidden Frost"} makes Chukichi invulnerable to all ranged skills.
+    ^{Link.skill "Hashirama Senju" Reanimated "Deep Forest Creation"} only resets the cooldowns of <i>Instant</i> skills.
 
 <h3 #duration-changes>Duration changes:
 <ul>
@@ -194,9 +192,6 @@
   <li>
     ^{Link.skill "Inoichi Yamanaka" Original "Mental Invasion"}:
     was <i>Instant</i>, now <i>Control</i>.
-  <li>
-    ^{Link.skill "Kakashi Hatake" Original "Summoning: Ninja Hounds"}:
-    was <i>Control</i>, now <i>Instant</i>.
   <li>
     ^{Link.skill "Kurenai Yuhi" Original "Demonic Illusion: Sylvan Fetters"}:
     was <i>Instant</i>, now <i>Control</i>.

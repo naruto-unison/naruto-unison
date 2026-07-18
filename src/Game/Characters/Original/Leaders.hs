@@ -78,12 +78,12 @@ characters =
     [LeafVillage, Sannin, Sage, TeamLeader, Fire, Wind, Earth, Water, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Giant Flame Bomb"
-        , Skill.desc      = "Jiraiya spits out a burst of fire that deals 20 affliction damage to an enemy and 10 to the rest of their team."
+        , Skill.desc      = "Jiraiya spits out a burst of fire that deals 20 damage to an enemy and 10 to the rest of their team."
         , Skill.classes   = [Bane, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ To Enemy $ afflict 20
-          , To XEnemies $ afflict 10
+          [ To Enemy $ damage 20
+          , To XEnemies $ damage 10
           ]
         }
       ]

@@ -362,12 +362,16 @@ characters =
     [MistVillage, Kabuto, Jonin, Sensor, Water]
     [ [ Skill.new
         { Skill.name      = "Hidden Frost"
-        , Skill.desc      = "A cloud of frost conceals Chūkichi, rendering him effectively invisible. For 2 turns, he is invulnerable to ranged skills."
+        , Skill.desc      = "A cloud of frost conceals Chūkichi, rendering him effectively invisible. For 2 turns, he is invulnerable to physical and bane skills."
         , Skill.classes   = [Chakra]
         , Skill.cooldown  = 3
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ To Self $ apply 2 skillName [Invulnerable Ranged] ]
+          [ To Self $ apply 2 skillName
+                [ Invulnerable Physical
+                , Invulnerable Bane
+                ]
+          ]
         }
       ]
     , [ Skill.new

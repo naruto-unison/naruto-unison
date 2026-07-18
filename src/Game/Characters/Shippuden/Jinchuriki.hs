@@ -122,14 +122,13 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Lariat"
-        , Skill.desc      = "As the eight-tailed beast's chakra surrounds Killer B, he deals 20 piercing damage to one enemy!\nNext turn, Gyūki's presence keeps B's mind from getting lost, making him invulnerable to skills with genjutsu cost!\nSpends an additional arbitrary chakra during [Acrobat]'s funky flow to deal 20 extra damage with a punishing blow!"
+        , Skill.desc      = "As the eight-tailed beast's chakra surrounds Killer B, he deals 20 piercing damage to one enemy!\nSpends an additional arbitrary chakra during [Acrobat]'s funky flow to deal 20 extra damage with a punishing blow!"
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
                 bonus <- 20 `bonusIf` user has' traps "Acrobat"
                 pierce (20 + bonus)
-          , To Self $ apply 1 skillName [Invulnerable Genjutsu]
           ]
         , Skill.changes   = changeWith "Acrobat" $ setCost [Tai, Rand]
         }
