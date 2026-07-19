@@ -56,7 +56,7 @@ run vendetta n = runMaybeT do
     aggression <- R.range (0, aggressionThreshold)
     guard $ aggression /= 0
     ninjas <- toList <$> P.ninjas
-    Just choices <- R.choose $ (>>= focusVendetta) <$> skillOptions ninjas n
+    choices <- MaybeT $ R.choose $ (>>= focusVendetta) <$> skillOptions ninjas n
     MaybeT $ R.choose choices
   where
     focusVendetta act
