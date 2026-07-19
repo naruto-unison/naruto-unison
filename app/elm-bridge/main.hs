@@ -106,7 +106,6 @@ data User = User
     , streak     :: Int
     , record     :: Int
     , clan       :: Maybe Text
-    , condense   :: Bool
     , dna        :: Int
     , rank       :: Text
     , level      :: Int

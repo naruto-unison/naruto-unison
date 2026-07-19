@@ -95,7 +95,6 @@ share [ mkPersistWith (sqlSettings { mpsFieldLabelModifier = \_entityName fieldN
         clan        Text  Maybe
         team        [Text]  Maybe
         practice    [Text]
-        condense    Bool
         rating      Double
         deviation   Double
         volatility  Double
@@ -139,7 +138,6 @@ instance ToJSON User where
         { avatar
         , background
         , clan
-        , condense
         , dna
         , losses
         , name
@@ -157,7 +155,6 @@ instance ToJSON User where
         , "streak"     .= streak
         , "record"     .= record
         , "clan"       .= clan
-        , "condense"   .= condense
         , "dna"        .= dna
         , "rank"       .= rank user
         , "level"      .= level user

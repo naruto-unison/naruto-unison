@@ -725,7 +725,6 @@ type alias User  =
    , streak: Int
    , record: Int
    , clan: (Maybe String)
-   , condense: Bool
    , dna: Int
    , rank: String
    , level: Int
@@ -744,7 +743,6 @@ jsonDecUser =
    |> required "streak" (Json.Decode.int)
    |> required "record" (Json.Decode.int)
    |> fnullable "clan" (Json.Decode.string)
-   |> required "condense" (Json.Decode.bool)
    |> required "dna" (Json.Decode.int)
    |> required "rank" (Json.Decode.string)
    |> required "level" (Json.Decode.int)
@@ -762,7 +760,6 @@ jsonEncUser  val =
    , ("streak", Json.Encode.int val.streak)
    , ("record", Json.Encode.int val.record)
    , ("clan", (maybeEncode (Json.Encode.string)) val.clan)
-   , ("condense", Json.Encode.bool val.condense)
    , ("dna", Json.Encode.int val.dna)
    , ("rank", Json.Encode.string val.rank)
    , ("level", Json.Encode.int val.level)

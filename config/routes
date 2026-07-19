@@ -13,7 +13,7 @@
 /api/practiceact/#Chakras/#Chakras          PracticeWaitR   GET
 !/api/practiceact/#Chakras/#Chakras/*[Act]  PracticeActR    GET
 /api/reanimate/#Character                   ReanimateR      GET
-/api/update/#Text/#Bool/#Text/#Text         UpdateR         GET
+/api/update/#Text/#Text/#Text               UpdateR         GET
 
 -- WEBPAGES
 

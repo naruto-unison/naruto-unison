@@ -4,7 +4,6 @@ module Util exposing
     , groupBy
     , pure
     , shorten
-    , showBool
     , showErr
     , sumBy
     , toAsciiDigit
@@ -49,15 +48,6 @@ sumBy getter xs =
 pure : a -> ( a, Cmd msg )
 pure x =
     ( x, Cmd.none )
-
-
-showBool : Bool -> String
-showBool b =
-    if b then
-        "True"
-
-    else
-        "False"
 
 
 showErr : Http.Error -> String

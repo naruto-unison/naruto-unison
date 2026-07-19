@@ -29,7 +29,6 @@ new ident verkey day = User
     , clan       = Nothing
     , team       = Nothing
     , practice   = ["Naruto Uzumaki", "Sakura Haruno", "Sasuke Uchiha"]
-    , condense   = False
     , rating     = 0.0
     , deviation  = 350.0 / 173.7178
     , volatility = 0.06

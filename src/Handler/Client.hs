@@ -34,8 +34,8 @@ import qualified Mission.Goal as Goal
 import           Util ((∈), (∉), fromMaybeM)
 
 -- | Updates a user's profile and returns it. Requires authentication.
-getUpdateR :: Text -> Bool -> Text -> Text -> App.Handler Value
-getUpdateR updateName updateCondense updateBackground updateAvatar
+getUpdateR :: Text -> Text -> Text -> App.Handler Value
+getUpdateR updateName updateBackground updateAvatar
   | not $ "/img/icon/" `isPrefixOf` updateAvatar =
       invalidArgs ["Invalid avatar"]
   | any (∉ legalChars) updateName =
@@ -43,7 +43,6 @@ getUpdateR updateName updateCondense updateBackground updateAvatar
   | otherwise = do
     accId <- Auth.requireAuthId
     user  <- runDB $ updateGet accId [ UserName       =. updateName
-                                     , UserCondense   =. updateCondense
                                      , UserBackground =. updateBackground''
                                      , UserAvatar     =. updateAvatar
                                      ]

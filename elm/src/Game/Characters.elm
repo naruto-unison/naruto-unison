@@ -22,10 +22,8 @@ import Util exposing (buildDict, groupBy)
 type alias Characters =
     { list : List Character
     , dict : Dict String Character
-    , size : Int
     , groupList : List (Nonempty Character)
     , groupDict : Dict String (Nonempty Character)
-    , groupSize : Int
     , shortName : Character -> String
     }
 
@@ -87,10 +85,8 @@ create chars =
     in
     { list = chars
     , dict = buildDict ( .ident, identity ) chars
-    , size = List.length chars
     , groupList = groupList
     , groupDict = buildDict ( Nonempty.head >> shortName, identity ) groupList
-    , groupSize = List.length groupList
     , shortName = shortName
     }
 

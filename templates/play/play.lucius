@@ -331,6 +331,28 @@ button.chakra,
     }
 }
 
+#browse {
+    display: flex;
+    position: absolute;
+    top: 219px;
+    left: 0;
+    right: 0;
+
+    button {
+        flex-grow: 1;
+        margin: 0 2px;
+        padding: 0.1em;
+        border: 2px solid #fff;
+        border-top: 0px;
+        text-transform: uppercase;
+
+        &:disabled {
+            border-color: var(--select-border);
+            color: unset;
+        }
+    }
+}
+
 #cancel {
     position: absolute;
     left: 0;

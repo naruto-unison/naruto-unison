@@ -14,7 +14,7 @@ import Html.Keyed as Keyed
 import Html.Lazy exposing (lazy2)
 import Http
 import Import.Flags exposing (Csrf, Flags, War)
-import Import.Model as Model exposing (Chakras, Character, GameInfo, ObjectiveProgress, Skill, User)
+import Import.Model as Model exposing (Category(..), Chakras, Character, GameInfo, ObjectiveProgress, Skill, User)
 import Json.Decode as D
 import List.Extra as List
 import List.Nonempty as Nonempty exposing (Nonempty(..))
@@ -26,7 +26,40 @@ import Site.Render as Render
 import Sound exposing (Sound)
 import Task
 import Url
-import Util exposing (ListChange(..), pure, showBool, showErr)
+import Util exposing (ListChange(..), pure, showErr)
+
+
+type Browsing
+    = BrowseFirst
+    | BrowseAll
+    | BrowseCategory Category
+
+
+type alias Browse =
+    { browsing : Browsing
+    , characters : List Character
+    , size : Int
+    }
+
+
+createBrowse : Browsing -> Characters -> Browse
+createBrowse browsing chars =
+    let
+        characters =
+            case browsing of
+                BrowseAll ->
+                    chars.list
+
+                BrowseFirst ->
+                    List.map Nonempty.head chars.groupList
+
+                BrowseCategory category ->
+                    List.filter (\c -> c.category == category) chars.list
+    in
+    { browsing = browsing
+    , characters = characters
+    , size = List.length characters
+    }
 
 
 type Previewing
@@ -38,7 +71,6 @@ type Previewing
 type alias Form =
     { name : String
     , background : String
-    , condense : Bool
     , avatar : String
     }
 
@@ -49,14 +81,12 @@ createForm muser =
         Nothing ->
             { name = ""
             , background = ""
-            , condense = False
             , avatar = ""
             }
 
-        Just { avatar, background, condense, name } ->
+        Just { avatar, background, name } ->
             { name = name
             , background = Maybe.withDefault "" background
-            , condense = condense
             , avatar = avatar
             }
 
@@ -64,7 +94,6 @@ createForm muser =
 type FormUpdate
     = Name String
     | Background String
-    | Condense Bool
     | Avatar String
 
 
@@ -76,9 +105,6 @@ updateForm msg form =
 
         Background background ->
             { form | background = background }
-
-        Condense condense ->
-            { form | condense = condense }
 
         Avatar avatar ->
             { form | avatar = avatar }
@@ -140,12 +166,12 @@ type alias Model =
     , userBoxFormType : UserBoxFormType
     , index : Int
     , cols : Int
+    , browse : Browse
     , previewing : Previewing
     , mission : List ObjectiveProgress
     , alternates : List Int
     , pageSize : Int
     , search : String
-    , condense : Bool
     , form : Form
     }
 
@@ -205,6 +231,7 @@ type Msg
     | ReceiveUpdate (Result Http.Error ())
     | Scroll Int
     | Search
+    | SetBrowsing Browsing
     | SetSearch String
     | SetStage Stage
     | SwitchLogin
@@ -221,11 +248,10 @@ apiUrl baseUrl endpoint fragments =
 
 
 formUrl : String -> Form -> String
-formUrl baseUrl { name, condense, background, avatar } =
+formUrl baseUrl { name, background, avatar } =
     apiUrl baseUrl
         "update"
         [ name
-        , showBool condense
         , "b" ++ background
         , Url.percentEncode avatar
         ]
@@ -312,6 +338,7 @@ component ports =
             , userBoxFormType = Login
             , index = 0
             , cols = 11
+            , browse = createBrowse BrowseAll flags.characters
             , previewing = PreviewWar
             , mission = []
             , alternates = [ 0, 0, 0, 0 ]
@@ -324,13 +351,6 @@ component ports =
 
                     Nothing ->
                         Set.empty
-            , condense =
-                case flags.user of
-                    Just user ->
-                        user.condense
-
-                    Nothing ->
-                        False
             , form = createForm flags.user
             }
 
@@ -451,6 +471,9 @@ component ports =
                 -- handled in Application.elm
                 ReceiveGame _ ->
                     pure st
+
+                SetBrowsing browsing ->
+                    pure { st | browse = createBrowse browsing st.chars, index = 0 }
 
                 SetSearch name ->
                     pure { st | search = name }
@@ -928,7 +951,7 @@ renderWarPreview { red, blue } =
 
 
 renderUserPreview : List String -> Maybe String -> Form -> Html Msg
-renderUserPreview avatars error { avatar, background, condense, name } =
+renderUserPreview avatars error { avatar, background, name } =
     H.article [ A.class "parchment" ]
         [ H.div [ A.id "accountSettings" ]
             [ H.label [] <|
@@ -951,17 +974,6 @@ renderUserPreview avatars error { avatar, background, condense, name } =
                     , E.onInput <| UpdateForm << Background
                     ]
                     []
-                ]
-            , H.label []
-                [ H.input
-                    [ A.type_ "checkbox"
-                    , A.name "condense"
-                    , A.checked condense
-                    , E.onInput <| always <| UpdateForm <| Condense <| not condense
-                    ]
-                    []
-                , H.span []
-                    [ H.text "Show only the first version of each character in the selection grid" ]
                 ]
             , Keyed.node "section" [ A.id "avatars" ] <|
                 List.map
@@ -1124,44 +1136,50 @@ renderSkillPreview char slot skills i =
 -- LISTCHARS
 
 
+renderBrowseTab : Browsing -> String -> Browsing -> Html Msg
+renderBrowseTab selected name browsing =
+    H.button
+        [ E.onClick <| SetBrowsing browsing
+        , A.disabled <| selected == browsing
+        , A.class "parchment"
+        ]
+        [ H.text name ]
+
+
+renderBrowse : Browsing -> Html Msg
+renderBrowse selected =
+    H.div [ A.id "browse" ]
+        [ renderBrowseTab selected "First" BrowseFirst
+        , renderBrowseTab selected "All" BrowseAll
+        , renderBrowseTab selected "Original" <| BrowseCategory Original
+        , renderBrowseTab selected "Shippuden" <| BrowseCategory Shippuden
+        , renderBrowseTab selected "Reanimated" <| BrowseCategory Reanimated
+        ]
+
+
 renderCharList : Model -> Html Msg
-renderCharList ({ chars, condense, index, pageSize, stage } as st) =
+renderCharList ({ browse, index, pageSize } as st) =
     let
-        hasMore =
-            (index + pageSize)
-                < (if condense then
-                    chars.groupSize
-
-                   else
-                    chars.size
-                  )
-
-        wrap xs =
-            xs
-                |> List.drop index
-                |> List.take pageSize
+        { browsing, characters, size } =
+            browse
     in
     H.section
         [ A.class "chars parchment"
         , A.id "forTeam"
-        , A.hidden <| stage == Practicing
         ]
         [ Render.scroll [ A.id "prevPage" ] "left" (index /= 0) <| Page -1
-        , Render.scroll [ A.id "nextPage" ] "right" hasMore <| Page 1
+        , Render.scroll [ A.id "nextPage" ] "right" (index + pageSize < size) <| Page 1
         , Characters.keyed "div"
             [ A.id "teamScroll"
             , A.class "charScroll"
             ]
             (charWrapper Nothing st)
           <|
-            if condense then
-                chars.groupList
-                    |> wrap
-                    |> List.map Nonempty.head
-
-            else
-                chars.list
-                    |> wrap
+            (characters
+                |> List.drop index
+                |> List.take pageSize
+            )
+        , renderBrowse browsing
         ]
 
 
@@ -1182,11 +1200,10 @@ renderVsChar vs char =
 
 
 renderVsList : Model -> Html Msg
-renderVsList { chars, stage, vs } =
+renderVsList { chars, vs } =
     H.section
         [ A.id "forVs"
         , A.class "parchment chars"
-        , A.hidden <| stage /= Practicing
         ]
         [ Characters.keyed "div" [ A.class "charScroll" ] (renderVsChar vs) <|
             chars.list
