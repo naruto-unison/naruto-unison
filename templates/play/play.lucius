@@ -1483,7 +1483,7 @@ button.chakra,
 
 @media (max-width: 1300px) {
     .charhealthbar {
-        margin-top: -10px;
+        margin-top: -13px;
         width: 293px;
     }
 
