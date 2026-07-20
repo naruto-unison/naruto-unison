@@ -8,6 +8,8 @@ module ClassyPrelude
   ( module CP
   , module Prelude
   , module Data.Kind
+  , module Data.Int
+  , module Data.Word
   , module NonNull
   , HasCallStack
   , maybeToList
@@ -26,6 +28,8 @@ import "classy-prelude" ClassyPrelude as CP hiding
     , maximum, minimum, maximumBy, minimumBy)
 import Prelude (type (~), MonadFail(..), errorWithoutStackTrace, ShowS, Show(..), shows, showChar, showString, showParen)
 import Data.Kind (Constraint, Type)
+import Data.Int (Int8, Int16)
+import Data.Word (Word16)
 import GHC.Stack (HasCallStack)
 import NonNull
 

@@ -20,10 +20,10 @@ import qualified Yesod.Auth as Auth
 
 import           Application.App (Route(..))
 import qualified Application.App as App
-import           Application.Model (EntityField(..))
 import           Application.Model.News (News(News))
 import qualified Application.Model.News as News
-import           Application.Model.User (User)
+import qualified Application.Model.NewsPost as NewsPost
+import           Application.Model.NewsPost (NewsPost(NewsPost))
 import           Application.Settings (widgetFile)
 import           Class.Display (Display(..), shorten)
 import qualified Game.Characters as Characters
@@ -33,8 +33,8 @@ import qualified Game.Model.Class as Class
 import           Game.Model.Skill (Skill(Skill))
 import qualified Game.Model.Skill as Skill
 import           Handler.Client.Data (addDataJS)
-import qualified Handler.Link as Link
-import           Handler.Parse (richText)
+import qualified Handler.Site.Link as Link
+import           Handler.Site.Parse (richText)
 import qualified Mission
 import           Mission.Goal (Goal(Reach))
 import qualified Mission.Goal as Goal
@@ -55,18 +55,14 @@ getChangelogR = do
 -- | Renders the homepage of the website.
 getHomeR :: App.Handler Html
 getHomeR = do
-    newsList <- runDB $ mapM withAuthor =<< selectList [] [ Desc NewsTime
-                                                          , LimitTo 5
-                                                          ]
-    App.lastModified . maybe epoch (News.time . fst) $ headMay newsList
+    newsList <- runDB $ NewsPost.selectAll 5 1 Nothing
+    App.lastModified . maybe epoch (News.time . NewsPost.news) $ headMay newsList
     defaultLayout do
-        setTitle "Naruto Unison"
         addDataJS
         $(widgetFile "tooltip/tooltip")
         $(widgetFile "home/home")
   where
     change = getChangelog False
-    withAuthor (Entity _ new) = (new, ) <$> get new.author
 
 data LogType
     = Balance
@@ -82,25 +78,27 @@ logLabel False New     = "New:"
 logLabel True  Rework  = "Character rework:"
 logLabel False Rework  = "Rework:"
 
+getCharacterEx :: Text -> Character
+getCharacterEx ident = fromMaybe (error err) $ Characters.siteLookup ident
+  where
+    err = "Site.getChangelog: character " ++ unpack ident ++ " not found"
+
+
 getChangelog :: Bool -> LogType -> Text -> Character.Category -> App.Widget
-getChangelog long logType name category = case Characters.siteLookup ident of
-    Just char@Character{skills} -> $(widgetFile "widgets/change")
-    Nothing   -> error
-        $ "Site.getChangelog: character " ++ unpack ident ++ " not found"
+getChangelog long logType name category = $(widgetFile "widgets/change")
   where
     change  = logLabel long
     ident = Character.identFrom category name
+    char = getCharacterEx ident
 
 getCharacter :: Text -> Character.Category -> App.Widget
-getCharacter name category = case Characters.siteLookup ident of
-    Just char@Character{skills} -> $(widgetFile "widgets/character")
-    Nothing   -> error
-        $ "Site.getChangelog: character " ++ unpack ident ++ " not found"
+getCharacter name category = $(widgetFile "widgets/character")
   where
     ident = Character.identFrom category name
+    char = getCharacterEx ident
 
-news :: (News, Maybe User) -> App.Widget
-news (News{content, time, title}, author) =
+news :: NewsPost -> App.Widget
+news NewsPost{author, tags, newsID, news = News{content, time, title}} =
     $(widgetFile "home/news")
 
 -- Renders the game guide, which includes the list of characters as well as

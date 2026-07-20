@@ -1,0 +1,31 @@
+<h1>News
+<nav .pages>
+  $maybe href <- prevPage
+    <a href=@{href}>Previous Page
+  $maybe href <- nextPage
+    <a href=@{href}>Next Page
+$forall NewsPost{author, tags, newsID, news = News{content, time, title}} <- newsList
+  <article>
+    <h3>
+      <a href=@{NewsPostR newsID}>
+        #{title}
+    <aside>
+      #{show time} by&nbsp;
+        $maybe user <- author
+          ^{Link.user user}
+        $nothing
+          [deleted]
+    <p>
+      #{preEscapedToHtml content}
+    <footer>
+      <ul .tags>
+        $forall tag <- tags
+          <li>
+            <a href=@{NewsTaggedR tag}>
+              #{tag}
+$if not $ null newsList
+  <nav .pages>
+    $maybe href <- prevPage
+      <a href=@{href}>Previous Page
+    $maybe href <- nextPage
+      <a href=@{href}>Next Page

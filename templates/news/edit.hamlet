@@ -1,0 +1,4 @@
+<form method=post action=@{NewsPostR newsID} enctype=#{enctype}>
+  <h2>Edit News
+  ^{newsForm}
+  <button>Submit

@@ -13,7 +13,7 @@ import           Application.Model.User (User(User))
 import qualified Application.Model.User as User
 import           Application.Settings (widgetFile)
 import qualified Game.Characters as Characters
-import qualified Handler.Link as Link
+import qualified Handler.Site.Link as Link
 import           Util (fromMaybeM)
 
 -- | Renders a 'User' profile.

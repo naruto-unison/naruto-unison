@@ -150,3 +150,31 @@ instance Parse Double where
 
 instance Parse Int where
     parser = decimal
+
+instance Parse Int8 where
+    parser = decimal
+
+instance Parse Int16 where
+    parser = decimal
+
+instance Parse Int32 where
+    parser = decimal
+
+instance Parse Int64 where
+    parser = decimal
+
+instance Parse Word where
+    parser = decimal
+
+instance Parse Word8 where
+    parser = decimal
+
+instance Parse Word16 where
+    parser = decimal
+
+instance Parse Word32 where
+    parser = decimal
+
+instance Parse Word64 where
+    parser = decimal
+

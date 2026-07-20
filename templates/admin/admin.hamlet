@@ -2,7 +2,3 @@
   Running on port #{port}
 <p>
   <a href=@{UsageR}>View character usage statistics
-<form method=post action=@{AdminR} enctype=#{enctype}>
-  <h2>Post News
-  ^{newsForm}
-  <button>Submit

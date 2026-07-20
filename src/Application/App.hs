@@ -9,7 +9,6 @@ module Application.App
   , MonadHandler, MonadWidget
   , Route(..)
   , PersistEntity
-  , getPrivilege
   , liftDB
   , unchanged304
   , lastModified
@@ -49,11 +48,14 @@ import           Yesod.Static hiding (static)
 
 import           Application.Model (EntityField(..), Unique(..))
 import           Application.Model.Character (CharacterId)
+import           Application.Model.News (NewsId)
+import qualified Application.Model.News as News
 import           Application.Model.User (Privilege(..), User(..), UserId)
 import qualified Application.Model.User as User
 import qualified Application.Static as Static
 import           Application.Settings (Settings, widgetFile, combineStylesheets)
 import qualified Application.Settings as Settings
+import           Class.Display (buildStrict, display)
 import           Game.Model.Chakras (Chakras)
 import           Game.Model.Character (Character)
 import qualified Game.Model.Character as Character
@@ -94,12 +96,6 @@ mkYesodData "App" $(parseRoutesFile "config/routes")
 type MonadHandler m = (Yesod.MonadHandler m, App ~ HandlerSite m)
 type MonadWidget m = (Yesod.MonadWidget m, App ~ HandlerSite m)
 
-getPrivilege :: ∀ m. MonadHandler m => m Privilege
-getPrivilege = liftHandler . cached $ getter <$> Auth.maybeAuthPair
-  where
-    getter (Just (_, User{privilege})) = privilege
-    getter Nothing                     = Guest
-
 type AForm x = Yesod.AForm Handler x
 type MForm x = Yesod.MForm Handler (FormResult x, Widget)
 
@@ -113,6 +109,7 @@ getNavLinks :: Handler [(Route App, Html)]
 getNavLinks = routesForAuth <$> isAuthenticated Admin
   where
     userRoutes  = [ (HomeR,   "Home")
+                  , (NewsR,   "News")
                   , (GuideR,  "Guide")
                   ]
     adminRoutes = [ (AdminR,  "Admin") ]
@@ -123,10 +120,16 @@ origin :: Route App -> Route App
 origin ChangelogR    = HomeR
 origin CharacterR{}  = GuideR
 origin CharactersR   = GuideR
+origin CreateNewsR   = NewsR
+origin EditNewsR{}   = NewsR
 origin GroupsR       = GuideR
 origin MechanicsR    = GuideR
-origin TeamBuildingR = GuideR
+origin NewsPageR{}   = NewsR
+origin NewsPostR{}   = NewsR
+origin NewsTaggedR{} = NewsR
+origin NewsTaggedPageR{} = NewsR
 origin ProfileR{}    = HomeR
+origin TeamBuildingR = GuideR
 origin UsageR        = AdminR
 origin x             = x
 
@@ -146,11 +149,12 @@ unchanged304 :: Handler ()
 unchanged304
   | Settings.compileTimeAppSettings.reloadTemplates = return ()
   | otherwise = whenM (isNothing <$> getMessage) do
-    tag <- maybeAdd <$> getsYesod timestamp <*> maybeAuthId
-    setEtag $ tshow tag
-  where
-    maybeAdd x (Just key) = fromSqlKey key + x
-    maybeAdd x Nothing    = x
+    time <- getsYesod timestamp
+    mauthId <- maybeAuthId
+    setEtag $ case mauthId of
+        Just authId -> buildStrict
+                     $ display (fromSqlKey authId) ++ "@" ++ display time
+        Nothing     -> tshow time
 
 -- | Sets the
 -- [Last-Modified](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Last-Modified)
@@ -160,15 +164,21 @@ unchanged304
 -- As with 'unchanged304', the browser can respond with its latest timestamp.
 -- If the timestamp matches, the server sends Unchanged 304.
 lastModified :: UTCTime -> Handler ()
-lastModified time = do
+lastModified time = void $ runMaybeT do
+    guard . isNothing =<< getMessage
+    guard . isNothing =<< maybeAuthId
     timestamp <- max time <$> getsYesod startup
-    whenM (isNothing <$> getMessage)
-        $ setEtag $ tshow timestamp
-    replaceOrAddHeader "Last-Modified" . pack $ formatAsLastModified timestamp
-
-formatAsLastModified :: UTCTime -> String
-formatAsLastModified = Format.formatTime Format.defaultTimeLocale
-    "%a, %d %b %Y %H:%M:%S GMT"
+    replaceOrAddHeader "Last-Modified" . pack $ encodeLastModified timestamp
+    header <- MaybeT $ lookupHeader "if-modified-since"
+    guard . isNothing =<< getMessage
+    since  <- decodeLastModified $ unpack $ decodeUtf8 header
+    guard $ since >= timestamp
+    notModified
+  where
+    locale = Format.defaultTimeLocale
+    timeFormat = "%a, %d %b %Y %H:%M:%S GMT"
+    decodeLastModified = Format.parseTimeM False locale timeFormat
+    encodeLastModified = Format.formatTime       locale timeFormat
 
 defaultLayoutWrapper :: Widget -> Handler Html
 defaultLayoutWrapper widget = do
@@ -205,13 +215,15 @@ instance Yesod App where
         mmsg             <- getMessage
         mcurrentRoute    <- getCurrentRoute
         (title, parents) <- breadcrumbs
-        mauth            <- Auth.maybeAuthPair
+        muser            <- (entityVal <$>) <$> Auth.maybeAuth
         navLinks         <- getNavLinks
 
-        let muser = snd <$> mauth
-
         defaultLayoutWrapper do
-            setTitle . toHtml $ title ++ " - Naruto Unison"
+            setTitle $ toHtml
+                if null title then
+                    "Naruto Unison"
+                else
+                    title ++ " - Naruto Unison"
             $(widgetFile "default-layout/default-layout")
 
     authRoute :: App -> Maybe (Route App)
@@ -223,6 +235,22 @@ instance Yesod App where
         -> Handler AuthResult
     isAuthorized AdminR _ = isAuthenticated Admin
     isAuthorized UsageR _ = isAuthenticated Admin
+    isAuthorized CreateNewsR _ = isAuthenticated Admin
+    isAuthorized (EditNewsR newsID) _ = do
+        mauth <- Auth.maybeAuth
+        case mauth of
+            Nothing ->
+                return AuthenticationRequired
+            Just (Entity _ User{privilege}) | privilege >= Admin ->
+                return Authorized
+            Just (Entity userID _) -> do
+                isAuthor <- runDB $ exists [ NewsId ==. newsID
+                                           , NewsAuthor ==. Just userID
+                                           ]
+                return if isAuthor then
+                    Authorized
+                else
+                    Unauthorized "Access to this page is restricted."
     -- isAuthorized PlayR _ = isAuthenticated Normal
     -- Routes not requiring authentication.
     isAuthorized _     _ = return Authorized
@@ -258,11 +286,18 @@ instance YesodBreadcrumbs App where
     breadcrumb AuthR{}        = return ("Login", Just HomeR)
     breadcrumb ChangelogR     = return ("Changelog", Just HomeR)
     breadcrumb (CharacterR x) = return (Character.format x, Just CharactersR)
+    breadcrumb CreateNewsR    = return ("Create", Just NewsR)
     breadcrumb CharactersR    = return ("Characters", Just GuideR)
+    breadcrumb (EditNewsR x)  = return ("Edit", Just $ NewsPostR x)
     breadcrumb GroupsR        = return ("Groups", Just GuideR)
-    breadcrumb GuideR         = return ("Guide", Just HomeR)
+    breadcrumb GuideR         = return ("Guide", Nothing)
     breadcrumb HomeR          = return ("Home", Nothing)
     breadcrumb MechanicsR     = return ("Game Mechanics", Just GuideR)
+    breadcrumb NewsR          = return ("News", Nothing)
+    breadcrumb NewsPageR{}    = breadcrumb NewsR
+    breadcrumb (NewsTaggedR x)       = return ("Tagged: " ++ x, Just NewsR)
+    breadcrumb (NewsTaggedPageR x _) = breadcrumb $ NewsTaggedR x
+    breadcrumb (NewsPostR x)  = (, Just NewsR) <$> runDB (News.getTitle x)
     breadcrumb TeamBuildingR  = return ("Team Building", Just GuideR)
     breadcrumb (ProfileR x)   = return ("User: " ++ x, Just HomeR)
     breadcrumb UsageR         = return ("Character Usage", Just AdminR)
@@ -311,9 +346,9 @@ instance YesodAuth App where
         extraAuthPlugins = [Dummy.authDummy | app.settings.authDummyLogin]
 
 isAuthenticated :: Privilege -> Handler AuthResult
-isAuthenticated level = authenticated <$> Auth.maybeAuthPair
+isAuthenticated level = authenticated <$> Auth.maybeAuth
   where
-    authenticated (Just (_, User{privilege}))
+    authenticated (Just (Entity _ User{privilege}))
         | privilege >= level = Authorized
         | otherwise = Unauthorized "Access to this page is restricted."
     authenticated Nothing = AuthenticationRequired

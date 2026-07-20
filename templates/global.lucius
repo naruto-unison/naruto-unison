@@ -82,13 +82,16 @@ textarea {
     border: 1px solid #888;
 }
 
-li {
-    margin-top: 0.5em;
-    line-height: 1.4em;
+ol,
+ul {
+    li {
+        margin-top: 0.5em;
+        line-height: 1.4em;
 
-    > dt,
-    > dd {
-        display: contents;
+        > dt,
+        > dd {
+            display: contents;
+        }
     }
 }
 

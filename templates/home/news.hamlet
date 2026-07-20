@@ -1,9 +1,18 @@
-<h3>#{title}
-<aside>
-  #{show time} by&nbsp;
-    $maybe user <- author
-      ^{Link.user user}
-    $nothing
-      [deleted]
-<p>
-  #{preEscapedToHtml content}
+<article>
+  <h3>
+    <a href=@{NewsPostR newsID}>
+      #{title}
+  <aside>
+    #{show time} by&nbsp;
+      $maybe user <- author
+        ^{Link.user user}
+      $nothing
+        [deleted]
+  <p>
+    #{preEscapedToHtml content}
+  <footer>
+    <ul .tags>
+      $forall tag <- tags
+        <li>
+          <a href=@{NewsTaggedR tag}>
+            #{tag}

@@ -291,11 +291,11 @@ resetGoal _ _ _ = return ()
 awardDNA :: Queue.Section -> Outcome -> Maybe War -> App.Handler [Reward]
 awardDNA Queue.Private _     _   = return mempty
 awardDNA Queue.Quick outcome war = do
-    (who, user)   <- Auth.requireAuthPair
-    dnaConf       <- getsYesod \app -> app.settings.dnaConf
-    UTCTime day _ <- liftIO getCurrentTime
-    let jDay       = Just day
-        tallies    = tallyDNA Queue.Quick outcome war dnaConf jDay user
+    Entity who user <- Auth.requireAuth
+    dnaConf         <- getsYesod \app -> app.settings.dnaConf
+    UTCTime day _   <- liftIO getCurrentTime
+    let jDay         = Just day
+        tallies      = tallyDNA Queue.Quick outcome war dnaConf jDay user
     runDB . update who $ updateLatestWin outcome jDay
         [ UserLatestGame =. jDay
         , UserDna       +=. sum (Reward.amount <$> tallies)

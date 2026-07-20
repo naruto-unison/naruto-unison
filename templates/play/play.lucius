@@ -89,6 +89,12 @@ main {
     display: flex;
 }
 
+menu {
+    list-style-type: none;
+    padding: 0;
+    margin-bottom: 0;
+}
+
 p {
     margin: 0;
 }

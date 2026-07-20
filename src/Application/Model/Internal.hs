@@ -12,10 +12,12 @@ module Application.Model.Internal
     , Character(..), CharacterId
     , Mission(..), MissionId
     , News(..), NewsId
+    , NewsTag(..), NewsTagId
     , Unlocked(..), UnlockedId
     , Usage(..), UsageId
     , User(..), UserId, level, levelXp, rank
     , Privilege(..)
+    , Tag(..), TagId
     , migrateAll) where
 
 import ClassyPrelude
@@ -56,10 +58,19 @@ share [ mkPersistWith (sqlSettings { mpsFieldLabelModifier = \_entityName fieldN
         progress   Int
 
     News
-        author   UserId
+        author   (Maybe UserId)
         time     UTCTime
         title    Text
         content  Text
+
+    Tag
+        name  Text
+        UniqueTag name
+
+    NewsTag
+        news  NewsId
+        tag   TagId
+        UniqueNewsTag news tag
 
     Unlocked
         user       UserId
@@ -160,3 +171,4 @@ instance ToJSON User where
         , "level"      .= level user
         , "xp"         .= levelXp user
         ]
+

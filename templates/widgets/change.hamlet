@@ -6,7 +6,7 @@ $if not long
   <ul>
     $if long
       <img data-char=#{ident} .char.head src=/img/ninja/#{ident}/icon.jpg>
-    $forall skillGroup <- skills
+    $forall skillGroup <- char.skills
       <li>
         $forall Skill{name} <- toList skillGroup
           <skill data-char=#{ident} data-skill=#{name}>

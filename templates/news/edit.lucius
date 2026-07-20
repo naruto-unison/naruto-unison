@@ -1,0 +1,9 @@
+input,
+textarea {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+textarea {
+    field-sizing: content;
+}

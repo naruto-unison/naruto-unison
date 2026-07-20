@@ -39,14 +39,15 @@ import qualified Yesod.Static as Static
 import           Application.App (App(..), Route(..))
 import qualified Application.App as App
 import qualified Application.Logger as AppLogger
-import           Application.Model.Character (CharacterId)
 import qualified Application.Model as Model
+import           Application.Model.Character (CharacterId)
 import           Application.Settings (Settings(Settings))
 import qualified Application.Settings as Settings
 import           Handler.Admin
 import           Handler.Client
 import           Handler.Client.Data (writeDataJS)
 import           Handler.Embed
+import           Handler.News
 import           Handler.Play
 import           Handler.Profile
 import qualified Handler.Queue as Queue

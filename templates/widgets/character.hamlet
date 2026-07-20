@@ -4,7 +4,7 @@
   <div>
     ^{Link.character char}
     <ul>
-      $forall skillGroup <- skills
+      $forall skillGroup <- char.skills
         <li>
           $forall Skill{name} <- toList skillGroup
             <skill data-char=#{ident} data-skill=#{name}>

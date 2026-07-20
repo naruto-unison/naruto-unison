@@ -84,7 +84,7 @@ getMissionR Character{ident} = do
 -- | Buys a Reanimated character with DNA. Returns the new 'UserDna' balance.
 getReanimateR :: Character -> App.Handler Value
 getReanimateR Character{ident, price} = do
-    (who, user) <- Auth.requireAuthPair
+    Entity who user <- Auth.requireAuth
     when (user.dna < price)
         $ invalidArgs ["Unaffordable"]
     unlocks <- Mission.unlocked
@@ -100,9 +100,8 @@ getReanimateR Character{ident, price} = do
 -- | Renders the gameplay client.
 getPlayR :: App.Handler Html
 getPlayR = do
-    mauth      <- Auth.maybeAuthPair
+    muser      <- (entityVal <$>) <$> Auth.maybeAuth
     (red,blue) <- liftIO War.today
-    let muser = snd <$> mauth
     PlayParams{bg, practice, team, unlocked} <- getPlayParams muser
     when (isJust muser)
         $ liftIO createSystemRandom >>= runReaderT Play.gameSocket

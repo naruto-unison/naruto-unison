@@ -66,6 +66,20 @@ nav.jump {
     }
 }
 
+nav.pages {
+    &:last-child {
+        padding-top: 0.5em;
+    }
+
+    a {
+        margin-left: 1em;
+
+        &:first-child {
+            margin-left: unset;
+        }
+    }
+}
+
 skill {
     color: var(--action);
     display: inline;
@@ -218,6 +232,26 @@ ul {
 #sitenav,
 #sitenav button {
     text-transform: uppercase;
+}
+
+.tags {
+    list-style-type: none;
+
+    &::before {
+        content: "Tagged: ";
+    }
+
+    li {
+        display: inline;
+
+        &::after {
+            content: ", ";
+        }
+
+        &:last-child::after {
+            content: none;
+        }
+    }
 }
 
 @media (min-width: 824px) {
