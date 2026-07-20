@@ -1,2 +1,3 @@
 $newline never
-<a .name data-name=#{ident} href=@{CharacterR char}>#{name}#{category}
+<a .name data-char=#{char.ident} href=@{CharacterR char}>
+  #{char.name}#{char.category}

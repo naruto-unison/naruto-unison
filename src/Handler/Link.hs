@@ -18,18 +18,17 @@ import           Application.Model.User (User(User))
 import qualified Application.Model.User
 import           Application.Settings (widgetFile)
 import qualified Game.Characters as Characters
-import           Game.Model.Character (Category, Character(Character))
+import           Game.Model.Character (Category, Character)
 import qualified Game.Model.Character as Character
 import qualified Game.Model.Skill as Skill
 
 -- | Link to a character's detail page.
 character :: Character -> App.Widget
-character char@Character{category, name, ident} =
-    $(widgetFile "widgets/link/character")
+character char = $(widgetFile "widgets/link/character")
 
 -- | Link to a character's detail page using their icon.
 head :: Character -> App.Widget
-head char@Character{ident} = $(widgetFile "widgets/link/head")
+head char = $(widgetFile "widgets/link/head")
   where
     title = Character.format char
 
