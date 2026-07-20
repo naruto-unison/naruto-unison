@@ -66,6 +66,15 @@ nav.jump {
     }
 }
 
+skill {
+    color: var(--action);
+    display: inline;
+
+    &::before {
+        content: attr(data-skill);
+    }
+}
+
 textarea {
     padding: 5px;
 }

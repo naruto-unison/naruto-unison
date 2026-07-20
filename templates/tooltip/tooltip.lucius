@@ -1,4 +1,4 @@
-.skill {
+skill {
     padding: 4px;
     margin: -4px;
     cursor: default;

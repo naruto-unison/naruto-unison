@@ -152,10 +152,6 @@ ul {
     margin-left: 0.4em;
 }
 
-.skill {
-    color: var(--action);
-}
-
 .skillClasses {
     font-weight: normal;
     color: var(--desc-extra);

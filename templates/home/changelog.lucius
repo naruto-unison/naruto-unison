@@ -5,7 +5,7 @@ i {
 li li {
     line-height: 1em;
 
-    .skill {
+    skill {
         display: inline-block;
 
         &::after {

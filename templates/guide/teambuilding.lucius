@@ -11,16 +11,7 @@
         margin-top: 0.13em;
     }
 
-    ul {
-        padding: 0 1.5em;
-        margin-top: -1px;
-    }
-
-    .char {
-        margin: 3px 7px 3px 5px;
-    }
-
-    .skill {
+    skill {
         &::after {
             content: " / ";
             color: #000;
@@ -29,5 +20,14 @@
         &:last-child::after {
             content: unset;
         }
+    }
+
+    ul {
+        padding: 0 1.5em;
+        margin-top: -1px;
+    }
+
+    .char {
+        margin: 3px 7px 3px 5px;
     }
 }

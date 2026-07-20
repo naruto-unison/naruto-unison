@@ -1,12 +1,12 @@
 $if not long
-  <img data-name=#{ident} .char.head src=/img/ninja/#{ident}/icon.jpg>
+  <img data-char=#{ident} .char.head src=/img/ninja/#{ident}/icon.jpg>
 <li>
   #{change logType}
   ^{Link.character char}
   <ul>
     $if long
-      <img data-name=#{ident} .char.head src=/img/ninja/#{ident}/icon.jpg>
+      <img data-char=#{ident} .char.head src=/img/ninja/#{ident}/icon.jpg>
     $forall skillGroup <- skills
       <li>
         $forall Skill{name} <- toList skillGroup
-          <span .skill data-name=#{ident}>#{name}
+          <skill data-char=#{ident} data-skill=#{name}>

@@ -24,8 +24,8 @@ main {
 
         a,
         a sup,
-        .name,
-        .skill {
+        skill,
+        .name {
             color: var(--action);
         }
 
@@ -93,11 +93,11 @@ section > aside {
             flex: 1 0 165px;
         }
     }
+    skill {
+        margin-right: 0;
+    }
     #changelog .char {
         display: none;
-    }
-    .skill {
-        margin-right: 0;
     }
 }
 

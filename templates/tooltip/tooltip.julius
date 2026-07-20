@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
      * @return {Character|undefined}
      */
     function findCharacter(el) {
-        return chars.get(el.dataset.name);
+        return chars.get(el.dataset.char);
     }
 
     /**
@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
      */
     function findSkill(el) {
         const character = findCharacter(el);
-        const skillName = el.innerText;
+        const skillName = el.dataset.skill;
         return character && character.skills.flat().find(({ name }) => name == skillName);
     }
 
@@ -208,7 +208,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ...document.querySelector("li").querySelectorAll("sup"),
         ...document.querySelectorAll(".head"),
     ];
-    const skillLinks = document.querySelectorAll(".skill");
+    const skillLinks = document.getElementsByTagName("skill");
 
     for (const el of characterLinks) {
         el.addEventListener("mouseover", characterTooltipHandler);

@@ -1,10 +1,10 @@
 <div .charbox>
   <div>
-    <img data-name=#{ident} .char.head src=/img/ninja/#{ident}/icon.jpg>
+    <img data-char=#{ident} .char.head src=/img/ninja/#{ident}/icon.jpg>
   <div>
     ^{Link.character char}
     <ul>
       $forall skillGroup <- skills
         <li>
           $forall Skill{name} <- toList skillGroup
-            <span .skill data-name=#{ident}>#{name}
+            <skill data-char=#{ident} data-skill=#{name}>
