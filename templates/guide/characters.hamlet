@@ -5,8 +5,10 @@
   <a href=@{PlayR}>Practice games against AI</a> are a great way to try out characters and experiment with skill combinations.
 <nav .jump>
   Jump to:
-  $forall category <- categories
-    <a href=#{show category}>#{heading category}
+  <ul>
+    $forall category <- categories
+      <li>
+        <a href=#{show category}>#{heading category}
 $forall category <- categories
   <h2 ##{show category}>#{heading category}
   $forall char@Character{bio, ident, name} <- categoryChars category

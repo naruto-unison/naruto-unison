@@ -8,17 +8,22 @@ $maybe msg <- mmsg
   <aside>
     <img src=/img/logo.png>
   <nav>
-    $maybe currentRoute <- mcurrentRoute
-      $forall (dest, name) <- navLinks
-        $if currentRoute == dest
-          <span #current>#{name}
-        $elseif origin currentRoute == dest
-          <a #current href=@{dest}>#{name}
-        $else
-          <a href=@{dest}>#{name}
-    $nothing
-      $forall (dest, name) <- navLinks
-        <a href=@{dest}>#{name}
+    <ol>
+      $maybe currentRoute <- mcurrentRoute
+        $forall (dest, name) <- navLinks
+          $if currentRoute == dest
+            <li #current>
+              <span>#{name}
+          $elseif origin currentRoute == dest
+            <li #current>
+              <a href=@{dest}>#{name}
+          $else
+            <li>
+              <a href=@{dest}>#{name}
+      $nothing
+        $forall (dest, name) <- navLinks
+          <li>
+            <a href=@{dest}>#{name}
   <aside>
     <div>
       $maybe User{name} <- muser
@@ -32,7 +37,7 @@ $maybe msg <- mmsg
 
   $if mcurrentRoute /= Just HomeR
     <nav #breadcrumb>
-      <ul>
+      <ol>
         $forall (href, text) <- parents
           <li>
             <a href=@{href}>#{text}

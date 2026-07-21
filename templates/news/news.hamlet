@@ -1,9 +1,11 @@
-<h1>News
 <nav .pages>
-  $maybe href <- prevPage
-    <a href=@{href}>Previous Page
-  $maybe href <- nextPage
-    <a href=@{href}>Next Page
+  <ol>
+    $maybe href <- prevPage
+      <li>
+        <a href=@{href}>Previous Page
+    $maybe href <- nextPage
+      <li>
+        <a href=@{href}>Next Page
 $forall NewsPost{author, tags, newsID, news = News{content, time, title}} <- newsList
   <article>
     <h3>
@@ -25,7 +27,10 @@ $forall NewsPost{author, tags, newsID, news = News{content, time, title}} <- new
               #{tag}
 $if not $ null newsList
   <nav .pages>
-    $maybe href <- prevPage
-      <a href=@{href}>Previous Page
-    $maybe href <- nextPage
-      <a href=@{href}>Next Page
+    <ol>
+      $maybe href <- prevPage
+        <li>
+          <a href=@{href}>Previous Page
+      $maybe href <- nextPage
+        <li>
+          <a href=@{href}>Next Page

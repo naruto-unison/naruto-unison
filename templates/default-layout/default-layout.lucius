@@ -50,32 +50,48 @@ main {
     }
 }
 
-nav.jump {
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 1em;
-
-    a {
-        margin-left: 1.5em;
-        margin-right: -0.5em;
-    }
-    a::before {
-        content: "→";
-        margin-right: 0.3em;
-        font-weight: normal;
-    }
-}
-
-nav.pages {
-    &:last-child {
-        padding-top: 0.5em;
+nav {
+    ol,
+    ul {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
     }
 
-    a {
-        margin-left: 1em;
+    li {
+        margin-top: unset;
+        line-height: unset;
+    }
 
-        &:first-child {
-            margin-left: unset;
+    &.jump {
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 1em;
+
+        li {
+            display: inline;
+            margin-left: 1.5em;
+            margin-right: -0.5em;
+
+            &::before {
+                content: "→";
+                margin-right: 0.3em;
+                font-weight: normal;
+            }
+        }
+    }
+
+    &.pages {
+        &:last-child {
+            padding-top: 0.5em;
+        }
+
+        a {
+            margin-left: 1em;
+
+            &:first-child {
+                margin-left: unset;
+            }
         }
     }
 }
@@ -124,7 +140,7 @@ ul {
 #breadcrumb {
     text-align: left !important;
 
-    margin-bottom: 1.25em;
+    margin: 1.25em 0;
     color: var(--breadcrumb);
 
     li {
@@ -206,8 +222,7 @@ ul {
         text-align: center;
         align-self: end;
 
-        a,
-        span {
+        li {
             margin: 0 0.2em -3px 0.2em;
             display: inline-block;
             box-sizing: content-box;
@@ -216,8 +231,7 @@ ul {
 
     div,
     aside > a,
-    nav a,
-    nav span {
+    nav li {
         padding-bottom: 10px;
     }
 }
@@ -260,11 +274,8 @@ ul {
     }
 }
 @media (min-width: 615px) {
-    #sitenav nav {
-        a,
-        span {
-            margin: 0 0.5em -3px 0.5em;
-        }
+    #sitenav li {
+        margin: 0 0.5em -3px 0.5em;
     }
 }
 @media (max-width: 614px) {
@@ -295,7 +306,7 @@ ul {
     }
 }
 @media (max-width: 420px) {
-    nav.jump a {
+    nav.jump li {
         margin-left: 1em;
     }
 }
