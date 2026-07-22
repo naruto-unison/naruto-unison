@@ -538,12 +538,12 @@ characters =
     [StoneVillage, Kabuto, Akatsuki, Rogue, SRank, Earth, Lightning]
     [ [ Skill.new
         { Skill.name      = "Detonating Clay"
-        , Skill.desc      = "Deidara tosses an explosive clay bomb at an enemy, dealing 20 piercing damage and becoming invulnerable to mental skills for 1 turn."
+        , Skill.desc      = "Deidara tosses an explosive clay bomb at a random enemy, dealing 20 piercing damage and becoming invulnerable to mental skills for 1 turn."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
-          [ To Enemy do
+          [ To REnemy do
                 bonusA <- 5 `bonusPer` target amount "Chakra Clay Trap"
                 bonusB <- 5 `bonusPer` target amount "Sonar Bat Bombs"
                 bonusC <- 10 `bonusPer` target amount "Jellyfish Explosives"
@@ -601,12 +601,12 @@ characters =
     [SandVillage, Kabuto, Akatsuki, Rogue]
     [ [ Skill.new
         { Skill.name      = "Chakra Threads"
-        , Skill.desc      = "Sasori defends himself by ensaring his enemies, gaining 10 points of damage reduction for 4 turns."
+        , Skill.desc      = "Sasori defends himself by ensaring his enemies, gaining 10 points of damage reduction for 3 turns."
         , Skill.classes   = [Physical]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
-          [ To Self $ apply 4 skillName [Reduce [All] Flat 10] ]
+          [ To Self $ apply 3 skillName [Reduce [All] Flat 10] ]
         }
       ]
     , [ Skill.new

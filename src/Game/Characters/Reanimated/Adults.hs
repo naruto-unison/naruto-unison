@@ -204,7 +204,7 @@ characters =
     [CloudVillage, Kabuto, Jonin, Wind, Earth]
     [ [ Skill.new
         { Skill.name      = "Demon Wind Shuriken"
-        , Skill.desc      = "Toroi deals 20 damage to an enemy with a giant shuriken and defends himself with several others. For 2 turns, enemies who use skills on Toroi will become permanently unable to be healed or cured."
+        , Skill.desc      = "Toroi deals 20 damage to an enemy with a giant shuriken and defends himself with several others. For 2 turns, enemies who use skills on Toroi will become permanently unable to be healed or cured. Deals 5 additional damage for every time the enemy was affected by [Magnetic Current] or [Conserving Bee Twin Blades]."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
@@ -214,6 +214,7 @@ characters =
                 bonusA <- 5 `bonusPer` target amount "Conserving Bee Twin Blades"
                 bonusB <- 5 `bonusPer` target amount "Magnetic Current"
                 damage (20 + bonusA + bonusB)
+                addStack skillName
           ]
         }
       ]
@@ -232,26 +233,28 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Conserving Bee Twin Blades"
-        , Skill.desc      = "Toroi hurls a magnetized shuriken at an enemy, dealing 10 piercing damage and increasing the damage of [Demon Wind Shuriken] and [Magnetic Current] to the target by 5."
+        , Skill.desc      = "Toroi hurls a magnetized shuriken at an enemy, dealing 10 piercing damage. Deals 5 additional piercing damage for each time the target was affected by [Demon Wind Shuriken] or [Magnetic Current]."
         , Skill.classes   = [Physical, Ranged]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 5 `bonusPer` target amount "Magnetic Current"
-                pierce (10 + bonus)
+                bonusA <- 5 `bonusPer` target amount "Demon Wind Shuriken"
+                bonusB <- 5 `bonusPer` target amount "Magnetic Current"
+                pierce (10 + bonusA + bonusB)
                 addStack skillName
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Magnetic Current"
-        , Skill.desc      = "Toroi energizes the field with magnetism, dealing 10 piercing damage to all enemies and increasing the damage of [Demon Wind Shuriken] and [Conserving Bee Twin Blades] to the targets by 5."
+        , Skill.desc      = "Toroi energizes the field with magnetism, dealing 10 piercing damage to all enemies. Deals 5 additional piercing damage for each time the target was affected by [Demon Wind Shuriken] or [Conserving Bee Twin Blades]."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemies do
-                bonus <- 5 `bonusPer` target amount "Conserving Bee Twin Blades"
-                pierce (10 + bonus)
+                bonusA <- 5 `bonusPer` target amount "Demon Wind Shuriken"
+                bonusB <- 5 `bonusPer` target amount "Conserving Bee Twin Blades"
+                pierce (10 + bonusA + bonusB)
                 addStack skillName
           ]
         }
@@ -362,15 +365,12 @@ characters =
     [MistVillage, Kabuto, Jonin, Sensor, Water]
     [ [ Skill.new
         { Skill.name      = "Hidden Frost"
-        , Skill.desc      = "A cloud of frost conceals Chūkichi, rendering him effectively invisible. For 2 turns, he is invulnerable to physical and bane skills."
+        , Skill.desc      = "A cloud of frost conceals Chūkichi, rendering him effectively invisible. For 2 turns, he is invulnerable to ranged skills."
         , Skill.classes   = [Chakra]
         , Skill.cooldown  = 3
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ To Self $ apply 2 skillName
-                [ Invulnerable Physical
-                , Invulnerable Bane
-                ]
+          [ To Self $ apply 2 skillName [Invulnerable Ranged]
           ]
         }
       ]
@@ -387,14 +387,14 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Silent Killing"
-        , Skill.desc      = "Chūkichi ambushes an enemy, preventing them from reducing damage or becoming invulnerable for 1 turn and dealing 30 piercing damage. During [Hidden Frost], this skill deals 10 additional damage and costs [t]."
+        , Skill.desc      = "Chūkichi ambushes an enemy, dealing 30 piercing damage and preventing them from reducing damage or becoming invulnerable for 1 turn. During [Hidden Frost], this skill deals 10 additional damage and costs [t]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
           [ To Enemy do
-                apply 1 skillName [Expose]
                 bonus <- 10 `bonusIf` user has "Hidden Frost"
                 pierce (30 + bonus)
+                apply 1 skillName [Expose]
           ]
         , Skill.changes   = changeWith "Hidden Frost" $ setCost [Tai]
         }
