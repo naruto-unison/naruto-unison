@@ -134,37 +134,37 @@ characters =
     ]
   , Character
     "Torune Aburame" 0
-    "An operative of the Hidden Leaf Village's elite Root division, Torune was born with rare venom-resistant antibodies that allow him to carry the Aburame clan's most dangerous species of beetle. The venom beetles cover his skin like armor, protecting him and infesting anyone who dares to touch him."
+    "An operative of the Hidden Leaf Village's elite Root division, Torune was born with rare venom-resistant antibodies that allow him to carry the Aburame clan's most dangerous species of beetle. The venomous beetles cover his skin like armor, protecting him and infesting anyone who dares to touch him."
     [LeafVillage, Anbu, Aburame]
     let
-        applyVenomBeetle :: SkillEffect
-        applyVenomBeetle = apply 5 "Venom Beetle" [Afflict 5]
+        applyVenomousBeetle :: SkillEffect
+        applyVenomousBeetle = apply 5 "Venomous Beetle" [Afflict 5]
 
         applyBeetleDefense :: Int -> SkillEffect
         applyBeetleDefense i = unlessM (user has' defense skillName) do
             defend Permanent i
-            onBreakFrom applyVenomBeetle
+            onBreakFrom applyVenomousBeetle
     in
     [ [ Skill.new
-        { Skill.name      = "Nano-Sized Venom Beetles"
-        , Skill.desc      = "Torune applies a Venom Beetle to an enemy, dealing 5 affliction damage for 5 turns, and gains 15 permanent destructible defense. Whoever destroys Torune's destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from this skill, this skill costs [r] but does not provide any destructible defense."
+        { Skill.name      = "Nano-Sized Venomous Beetles"
+        , Skill.desc      = "Torune applies a Venomous Beetle to an enemy, which deals 5 affliction damage for 5 turns. Torune gains 15 permanent destructible defense. Whoever destroys Torune's destructible defense from this skill will have a Venomous Beetle applied to them. While Torune has destructible defense from this skill, this skill costs [r] but does not provide any destructible defense."
         , Skill.classes   = [Bane, Melee]
         , Skill.cost      = [Blood]
         , Skill.effects   =
-          [ To Enemy applyVenomBeetle
+          [ To Enemy applyVenomousBeetle
           , To Self $ applyBeetleDefense 15
           ]
-        , Skill.changes   = changeWithDefense "Nano-Sized Venom Beetles"
+        , Skill.changes   = changeWithDefense "Nano-Sized Venomous Beetles"
                           $ setCost [Rand]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Jar of Poison"
-        , Skill.desc      = "Torune applies a Venom Beetle to every enemy, which deals 5 affliction damage for 5 turns. Torune gains 30 permanent destructible defense. Whoever destroys his destructible defense from this skill will have a Venom Beetle applied to them. While Torune has destructible defense from this skill, this skill costs [r][r] but does not provide any destructible defense."
+        , Skill.desc      = "Torune applies a Venomous Beetle to every enemy, which deals 5 affliction damage for 5 turns. Torune gains 30 permanent destructible defense. Whoever destroys his destructible defense from this skill will have a Venomous Beetle applied to them. While Torune has destructible defense from this skill, this skill costs [r][r] but does not provide any destructible defense."
         , Skill.classes   = [Bane, Melee]
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =
-          [ To Enemies applyVenomBeetle
+          [ To Enemies applyVenomousBeetle
           , To Self $ applyBeetleDefense 30
           ]
         , Skill.changes   = changeWithDefense "Jar of Poison"
@@ -173,16 +173,15 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Venom Explosion"
-        , Skill.desc      = "Torune detonates all Venom Beetles on an enemy, depleting 1 random chakra for each Venom Beetle destroyed."
-        , Skill.require   = [TargetHas AtLeast 1 "Venom Beetle"]
+        , Skill.desc      = "Torune activates all Venomous Beetles on an enemy, depleting 1 random chakra for each Venomous Beetle."
+        , Skill.require   = [TargetHas AtLeast 1 "Venomous Beetle"]
         , Skill.classes   = [Bane, Melee]
         , Skill.cost      = [Blood, Blood, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy do
-                stacks <- target amount "Venom Beetle"
+                stacks <- target amount "Venomous Beetle"
                 deplete stacks
-                remove "Venom Beetle"
           ]
         }
       ]
