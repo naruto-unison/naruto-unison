@@ -95,6 +95,13 @@
   ^{change Rework "Fuguki Suikazan" Reanimated}
   ^{change Rework "Nagato" Reanimated}
 
+<h3 #descriptive-changes>Descriptive Changes
+<ul>
+  <li>
+    The term "random chakra" is only used to refer to randomly-generated chakra. The black-colored type of chakra cost is termed "arbitrary chakra" rather than "random chakra", since the user can select any arbitrary chakra to fulfill that cost.
+  <li>
+    Effects that are stated to last for 1 turn always persist through to the start of the next turn. If an effect does not persist through to the start of the next turn, it is described as lasting "for the rest of the turn", rather than "for 1 turn".
+
 <h3 #minor-adjustments>Minor Adjustments
 <ul>
   <li>
@@ -102,7 +109,9 @@
   <li>
     Skills that negate harmful effects, such as ^{Link.skill "Sakura Haruno" Original "Inner Sakura"}, no longer exclude chakra cost changes.
   <li>
-    ^{Link.skill "Yoroi Akadō" Original "Draining Assault"} applies its weakening and strengthening status effects for all turns of its duration, rather than for 2 turns at the start of its 3 turn duration.
+    ^{Link.skill "Yoroi Akadō" Original "Draining Assault"} applies its weakening and strengthening status effects on each turn of its duration, rather than for 2 turns of its 3 turn duration.
+  <li>
+    ^{Link.skill "Drunken Lee" Original "Drunken Fist"} applies its status effect of ignoring all harmful effects from the start, rather than after its first turn of damage.
   <li>
     ^{Link.skill "Anko Mitarashi" Original "Dragon Flame"} adds 5 to all <i>bane</i> damage that the target receives, rather than only damage from Anko's skills.
   <li>
@@ -118,11 +127,9 @@
   <li>
     ^{Link.skill "Naruto Uzumaki" Shippuden "Rasen Shuriken"} and ^{Link.skill "Sage Mode Naruto" Shippuden "Rasen Shuriken"} permanently weaken the target's chakra damage.
   <li>
-    ^{Link.skill "Hinata Hyūga" Shippuden "Gentle Step Twin Lion Fists"} bypasses invulnerability and ends if Hinata dies.
+    ^{Link.skill "Hinata Hyūga" Shippuden "Gentle Step Twin Lion Fists"} ignores enemies who are invulnerable to it.
   <li>
     Instead of merely alerting when skills are used, ^{Link.skill "Ino Yamanaka" Shippuden "Proxy Surveillance"} reveals enemy cooldowns and invisible effects.
-  <li>
-    Applying negative destructible defense (which can occur due to ^{Link.skill "Ino Yamanaka" Shippuden "Proxy Surveillance"} or ^{Link.skill "Rehabilitated Gaara" Original "Sand Tsunami"}) causes destructible barrier rather than negative damage reduction.
   <li>
     ^{Link.skill "Kabuto Yakushi" Shippuden "Chakra Absorbing Snakes"} no longer stuns healing effects for 1 turn. Instead, if the target restores health to anyone next turn, all of their skills will be stunned for 2 turns.
   <li>
@@ -136,9 +143,13 @@
   <li>
     ^{Link.skill "Jiraiya" Shippuden "Toad Oil Bomb"} interrupts <i>Action</i> skills as well as <i>Control</i> skills.
   <li>
-    ^{Link.skill "Hashirama Senju" Reanimated "Deep Forest Creation"} increases the cooldown of all skills, not just non-mental skills.
+    ^{Link.skill "Kitsuchi" Shippuden "Granite Fist"} prevents its target from applying counter effects, rather than stunning skills that include a countering effect.
   <li>
-    ^{Link.skill "Hashirama Senju" Reanimated "Deep Forest Creation"} only resets the cooldowns of <i>Instant</i> skills.
+    ^{Link.skill "Hashirama Senju" Reanimated "Deep Forest Creation"} increases the cooldowns of all enemy skills, not just non-mental skills.
+  <li>
+    ^{Link.skill "Hashirama Senju" Reanimated "Deep Forest Flourishing"} only resets the cooldowns of <i>Instant</i> skills.
+  <li>
+    ^{Link.skill "Chukichi" Reanimated "Hidden Frost"} provides invulnerability to all ranged skills, not only physical and chakra ranged skills.
 
 <h3 #duration-changes>Duration changes:
 <ul>
@@ -192,6 +203,12 @@
     was <i>Instant</i>, now <i>Ongoing</i>.
   <li>
     ^{Link.skill "Ino Yamanaka" Shippuden "Mind Destruction"}:
+    was <i>Instant</i>, now <i>Control</i>.
+  <li>
+    ^{Link.skill "Ino Yamanaka" Shippuden "Mind Transfer Clone"}:
+    was <i>Instant</i>, now <i>Control</i>.
+  <li>
+    ^{Link.skill "Fu Yamanaka" Shippuden "Mind Transfer"}:
     was <i>Instant</i>, now <i>Control</i>.
   <li>
     ^{Link.skill "Pakura" Reanimated "Searing Combat"}:
