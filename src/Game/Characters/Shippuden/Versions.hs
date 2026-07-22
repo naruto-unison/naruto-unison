@@ -238,7 +238,7 @@ characters =
     [LeafVillage, Rogue, Sage, TeamLeader, Earth, Water, Wind, Yin, Yang]
     [   Skill.new
         { Skill.name      = "Reanimated Army"
-        , Skill.desc      = "Every turn after this skill is used, it is replaced by a skill from a random Reanimated (ℝ) ninja that the player owns. Reanimated skills have no chakra cost and can only be used once."
+        , Skill.desc      = "Every turn after this skill is used, it is replaced by a skill from a random Reanimated (ℝ) ninja that the player owns, excluding Reanimated ninjas on Kabuto's team. Reanimated skills have no chakra cost and can only be used once."
         , Skill.classes   = [Summon]
         , Skill.charges   = 1
         , Skill.dur       = Passive
@@ -314,7 +314,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Summoning: Reanimation"
-        , Skill.desc      = "Using the body of an injured enemy as a sacrificial vessel, Kabuto begins the reanimation ritual. If the enemy does not break free by taking an action during the next 3 turns, they will be sacrificed to resurrect the target of [Reanimation Scroll] and this skill will revert to [Reanimation Scroll]. If their health reaches 0, the sacrifice will occur immediately. Reanimated allies regain 10 health after every turn in which they are not damaged, and they gain a random chakra after every turn in which they do not act."
+        , Skill.desc      = "Using the body of an injured enemy as a sacrificial vessel, Kabuto begins the reanimation ritual. If the enemy does not break free by taking an action during the next 3 turns, they will be sacrificed to resurrect the target of [Reanimation Scroll] and this skill will revert to [Reanimation Scroll]. If their health reaches 0, the sacrifice will occur immediately. Allies reanimated by this skill regain 10 health after every turn in which they are not damaged, and they gain a random chakra after every turn in which they do not act."
         , Skill.require   = [ UserChannel False "Sacrificial Reanimation"
                             , TargetHealth AtMost 99
                             , TargetHealth AtLeast 1
@@ -546,7 +546,7 @@ characters =
     [Orochimaru, Sage, Wind, Earth, Water, Yang]
     [ [ Skill.new
         { Skill.name      = "Psychotic Break"
-        , Skill.desc      = "Jūgo fixates obsessively on an enemy, dealing 10 damage to them for 3 turns and gaining 20% damage reduction."
+        , Skill.desc      = "Jūgo fixates obsessively on an enemy, gaining 20% damage reduction and dealing 10 damage to them for 3 turns."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
@@ -824,7 +824,7 @@ characters =
     [RainVillage, Akatsuki, Sensor, SRank, Wind, Earth, Water, Yang, Wind, Earth, Water, Yang]
     [ [ Skill.new
         { Skill.name      = "Paper Chakram"
-        , Skill.desc      = "Konan hurls a razor-sharp disc at an enemy, dealing 35 piercing damage. Next turn, Konan ignores stuns and disabling effects."
+        , Skill.desc      = "Konan hurls a razor-sharp disc at an enemy, dealing 35 piercing damage and ignoring stuns and disabling effects for 1 turn."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 1
@@ -1000,7 +1000,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Needle Senbon"
-        , Skill.desc      = "Jiraiya infuses his hair with chakra to turn it needle-sharp, then deals 15 damage to all enemies and becomes invulnerable to melee skills for 1 turn."
+        , Skill.desc      = "Infusing his hair with chakra to turn it needle-sharp, Jiraiya deals 15 damage to all enemies and becomes invulnerable to melee skills for 1 turn."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1

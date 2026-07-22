@@ -187,7 +187,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Transparency Technique"
-        , Skill.desc      = "Hayate melds into shadows, increasing his damage by 10 for 3 turns. He gains 10 points of damage reduction for 1 turn, another 10 points of damage reduction for 2 turns, and another 5 points of damage reduction for 3 turns."
+        , Skill.desc      = "Hayate melds into shadows, increasing his damage by 10 for 3 turns. He gains 10 points of damage reduction for 1 turn, 10 additional points of damage reduction for 2 turns, and 5 additional points of damage reduction for 3 turns."
         , Skill.classes   = [Mental, Unremovable]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3

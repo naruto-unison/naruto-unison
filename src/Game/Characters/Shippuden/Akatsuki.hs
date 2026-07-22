@@ -16,7 +16,7 @@ characters =
     [LeafVillage, Akatsuki, Jinchuriki, Rogue, Sensor, Fire, Wind, Lightning, Earth, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
         { Skill.name      = "Mangekyō Sharingan"
-        , Skill.desc      = "Madara protects himself by predicting enemy attacks. For 4 turns, all non-affliction damage he receives is reduced to 25 at most. While active, this skill becomes [Eternal Mangekyō Sharingan][r]."
+        , Skill.desc      = "Madara protects himself by predicting enemy attacks. For 4 turns, all non-affliction damage he receives is reduced to at most 25. While active, this skill becomes [Eternal Mangekyō Sharingan][r]."
         , Skill.classes   = [Mental]
         , Skill.cost      = [Rand]
         , Skill.effects   =
@@ -1427,7 +1427,7 @@ characters =
     [RainVillage, Akatsuki, Sensor, SRank, Wind, Earth, Water, Yang]
     [ [ Skill.new
         { Skill.name      = "Paper Cut"
-        , Skill.desc      = "Konan slices an enemy with a razor-sharp blade made of durable paper strips, dealing 25 piercing damage. Deals 5 additional damage if the target is affected by [Dance of the Shikigami]."
+        , Skill.desc      = "Konan slices an enemy with a razor-sharp blade made of durable paper strips, dealing 25 piercing damage. Deals 5 additional piercing damage if the target is affected by [Dance of the Shikigami]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood]
         , Skill.effects   =

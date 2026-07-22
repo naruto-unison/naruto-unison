@@ -15,7 +15,7 @@ characters =
     [LeafVillage, AlliedForces, Jonin, TeamLeader, Lightning, Water, Earth, Fire, Wind, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Lightning Beast Fang"
-        , Skill.desc      = "Kakashi creates a lightning hound out of his Lightning Blade, which deals 25 piercing damage to an enemy. If the target is damaged, they will be stunned for 1 turn. During the next turn, this skill becomes [Lightning Blade Finisher][n][r]."
+        , Skill.desc      = "Kakashi creates a lightning hound out of his Lightning Blade, which deals 25 piercing damage to an enemy. If the target loses health, they will be stunned for 1 turn. During the next turn, this skill becomes [Lightning Blade Finisher][n][r]."
         , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
@@ -46,7 +46,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Kamui"
-        , Skill.desc      = "If used on an enemy, deals 40 piercing damage to them, increases their cooldowns by 1 turn, and increases the costs of their skills by 1 arbitrary chakra. If used on an ally, cures them of enemy effects and makes them invulnerable for 1 turn."
+        , Skill.desc      = "If used on an enemy, deals 40 piercing damage to them, increases their cooldowns by 1 turn for 1 turn, and increases the costs of their skills by 1 arbitrary chakra for 1 turn. If used on an ally, cures them of enemy effects and makes them invulnerable for 1 turn."
         , Skill.classes   = [Chakra, Ranged, Bypassing]
         , Skill.cost      = [Blood, Gen]
         , Skill.cooldown  = 1
@@ -65,7 +65,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Team Tactics"
-        , Skill.desc      = "For 3 turns, the cooldowns of Kakashi's allies are decreased by 1 turn. Cooldowns of non-instant skills cannot be decreased below their baseline cooldown amount. While active, the first skill used by an enemy will replace this skill for 1 turn. Copied skills cannot copy other skills and do not transform into alternates."
+        , Skill.desc      = "For 3 turns, the cooldowns of Kakashi's allies are decreased by 1 turn. While active, the first skill used by an enemy will replace this skill for 1 turn. Cooldowns of non-instant skills cannot be decreased below their baseline cooldown amount. Copied skills cannot copy other skills and do not transform into alternates."
         , Skill.classes   = [Mental, Unreflectable]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
@@ -426,7 +426,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Water Trumpet"
-        , Skill.desc      = "Kurotsuchi cups her hand to her mouth and expels a jet of water, dealing 20 damage to an enemy. If the target was damaged by [Lava Quicklime] last turn, their physical and chakra skills are stunned for 1 turn."
+        , Skill.desc      = "Kurotsuchi cups her hand to her mouth and expels a jet of water, dealing 20 damage to an enemy. If the target was targeted by [Lava Quicklime] last turn, their physical and chakra skills are stunned for 1 turn."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
@@ -544,7 +544,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Earth Dome"
-        , Skill.desc      = "A shield of rock protects Ittan and one of his allies, making them invulnerable to ranged skills for 1 turn."
+        , Skill.desc      = "A shield of rock protects Ittan and one of his allies, making both invulnerable to ranged skills for 1 turn."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
@@ -715,7 +715,7 @@ characters =
     [CloudVillage, AlliedForces, AlliedForces, Jonin, Fire, Earth]
     [ [ Skill.new
         { Skill.name      = "Rubber Wall"
-        , Skill.desc      = "A force-absorbing barrier springs up in front of Dodai's team, reducing damage to them by 20% for 3 turns and causing them to ignore stuns and disabling effects."
+        , Skill.desc      = "A force-absorbing barrier springs up in front of Dodai's team, reducing damage to them by 20% and causing them to ignore stuns and disabling effects for 3 turns."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 5
@@ -750,7 +750,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Rubber Sphere and Rope"
-        , Skill.desc      = "Dodai lobs a huge rubber ball at an enemy, dealing 35 damage. With the enemy distracted, he quickly pulls a random nearby ally out of harm's way, making them invulnerable for 1 turn."
+        , Skill.desc      = "Dodai lobs a huge rubber ball at an enemy, dealing 35 damage. With the enemy distracted, he quickly pulls a random ally out of harm's way, making them invulnerable for 1 turn."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1

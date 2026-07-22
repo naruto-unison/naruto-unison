@@ -105,7 +105,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Raging Lion's Mane"
-        , Skill.desc      = "Chakra-laced hair as strong as steel cables grows from Jiraiya's head and wrap around him or one of his allies. For 3 turns, enemies who use melee physical skills on the target will take 25 damage, and enemies who use ranged physical skills on the target will take 15 damage, and their melee and physical skills will be stunned for 1 turn."
+        , Skill.desc      = "Chakra-laced hair as strong as steel cables grows from Jiraiya's head and wrap around him or one of his allies. For 3 turns, enemies who use melee physical skills on the target will take 25 damage, and enemies who use ranged physical skills on the target will take 15 damage and their melee and physical skills will be stunned for 1 turn."
         , Skill.classes   = [Invisible, Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2

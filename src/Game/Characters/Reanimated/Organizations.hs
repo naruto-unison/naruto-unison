@@ -487,7 +487,7 @@ characters =
     [MistVillage, Kabuto, SevenSwordsmen, Jonin]
     [ [ Skill.new
         { Skill.name      = "Axe Chop"
-        , Skill.desc      = "Slashing an enemy with the axe part of Kabutowari, Jinin deals 15 piercing damage, disables the countering effects of their skills, and prevents them from reducing damage or becoming invulnerable."
+        , Skill.desc      = "Slashing an enemy with the axe part of Kabutowari, Jinin deals 15 piercing damage, disables the countering effects of their skills, and prevents them from reducing damage or becoming invulnerable for 1 turn."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1

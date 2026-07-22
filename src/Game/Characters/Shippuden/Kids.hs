@@ -250,7 +250,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Rotating Fang"
-        , Skill.desc      = "Spinning like a buzzsaw, Kiba deals 30 damage to an enemy. Deals 20 damage to the rest of their team during [Three-Headed Wolf]. Deals 20 additional damage to a random enemy during [Man-Beast Clone]."
+        , Skill.desc      = "Spinning like a buzzsaw, Kiba deals 30 damage to an enemy. Deals 20 additional damage to a random enemy during [Man-Beast Clone]. Deals 20 damage to the rest of their team during [Three-Headed Wolf]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =
@@ -629,7 +629,7 @@ characters =
     [LeafVillage, Eleven, AlliedForces, Chunin]
     [ [ Skill.new
         { Skill.name      = "Leaf Rising Wind"
-        , Skill.desc      = "Lee plants his back on the ground and uses his entire body as a spring to launch an enemy into the air with a powerful kick, dealing 15 damage and lowering the target's damage by 15 for 2 turns. Deals 10 additional damage per dead ally. Effect lasts 1 additional turn per dead ally."
+        , Skill.desc      = "Lee plants his back on the ground and uses his entire body as a spring to launch an enemy into the air with a powerful kick, dealing 15 damage and weakening the target's damage by 15 for 2 turns. Deals 10 additional damage and weakens damage for 1 additional turn per dead ally."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
@@ -803,7 +803,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Eight Trigrams Sixty-Four Palms"
-        , Skill.desc      = "For 2 turns, enemies are prevented from reducing damage or becoming invulnerable. If an enemy uses a skill on Neji during the first turn, it is countered and this skill is replaced for 1 turn by [Pressure Point Strike]."
+        , Skill.desc      = "For 2 turns, enemies are prevented from reducing damage or becoming invulnerable. For 1 turn, if an enemy uses a skill on Neji, it will be countered and this skill will be replaced for 1 turn by [Pressure Point Strike]."
         , Skill.classes   = [Physical, Mental, Invisible, Nonstacking]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
@@ -871,7 +871,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sand Summoning"
-        , Skill.desc      = "Gaara transforms the battlefield into a desert, providing 15 permanent destructible defense to his allies and 10 points of damage reduction to himself. The first use of this skill also causes all of Gaara's damage to be multiplied by 3. The second use of this skill causes all of Gaara's damage to be multiplied by 5."
+        , Skill.desc      = "Gaara transforms the battlefield into a desert, providing 15 permanent destructible defense to his allies and 10 points of damage reduction to himself and increasing his damage by 200%."
         , Skill.classes   = [Chakra, Unremovable]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 2
@@ -1083,7 +1083,7 @@ characters =
     [LeafVillage, Genin, Fire, Wind, Lightning, Yang, Sarutobi]
     [ [ Skill.new
         { Skill.name      = "Rasengan"
-        , Skill.desc      = "Focusing on an enemy, Konohamaru takes his time to prepare his Rasengan. Next turn, it will deal 25 damage to the target and an additional 15 if they used a skill."
+        , Skill.desc      = "Focusing on an enemy, Konohamaru takes his time to prepare his Rasengan. Next turn, it will deal 25 damage to the target and 15 additional damage if they used a skill."
         , Skill.classes   = [Chakra, Melee, Invisible]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1

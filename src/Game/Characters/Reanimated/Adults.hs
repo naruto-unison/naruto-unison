@@ -264,7 +264,7 @@ characters =
     [CloudVillage, Kabuto, Jinchuriki, Sensor, Lightning]
     [ [ Skill.new
         { Skill.name      = "Chakra Arms"
-        , Skill.desc      = "Manifesting limbs of tailed-beast chakra, Fukai deals 10 affliction damage to all enemies and increases the damage of [Tailed Beast Bomb Barrage] and [Lariat] to the targets by 5."
+        , Skill.desc      = "Manifesting limbs of tailed-beast chakra, Fukai deals 10 affliction damage to all enemies."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 1
@@ -277,7 +277,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Tailed Beast Bomb Barrage"
-        , Skill.desc      = "With a continuous attack of tailed-beast bombs, Fukai deals 30 damage to an enemy. All damage he receives—including piercing and affliction—is permanently reduced by 10%."
+        , Skill.desc      = "With a continuous attack of tailed-beast bombs, Fukai deals 30 damage to an enemy. All damage he receives—including piercing and affliction—is permanently reduced by 10%. Deals 5 additional damage for each time the target was affected by [Chakra Arms]."
         , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 1
@@ -291,7 +291,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Lariat"
-        , Skill.desc      = "Rushing an enemy, Fukai deals 15 percing damage to them and stuns their chakra and ranged skills for 1 turn."
+        , Skill.desc      = "Rushing an enemy, Fukai deals 15 percing damage to them and stuns their chakra and ranged skills for 1 turn. Deals 5 additional damage for each time the target was affected by [Chakra Arms]."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1
@@ -376,7 +376,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Psychic Jamming"
-        , Skill.desc      = "Chūkichi telepathically disrupts the minds of all enemies, increasing the costs of their skills by 1 arbitrary chakra for 1 turn. During [Hidden Frost], this skill costs 1 arbitrary chakra."
+        , Skill.desc      = "Chūkichi telepathically disrupts the minds of all enemies, increasing the costs of their skills by 1 arbitrary chakra for 1 turn. During [Hidden Frost], this skill costs 1 [r]."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 2

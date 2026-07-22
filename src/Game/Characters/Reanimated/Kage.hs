@@ -82,7 +82,7 @@ characters =
     [LeafVillage, Kage, Sensor, TeamLeader, Water, Fire, Wind, Lightning, Earth, Yin, Yang, Senju]
     [ [ Skill.new
         { Skill.name      = "Water Prison"
-        , Skill.desc      = "Water surrounds an enemy, dealing 15 damage and making them ignore helpful effects for 1 turn."
+        , Skill.desc      = "Water surrounds an enemy, dealing 15 damage and making them ignore helpful effects for 1 turn. Deals 15 additional damage during [Water Shockwave]."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
@@ -95,7 +95,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Water Shockwave"
-        , Skill.desc      = "A giant wave of water floods the enemy team for 3 turns, dealing 15 damage, stunning their bane skills, and increasing the damage of [Water Prison] by 15."
+        , Skill.desc      = "A giant wave of water floods the enemy team for 3 turns, dealing 15 damage and stunning their bane skills."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Gen, Nin]
         , Skill.cooldown  = 3

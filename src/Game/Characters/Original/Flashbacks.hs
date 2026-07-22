@@ -331,7 +331,7 @@ characters =
     [LeafVillage, Chunin, Jinchuriki, Sensor, Fire, Wind, Lightning, Earth, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
         { Skill.name      = "Piercing Stab"
-        , Skill.desc      = "Spotting an opening in his enemy's defense, Obito stabs them to deal 15 piercing damage. Deals 10 additional damage during [Sharingan]."
+        , Skill.desc      = "Spotting an opening in his enemy's defense, Obito stabs them to deal 15 piercing damage. Deals 10 additional piercing damage during [Sharingan]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.effects   =
@@ -400,7 +400,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Kamui Banishment"
-        , Skill.desc      = "The masked man uses a rare space-time technique to banish an enemy to his pocket dimension, dealing 20 piercing damage and making them invulnerable to their allies for 1 turn. While active, the target can only target the masked man or themselves. Deals 20 additional damage and lasts 1 additional turn if the target is affected by [Kusari Chains]."
+        , Skill.desc      = "The masked man uses a rare space-time technique to banish an enemy to his pocket dimension, dealing 20 piercing damage and making them invulnerable to their allies for 1 turn. While active, the target can only target the masked man or themselves. Deals 20 additional piercing damage and lasts 1 additional turn if the target is affected by [Kusari Chains]."
         , Skill.classes   = [Chakra, Melee, Unreflectable, Soulbound]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1

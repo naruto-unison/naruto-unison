@@ -465,7 +465,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sage Transformation"
-        , Skill.desc      = "Entering a killing rage, Jūgo transforms into a monster, gaining 75% damage reduction for 3 turns. Each turn, he deals 25 piercing damage to a random energy."
+        , Skill.desc      = "Entering a killing rage, Jūgo transforms into a monster, gaining 75% damage reduction and dealing 25 piercing damage to an enemy for 3 turns."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 4
@@ -531,7 +531,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Dragon Flame"
-        , Skill.desc      = "Draconic fireballs sear an enemy, dealing 10 damage to them for 4 turns. While active or stunned, enemies who use skills on Sasuke will take 5 affliction damage and create a [Thunder Cloud]. Using this skill creates 2 [Thunder Cloud]s."
+        , Skill.desc      = "Draconic fireballs sear an enemy, dealing 10 damage to them for 4 turns. Until this skill ends, enemies who use skills on Sasuke will take 5 affliction damage and create a [Thunder Cloud]. Using this skill creates 2 [Thunder Cloud]s."
         , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 4

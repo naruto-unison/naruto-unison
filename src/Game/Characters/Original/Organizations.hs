@@ -410,7 +410,7 @@ characters =
     [MistVillage, SevenSwordsmen, Rogue, Water]
     [ [ Skill.new
         { Skill.name      = "Silent Killing"
-        , Skill.desc      = "Zabuza emerges from mist behind an enemy's defenses to deal 30 piercing damage to them. Deals 15 additional damage and bypasses invulnerability during [Hidden Mist]."
+        , Skill.desc      = "Zabuza emerges from mist behind an enemy's defenses to deal 30 piercing damage to them. Deals 15 additional piercing damage and bypasses invulnerability during [Hidden Mist]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =

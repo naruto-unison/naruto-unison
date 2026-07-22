@@ -114,7 +114,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Chidori"
-        , Skill.desc      = "Sasuke attacks an enemy with a bolt of lightning, dealing 30 piercing damage. Deals 25 additional damage if the target is affected by [Sharingan]."
+        , Skill.desc      = "Sasuke attacks an enemy with a bolt of lightning, dealing 30 piercing damage. Deals 25 additional piercing damage if the target is affected by [Sharingan]."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
@@ -188,7 +188,7 @@ characters =
     [LeafVillage, Eleven, Genin, Earth, Fire, Yang, Aburame]
     [ [ Skill.new
         { Skill.name      = "Chakra Leech"
-        , Skill.desc      = "Chakra-draining bugs attack an enemy, dealing 20 affliction damage and absorbing 1 random chakra. Deals 5 additional damage per target's stack of [Parasite]."
+        , Skill.desc      = "Chakra-draining bugs attack an enemy, dealing 20 affliction damage and absorbing 1 random chakra. Deals 5 additional affliction damage per target's stack of [Parasite]."
         , Skill.classes   = [Bane, Ranged]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 1

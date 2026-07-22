@@ -110,7 +110,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Tunneling Fang"
-        , Skill.desc      = "Spinning like a buzzsaw, Tsume deals 15 piercing damage to an enemy for 2 turns. While active, all stun and disabling effects applied by the target will have their duration reduced by 2 turns. Deals 5 additional damage during [Call Kuromaru]."
+        , Skill.desc      = "Spinning like a buzzsaw, Tsume deals 15 piercing damage to an enemy for 2 turns. While active, all stun and disabling effects applied by the target will have their duration reduced by 2 turns. Deals 5 additional piercing damage during [Call Kuromaru]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.dur       = Action 2
@@ -367,7 +367,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Partial Expansion"
-        , Skill.desc      = "If used on an enemy, the next non-mental skill they use on Chōza or his allies will be countered. If used on an ally, the next non-mental skill an enemy uses on them will be countered. The person countered will take 10 damage."
+        , Skill.desc      = "If used on an enemy, the next non-mental skill they use on Chōza or his allies will be countered. If used on an ally, the next non-mental skill an enemy uses on them will be countered, and the person countered will take 10 damage."
         , Skill.classes   = [Physical, Melee, Invisible, Unreflectable, Nonstacking, Bypassing]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
