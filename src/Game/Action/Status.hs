@@ -15,8 +15,6 @@ module Game.Action.Status
   , prolong, hasten
   -- * Removing statuses
   , cureAll, cureBane, cureStun, purge, remove, removeStack, removeStacks
-  -- * Specialized
-  , commandeer
   ) where
 
 import ClassyPrelude
@@ -25,7 +23,6 @@ import Data.Enum.Set (EnumSet)
 
 import           Class.Play (MonadPlay)
 import qualified Class.Play as P
-import           Class.Stackable ((.++))
 import qualified Game.Engine.Ninjas as Ninjas
 import qualified Game.Engine.Statuses as Statuses
 import           Game.Model.Class (Class(..))
@@ -37,9 +34,8 @@ import qualified Game.Model.Effect as Effect
 import qualified Game.Model.Ninja as N
 import           Game.Model.Runnable (Runnable)
 import qualified Game.Model.Skill as Skill
-import           Game.Model.Status (Bomb(..), Status(Status))
+import           Game.Model.Status (Bomb(..))
 import qualified Game.Model.Status as Status
-import           Util ((∈))
 
 -- | Increases the 'Status.dur' of 'N.statuses' with matching 'Status.name'.
 -- Uses 'Ninjas.prolong' internally.
@@ -197,38 +193,3 @@ removeStack name = removeStacks name 1
 -- Uses 'Ninjas.removeStacks' internally.
 removeStacks :: ∀ m. MonadPlay m => Text -> Int -> m ()
 removeStacks name i = P.toTargetFromUser (Ninjas.removeStacks i) name
-
--- | Steals all of the target's 'Effect.helpful' 'Effect's.
-commandeer :: ∀ m. MonadPlay m => m ()
-commandeer = P.unsilenced do
-    nUser   <- P.nUser
-    nTarget <- P.nTarget
-
-    P.write nUser.slot
-        . Ninjas.modifyStatuses (mapMaybe gainHelpful nTarget.statuses ++)
-        $ nUser { N.defense = nTarget.defense .++ nUser.defense
-                , N.barrier = mempty
-                }
-    P.write nTarget.slot
-        . Ninjas.modifyStatuses (mapMaybe loseHelpful)
-        $ nTarget { N.defense = mempty
-                  , N.barrier = nUser.barrier
-                  }
-  where
-    stealable ef = Effect.helpful ef && not (Effect.sticky ef)
-
-    loseHelpful st@Status{classes, effects}
-      | null effects          = Just st
-      | Unremovable ∈ classes = Just st
-      | null kept             = Nothing
-      | otherwise             = Just st { Status.effects = kept }
-      where
-        kept = filter (not . stealable) effects
-
-    gainHelpful st@Status{classes, effects}
-      | null effects          = Nothing
-      | Unremovable ∈ classes = Nothing
-      | null stolen           = Nothing
-      | otherwise             = Just st { Status.effects = stolen }
-      where
-        stolen = filter stealable effects

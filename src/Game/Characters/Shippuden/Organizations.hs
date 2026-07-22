@@ -190,37 +190,39 @@ characters =
     ]
   , Character
     "Fū Yamanaka" 0
-    "An operative of the Hidden Leaf Village's elite Root division, Fū is emotionless and ruthlessly straightforward. His only drive is unswerving loyalty to Danzō. His combination of long-distance Yamanaka genjutsu and his personal form of taijutsu makes him a formidable threat in any situation, but his trump card is the ability to swap his consciousness into the body of an opponent and make use of all their skills."
+    "An operative of the Hidden Leaf Village's elite Root division, Fū is emotionless and ruthlessly straightforward. His only drive is unswerving loyalty to Danzō. His combination of long-distance Yamanaka genjutsu and his personal form of taijutsu makes him a formidable threat in any situation."
     [LeafVillage, Anbu, Sensor, Yamanaka]
     [ [ Skill.new
         { Skill.name      = "Tantō Slash"
-        , Skill.desc      = "Fū slashes an enemy with his tantō, dealing 25 damage. Deals 15 additional damage if the target is affected by [Mind Transfer]."
+        , Skill.desc      = "Fū slashes an enemy with his tantō, dealing 25 damage. Deals 15 additional damage if the target is affected by [Mind Transfer]. Deals 15 additional damage if the target is affected by [Mind Transfer Puppet Curse]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                bonus <- 15 `bonusIf` target has "Mind Transfer"
-                damage (25 + bonus)
+                bonusA <- 15 `bonusIf` target has "Mind Transfer"
+                bonusB <- 15 `bonusIf` target has "Mind Transfer Puppet Curse"
+                damage (25 + bonusA + bonusB)
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Mind Transfer"
-        , Skill.desc      = "Fū takes over an enemy's mind and steals all removable beneficial effects on them. The target's destructible defense is transferred to Fū, and Fū's destructible barrier is transferred to the target. For 3 turns, Fū detects all invisible effects and enemy cooldowns."
+        , Skill.desc      = "Fū takes over an enemy's mind, making them invulnerable to allies and unable to use skills on allies for 2 turns."
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
-        , Skill.dur       = Control 3
+        , Skill.dur       = Control 2
         , Skill.start     =
-            [ To Enemy commandeer ]
-        , Skill.effects   =
-          [ To Self $ targeting Enemies $ apply 1 skillName [Reveal]
-          ]
+            [ To Enemy $ control
+                [ Alone
+                , BlockAllies
+                ]
+            ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Mind Transfer Puppet Curse"
-        , Skill.desc      = "Fū defends himself or an ally with a puppet trap. For 2 turns, the first enemy who uses a non-mental skill on the target will be countered. If an enemy is countered, Fū's skills are replaced by their skills for 4 turns and their skills are replaced by [Puppet Curse: Attack][r] and [Puppet Curse: Defend][r] for 4 turns. Copied skills cannot copy other skills and do not transform into alternates."
+        , Skill.desc      = "Fū defends himself or an ally with a trap that transfers an attacker's mind into a puppet. For 2 turns, the first enemy who uses a non-mental skill on the target will be countered, and their skills will be replaced by [Puppet Curse: Attack][r]."
         , Skill.classes   = [Mental, Invisible, Unreflectable]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 3
@@ -228,10 +230,8 @@ characters =
           [ To Ally $ trapFrom 2 skillName (Counter NonMental) do
                 removeTrap skillName
                 apply -4 skillName [Face]
-                copyAll 4
                 targetNumSkills <- target (length . skills)
-                teach 4 "Puppet Curse: Attack" [0..targetNumSkills - 2]
-                teach 4 "Puppet Curse: Defend" [targetNumSkills - 1]
+                teach 4 "Puppet Curse: Attack" [0..targetNumSkills]
           ]
         }
       , Skill.new
@@ -241,15 +241,6 @@ characters =
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy $ damage 15 ]
-        }
-      , Skill.new
-        { Skill.name      = "Puppet Curse: Defend"
-        , Skill.desc      = "Trapped in a puppet, little can be done but flail about and hope to block an attack! The puppet becomes invulnerable for 1 turn."
-        , Skill.classes   = [Physical, Melee]
-        , Skill.cost      = [Rand]
-        , Skill.cooldown  = 4
-        , Skill.effects   =
-          [ To Self $ apply 1 skillName [Invulnerable All] ]
         }
       ]
     , [ invuln "Dodge" "Fū" [Physical] ]

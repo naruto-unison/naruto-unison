@@ -36,7 +36,7 @@ module Game.Engine.Ninjas
   , addChannels
   , cancelChannel, cancelOldChannel
 
-  , copy, copyAll
+  , copy
   , recharge, rechargeAll, spendCharge, spendCharges
 
   , prolong, prolongControlled
@@ -332,16 +332,6 @@ cancelOldChannel (ID.fromOwner -> channelID) n =
   where
     retain Channel{new = True} = True
     retain channel = channelID /= ID.from channel
-
--- | Copies all 'Skill's from a source into 'N.copies'.
-copyAll :: Context
-        -> Duration -- ^ 'Copy.dur'.
-        -> Ninja -- ^ Person whose skills are being copied.
-        -> Ninja -> Ninja
-copyAll context dur Ninja{skills} n = n { N.copies = cop <$> skills }
-  where
-    dur' = turnBonus context n dur
-    cop skill = Just Copy { skill, dur = dur' }
 
 -- | Copies a matching 'Skill' from a source into 'N.copies'.
 copy :: Context

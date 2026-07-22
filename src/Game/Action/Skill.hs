@@ -4,7 +4,7 @@ module Game.Action.Skill
     alterCooldown
   , resetCooldown, resetCooldowns, recharge, rechargeAll
   -- * Copying
-  , copyAll, copyLast, teach
+  , copyLast, teach
   -- * Alternates
   , getAlternates, nextAlternate
 
@@ -95,14 +95,6 @@ nextAlternate name = do
                   $ Status.addClasses alternateClasses
                         (Status.new user 1 skill)
                         { Status.effects = [Alternate name' alt] }
-
--- | Copies all @Skill@s from the target into the user's 'N.copies'.
--- Uses 'Ninjas.copyAll' internally.
-copyAll :: ∀ m. MonadPlay m => Duration -> m ()
-copyAll dur = P.uncopied do
-    context@Context{user} <- P.context
-    nTarget <- P.nTarget
-    P.modify user $ Ninjas.copyAll context dur nTarget
 
 -- | Copies the 'N.lastSkill' of the target into a specific skill slot
 -- of the user's 'N.copies'. Uses 'Execute.copy' internally.
