@@ -584,13 +584,13 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Flash Pillar"
-        , Skill.desc      = "A flash of lightning blinds and disorients an enemy, dealing 35 piercing damage to them and making them invulnerable to allies for 1 turn."
+        , Skill.desc      = "A flash of lightning blinds and disorients an enemy, dealing 35 damage to them and making them invulnerable to allies for 1 turn."
         , Skill.classes   = [Bane, Mental, Ranged]
         , Skill.cost      = [Gen, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemy do
-                pierce 35
+                damage 35
                 apply 1 skillName [Alone]
           ]
         }
@@ -630,13 +630,13 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Flame Slice"
-        , Skill.desc      = "With a slash of his blade, Atsui creates an arc of flame that deals 25 piercing damage to an enemy. Deals 10 additional damage during [Burning Blade]."
+        , Skill.desc      = "With a slash of his blade, Atsui creates an arc of flame that deals 25 piercing damage to an enemy. Deals 10 additional piercing damage during [Burning Blade]."
         , Skill.classes   = [Bane, Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
                 bonus <- 10 `bonusIf` user has "Burning Blade"
-                damage (25 + bonus)
+                pierce (25 + bonus)
           ]
         }
       ]

@@ -184,14 +184,14 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Scroll of Fire"
-        , Skill.desc      = "A coil of flame erupts from the Bashōsen Leaf Fan, dealing 20 affliction damage to all enemies and extracting a Spirit Word from each of them."
+        , Skill.desc      = "A coil of flame erupts from the Bashōsen Leaf Fan, dealing 20 damage to all enemies and extracting a Spirit Word from each of them."
         , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To Enemies do
                 stacks <- target amountFromAny skillName
-                afflict (20 + 5 * stacks)
+                damage (20 + 5 * stacks)
                 addStack "Spirit Word"
           ]
         }

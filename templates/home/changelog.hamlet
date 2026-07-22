@@ -110,14 +110,6 @@
   <li>
     The ^{Link.skill "Demon Brothers" Original "Poison Gauntlet"} applies a weak, slow-acting poison.
   <li>
-    The fire technique skills that did not deal affliction damage now deal affliction damage instead:
-    <ul>
-      <li>^{Link.skill "Jiraiya" Original "Giant Flame Bomb"}
-      <li>^{Link.skill "Jiraiya" Original "Toad Oil Bomb"}
-      <li>^{Link.skill "Atsui" Shippuden "Flame Slice"}
-      <li>^{Link.skill "Madara Uchiha" Shippuden "Majestic Destroyer Flame"}
-      <li>^{Link.skill "Yugito Nii" Shippuden "Flaming Cat Roar"}
-  <li>
     ^{Link.skill "Hiruzen Sarutobi" Original "Reaper Death Seal"} bypasses invulnerability.
   <li>
     ^{Link.skill "Hiashi Hyūga" Original "Eight Trigrams Air Palm Wall"} reflects skills onto their user, rather than a random enemy.
@@ -135,8 +127,6 @@
     ^{Link.skill "Kabuto Yakushi" Shippuden "Chakra Absorbing Snakes"} no longer stuns healing effects for 1 turn. Instead, if the target restores health to anyone next turn, all of their skills will be stunned for 2 turns.
   <li>
     ^{Link.skill "Maki" Shippuden "Humidified Cloth"} blocks the target from affecting the user's team at all.
-  <li>
-    ^{Link.skill "C" Shippuden "Flash Pillar"} deals piercing damage, in order to be consistent with other lightning attacks.
   <li>
     The cost of ^{Link.skill "Omoi" Shippuden "Crescent Moon Slice"} has been changed from 1 genjutsu chakra and 1 arbitrary chakra to 1 taijutsu chakra and 1 arbitrary chakra.
   <li>
