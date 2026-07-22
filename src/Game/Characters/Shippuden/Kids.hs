@@ -513,17 +513,15 @@ characters =
     in
     [ [ Skill.new
         { Skill.name      = "Butterfly Bombing"
-        , Skill.desc      = "Chōji charges at an enemy for 1 turn, ignoring harmful non-damaging status effects. At the end of the turn, he deals 30 damage to the target. Increases the costs of Chōji's skills by 2 arbitrary chakra."
-        , Skill.classes   = [Physical, Melee]
+        , Skill.desc      = "Chōji slams his fist into an enemy's face, ignoring harmful non-damaging status effects for 1 turn and dealing 30 damage. At the end of the turn, he deals 30 damage to the target. Increases the costs of Chōji's skills by 2 arbitrary chakra."
+        , Skill.classes   = [Physical, Melee, Uncounterable, Unreflectable]
         , Skill.cost      = [Tai, Rand, Rand]
-        , Skill.dur       = Action -1
-        , Skill.start     =
+        , Skill.effects   =
           [ To Self do
                 apply 1 skillName [Enrage]
+                damage 30
                 addCalories 2
           ]
-        , Skill.end       =
-          [ To Enemy $ whenM (user alive) $ damage 30 ]
         , Skill.changes   = caloricCost
         }
       ]
@@ -1024,9 +1022,9 @@ characters =
         , Skill.cost      = [Nin]
         , Skill.effects   =
           [ To Enemy do
-                bonusFirst  <-  5 `bonusIf` user has "First Moon"
-                bonusSecond <- 10 `bonusIf` user has "Second Moon"
-                damage (20 + bonusFirst + bonusSecond)
+                bonus1  <-  5 `bonusIf` user has "First Moon"
+                bonus2 <- 10 `bonusIf` user has "Second Moon"
+                damage (20 + bonus1 + bonus2)
           ]
         }
       ]

@@ -33,14 +33,13 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Lightning Blade Finisher"
-        , Skill.desc      = "Deals 35 piercing damage to an enemy. Deals 15 additional damage if the target is stunned or affected by [Lightning Beast Fang]."
+        , Skill.desc      = "Deals 35 piercing damage to an enemy. Deals 15 additional damage if the target is stunned."
         , Skill.classes   = [Chakra, Melee]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy do
-                bonusA <- 10 `bonusIf` target has "Lightning Beast Fang"
-                bonusB <- 10 `bonusIf` target isStunned
-                pierce (35 + max bonusA bonusB)
+                bonus <- 10 `bonusIf` target isStunned
+                pierce (35 + bonus)
           ]
         }
       ]
@@ -834,13 +833,13 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Sensory Technique"
-        , Skill.desc      = "Ao scans an enemy's psyche for weaknesses, preventing them from reducing damage or becoming invulnerable for 1 turn and dealing 25 damage."
+        , Skill.desc      = "Ao scans an enemy's psyche for weaknesses, dealing 25 damage and preventing them from reducing damage or becoming invulnerable for 1 turn."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Blood]
         , Skill.effects   =
           [ To Enemy do
-                apply 1 skillName [Expose]
                 damage 25
+                apply 1 skillName [Expose]
           ]
         }
       ]

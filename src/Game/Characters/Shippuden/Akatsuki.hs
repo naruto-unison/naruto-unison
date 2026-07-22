@@ -633,8 +633,8 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Amaterasu"
-        , Skill.desc      = "Itachi sets an enemy on fire, dealing 15 affliction damage to them for 2 turns. Does not stack. During [Susanoo], this skill becomes [Totsuka Blade][g]."
-        , Skill.classes   = [Bane, Chakra, Ranged, Nonstacking]
+        , Skill.desc      = "Itachi sets an enemy on fire, dealing 15 affliction damage to them for 2 turns. During [Susanoo], this skill becomes [Totsuka Blade][g]."
+        , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 1
         , Skill.effects   =
@@ -1457,12 +1457,12 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Paper Shower"
-        , Skill.desc      = "The Angel of Akatsuki fires countless razor-sharp paper strips from her wings, dealing 25 damage to an enemy and 25 to a random enemy."
+        , Skill.desc      = "The Angel of Akatsuki fires countless razor-sharp paper strips from her wings, dealing 25 damage to an enemy and 25 damage to a different random enemy."
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy $ damage 25
-          , To REnemy $ damage 25
+          , To RXEnemy $ damage 25
           ]
         }
       ]

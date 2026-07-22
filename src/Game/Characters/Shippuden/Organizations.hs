@@ -78,7 +78,7 @@ characters =
                     remove resetter
                     deplete 1
           ]
-        , Skill.changes    = changeWith "Kotoamatsukami" $ setCost []
+        , Skill.changes    = changeWith "kotoamatsukami" $ setCost []
         }
       ]
     , [ invuln "Block" "Shisui" [Physical] ]
