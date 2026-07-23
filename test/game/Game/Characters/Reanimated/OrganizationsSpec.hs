@@ -228,14 +228,17 @@ spec = parallel do
 
     describeCharacter "Deidara" do
         useOn Enemy "Chakra Clay Trap" do
-            it "counters target" do
+            it "damages target" do
                 Sim.act
-                Sim.as Enemy $ apply Permanent skillName [Reveal]
-                not <$> target (`is` Reveal)
+                damaged <- measureDamage
+                         $ Sim.as Enemy $ apply Permanent skillName [Reveal]
+                damaged `shouldBe` 20
             it "increases the damage of Detonating Clay" do
+                Sim.at REnemy killHard
+                Sim.at XEnemies killHard
                 replicateM_ testStacks do
                     Sim.act
-                    Sim.as Enemy $ return ()
+                    Sim.as Enemy $ Sim.at Self $ return ()
                 setHealth 100
                 damaged <- measureDamage $ Sim.use "Detonating Clay"
                 damaged `shouldBe` 20 + 5 * testStacks
@@ -244,13 +247,13 @@ spec = parallel do
             it "increases the damage of Detonating Clay" do
                 replicateM_ testStacks Sim.act
                 setHealth 100
-                damaged <- measureDamage $ Sim.use "Detonating Clay"
+                damaged <- Sim.at REnemy $ measureDamage $ Sim.use "Detonating Clay"
                 damaged `shouldBe` 20 + 5 * testStacks
             it "alternates" do
                 Sim.act
                 user $ hasSkill "Jellyfish Explosives"
 
-        useOn Enemy "Jellyfish Explosives" do
+        useOn REnemy "Jellyfish Explosives" do
             it "increases the damage of Detonating Clay" do
                 replicateM_ testStacks Sim.act
                 setHealth 100

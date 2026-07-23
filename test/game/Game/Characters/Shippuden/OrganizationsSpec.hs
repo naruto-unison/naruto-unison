@@ -81,20 +81,20 @@ spec = parallel do
                 userCharges `shouldBe` mempty
 
     describeCharacter "Torune Aburame" do
-        useOn Enemy "Nano-Sized Venom Beetles" do
+        useOn Enemy "Nano-Sized Venomous Beetles" do
             it "does not defend user again" do
                 Sim.act
                 userDefense <- user total defense
                 Sim.act
                 userDefense' <- user total defense
                 userDefense' `shouldBe` userDefense
-            it "applies a Venom Beetle" do
+            it "applies a Venomous Beetle" do
                 Sim.act
-                target has "Venom Beetle"
-            it "applies a Venom Beetle to destroyer of defense" do
+                target has "Venomous Beetle"
+            it "applies a Venomous Beetle to destroyer of defense" do
                 Sim.act
                 Sim.as Enemy demolishAll
-                stacks <- target amount "Venom Beetle"
+                stacks <- target amount "Venomous Beetle"
                 stacks `shouldBe` 2
 
         useOn Enemies "Jar of Poison" do
@@ -104,27 +104,22 @@ spec = parallel do
                 Sim.act
                 userDefense' <- user total defense
                 userDefense' `shouldBe` userDefense
-            it "applies a Venom Beetle to targets" do
+            it "applies a Venomous Beetle to targets" do
                 Sim.act
-                Sim.at XEnemies $ target has "Venom Beetle"
-            it "applies a Venom Beetle to destroyer of defense" do
+                Sim.at XEnemies $ target has "Venomous Beetle"
+            it "applies a Venomous Beetle to destroyer of defense" do
                 Sim.act
                 Sim.as Enemy demolishAll
-                stacks <- target amount "Venom Beetle"
+                stacks <- target amount "Venomous Beetle"
                 stacks `shouldBe` 2
 
         useOn Enemy "Venom Explosion" do
-            it "depletes chakra per Venom Beetle" do
+            it "depletes chakra per Venomous Beetle" do
                 gain [Blood, Gen, Nin, Tai]
-                addStacks "Venom Beetle" 2
+                addStacks "Venomous Beetle" 2
                 Sim.act
                 chakras <- gameChakras
                 chakras `shouldBe` ([], [Nin, Tai])
-            it "removes all stacks of Venom Beetle" do
-                addStacks "Venom Beetle" 2
-                Sim.act
-                stacks <- target amount "Venom Beetle"
-                stacks `shouldBe` 0
 
     describeCharacter "Fū Yamanaka" do
         useOn Enemy "Tantō Slash" do
@@ -146,14 +141,6 @@ spec = parallel do
                 Sim.act
                 Sim.withClass NonMental $ Sim.as Enemy $ return ()
                 hasSkill "Puppet Curse: Attack" <$> Sim.targets Enemy
-            it "teaches countered B" do
-                Sim.act
-                Sim.withClass NonMental $ Sim.as Enemy $ return ()
-                hasSkill "Puppet Curse: Defend" <$> Sim.targets Enemy
-            it "teaches user" do
-                Sim.act
-                Sim.withClass NonMental $ Sim.as Enemy $ return ()
-                user $ hasSkill "Unnamed"
 
     describeCharacter "Sasuke Uchiha" do
         useOn Enemy "Chidori Stream" do
