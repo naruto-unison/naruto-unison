@@ -1106,7 +1106,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 trap Permanent skillName (Counter NonMental) doNothing
-                hide Permanent skillName []
+                hide Permanent "agile backflip" []
           ]
         , Skill.changes   = changePer "agile backflip" \i ->
                                 setCost $ replicate (i + 1) Rand

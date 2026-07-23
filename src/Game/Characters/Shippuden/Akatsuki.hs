@@ -7,6 +7,7 @@ import Game.Characters.Import
 import Data.Bits (bit)
 
 import qualified Game.Model.Skill as Skill
+import           Util (pluralize)
 
 characters :: [Category -> Text -> Character]
 characters =
@@ -405,8 +406,10 @@ characters =
                 apply (fromIntegral $ 1 + stacks) skillName [Endure]
                 hide Permanent "jashin" []
           ]
-        , Skill.changes   = changePer "jashin" \i ->
-                                setCost $ replicate (i + 1) Rand
+        , Skill.changes   = changePer "jashin" \i skill -> skill
+            { Skill.desc = "Silently praying to Lord Jashin, Hidan prevents his health from dropping below 1 for " ++ pluralize (i + 1) "turn" "turns" ++ ". Every time this skill is used, it costs 1 additional arbitrary chakra and its effect lasts 1 additional turn."
+            , Skill.cost = replicate (i + 1) Rand
+            }
         }
       ]
     , [ invuln "Block" "Hidan" [Physical] ]

@@ -484,7 +484,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user amount skillName
+                stacks <- user amount "evening elephant"
                 damage (20 + 20 * stacks)
                 apply 1 skillName
                     [ Alone
@@ -493,10 +493,12 @@ characters =
                     ]
           , To Self do
                 sacrifice 1 20
-                addStack skillName
+                hide Permanent "evening elephant" []
           ]
-        , Skill.changes   = changePer "Evening Elephant" \i ->
-                                setCost $ [Tai] ++ replicate i Rand
+        , Skill.changes   = changePer "evening elephant" \i skill -> skill
+            { Skill.desc = "Using a devastating sequence of punches, Guy deals " ++ tshow (20 * (i + 1)) ++ " damage to an enemy. For 1 turn, they are invulnerable to allies and their physical and chakra skills are stunned. Guy loses 20 health down to a minimum of 1. Every time this skill is used, its damage increases by 20 and its cost increases by 1 additional arbitrary chakra."
+            , Skill.cost = [Tai] ++ replicate i Rand
+            }
         }
       ]
     , [ Skill.new
@@ -523,7 +525,7 @@ characters =
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemy do
-                stacks <- user amount skillName
+                stacks <- user amount "night guy"
                 pierce (50 + 25 * stacks)
                 apply 2 skillName
                     [ Seal
@@ -531,11 +533,13 @@ characters =
                     ]
           , To Self do
                 sacrifice 1 30
-                addStack skillName
+                hide Permanent "night guy" []
                 apply 2 "Blood Mist" [Plague]
           ]
-        , Skill.changes   = changePer "Night Guy" \i ->
-                                setCost $ replicate (i + 2) Tai
+        , Skill.changes   = changePer "night guy" \i skill -> skill
+            { Skill.desc = "As his blood evaporates into mist around him, Guy warps time and space to instantly attack an enemy, dealing " ++ tshow (50 + 25 * i) ++ " piercing damage. For 2 turns, the target ignores helpful effects, their damage is weakened by 5, and Guy cannot be healed. Guy loses 30 health down to a minimum of 1. Every time this skill is used, its damage increases by 25 and its cost increases by 1 taijutsu chakra."
+            , Skill.cost = replicate (i + 2) Tai
+            }
         }
       ]
     , [ invuln "Dodge" "Guy" [Physical] ]

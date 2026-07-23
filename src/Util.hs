@@ -7,6 +7,7 @@ module Util
   , epoch
   , insertIf
   , intersects
+  , pluralize
   , setFromFoldable
   , lazyMapFromKeyed
   , tryFromJust, fromMaybeM, fromMaybeT
@@ -99,6 +100,10 @@ insertIf False = const id
 intersects :: ∀ a. SetContainer a => a -> a -> Bool
 xs `intersects` ys = not . null $ intersection xs ys
 {-# INLINE intersects #-}
+
+pluralize :: ∀ a. (Integral a, Show a) => a -> Text -> Text -> Text
+pluralize 1 singular _ = "1 " ++ singular
+pluralize i _ plural = tshow i ++ " " ++ plural
 
 setFromFoldable :: ∀ o s. (MonoFoldable o, IsSet s, Element o ~ Element s)
                 => o -> s
