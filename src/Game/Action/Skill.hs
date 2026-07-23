@@ -15,7 +15,6 @@ module Game.Action.Skill
 import ClassyPrelude
 
 import           Control.Monad.Trans.Maybe (MaybeT(..))
-import           Data.Enum.Set (EnumSet)
 import qualified Data.Vector.Generic as Vector
 
 import           Class.Classed (Classed(..))
@@ -64,9 +63,6 @@ recharge = P.toUserFromUser Ninjas.recharge
 rechargeAll :: ∀ m. MonadPlay m => m ()
 rechargeAll = P.toTarget Ninjas.rechargeAll
 
-alternateClasses :: EnumSet Class
-alternateClasses = setFromList [Nonstacking, Unremovable]
-
 userSkills :: ∀ m. MonadPlay m => m (NonNull Vector (NonNull Vector Skill))
 userSkills = getSkills <$> P.nUser
   where
@@ -92,7 +88,7 @@ nextAlternate name = do
     case Ninjas.nextAlternate name' nUser of
         Nothing  -> return ()
         Just alt -> P.modify user . Ninjas.addStatus context
-                  $ Status.addClasses alternateClasses
+                  $ Status.addClasses (setFromList [Nonstacking, Unremovable])
                         (Status.new user 1 skill)
                         { Status.effects = [Alternate name' alt] }
 

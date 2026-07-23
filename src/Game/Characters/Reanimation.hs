@@ -98,8 +98,9 @@ reserveReanimation = void $ runMaybeT do
     context@Context{user, skill} <- P.context
     removeReanimation
     let skillID = ID.from skill
-    P.modify user $ Ninjas.addStatus context (Status.new user Permanent current)
-        { Status.classes = Reanimation `insertSet` skill.classes
+    let status  = Status.new user Permanent current
+    P.modify user $ Ninjas.addStatus context status
+        { Status.classes = Reanimation `insertSet` status.classes
         , Status.bombs   = [ To Done $ P.modify user $ Ninjas.recharge skillID
                                         | Skill.hasCharges skill ]
         }
