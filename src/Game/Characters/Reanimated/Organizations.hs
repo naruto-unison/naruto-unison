@@ -240,25 +240,27 @@ characters =
     "Reanimated by Kabuto, Ameyuri was one of the Seven Swordsmen of the Mist. Wielding Baki, the legendary twin lightning blades, Ameyuri cuts down her enemies using paralyzing electricity."
     [MistVillage, Kabuto, SevenSwordsmen, Jonin, Lightning]
     let
+        addElectricity dur stacks = addStacks' mempty dur "Electricity" stacks
+
         electrocute dur = do
             unlessM (target has' traps "Electricity") $
                 trapWith [Hidden] Permanent "Electricity" (OnAction All) do
                     electricity <- target amount "Electricity"
                     when (electricity > 0) do
                         remove "Electricity"
-                        addStacks' (toEnum electricity) "Electricity" electricity
+                        addElectricity (toEnum electricity) electricity
                         targeting Everyone $ whenM (target has "Electricity") $
                             asAction $ afflict 5
 
             mcurrentDur <- target duration "Electricity"
             case mcurrentDur of
-                Nothing -> addStacks' dur "Electricity" $ fromEnum dur
+                Nothing -> addElectricity dur $ fromEnum dur
                 Just currentDur -> do
                     currentStacks <- target amount "Electricity"
                     let newDur    = currentDur + dur
                         newStacks = max currentStacks $ fromEnum newDur
                     remove "Electricity"
-                    addStacks' newDur "Electricity" newStacks
+                    addElectricity newDur newStacks
     in
     [ [ Skill.new
         { Skill.name      = "Lightning Fang"
@@ -320,7 +322,7 @@ characters =
                 bomb 1 skillName
                     [ Block userSlot ]
                     [ To Done $ targeting Self $ removeStack "needle stitching" ]
-                targeting Self $ hide Permanent skillName []
+                targeting Self $ addHiddenStack "needle stitching"
           ]
         }
       ]

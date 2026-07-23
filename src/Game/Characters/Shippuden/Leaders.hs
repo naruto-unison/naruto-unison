@@ -320,7 +320,7 @@ characters =
           [ To Self do
                 stacks <- user amount "Harmony"
                 remove "Harmony"
-                addStacks' 1 "Harmony"
+                addStacks' mempty 1 "Harmony"
                     if stacks < 3 then stacks + 1 else 1
           , To Enemies do
                 remove skillName

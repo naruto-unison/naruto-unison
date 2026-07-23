@@ -326,7 +326,7 @@ characters =
           [ To Self do
                 stacks <- 1 `bonusPer` user amount "jashin"
                 apply (fromIntegral $ 1 + stacks) "Prayer" [Endure]
-                hide Permanent "jashin" []
+                addHiddenStack "jashin"
           ,  To Enemy do
                 userSlot   <- user slot
                 targetSlot <- target slot
@@ -404,7 +404,7 @@ characters =
           [ To Self do
                 stacks <- user amount "jashin"
                 apply (fromIntegral $ 1 + stacks) skillName [Endure]
-                hide Permanent "jashin" []
+                addHiddenStack "jashin"
           ]
         , Skill.changes   = changePer "jashin" \i skill -> skill
             { Skill.desc = "Silently praying to Lord Jashin, Hidan prevents his health from dropping below 1 for " ++ pluralize (i + 1) "turn" "turns" ++ ". Every time this skill is used, it costs 1 additional arbitrary chakra and its effect lasts 1 additional turn."

@@ -508,8 +508,6 @@ characters =
               | isChanneling skillID n = amount statusID n
               | otherwise              = 2
             caloric = replicate calories Rand
-
-        addCalories i = replicateM_ i $ hide Permanent "calories" []
     in
     [ [ Skill.new
         { Skill.name      = "Butterfly Bombing"
@@ -520,7 +518,7 @@ characters =
           [ To Self do
                 apply 1 skillName [Enrage]
                 damage 30
-                addCalories 2
+                addHiddenStacks "calories" 2
           ]
         , Skill.changes   = caloricCost
         }
@@ -532,7 +530,7 @@ characters =
         , Skill.cost      = [Blood, Rand, Rand]
         , Skill.dur       = Action 2
         , Skill.always    =
-          [ To Self $ addCalories 1 ]
+          [ To Self $ addHiddenStack "calories" ]
         , Skill.effects   =
           [ To Enemy $ damage 15
           ,  To Self $ trap 1 skillName (CounterAll NonMental) doNothing ]
@@ -546,7 +544,7 @@ characters =
         , Skill.dur       = Ongoing Permanent
         , Skill.start     =
           [ To Self do
-                addCalories 3
+                addHiddenStacks "calories" 3
                 apply Permanent skillName
                     [ Alternate "Butterfly Mode"
                                 "Super-Slam"
@@ -563,7 +561,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 cureAll
-                addCalories 2
+                addHiddenStacks "calories" 2
           , To Enemy $ damage 30
           ]
         , Skill.changes   = caloricCost
@@ -1106,7 +1104,7 @@ characters =
         , Skill.effects   =
           [ To Self do
                 trap Permanent skillName (Counter NonMental) doNothing
-                hide Permanent "agile backflip" []
+                addHiddenStack "agile backflip"
           ]
         , Skill.changes   = changePer "agile backflip" \i ->
                                 setCost $ replicate (i + 1) Rand

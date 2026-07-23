@@ -5,7 +5,7 @@ module Game.Action.Status
   , tag, tagWith
   , flag
   , hide
-  , addStack, addStacks, addStacks', applyStacks
+  , addStack, addStacks, addStacks', addHiddenStack, addHiddenStacks, applyStacks
     -- * Applying bombs
   , bomb, bombWith
     -- * Control
@@ -64,23 +64,32 @@ applyWith classes turns name efs = P.unsilenced
 -- | Adds a simple @Status@ with no 'Status.effects' or 'Status.dur'
 -- 'N.statuses'. Stacks are unremovable.
 addStack :: ∀ m. MonadPlay m => Text -> m ()
-addStack name = addStacks' Permanent name 1
+addStack name = addStacks' mempty Permanent name 1
 
 -- | 'addStack' with a 'Status.name' and 'Status.amount'.
 addStacks :: ∀ m. MonadPlay m => Text -> Int -> m ()
-addStacks = addStacks' Permanent
+addStacks = addStacks' mempty Permanent
+
+-- | Like `addStack`, but `Hidden'.
+addHiddenStack :: ∀ m. MonadPlay m => Text -> m ()
+addHiddenStack name = addStacks' (singleton Hidden) Permanent name 1
+
+-- | Like `addStacks`, but `Hidden'.
+addHiddenStacks :: ∀ m. MonadPlay m => Text -> Int -> m ()
+addHiddenStacks = addStacks' (singleton Hidden) Permanent
 
 -- | 'addStack' with a 'Status.dur', 'Status.name', and 'Status.amount'.
 -- Uses 'Ninjas.addStatus' internally.
-addStacks' :: ∀ m. MonadPlay m => Duration -> Text -> Int -> m ()
-addStacks' dur name i = do
+addStacks' :: ∀ m. MonadPlay m => EnumSet Class -> Duration -> Text -> Int -> m ()
+addStacks' classes dur name i = do
     context@Context{skill, target, user} <- P.context
     P.modify target $ Ninjas.addStatus context (Status.new user dur skill)
         { Status.name    = Skill.provideName skill name
         , Status.amount  = i
         , Status.user    = user
         , Status.classes = deleteSet Nonstacking . deleteSet Continues
-                         $ insertSet Unremovable skill.classes
+                         . insertSet Unremovable
+                         $ classes ++ skill.classes
         }
 
 -- | Adds a hidden @Status@ with no effects that immediately expires.

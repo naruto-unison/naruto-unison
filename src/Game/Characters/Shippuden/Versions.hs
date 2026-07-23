@@ -493,7 +493,7 @@ characters =
                     ]
           , To Self do
                 sacrifice 1 20
-                hide Permanent "evening elephant" []
+                addHiddenStack "evening elephant"
           ]
         , Skill.changes   = changePer "evening elephant" \i skill -> skill
             { Skill.desc = "Using a devastating sequence of punches, Guy deals " ++ tshow (20 * (i + 1)) ++ " damage to an enemy. For 1 turn, they are invulnerable to allies and their physical and chakra skills are stunned. Guy loses 20 health down to a minimum of 1. Every time this skill is used, its damage increases by 20 and its cost increases by 1 additional arbitrary chakra."
@@ -533,7 +533,7 @@ characters =
                     ]
           , To Self do
                 sacrifice 1 30
-                hide Permanent "night guy" []
+                addHiddenStack "night guy"
                 apply 2 "Blood Mist" [Plague]
           ]
         , Skill.changes   = changePer "night guy" \i skill -> skill
