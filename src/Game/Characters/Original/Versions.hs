@@ -182,7 +182,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Monstrous Sand Arm"
         , Skill.desc      = "Shukaku squeezes an enemy in a fist of sand, dealing 10 damage to them every turn. If they use a skill, the skill will be countered and this effect will end. During [Tailed Beast Form], this skill becomes [Wind Bullet][b][b]."
-        , Skill.require   = [UserChannel False "Monstrous Sand Arm"]
+        , Skill.require   = [UserChannel False skillName]
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
@@ -207,7 +207,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Sand Transformation"
         , Skill.desc      = "Shukaku gradually accumulates sand around Gaara's body, gaining 10 permanent destructible defense every turn for 5 turns. When this skill ends, Shukaku enters Tailed Beast Form for 3 turns. During [Tailed Beast Form], this skill becomes [Shukaku Full Release][b]."
-        , Skill.require   = [UserChannel False "Sand Transformation"]
+        , Skill.require   = [UserChannel False skillName]
         , Skill.classes   = [Mental]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 6

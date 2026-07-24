@@ -212,7 +212,7 @@ characters =
         { Skill.name      = "Salamander Shield"
         , Skill.desc      = "Kankurō's Sanshōuo puppet shields him and his allies, providing Kankurō with 40 permanent destructible defense. While Kankurō has destructible defense from this skill, damage against his allies is reflected to him. Cannot be used while active."
         , Skill.classes   = [Physical, Soulbound, Unremovable, Unreflectable]
-        , Skill.require   = [UserDefense AtMost 0 "Salamander Shield"]
+        , Skill.require   = [UserDefense AtMost 0 skillName]
         , Skill.cost      = [Rand, Rand, Rand]
         , Skill.cooldown  = 5
         , Skill.dur       = Passive
@@ -946,7 +946,7 @@ characters =
     , [ Skill.new
         { Skill.name    = "Curse Mark Release"
         , Skill.desc    = "By giving an ally a curse mark, Orochimaru uses their body as an anchor for his soul after death. If the target's health reaches 25 or lower while Orochimaru is dead, Orochimaru will be resurrected into their body with full health and all status effects removed, and will become invulnerable to bane skills. Cannot be used while active. If Orochimaru acquires a new body, this skill becomes [Regeneration][g][n]."
-        , Skill.require = [UserTrap False "Curse Mark Release"]
+        , Skill.require = [UserTrap False skillName]
         , Skill.classes = [Physical, Unremovable, Uncounterable, Unreflectable, Invisible, Melee]
         , Skill.cost    = [Blood, Nin]
         , Skill.effects =

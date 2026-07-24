@@ -773,7 +773,7 @@ characters =
       , Skill.new
         { Skill.name      = "Body Coating"
         , Skill.desc      = "Zetsu melts and flows over an enemy, taking control of their body. The next skill they use will target allies instead of enemies and enemies instead of allies. As White Zetsu, this skill becomes [Doppelgänger][t][r]."
-        , Skill.require   = [TargetHas AtMost 0 "Body Coating"]
+        , Skill.require   = [TargetHas AtMost 0 skillName]
         , Skill.classes   = [Mental, Melee, Invisible, Unremovable, Unreflectable]
         , Skill.cost      = [Blood, Gen]
         , Skill.cooldown  = 3
@@ -812,7 +812,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Sharingan"
         , Skill.desc      = "Tobi analyzes the battlefield to gain the upper hand. The next time an enemy uses a skill on him, it will be countered and this skill will become [Kamui][g][r] for 2 turns. Cannot be used while active."
-        , Skill.require   = [UserTrap False "Sharingan"]
+        , Skill.require   = [UserTrap False skillName]
         , Skill.classes   = [Mental, Invisible]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 4
@@ -871,7 +871,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Izanagi"
         , Skill.desc      = "Tobi sacrifices one of his eyes to take control of reality on a local scale, reversing the flow of time. In 4 turns, he will be restored to his condition at the moment of using this skill. Cannot be used while active."
-        , Skill.require    = [UserHas AtMost 0 "Izanagi"]
+        , Skill.require    = [UserHas AtMost 0 skillName]
         , Skill.classes    = [Mental, Invisible, Unremovable, Atemporal]
         , Skill.cost       = [Blood, Blood]
         , Skill.charges    = 2

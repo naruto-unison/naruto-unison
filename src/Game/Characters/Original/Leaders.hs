@@ -210,7 +210,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Reaper Death Seal"
         , Skill.desc      = "Hiruzen unleashes the God of Death upon an enemy in exchange for his soul. Each turn, the God of Death deals 40 affliction damage to the target and 20 affliction damage to Hiruzen. Both are permanently stunned, and the target cannot reduce damage or become invulnerable."
-        , Skill.require   = [UserHas AtMost 0 "Reaper Death Seal"]
+        , Skill.require   = [UserHas AtMost 0 skillName]
         , Skill.classes   = [Ranged, Unreflectable, Unremovable, Soulbound, Bypassing, Atemporal]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =

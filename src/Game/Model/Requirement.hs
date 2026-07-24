@@ -1,6 +1,7 @@
 module Game.Model.Requirement
   ( Requirement(..)
   , Range(..)
+  , withSkillName
   , targetable
   , usable
   , targets
@@ -27,6 +28,15 @@ import           Game.Model.Skill (Skill(Skill), Target(..))
 import qualified Game.Model.Skill as Skill
 import           Game.Model.Slot (Slot)
 import           Util ((∈), (∉), (?), intersects)
+
+withSkillName :: Text -> Requirement -> Requirement
+withSkillName name (UserHas r i "") = UserHas r i name
+withSkillName name (TargetHas r i "") = TargetHas r i name
+withSkillName name (TargetHasFromAny r i "") = TargetHasFromAny r i name
+withSkillName name (UserChannel b "") = UserChannel b name
+withSkillName name (UserDefense r i "") = UserDefense r i name
+withSkillName name (UserTrap b "") = UserTrap b name
+withSkillName _ req = req
 
 -- | Processes 'Skill.require'.
 usable :: Bool -- ^ New.

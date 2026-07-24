@@ -16,7 +16,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Two-Tailed Transformation"
         , Skill.desc      = "Matatabi's chakra envelops Yugito, transforming her into a huge two-tailed cat of blue flame. Yugito gains 50% damage reduction and can use her other skills."
-        , Skill.require   = [UserHas AtMost 0 "Two-Tailed Transformation"]
+        , Skill.require   = [UserHas AtMost 0 skillName]
         , Skill.classes   = [Chakra]
         , Skill.effects   =
           [ To Self $ apply Permanent skillName
@@ -82,7 +82,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Drowning Bubble"
         , Skill.desc      = "Soap bubbles surround an enemy's head and prevent them from breathing, dealing 10 affliction damage every turn. Cannot be used on an enemy already affected by this skill."
-        , Skill.require   = [TargetHas AtMost 0 "Drowning Bubble"]
+        , Skill.require   = [TargetHas AtMost 0 skillName]
         , Skill.classes   = [Chakra, Ranged, Bane, Soulbound]
         , Skill.cost      = [Nin]
         , Skill.effects   =

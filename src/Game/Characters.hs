@@ -13,6 +13,8 @@ import           Game.Model.Character (Character(Character))
 import qualified Game.Model.Character as Character
 import           Game.Model.Chakras (Chakra(..))
 import           Game.Model.Group (Group(..))
+import qualified Game.Model.Requirement as Requirement
+import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
 import           Util ((∈), (?), insertIf, lazyMapFromKeyed)
 
@@ -55,7 +57,7 @@ processCharacter :: Character -> Character
 processCharacter char =
     char { Character.ident  = Character.identFrom char.category char.name
          , Character.groups = groups ++ char.groups
-         , Character.skills = (Skill.withExtraClasses <$>) <$> char.skills
+         , Character.skills = (processSkill <$>) <$> char.skills
          }
   where
     chakras = concatMap Skill.cost $ join char.skills
@@ -64,6 +66,10 @@ processCharacter char =
             . insertIf (Nin ∈ chakras) NinjutsuUser
             . insertIf (Tai ∈ chakras) TaijutsuUser
             $ mempty
+
+processSkill :: Skill -> Skill
+processSkill skill = Skill.withExtraClasses skill
+    { Skill.require = Requirement.withSkillName skill.name <$> skill.require }
 
 dedupAlternates :: Character -> Character
 dedupAlternates char@Character{skills}

@@ -220,7 +220,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Poison Fog"
         , Skill.desc      = "Shizune spews forth a toxic cloud to poison an enemy, causing them to receive 10 affliction damage for 3 turns. Cannot be used on an enemy already affected by [Poison Fog]."
-        , Skill.require   = [TargetHas AtMost 0 "Poison Fog"]
+        , Skill.require   = [TargetHas AtMost 0 skillName]
         , Skill.classes   = [Bane, Ranged]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1

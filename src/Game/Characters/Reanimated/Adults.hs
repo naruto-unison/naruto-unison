@@ -29,7 +29,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Searing Combat"
         , Skill.desc      = "Pakura ignites an enemy, dealing 20 affliction damage to them for 2 turns. Cannot be used on an enemy already affected by this skill."
-        , Skill.require   = [TargetHas AtMost 0 "Searing Combat"]
+        , Skill.require   = [TargetHas AtMost 0 skillName]
         , Skill.classes   = [Physical, Melee, Bane]
         , Skill.cost      = [Tai, Rand]
         , Skill.effects   =

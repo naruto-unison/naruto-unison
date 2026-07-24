@@ -728,7 +728,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Demon Parasite"
         , Skill.desc      = "Ukon transfers into an enemy's body, dealing 20 affliction damage to them every turn until they die. While active, Sakon gains 15 points of damage reduction. Cannot be used while active."
-        , Skill.require   = [UserHas AtMost 0 "Demon Parasite"]
+        , Skill.require   = [UserHas AtMost 0 skillName]
         , Skill.classes   = [Bane, Unreflectable, Unremovable]
         , Skill.cost      = [Blood, Blood]
         , Skill.effects   =

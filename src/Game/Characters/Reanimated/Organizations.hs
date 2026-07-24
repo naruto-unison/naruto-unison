@@ -155,7 +155,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Acupuncture"
         , Skill.desc      = "Haku alters the flow of energy in an enemy by sticking a needle into one of their vital points, disabling the non-damage effects of their skills on allies and enemies for 2 turns. Bypasses invulnerability and targets all enemies during [Crystal Ice Mirrors]."
-        , Skill.require   = [TargetHas AtMost 0 "Acupuncture"]
+        , Skill.require   = [TargetHas AtMost 0 skillName]
         , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 2
@@ -168,7 +168,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Crystal Ice Mirrors"
         , Skill.desc      = "Disorienting crystalline mirrors form all around the battlefield, providing 20 permanent destructible defense to Haku. For 3 turns, if Haku loses all destructible defense from this skill, he will gain destructible defense equal to how much health he lost during the same turn. Cannot be used while Haku still has destructible defense from this skill."
-        , Skill.require   = [UserDefense AtMost 0 "Crystal Ice Mirrors"]
+        , Skill.require   = [UserDefense AtMost 0 skillName]
         , Skill.classes   = [Chakra]
         , Skill.cost      = [Blood, Nin]
         , Skill.cooldown  = 6
@@ -309,7 +309,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Needle Stitching"
         , Skill.desc      = "Nuibari skewers an enemy and pulls a wire through them, dealing 20 piercing damage and preventing them from affecting him for 1 turn. Deals 5 additional damage per person affected by [Needle Stitching] and extends its duration on them by 1 turn. Cannot be used on an enemy already affected by this skill."
-        , Skill.require   = [TargetHas AtMost 0 "Needle Stitching"]
+        , Skill.require   = [TargetHas AtMost 0 skillName]
         , Skill.classes   = [Physical, Melee, Atemporal]
         , Skill.cost      = [Tai]
         , Skill.effects   =
@@ -557,7 +557,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Chakra Clay Trap"
         , Skill.desc      = "Deidara plants an explosive mine near an enemy. The next time they use a skill on Deidara or his allies, they will take 20 piercing damage and [Detonating Clay] will deal 5 additional damage to them. The trap does not stack."
-        , Skill.classes   = [Chakra, Ranged, Invisible, Nonstacking]
+        , Skill.classes   = [Chakra, Ranged, Invisible]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =
