@@ -288,7 +288,6 @@ characters =
     [Akatsuki, Rogue, SRank]
     [ [ Skill.new
         { Skill.name      = "Jashin Sigil"
-        , Skill.require   = [UserHas AtMost 0 "Jashin Sigil"]
         , Skill.desc      = "Hidan prepares for his ritual by drawing an insignia on the ground in blood. Once used, this skill becomes [First Blood][r]."
         , Skill.classes   = [Physical, Unremovable, Uncounterable]
         , Skill.effects   =
