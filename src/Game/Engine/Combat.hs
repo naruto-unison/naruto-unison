@@ -23,6 +23,7 @@ import           Game.Model.Destructible (Destructible(Destructible))
 import qualified Game.Model.Destructible as Destructible
 import           Game.Model.Duration (Duration(..))
 import           Game.Model.Effect (Amount(..), Effect(..))
+import           Game.Model.ID (ID)
 import qualified Game.Model.ID as ID
 import           Game.Model.Ninja (Ninja, is)
 import qualified Game.Model.Ninja as N
@@ -59,6 +60,13 @@ data DamageAbsorb = DamageAbsorb
     , overflow  :: Int
     , remaining :: [Destructible]
     }
+
+getBrokenIds :: DamageAbsorb -> [ID]
+getBrokenIds DamageAbsorb { broken, remaining } =
+    toList $ getIds broken \\ getIds remaining
+  where
+    getIds :: [Destructible] -> HashSet ID
+    getIds destructibles = setFromList $ ID.from <$> destructibles
 
 absorbDamage :: Int -> [Destructible] -> DamageAbsorb
 absorbDamage damage destructible = absorb $ DamageAbsorb [] damage destructible
@@ -163,8 +171,8 @@ attack atk dmg
 
     damaged <- (nTarget.health -) . (.health) <$> P.nTarget
 
-    P.trigger user $ OnBreak . ID.from <$> fromBarrier.broken
-    P.trigger target $ OnBreak . ID.from <$> fromDefense.broken
+    P.trigger user $ OnBreak <$> getBrokenIds fromBarrier
+    P.trigger target $ OnBreak <$> getBrokenIds fromDefense
 
     guard $ damaged > 0 && not (Parity.allied user target)
 
