@@ -810,8 +810,7 @@ characters =
     [LeafVillage, Akatsuki, SRank, Jinchuriki, Sensor, SRank, Fire, Wind, Lightning, Earth, Water, Yin, Yang, Uchiha]
     [ [ Skill.new
         { Skill.name      = "Sharingan"
-        , Skill.desc      = "Tobi analyzes the battlefield to gain the upper hand. The next time an enemy uses a skill on him, it will be countered and this skill will become [Kamui][g][r] for 2 turns. Cannot be used while active."
-        , Skill.require   = [UserTrap False skillName]
+        , Skill.desc      = "Tobi analyzes the battlefield to gain the upper hand. The next time an enemy uses a skill on him, it will be countered and this skill will become [Kamui][g][r] for 2 turns."
         , Skill.classes   = [Mental, Invisible]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 4
