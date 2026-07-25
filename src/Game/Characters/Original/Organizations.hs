@@ -778,7 +778,7 @@ characters =
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy $ damage 30
-          , To Self $ applyWith [Bane] -1 skillName [Afflict 5]
+          , To Self $ applyWith [Bane] 0 skillName [Afflict 5]
           ]
         }
       ]
@@ -792,7 +792,7 @@ characters =
           [ To Enemy do
                 damage 40
                 apply 1 skillName [Stun All]
-          , To Self $ applyWith [Bane] -1 skillName [Afflict 10]
+          , To Self $ applyWith [Bane] 0 skillName [Afflict 10]
           ]
         }
       ]
