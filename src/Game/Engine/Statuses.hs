@@ -146,6 +146,7 @@ makeStatus StatusParams
     noremove    = null effects && Bane ∉ baseClasses
                   || Hidden ∈ baseClasses
                   || user == target && any (not . Effect.helpful) effects
+                  || all Effect.sticky effects
     extra       = insertIf (any bind effects) Soulbound
                 . insertIf noremove Unremovable
                 $ mempty
