@@ -394,7 +394,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Eight Trigrams Sixty-Four Palms"
         , Skill.desc      = "For 4 turns, every time an enemy affected by [Pressure Point Strike] uses a skill on Hinata or her allies, Hinata's next [Pressure Point Strike] will last 1 additional turn on them."
-        , Skill.classes   = [Physical, Melee, Nonstacking]
+        , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 4
         , Skill.effects   =
@@ -736,29 +736,31 @@ characters =
     , [ Skill.new
         { Skill.name      = "Switch Loadout"
         , Skill.desc      = "Scrolling to the next item set, Tenten gains 5 permanent destructible defense and replaces her other skills. Tenten has 3 item sets."
-        , Skill.classes   = [Physical]
+        , Skill.classes   = [Physical, Unremovable]
         , Skill.effects   =
           [ To Self do
                 defend Permanent 5
                 alternates <- getAlternates [1, 1, 1]
-                applyWith [Nonstacking] Permanent skillName alternates
+                remove skillName
+                apply Permanent skillName alternates
           ]
         }
       , Skill.new
         { Skill.name      = "Switch Loadout "
         , Skill.desc      = "Scrolling to the next item set, Tenten gains 5 permanent destructible defense and replaces her other skills. Tenten has 3 item sets."
-        , Skill.classes   = [Physical]
+        , Skill.classes   = [Physical, Unremovable]
         , Skill.effects   =
           [ To Self do
                 defend Permanent 5
                 alternates <- getAlternates [2, 2, 2]
-                applyWith [Nonstacking] Permanent "Switch Loadout" alternates
+                remove "Switch Loadout"
+                apply Permanent "Switch Loadout" alternates
           ]
         }
       , Skill.new
         { Skill.name      = "Switch Loadout  "
         , Skill.desc      = "Scrolling to the next item set, Tenten gains 5 permanent destructible defense and replaces her other skills. Tenten has 3 item sets."
-        , Skill.classes   = [Physical]
+        , Skill.classes   = [Physical, Unremovable]
         , Skill.effects   =
           [ To Self do
                 defend Permanent 5
@@ -800,13 +802,13 @@ characters =
     , [ Skill.new
         { Skill.name      = "Eight Trigrams Sixty-Four Palms"
         , Skill.desc      = "For 2 turns, enemies are prevented from reducing damage or becoming invulnerable. For 1 turn, if an enemy uses a skill on Neji, it will be countered and this skill will be replaced for 1 turn by [Pressure Point Strike]."
-        , Skill.classes   = [Physical, Mental, Invisible, Nonstacking]
+        , Skill.classes   = [Physical, Mental, Invisible]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
           [ To Enemies $ apply 2 skillName [Expose]
-          , To Self $ trap 1 skillName (CounterAll All) $
-                apply -1 skillName
+          , To Self $ trap 1 skillName (Counter All) $
+                apply 0 skillName
                     [ Alternate "Eight Trigrams Sixty-Four Palms"
                                 "Pressure Point Strike"
                     ]
@@ -890,7 +892,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Kuroari Trap"
         , Skill.desc      = "The Kuroari puppet traps an enemy. If they use a skill on Kankurō or his allies next turn, they will be countered and will receive twice as much damage from [Karasu Knives] for 1 turn."
-        , Skill.classes   = [Physical, Ranged, Invisible, Nonstacking]
+        , Skill.classes   = [Physical, Ranged, Invisible]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
         , Skill.dur       = Control 1
@@ -1099,7 +1101,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Agile Backflip"
         , Skill.desc      = "Konohamaru uses his agility to counter the next non-mental skill used on him. Every time this skill is used, its cost increases by 1 arbitrary chakra."
-        , Skill.classes   = [Physical, Invisible, Nonstacking]
+        , Skill.classes   = [Physical, Invisible]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Self do

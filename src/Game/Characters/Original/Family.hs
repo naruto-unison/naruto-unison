@@ -368,7 +368,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Partial Expansion"
         , Skill.desc      = "If used on an enemy, the next non-mental skill they use on Chōza or his allies will be countered. If used on an ally, the next non-mental skill an enemy uses on them will be countered, and the person countered will take 10 damage."
-        , Skill.classes   = [Physical, Melee, Invisible, Unreflectable, Nonstacking, Bypassing]
+        , Skill.classes   = [Physical, Melee, Invisible, Unreflectable, Bypassing]
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =

@@ -96,7 +96,7 @@ characters =
     [StoneVillage, Akatsuki, Rogue, SRank, Earth, Lightning]
     [ [ Skill.new
         { Skill.name      = "C1: Bird Bomb"
-        , Skill.desc      = "Deidara hurls a clay bird at an enemy that explodes into shrapnel on impact, dealing 15 damage to the target and weakening their damage by 5 for 4 turns. Does not stack. Once used, this skill becomes [C3: Megaton Sculpture][n][r]. During [C2: Clay Dragon], this skill becomes [C2: Dragon Missile][n][r]."
+        , Skill.desc      = "Deidara hurls a clay bird at an enemy that explodes into shrapnel on impact, dealing 15 damage to the target and weakening their damage by 5 for 4 turns. Once used, this skill becomes [C3: Megaton Sculpture][n][r]. During [C2: Clay Dragon], this skill becomes [C2: Dragon Missile][n][r]."
         , Skill.classes   = [Chakra, Ranged, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.effects   =
@@ -111,7 +111,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "C3: Megaton Sculpture"
-        , Skill.desc      = "Deidara drops a large explosive on the enemy team, dealing 20 damage to them and weakening their damage by 5 for 4 turns. Does not stack. Once used, this skill becomes [C1: Bird Bomb][r]. During [C2: Clay Dragon], this skill becomes [C2: Dragon Missile][n][r]."
+        , Skill.desc      = "Deidara drops a large explosive on the enemy team, dealing 20 damage to them and weakening their damage by 5 for 4 turns. Once used, this skill becomes [C1: Bird Bomb][r]. During [C2: Clay Dragon], this skill becomes [C2: Dragon Missile][n][r]."
         , Skill.classes   = [Chakra, Ranged, Nonstacking]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
@@ -123,7 +123,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "C2: Dragon Missile"
-        , Skill.desc      = "Deidara's dragon fires a long-range bomb at an opponent, dealing 30 damage and weakening their damage by 5 for 4 turns. Does not stack."
+        , Skill.desc      = "Deidara's dragon fires a long-range bomb at an opponent, dealing 30 damage and weakening their damage by 5 for 4 turns."
         , Skill.classes   = [Chakra, Ranged, Bypassing, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 1
@@ -152,7 +152,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "C2: Minefield"
-        , Skill.desc      = "Deidara scatters mines that burrow into the ground around an enemy. The next time they use a non-mental skill within 2 turns, they will take 10 damage and their damage will be weakened by 5 for 4 turns. Does not stack."
+        , Skill.desc      = "Deidara scatters mines that burrow into the ground around an enemy. The next time they use a non-mental skill within 2 turns, they will take 10 damage and their damage will be weakened by 5 for 4 turns."
         , Skill.classes   = [Chakra, Ranged, Invisible, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.cooldown  = 2
@@ -230,7 +230,7 @@ characters =
         { Skill.name      = "Poison Blade Assault"
         , Skill.desc      = "Sasori directs the Kazekage puppet to single out an enemy and gains 20 destructible defense for 2 turns. While Sasori has destructible defense from this skill, he deals 10 damage and 10 affliction damage to the target."
         , Skill.require   = [UserHas AtLeast 1 "Iron Sand"]
-        , Skill.classes   = [Bane, Physical, Melee, Nonstacking]
+        , Skill.classes   = [Bane, Physical, Melee]
         , Skill.cost      = [Rand, Rand]
         , Skill.cooldown  = 3
         , Skill.dur       = Passive
@@ -958,14 +958,14 @@ characters =
                     if notStunned then
                         apply 1 skillName [Stun All]
                     else
-                        applyWith [Hidden, Nonstacking] 1 "chakra receiver" []
+                        hide 1 "chakra receiver" []
           ]
         }
       ]
     , [ Skill.new
         { Skill.name      = "Planetary Devastation"
-        , Skill.desc      = "Pain creates a gravitational anchor that pulls in an enemy and accumulates a rough sphere of rock and debris around them, applying 80 destructible barrier for 3 turns. While the target has destructible barrier from this skill, they are invulnerable to allies as well as enemies. At the end of the 3 turns, the target will take damage equal to the remaining destructible barrier from this skill."
-        , Skill.classes   = [Physical, Ranged, Nonstacking]
+        , Skill.desc      = "Pain creates a gravitational anchor that pulls in an enemy and accumulates a rough sphere of rock and debris around them, applying 80 destructible barrier for 3 turns. While the target has destructible barrier from this skill, they are invulnerable to allies as well as enemies. When the barrier ends, the target will take damage equal to the remaining destructible barrier from this skill."
+        , Skill.classes   = [Physical, Ranged]
         , Skill.cost      = [Blood, Gen, Tai]
         , Skill.cooldown  = 3
         , Skill.effects   =
@@ -986,7 +986,7 @@ characters =
     [Akatsuki, SRank]
     [ [ Skill.new
         { Skill.name      = "Metal Blade"
-        , Skill.desc      = "Pain gouges an enemy with a blade that unfolds from his body, dealing 15 piercing damage and inflicting a deep wound. The target takes 10 affliction damage every turn until one of their allies uses a skill on them. Does not stack."
+        , Skill.desc      = "Pain gouges an enemy with a blade that unfolds from his body, dealing 15 piercing damage and inflicting a deep wound. The target takes 10 affliction damage every turn until one of their allies uses a skill on them."
         , Skill.classes   = [Bane, Physical, Melee, Nonstacking]
         , Skill.cost      = [Tai, Rand]
         , Skill.cooldown  = 2
@@ -1032,7 +1032,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Guided Missile"
         , Skill.desc      = "Pain fires a slow-moving but devastating missile at a target. Over the next four turns, the cost of this skill is 1 chakra that cycles through the different types of chakra. Each turn, it has a different effect on the target. Using the skill again resets it."
-        , Skill.classes   = [Physical, Ranged, Bypassing, Invisible, Nonstacking]
+        , Skill.classes   = [Physical, Ranged, Bypassing, Invisible]
         , Skill.dur       = Ongoing 4
         , Skill.start     =
           [ To Enemy $ tagWith [Atemporal] 4 skillName ]
@@ -1234,7 +1234,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Chakra Shield"
         , Skill.desc      = "Pain creates a protective barrier around himself that absorbs chakra. Next turn, enemy skills used on him will be nullified, and Pain will gain chakra equal to the chakra cost of nullified skills."
-        , Skill.classes   = [Chakra, Ranged, Invisible, Nonstacking]
+        , Skill.classes   = [Chakra, Ranged, Invisible]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 2
         , Skill.effects   =

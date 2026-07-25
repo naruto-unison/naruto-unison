@@ -323,7 +323,7 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Spinach Pill"
         , Skill.desc      = "Chōji eats the mildest Akimichi pill, losing 5 health down to a minimum of 1 and gaining the strength he needs to protect his friends. While alive, he provides 5 points of damage reduction to his allies. This skill becomes [Obstructing Tackle][t] during [Spinach Pill], [Partial Expansion][t][r] during [Curry Pill], and [Justice Punch][t] during [Chili Pill]."
-        , Skill.classes   = [Chakra, Nonstacking]
+        , Skill.classes   = [Chakra, Unremovable]
         , Skill.dur       = Action Permanent
         , Skill.start     =
           [ To Self do
@@ -373,7 +373,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Curry Pill"
         , Skill.desc      = "Chōji eats the first two Akimichi pills in one go, losing 15 health down to a minimum of 1 and unlocking huge reserves of chakra in addition to immense physical strength. While alive, he provides 10 points of damage reduction to his allies. This skill becomes [Human Boulder][t] during [Spinach Pill], [Full Expansion][t][t] during [Curry Pill], and [Chakra Wings][n][n] during [Chili Pill]."
-        , Skill.classes   = [Chakra, Nonstacking]
+        , Skill.classes   = [Chakra, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.dur       = Action Permanent
         , Skill.start     =
@@ -434,7 +434,7 @@ characters =
       chiliSkill = Skill.new
         { Skill.name      = "Chili Pill"
         , Skill.desc      = "While alive, he loses 15 health per turn, provides 15 points of damage reduction to his allies, and ignores stuns and disabling effects."
-        , Skill.classes   = [Chakra, Nonstacking]
+        , Skill.classes   = [Chakra, Unremovable]
         , Skill.dur       = Action Permanent
         , Skill.start     =
           [ To Self do
@@ -466,7 +466,7 @@ characters =
       , Skill.new
         { Skill.name      = "Curry Pill"
         , Skill.desc      = "Chōji eats the second Akimichi pill, losing 5 health down to a minimum of 1 and unlocking huge reserves of chakra. While alive, he provides 10 points of damage reduction to his allies."
-        , Skill.classes   = [Chakra, Nonstacking]
+        , Skill.classes   = [Chakra, Unremovable]
         , Skill.dur       = Action Permanent
         , Skill.start     =
           [ To Self do

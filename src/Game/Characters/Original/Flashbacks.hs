@@ -86,16 +86,16 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Flying Raijin"
         , Skill.desc      = "Minato teleports to a target, becoming invulnerable for 1 turn. If he teleports to an enemy, he deals 30 damage to them. If he teleports to an ally, he provides them with invulnerability for 1 turn."
-        , Skill.classes   = [Physical, Melee, Bypassing, Nonstacking]
+        , Skill.classes   = [Physical, Melee, Bypassing]
         , Skill.cost      = [Gen, Rand]
         , Skill.effects   =
-        [ To Self $ apply 1 skillName [Invulnerable All]
+        [ To Self $ applyWith [Nonstacking] 1 skillName [Invulnerable All]
         , To XAllies $ whenM (target has "Space-Time Marking") $
-                apply 1 skillName [Invulnerable All]
+                applyWith [Nonstacking] 1 skillName [Invulnerable All]
         , To Enemies $ whenM (target has "Space-Time Marking") $
                 damage 30
         , To XAlly do
-                apply 1 skillName [Invulnerable All]
+                applyWith [Nonstacking] 1 skillName [Invulnerable All]
                 whenM (user has "Space-Time Marking") $
                     tag 1 "Space-Time Marking"
         , To Enemy do
@@ -209,7 +209,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Veritable 1000-Armed Kannon"
         , Skill.desc      = "A titanic many-handed Buddha statue looms over the battlefield, providing 30 permanent destructible defense to Hashirama and his allies and empowering his other skills for 3 turns."
-        , Skill.classes   = [Physical, Nonstacking]
+        , Skill.classes   = [Physical]
         , Skill.cost      = [Blood, Blood]
         , Skill.cooldown  = 5
         , Skill.effects   =

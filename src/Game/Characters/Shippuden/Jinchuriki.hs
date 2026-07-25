@@ -330,7 +330,7 @@ characters =
       , Skill.new
         { Skill.name      = "Chakra Gathering"
         , Skill.desc      = "Kurama draws in chakra. Next turn, [Massive Tailed Beast Bomb] will target all enemies."
-        , Skill.classes   = [Chakra, Nonstacking]
+        , Skill.classes   = [Chakra]
         , Skill.cost      = [Rand, Rand, Rand, Rand]
         , Skill.cooldown  = 3
         , Skill.effects   =

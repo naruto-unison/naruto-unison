@@ -102,7 +102,7 @@ characters =
       , Skill.new
         { Skill.name      = "Kannon Strike"
         , Skill.desc      = "Deals 20 damage to an enemy. This skill remains [Kannon Strike] for another turn."
-        , Skill.classes   = [Physical, Melee, Nonstacking]
+        , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy $ damage 20
@@ -562,13 +562,13 @@ characters =
     [ [ Skill.new
         { Skill.name      = "Sensory Technique"
         , Skill.desc      = "C strikes a random enemy while detecting the flow of chakra, dealing 20 damage to them. If an enemy uses a skill on C next turn, he will become invulnerable for 1 turn."
-        , Skill.classes   = [Mental, Nonstacking, Ranged]
+        , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Gen]
         , Skill.cooldown  = 1
         , Skill.effects   =
           [ To REnemy $ damage 20
           , To Self $ trap 1 skillName (OnHarmed All) $
-                apply 1 skillName [Invulnerable All]
+                applyWith [Nonstacking] 1 skillName [Invulnerable All]
           ]
         }
       ]

@@ -74,7 +74,7 @@ characters =
     , [ Skill.new
         { Skill.name      = "Tag Team"
         , Skill.desc      = "Izumo tags out, swapping his health with Kotetsu's. Once used, if Kotetsu dies, Izumo will immediately take over."
-        , Skill.classes   = [Nonstacking, Uncounterable, Unremovable]
+        , Skill.classes   = [Uncounterable, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.require   = [UserHas AtMost 0 "solo"]
         , Skill.effects   =
@@ -84,7 +84,7 @@ characters =
                 setHealth if kotetsuHealth == 0 then 100 else kotetsuHealth
                 remove "Kotetsu's Health"
                 applyStacks "Izumo's Health" userHealth []
-                apply Permanent skillName
+                applyWith [Nonstacking] Permanent skillName
                     [ Alternate "Devastate"
                                 "Annihilate"
                     , Alternate "Tag Team"
@@ -101,7 +101,7 @@ characters =
       , Skill.new
         { Skill.name      = "Tag Team"
         , Skill.desc      = "Kotetsu tags out, swapping his health with Izumo's. Once used, if Izumo dies, Kotetsu will immediately take over."
-        , Skill.classes   = [Nonstacking, Uncounterable, Unremovable]
+        , Skill.classes   = [Uncounterable, Unremovable]
         , Skill.cost      = [Rand]
         , Skill.require   = [UserHas AtMost 0 "solo"]
         , Skill.effects   =
@@ -117,7 +117,7 @@ characters =
                     setHealth kotetsuHealth
                     remove "Kotetsu's Health"
                     hide Permanent "solo" []
-                    apply Permanent skillName
+                    applyWith [Nonstacking] Permanent skillName
                         [ Alternate "Devastate"
                                     "Annihilate"
                         , Alternate "Tag Team"
@@ -316,7 +316,7 @@ characters =
         { Skill.name      = "Chain Shred"
         , Skill.desc      = "Meizu tears his chains through the target of [Chain Wrap], dealing 45 piercing damage and reapplying [Chain Wrap], stunning the target's physical and chakra skills for another turn."
         , Skill.require   = [TargetHas AtLeast 1 "Chain Wrap"]
-        , Skill.classes   = [Physical, Melee, Nonstacking]
+        , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
@@ -480,7 +480,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Amaterasu"
-        , Skill.desc      = "Itachi sets an enemy on fire, dealing 10 instant affliction damage and 5 affliction damage every turn. During [Mangekyō Sharingan], targets all enemies and deals double damage. Does not stack."
+        , Skill.desc      = "Itachi sets an enemy on fire, dealing 10 instant affliction damage and 5 affliction damage every turn. During [Mangekyō Sharingan], targets all enemies and deals double damage."
         , Skill.classes   = [Bane, Ranged, Soulbound, Nonstacking, Unreflectable]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
@@ -608,8 +608,8 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Earth Dome Prison"
-        , Skill.desc      = "Jirōbō provides 35 destructible defense to his team for 3 turns. Every turn that Jirōbō has destructible defense from [Earth Dome Prison], he absorbs 1 random chakra from the enemy team."
-        , Skill.classes   = [Chakra, Ranged, Nonstacking]
+        , Skill.desc      = "Jirōbō provides 35 destructible defense to his team for 3 turns. Every turn that Jirōbō has destructible defense from this skill, he absorbs 1 random chakra from the enemy team."
+        , Skill.classes   = [Chakra, Ranged]
         , Skill.cost      = [Nin, Nin, Rand]
         , Skill.cooldown  = 6
         , Skill.dur       = Passive
