@@ -329,12 +329,12 @@ characters =
         , Skill.cost      = [Blood]
         , Skill.cooldown  = 2
         , Skill.effects   =
-          [ To Self $ bomb -1 "Barricaded"
+          [ To Self $ bombWith [Hidden] -1 "barricaded"
                 []
                 [ To Expire $ gain [Blood] ]
           ,  To Ally $ trapFrom 1 skillName (Counter All) do
                 triggerGiganticBeetle
-                targeting Self $ remove "Barricaded"
+                targeting Self $ remove "barricaded"
           ]
         }
       ]
