@@ -99,7 +99,7 @@ unlockedOf (Just who) = fromMaybe allUnlocked <$> runMaybeT do
     guard $ privilege < Moderator
     ids <- getsYesod App.characterIDs
     unlocks <- liftDB $ selectList [ UnlockedUser ==. who ] []
-    return $ freeChars `union` setFromList (mapMaybe (look ids) unlocks)
+    return $ freeChars ++ setFromList (mapMaybe (look ids) unlocks)
   where
     look ids (Entity _ Unlocked{character}) = Bimap.lookup character ids
 
