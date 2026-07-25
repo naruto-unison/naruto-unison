@@ -614,7 +614,7 @@ characters =
         , Skill.cooldown  = 6
         , Skill.dur       = Passive
         , Skill.start     =
-          [ To Allies $ defend 3 5
+          [ To Allies $ defend 3 35
           , To Self do
                 replaceChannel
                 onBreak $ cancelChannel skillName
