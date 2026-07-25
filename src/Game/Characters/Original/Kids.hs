@@ -322,7 +322,7 @@ characters =
     [LeafVillage, Eleven, Genin, Earth, Fire, Yang, Akimichi]
     [ [ Skill.new
         { Skill.name      = "Spinach Pill"
-        , Skill.desc      = "Chōji eats the mildest Akimichi pill, losing 5 health down to a minimum of 1 and gaining the strength he needs to protect his friends. While alive, he provides 5 points of damage reduction to his allies."
+        , Skill.desc      = "Chōji eats the mildest Akimichi pill, losing 5 health down to a minimum of 1 and gaining the strength he needs to protect his friends. While alive, he provides 5 points of damage reduction to his allies. This skill becomes [Obstructing Tackle][t] during [Spinach Pill], [Partial Expansion][t][r] during [Curry Pill], and [Justice Punch][t] during [Chili Pill]."
         , Skill.classes   = [Chakra, Nonstacking]
         , Skill.dur       = Action Permanent
         , Skill.start     =
@@ -372,7 +372,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Curry Pill"
-        , Skill.desc      = "Chōji eats the first two Akimichi pills in one go, losing 15 health down to a minimum of 1 and unlocking huge reserves of chakra in addition to immense physical strength. While alive, he provides 10 points of damage reduction to his allies."
+        , Skill.desc      = "Chōji eats the first two Akimichi pills in one go, losing 15 health down to a minimum of 1 and unlocking huge reserves of chakra in addition to immense physical strength. While alive, he provides 10 points of damage reduction to his allies. This skill becomes [Human Boulder][t] during [Spinach Pill], [Full Expansion][t][t] during [Curry Pill], and [Chakra Wings][n][n] during [Chili Pill]."
         , Skill.classes   = [Chakra, Nonstacking]
         , Skill.cost      = [Rand]
         , Skill.dur       = Action Permanent
@@ -460,7 +460,7 @@ characters =
         }
       in
       [ chiliSkill
-        { Skill.desc      = "Chōji swallows all three Akimichi pills, losing 10 health down to a minimum of 1 and gaining so much chakra that butterfly wings of pure energy erupt from his back. " ++ Skill.desc chiliSkill
+        { Skill.desc      = "Chōji swallows all three Akimichi pills, losing 10 health down to a minimum of 1 and gaining so much chakra that butterfly wings of pure energy erupt from his back. " ++ Skill.desc chiliSkill ++ " This skill becomes [Curry Pill] during [Spinach Pill], [Chili Pill] during [Spinach Pill], and Butterfly Bombing[n][t] during [Chili Pill]."
         , Skill.cost      = [Rand, Rand]
         }
       , Skill.new
