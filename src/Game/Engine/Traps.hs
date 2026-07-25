@@ -43,7 +43,7 @@ import           Game.Model.Trap (Trap(Trap))
 import qualified Game.Model.Trap as Trap
 import           Game.Model.Trigger(Trigger(..))
 import qualified Game.Model.Trigger as Trigger
-import           Util ((∈), (∉), intersects, insertIf)
+import           Util ((∈), (∉), intersects)
 
 launch :: ∀ m. (MonadGame m, MonadHook m, MonadRandom m)
        => Trap -> Runnable Context -> m ()
@@ -232,24 +232,18 @@ makeTrap ctx@Context { continues
     , user
     , name    = Skill.provideName skill name
     , effect  = \i -> To context $ f i
-    , classes = classes'
     , dur
+    , classes = setContinues $ classes ++ getClasses trigger
+             ++ setFromList [Nonstacking, Unremovable]
+             ++ (skill.classes `intersection` Class.inherited)
     }
   where
-    setContinues
-      | continues && dur <= 1 = insertSet Continues
-      | continues || new      = deleteSet Continues
-      | otherwise             = deleteSet Continues . deleteSet Invisible
-    baseClasses = classes ++ (skill.classes `intersection` Class.inherited)
-    extra = insertIf (Hidden ∈ baseClasses) Unremovable
-          . insertSet Nonstacking
-          . setContinues
-          $ getClasses trigger
-    classes' = baseClasses ++ extra
-    skill'   = skill { Skill.classes = classes'
-                     , Skill.require = mempty
-                     }
+    skill'   = skill { Skill.require = mempty }
     context  = ctx { Context.skill     = skill'
                    , Context.continues = False
                    , Context.new       = False
                    }
+    setContinues
+      | continues && dur <= 1 = insertSet Continues
+      | continues || new      = deleteSet Continues
+      | otherwise             = deleteSet Continues . deleteSet Invisible
