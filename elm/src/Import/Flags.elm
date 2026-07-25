@@ -37,6 +37,7 @@ type alias War =
     }
 
 
+decodeWar : D.Decoder War
 decodeWar =
     D.succeed War
         |> D.required "red" (D.list D.string |> D.map Set.fromList)
