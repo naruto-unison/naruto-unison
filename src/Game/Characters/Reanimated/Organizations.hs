@@ -146,7 +146,7 @@ characters =
           [ To Enemies do
                 bonus <- 20 `bonusIf` channeling "Crystal Ice Mirrors"
                 pierce (10 + bonus)
-                trapPer' -1 skillName PerDamaged \i -> when (i >= 50) $
+                trapPer 0 skillName PerDamaged \i -> when (i >= 50) $
                     apply 1 skillName [Stun All]
           ]
         , Skill.changes   = changeWithChannel "Crystal Ice Mirrors" restrict
