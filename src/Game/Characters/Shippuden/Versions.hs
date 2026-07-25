@@ -950,24 +950,24 @@ characters =
         , Skill.classes = [Physical, Unremovable, Uncounterable, Unreflectable, Invisible, Melee]
         , Skill.cost    = [Blood, Nin]
         , Skill.effects =
-          [ To Ally do
+          [ To XAlly do
                 targeting Everyone $ remove skillName
                 bomb Permanent skillName
                     []
                     [ To Done $ targeting Self $ removeTrap skillName ]
-          , To Self $ trapWith [Hidden] Permanent skillName OnDeath $
+          , To Self $ trapWith [Hidden] Permanent skillName OnDeath do
+                trapWith [Hidden] Permanent skillName OnResurrected $
+                    targeting Everyone do
+                        remove skillName
+                        removeTrap skillName
                 targeting Everyone $ whenM (target has skillName) $
                     trap Permanent skillName (OnHealthMax 25) do
-                        targeting Everyone do
-                            remove skillName
-                            removeTrap skillName
                         killHard
                         targeting Self do
                             factory
                             alternates <- getAlternates [1, 1, 1, 1]
                             apply Permanent skillName $
-                                [Invulnerable Bane]
-                                ++ alternates
+                                Invulnerable Bane : alternates
           ]
         }
       , Skill.new
