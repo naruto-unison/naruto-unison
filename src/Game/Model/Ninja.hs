@@ -8,9 +8,12 @@ module Game.Model.Ninja
   , duration, duration'
   , numHelpful, numHarmful
   , lastChakraSpent
+  , effectSource
   ) where
 
 import ClassyPrelude
+
+import GHC.Records (HasField)
 
 import qualified Class.Parity as Parity
 import           Class.Stackable (Stackable, getAmount)
@@ -167,3 +170,15 @@ numHarmful Ninja{slot, statuses} = sum
                  Hidden ∉ classes,
                  ef <- effects,
                  not $ Effect.helpful ef ]
+
+effectSource :: Effect -> Ninja -> Maybe (Slot, Skill)
+effectSource ef Ninja{barrier, defense, statuses} = sourceFrom statuses
+                                                <|> sourceFrom defense
+                                                <|> sourceFrom barrier
+  where
+    sourceFrom :: ∀ a. ( HasField "skill"   a Skill
+                       , HasField "user"    a Slot
+                       , HasField "effects" a [Effect]
+                       )
+             => [a] -> Maybe (Slot, Skill)
+    sourceFrom xs = (\x -> (x.user, x.skill)) <$> find ((ef ∈) . (.effects)) xs

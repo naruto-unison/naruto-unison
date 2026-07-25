@@ -65,9 +65,10 @@ absorbDamage damage destructible = absorb $ DamageAbsorb [] damage destructible
   where
     absorb d@(DamageAbsorb _ _ []) = d
     absorb (DamageAbsorb broken dmg (x:xs))
-      | x.amount > dmg = DamageAbsorb broken 0 (damaged:xs)
-      | otherwise = absorb $ DamageAbsorb (damaged:broken) (dmg - x.amount) xs
-      where damaged = x { Destructible.amount = max 0 $ x.amount - dmg }
+      | x.amount > dmg = DamageAbsorb broken 0 (damaged : xs)
+      | otherwise = absorb $ DamageAbsorb (damaged : broken) (dmg - x.amount) xs
+      where
+        damaged = x { Destructible.amount = max 0 $ x.amount - dmg }
 
 userAdjust :: Attack -> EnumSet Class -> Ninja -> Float -> Float
 userAdjust atk classes nUser x = x
@@ -131,18 +132,19 @@ attack atk dmg
         fromBarrier = absorbDamage dmgCalc nUser.barrier
         fromDefense
           | nTarget `is` Undefend = DamageAbsorb [] fromBarrier.overflow
-                                  nTarget.defense
+                                    nTarget.defense
           | otherwise             = absorbDamage fromBarrier.overflow
                                     nTarget.defense
 
     if atk > Attack.Afflict && nTarget `is` DamageToDefense then
-        P.modify target $ Ninjas.addDefense context Destructible
-            { user
-            , skill   = Skill.removeClass Nonstacking skill
-            , amount  = dmgCalc
-            , dur     = Permanent
-            , effects = mempty
-            }
+        forM_ (N.effectSource DamageToDefense nTarget) \(defUser, defSkill) ->
+            P.modify target $ Ninjas.addDefense context Destructible
+                { user    = defUser
+                , skill   = Skill.removeClass Nonstacking defSkill
+                , amount  = dmgCalc
+                , dur     = Permanent
+                , effects = mempty
+                }
 
     else if atk == Attack.Afflict then
         P.modify target $ Ninjas.adjustHealth (- dmgCalc)

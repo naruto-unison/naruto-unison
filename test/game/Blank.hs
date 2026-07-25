@@ -4,6 +4,7 @@ module Blank
   , ninja, ninjaWithSlot, ninjaWithSkill
   , ninjas
   , game
+  , status
   ) where
 
 import ClassyPrelude
@@ -12,10 +13,14 @@ import           Game.Model.Character (Category(..), Character(Character))
 import qualified Game.Model.Character as Character
 import           Game.Model.Context (Context(Context))
 import qualified Game.Model.Context
+import           Game.Model.Duration (Duration(..))
+import           Game.Model.Effect (Effect)
 import           Game.Model.Ninja (Ninja)
 import qualified Game.Model.Ninja as N
 import           Game.Model.Skill (Skill)
 import qualified Game.Model.Skill as Skill
+import           Game.Model.Status (Status(Status))
+import qualified Game.Model.Status
 import           Game.Model.Slot (Slot)
 import qualified Game.Model.Slot as Slot
 import           Util ((!!))
@@ -61,6 +66,18 @@ ninjaWithSkill skill = N.new blankSlot $ characterWithSkill skill
 
 ninjas :: [Ninja]
 ninjas = ninjaWithSlot <$> Slot.all
+
+status :: [Effect] -> Status
+status effects = Status
+    { amount  = 1
+    , name    = mempty
+    , user    = blankSlot
+    , skill   = Skill.new
+    , effects = effects
+    , classes = mempty
+    , bombs   = mempty
+    , dur     = Permanent
+    }
 
 game :: Wrapper
 game = Wrapper.new ninjas

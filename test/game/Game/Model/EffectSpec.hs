@@ -522,9 +522,12 @@ simEffects userEffects targetEffects t = simOf game t
   where
     game = Wrapper.new $ applyEffects <$> Blank.ninjas
     applyEffects n@Ninja{slot}
-      | slot == Sim.targetSlot Self = n { effects = userEffects }
-      | slot == Sim.targetSlot t    = n { effects = targetEffects }
+      | slot == Sim.targetSlot Self = setEffects userEffects n
+      | slot == Sim.targetSlot t    = setEffects targetEffects n
       | otherwise                   = n
+    setEffects effects n = n { effects  = effects
+                             , statuses = Blank.status effects : n.statuses
+                             }
 
 attackAmount :: Attack   -- ^ Attack type.
              -> Int      -- ^ Amount.
