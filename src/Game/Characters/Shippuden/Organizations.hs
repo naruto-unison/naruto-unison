@@ -490,13 +490,13 @@ characters =
     [LeafVillage, Orochimaru, Genin, Rogue, Lightning, Fire, Wind, Earth, Water, Yin, Uchiha]
     [ [ Skill.new
         { Skill.name      = "Chidori Stream"
-        , Skill.desc      = "An electric field surrounds Sasuke. Enemies who use non-mental skills on Sasuke next turn will be countered and will take 10 affliction damage. Once used, this skill becomes [Kusanagi][t]."
+        , Skill.desc      = "An electric field surrounds Sasuke. Enemies who use non-mental skills on Sasuke next turn will be countered and will take 10 piercing damage. Once used, this skill becomes [Kusanagi][t]."
         , Skill.classes   = [Bane, Chakra, Melee, Invisible]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Self do
-                trapFrom 1 skillName (CounterAll NonMental) $
-                    afflict 10
+                trapFrom 1 skillName (CounterAll NonMental) $ asAction $
+                    pierce 10
                 apply Permanent skillName
                     [ Alternate "Chidori Stream"
                                 "Kusanagi"

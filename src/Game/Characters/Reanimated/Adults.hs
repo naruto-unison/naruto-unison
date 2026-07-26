@@ -294,7 +294,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Lariat"
-        , Skill.desc      = "Rushing an enemy, Fukai deals 15 percing damage to them and stuns their chakra and ranged skills for 1 turn. Deals 5 additional damage for each time the target was affected by [Chakra Arms]."
+        , Skill.desc      = "Rushing an enemy, Fukai deals 15 piercing damage to them and stuns their chakra and ranged skills for 1 turn. Deals 5 additional damage for each time the target was affected by [Chakra Arms]."
         , Skill.classes   = [Mental, Ranged]
         , Skill.cost      = [Tai]
         , Skill.cooldown  = 1

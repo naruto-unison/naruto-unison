@@ -274,13 +274,13 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Depth Charge"
-        , Skill.desc      = "Ameyuri surrounds herself with lightning and electrocutes an opponent, dealing 30 damage. Deals affliction damage if the target is affected by Electricity. Enemies who use a skill on Ameyuri next turn will have 1 turn of Electricity applied to them."
+        , Skill.desc      = "Ameyuri surrounds herself with lightning and electrocutes an opponent, dealing 30 piercing damage. Deals affliction damage if the target is affected by Electricity. Enemies who use a skill on Ameyuri next turn will have 1 turn of Electricity applied to them."
         , Skill.classes   = [Bane, Chakra, Melee, Nonstacking]
         , Skill.cost      = [Nin, Rand]
         , Skill.effects   =
           [ To Enemy do
                 electricity <- target has "Electricity"
-                if electricity then afflict 30 else damage 30
+                if electricity then afflict 30 else pierce 30
           , To Self $ trapFrom 1 skillName (OnHarmed All) $
                 electrocute 1
            ]

@@ -138,13 +138,13 @@ spec = parallel do
                 damaged `shouldBe` 5
 
         useOn Enemy "Depth Charge" do
-            it "deals normal damage normally" do
-                apply Permanent skillName [Reduce [All] Flat testStacks]
+            it "deals piercing damage normally" do
+                defend Permanent testStacks
                 damaged <- measureDamage Sim.act
                 30 - damaged `shouldBe` testStacks
             it "deals affliction damage if target has Electricity" do
                 Sim.use "Lightning Fang"
-                apply Permanent skillName [Reduce [All] Flat testStacks]
+                defend Permanent testStacks
                 damaged <- measureDamage Sim.act
                 30 -  damaged `shouldBe` 0
 

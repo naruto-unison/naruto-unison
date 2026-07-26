@@ -111,6 +111,13 @@
   <li>
     Skills that negate harmful effects, such as ^{Link.skill "Sakura Haruno" Original "Inner Sakura"}, no longer exclude chakra cost changes.
   <li>
+    All lightning attacks deal piercing damage. This affects the following skills:
+      <ul>
+        <li>^{Link.skill "C" Shippuden "Flash Pillar"}
+        <li>^{Link.skill "Omoi" Shippuden "Thunderbolt"}
+        <li>^{Link.skill "Eight-Tailed B" Shippuden "Lariat"}
+        <li>^{Link.skill "Sasuke Uchiha" Shippuden "Chidori Stream"}
+  <li>
     ^{Link.skill "Yoroi Akadō" Original "Draining Assault"} applies its weakening and strengthening status effects on each turn of its duration, rather than for 2 turns of its 3 turn duration.
   <li>
     ^{Link.skill "Drunken Lee" Original "Drunken Fist"} applies its status effect of ignoring all harmful effects from the start, rather than after its first turn of damage.
