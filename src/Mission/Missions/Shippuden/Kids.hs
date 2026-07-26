@@ -72,8 +72,8 @@ missions =
     [ win 5 ["Kiba Inuzuka", "Kurenai Yuhi"]
 
     , Reach Career 10
-      "Kill 10 enemies affected by [Dynamic Marking] with [Wolf Fang]." .
-      HookAction "Kiba Inuzuka" "Wolf Fang" $
+      "Kill 10 enemies affected by [Dynamic Marking] with [Wolf Fang Over Fang]." .
+      HookAction "Kiba Inuzuka" "Wolf Fang Over Fang" $
       killAffected "Dynamic Marking"
 
     , Reach Match 6

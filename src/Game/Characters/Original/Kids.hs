@@ -144,7 +144,7 @@ characters =
     "A genin from Team 8, Kiba is short-tempered and impulsive. His powerful taijutsu skills are amplified when he fuses with his dog, Akamaru, and transforms into a double-headed monster."
     [LeafVillage, Eleven, Genin, Earth, Yang, Inuzuka]
     [ [ Skill.new
-        { Skill.name      = "Wolf Fang"
+        { Skill.name      = "Wolf Fang Over Fang"
         , Skill.desc      = "Kiba projects a vacuum vortex at an enemy, dealing 30 damage. Deals 5 additional damage if the target is affected by [Dynamic Marking]. Costs [t] during [Two-Headed Wolf]."
         , Skill.classes   = [Physical, Melee]
         , Skill.cost      = [Tai, Rand]

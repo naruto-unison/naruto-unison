@@ -98,6 +98,8 @@
 <h3 #descriptive-changes>Descriptive Changes
 <ul>
   <li>
+    Character and skill names use official translations from the anime. For example, Kakashi Hatake's skill "Raikiri" has been renamed to "Lightning Blade".
+  <li>
     The term "random chakra" is only used to refer to randomly-generated chakra. The black-colored type of chakra cost is termed "arbitrary chakra" rather than "random chakra", since the user can select any arbitrary chakra to fulfill that cost.
   <li>
     Effects that are stated to last for 1 turn always persist through to the start of the next turn. If an effect does not persist through to the start of the next turn, it is described as lasting "for the rest of the turn", rather than "for 1 turn".

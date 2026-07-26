@@ -47,7 +47,7 @@ spec = parallel do
                 damagedWith - damagedWithout `shouldBe` 25
 
     describeCharacter "Kiba Inuzuka" do
-        useOn Enemy "Wolf Fang" do
+        useOn Enemy "Wolf Fang Over Fang" do
             it "deals bonus damage if target has Dynamic Marking" do
                 damagedWithout <- measureDamage Sim.act
                 factory
