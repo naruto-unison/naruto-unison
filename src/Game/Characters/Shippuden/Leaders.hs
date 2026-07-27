@@ -61,14 +61,13 @@ characters =
     [LeafVillage, Sannin, Sage, TeamLeader, Fire, Wind, Earth, Water, Yin, Yang]
     [ [ Skill.new
         { Skill.name      = "Giant Flame Bomb"
-        , Skill.desc      = "Jiraiya spits out a burst of fire, dealing 20 damage to an enemy. Once used, this skill becomes [Toad Oil Bomb][r]."
+        , Skill.desc      = "Jiraiya spits out a burst of fire, dealing 20 affliction damage to an enemy. Once used, this skill becomes [Toad Oil Bomb][r]."
         , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Rand]
         , Skill.effects   =
           [ To Enemy do
-                damage 20
                 bonus <- 10 `bonusPer` target amount "Toad Oil Bomb"
-                afflict bonus
+                afflict (20 + bonus)
           , To Self $ apply Permanent skillName
                 [ Alternate "Giant Flame Bomb"
                             "Toad Oil Bomb"

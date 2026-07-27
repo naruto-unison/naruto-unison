@@ -629,13 +629,13 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Flame Slice"
-        , Skill.desc      = "With a slash of his blade, Atsui creates an arc of flame that deals 25 piercing damage to an enemy. Deals 10 additional piercing damage during [Burning Blade]."
+        , Skill.desc      = "With a slash of his blade, Atsui creates an arc of flame that deals 25 affliction damage to an enemy. Deals 10 additional affliction damage during [Burning Blade]."
         , Skill.classes   = [Bane, Physical, Melee]
         , Skill.cost      = [Tai]
         , Skill.effects   =
           [ To Enemy do
                 bonus <- 10 `bonusIf` user has "Burning Blade"
-                pierce (25 + bonus)
+                afflict (25 + bonus)
           ]
         }
       ]

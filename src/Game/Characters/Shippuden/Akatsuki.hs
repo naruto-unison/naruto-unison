@@ -72,19 +72,19 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Majestic Destroyer Flame"
-        , Skill.desc      = "Madara immolates the battlefield, dealing 10 damage to an enemy and 5 damage to all other enemies for 3 turns. While active, enemies who use skills that grant damage reduction or destructible defense will take 10 damage."
+        , Skill.desc      = "Madara immolates the battlefield, dealing 10 affliction damage to an enemy and 5 affliction damage to all other enemies for 3 turns. While active, enemies who use skills that grant damage reduction or destructible defense will take 10 affliction damage."
         , Skill.classes   = [Bane]
         , Skill.cost      = [Nin]
         , Skill.cooldown  = 1
         , Skill.dur       = Action 3
         , Skill.effects   =
-          [ To Enemy $ damage 10
-          , To XEnemies $ damage 5
+          [ To Enemy $ afflict 10
+          , To XEnemies $ afflict 5
           , To Enemies do
                 trap 1 skillName OnDefend $ asAction $
-                    damage 10
+                    afflict 10
                 trap 1 skillName OnReduce $ asAction $
-                    damage 10
+                    afflict 10
           ]
         }
       ]

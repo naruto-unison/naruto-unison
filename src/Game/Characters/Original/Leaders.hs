@@ -82,8 +82,8 @@ characters =
         , Skill.classes   = [Bane, Ranged]
         , Skill.cost      = [Nin]
         , Skill.effects   =
-          [ To Enemy $ damage 20
-          , To XEnemies $ damage 10
+          [ To Enemy $ afflict 20
+          , To XEnemies $ afflict 10
           ]
         }
       ]

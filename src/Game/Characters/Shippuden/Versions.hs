@@ -629,7 +629,7 @@ characters =
         }
       , Skill.new
         { Skill.name      = "Blazing Arrow"
-        , Skill.desc      = "Sasuke forges three arrows out of flame and shoots them one after another at an enemy, dealing 15 damage for 3 turns. If Sasuke is stunned or this skill is interrupted, he deals the remaining damage instantly and the cooldown of this skill resets."
+        , Skill.desc      = "Sasuke forges three arrows out of flame and shoots them one after another at an enemy, dealing 15 affliction damage for 3 turns. If Sasuke is stunned or this skill is interrupted, he deals the remaining damage instantly and the cooldown of this skill resets."
         , Skill.classes   = [Bane, Chakra, Ranged, Resource]
         , Skill.cost      = [Blood, Rand]
         , Skill.cooldown  = 3
@@ -640,7 +640,7 @@ characters =
                 addStacks skillName 3
           ]
         , Skill.effects   =
-          [ To Enemy $ damage 15
+          [ To Enemy $ afflict 15
           , To Self do
                 removeStack skillName
                 trap 1 skillName OnStunned $
@@ -650,7 +650,7 @@ characters =
           [ To Enemy $ whenM (user alive) do
                 stacks <- user amount skillName
                 when (stacks > 0) $
-                    damage (15 * stacks)
+                    afflict (15 * stacks)
           , To Self do
                 whenM (user has skillName) $
                     resetCooldown skillName

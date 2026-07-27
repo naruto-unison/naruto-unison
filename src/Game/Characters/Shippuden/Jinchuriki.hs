@@ -28,7 +28,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Flaming Cat Roar"
-        , Skill.desc      = "A fireball engulfs an enemy, dealing 30 damage to them and weakening their damage by 10 for 1 turn. Every time this skill is used, its damage increases by 5."
+        , Skill.desc      = "A fireball engulfs an enemy, dealing 30 affliction damage to them and weakening their damage by 10 for 1 turn. Every time this skill is used, its affliction damage increases by 5."
         , Skill.require   = [UserHas AtLeast 1 "Two-Tailed Transformation"]
         , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Blood, Rand]
@@ -36,7 +36,7 @@ characters =
         , Skill.effects   =
           [ To Enemy do
                 stacks <- user amount skillName
-                damage (30 + 5 * stacks)
+                afflict (30 + 5 * stacks)
                 apply 1 skillName [Weaken [All] Flat 10]
           , To Self $ addStack skillName
           ]

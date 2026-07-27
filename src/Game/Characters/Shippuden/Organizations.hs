@@ -521,7 +521,7 @@ characters =
       ]
     , [ Skill.new
         { Skill.name      = "Dragon Flame"
-        , Skill.desc      = "Draconic fireballs sear an enemy, dealing 10 damage to them for 4 turns. Until this skill ends, enemies who use skills on Sasuke will take 5 affliction damage and create a [Thunder Cloud]. Using this skill creates 2 [Thunder Cloud]s."
+        , Skill.desc      = "Draconic fireballs sear an enemy, dealing 10 affliction damage to them for 4 turns. Until this skill ends, enemies who use skills on Sasuke will take 5 affliction damage and create a [Thunder Cloud]. Using this skill creates 2 [Thunder Cloud]s."
         , Skill.classes   = [Bane, Chakra, Ranged]
         , Skill.cost      = [Nin, Rand]
         , Skill.cooldown  = 4
@@ -534,7 +534,7 @@ characters =
                 targeting Self $ addStack "Thunder Cloud"
           ]
         , Skill.effects   =
-          [ To Enemy $ damage 10 ]
+          [ To Enemy $ afflict 10 ]
         }
       ]
     , [ Skill.new
