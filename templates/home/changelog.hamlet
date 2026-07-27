@@ -132,31 +132,37 @@
         <li>^{Link.skill "Jiraiya" Shippuden "Giant Flame Bomb"}
         <li>^{Link.skill "Sasuke Uchiha" Shippuden "Dragon Flame"}
   <li>
-    ^{Link.skill "Yoroi Akadō" Original "Draining Assault"} applies its weakening and strengthening status effects on each turn of its duration, rather than for 2 turns of its 3 turn duration.
-  <li>
-    ^{Link.skill "Drunken Lee" Original "Drunken Fist"} applies its status effect of ignoring all harmful effects from the start, rather than after its first turn of damage.
-  <li>
     ^{Link.skill "Anko Mitarashi" Original "Dragon Flame"} adds 5 to all <i>bane</i> damage that the target receives, rather than only damage from Anko's skills.
   <li>
     ^{Link.skill "Anko Mitarashi" Original "Twin Snake Sacrifice"} bypasses invulnerability.
   <li>
+    ^{Link.skill "Chukichi" Reanimated "Hidden Frost"} provides invulnerability to all ranged skills, not only physical and chakra ranged skills.
+  <li>
     The ^{Link.skill "Demon Brothers" Original "Poison Gauntlet"} applies a weak, slow-acting poison.
   <li>
-    ^{Link.skill "Hiruzen Sarutobi" Original "Reaper Death Seal"} bypasses invulnerability.
+    ^{Link.skill "Drunken Lee" Original "Drunken Fist"} applies its status effect of ignoring all harmful effects from the start, rather than after its first turn of damage.
+  <li>
+    ^{Link.skill "Hashirama Senju" Reanimated "Deep Forest Creation"} increases the cooldowns of all enemy skills, not just non-mental skills.
+  <li>
+    ^{Link.skill "Hashirama Senju" Reanimated "Deep Forest Flourishing"} only resets the cooldowns of <i>Instant</i> skills.
   <li>
     ^{Link.skill "Hiashi Hyūga" Original "Eight Trigrams Air Palm Wall"} reflects skills onto their user, rather than a random enemy.
   <li>
-    ^{Link.skill "Young Kakashi" Original "Sharingan"} causes him to gain 1 random chakra if the target uses a skill that gains chakra.
-  <li>
-    ^{Link.skill "Naruto Uzumaki" Shippuden "Rasen Shuriken"} and ^{Link.skill "Sage Mode Naruto" Shippuden "Rasen Shuriken"} permanently weaken the target's chakra damage.
-  <li>
     ^{Link.skill "Hinata Hyūga" Shippuden "Gentle Step Twin Lion Fists"} ignores enemies who are invulnerable to it.
+  <li>
+    ^{Link.skill "Hiruzen Sarutobi" Original "Reaper Death Seal"} bypasses invulnerability.
   <li>
     Instead of merely alerting when skills are used, ^{Link.skill "Ino Yamanaka" Shippuden "Proxy Surveillance"} reveals enemy cooldowns and invisible effects.
   <li>
+    ^{Link.skill "Jiraiya" Shippuden "Toad Oil Bomb"} interrupts <i>Action</i> skills as well as <i>Control</i> skills.
+  <li>
     ^{Link.skill "Kabuto Yakushi" Shippuden "Chakra Absorbing Snakes"} no longer stuns healing effects for 1 turn. Instead, if the target restores health to anyone next turn, all of their skills will be stunned for 2 turns.
   <li>
+    ^{Link.skill "Kitsuchi" Shippuden "Rock Fist"} prevents its target from applying counter effects, rather than stunning skills that include a countering effect.
+  <li>
     ^{Link.skill "Maki" Shippuden "Humidified Cloth"} blocks the target from affecting the user's team at all.
+  <li>
+    ^{Link.skill "Naruto Uzumaki" Shippuden "Rasen Shuriken"} and ^{Link.skill "Sage Mode Naruto" Shippuden "Rasen Shuriken"} permanently weaken the target's chakra damage.
   <li>
     The cost of ^{Link.skill "Omoi" Shippuden "Crescent Moon Slice"} has been changed from 1 genjutsu chakra and 1 arbitrary chakra to 1 taijutsu chakra and 1 arbitrary chakra.
   <li>
@@ -164,65 +170,26 @@
   <li>
     ^{Link.skill "Sai" Shippuden "Ink Mist"} bypasses invulnerability.
   <li>
-    ^{Link.skill "Jiraiya" Shippuden "Toad Oil Bomb"} interrupts <i>Action</i> skills as well as <i>Control</i> skills.
+    ^{Link.skill "Yoroi Akadō" Original "Draining Assault"} applies its weakening and strengthening status effects on each turn of its duration, rather than for 2 turns of its 3 turn duration.
   <li>
-    ^{Link.skill "Kitsuchi" Shippuden "Granite Fist"} prevents its target from applying counter effects, rather than stunning skills that include a countering effect.
-  <li>
-    ^{Link.skill "Hashirama Senju" Reanimated "Deep Forest Creation"} increases the cooldowns of all enemy skills, not just non-mental skills.
-  <li>
-    ^{Link.skill "Hashirama Senju" Reanimated "Deep Forest Flourishing"} only resets the cooldowns of <i>Instant</i> skills.
-  <li>
-    ^{Link.skill "Chukichi" Reanimated "Hidden Frost"} provides invulnerability to all ranged skills, not only physical and chakra ranged skills.
+    ^{Link.skill "Young Kakashi" Original "Sharingan"} causes him to gain 1 random chakra if the target uses a skill that gains chakra.
 
 <h3 #duration-changes>Duration changes:
 <ul>
   <li>
-    ^{Link.skill "Kidōmaru" Original "Summoning: Kyodaigumo"}:
-    was <i>Action</i>, now <i>Ongoing</i>.
-  <li>
-    ^{Link.skill "Tayuya" Original "Summoning: Doki"}:
-    was <i>Action</i>, now <i>Ongoing</i>.
-  <li>
     ^{Link.skill "Aoba Yamashiro" Original "Scattering Crow Swarm"}:
     was <i>Action</i>, now <i>Ongoing</i>.
   <li>
-    ^{Link.skill "Tsunade" Original "Major Summoning: Katsuyu"}:
+    ^{Link.skill "Curse Mark Sasuke" Original "Dark Void"}:
     was <i>Instant</i>, now <i>Ongoing</i>.
   <li>
-    ^{Link.skill "Jiraiya" Original "Major Summoning: Gamabunta"}:
-    was <i>Instant</i>, now <i>Ongoing</i>.
+    ^{Link.skill "Fu Yamanaka" Shippuden "Mind Transfer"}:
+    was <i>Instant</i>, now <i>Control</i>.
   <li>
-    ^{Link.skill "Orochimaru" Original "Major Summoning: Manda"}:
+    ^{Link.skill "Hashirama Senju" Reanimated "Deep Forest Creation"}:
     was <i>Instant</i>, now <i>Ongoing</i>.
   <li>
     ^{Link.skill "Hiruzen Sarutobi" Original "Major Summoning: Enma"}:
-    was <i>Instant</i>, now <i>Ongoing</i>.
-  <li>
-    ^{Link.skill "Shukaku Gaara" Original "Sand Transformation"}:
-    was <i>Instant</i>, now <i>Ongoing</i>.
-  <li>
-    ^{Link.skill "Itachi Uchiha" Shippuden "Susanoo"}:
-    was <i>Instant</i>, now <i>Ongoing</i>.
-  <li>
-    ^{Link.skill "Tobirama Senju" Reanimated "Water Shockwave"}:
-    was <i>Action</i>, now <i>Ongoing</i>.
-  <li>
-    ^{Link.skill "Shikamaru Nara" Original "Shadow Strangle"}:
-    was <i>Action</i>, now <i>Control</i>.
-  <li>
-    ^{Link.skill "Inoichi Yamanaka" Original "Psycho Mind Transmission"}:
-    was <i>Action</i>, now <i>Control</i>.
-  <li>
-    ^{Link.skill "Inoichi Yamanaka" Original "Mental Invasion"}:
-    was <i>Instant</i>, now <i>Control</i>.
-  <li>
-    ^{Link.skill "Kurenai Yuhi" Original "Demonic Illusion: Sylvan Fetters"}:
-    was <i>Instant</i>, now <i>Control</i>.
-  <li>
-    ^{Link.skill "Shukaku Gaara" Original "Monstrous Sand Arm"}:
-    was <i>Instant</i>, now <i>Control</i>.
-  <li>
-    ^{Link.skill "Curse Mark Sasuke" Original "Dark Void"}:
     was <i>Instant</i>, now <i>Ongoing</i>.
   <li>
     ^{Link.skill "Ino Yamanaka" Shippuden "Mind Destruction"}:
@@ -231,11 +198,44 @@
     ^{Link.skill "Ino Yamanaka" Shippuden "Mind Transfer Clone"}:
     was <i>Instant</i>, now <i>Control</i>.
   <li>
-    ^{Link.skill "Fu Yamanaka" Shippuden "Mind Transfer"}:
+    ^{Link.skill "Inoichi Yamanaka" Original "Mental Invasion"}:
     was <i>Instant</i>, now <i>Control</i>.
+  <li>
+    ^{Link.skill "Inoichi Yamanaka" Original "Psycho Mind Transmission"}:
+    was <i>Action</i>, now <i>Control</i>.
+  <li>
+    ^{Link.skill "Itachi Uchiha" Shippuden "Susanoo"}:
+    was <i>Instant</i>, now <i>Ongoing</i>.
+  <li>
+    ^{Link.skill "Jiraiya" Original "Major Summoning: Gamabunta"}:
+    was <i>Instant</i>, now <i>Ongoing</i>.
+  <li>
+    ^{Link.skill "Kidōmaru" Original "Summoning: Kyodaigumo"}:
+    was <i>Action</i>, now <i>Ongoing</i>.
+  <li>
+    ^{Link.skill "Kurenai Yuhi" Original "Demonic Illusion: Sylvan Fetters"}:
+    was <i>Instant</i>, now <i>Control</i>.
+  <li>
+    ^{Link.skill "Orochimaru" Original "Major Summoning: Manda"}:
+    was <i>Instant</i>, now <i>Ongoing</i>.
   <li>
     ^{Link.skill "Pakura" Reanimated "Searing Combat"}:
     was <i>Action</i>, now <i>Instant</i>.
   <li>
-    ^{Link.skill "Hashirama Senju" Reanimated "Deep Forest Creation"}:
+    ^{Link.skill "Shikamaru Nara" Original "Shadow Strangle"}:
+    was <i>Action</i>, now <i>Control</i>.
+  <li>
+    ^{Link.skill "Shukaku Gaara" Original "Monstrous Sand Arm"}:
+    was <i>Instant</i>, now <i>Control</i>.
+  <li>
+    ^{Link.skill "Shukaku Gaara" Original "Sand Transformation"}:
+    was <i>Instant</i>, now <i>Ongoing</i>.
+  <li>
+    ^{Link.skill "Tayuya" Original "Summoning: Doki"}:
+    was <i>Action</i>, now <i>Ongoing</i>.
+  <li>
+    ^{Link.skill "Tobirama Senju" Reanimated "Water Shockwave"}:
+    was <i>Action</i>, now <i>Ongoing</i>.
+  <li>
+    ^{Link.skill "Tsunade" Original "Major Summoning: Katsuyu"}:
     was <i>Instant</i>, now <i>Ongoing</i>.
