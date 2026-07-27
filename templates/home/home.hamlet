@@ -5,17 +5,17 @@
   <a .refer href=@{ChangelogR}>View full changelog
   <h3>Launch
   <ul>
-    ^{change New "Minato Namikaze" Reanimated}
-    ^{change New "Jirōbō" Reanimated}
-    ^{change New "True Form Sasori" Shippuden}
-    ^{change New "Eight-Gates Guy" Shippuden}
-    ^{change New "Sage Mode Kabuto" Shippuden}
-    ^{change New "Puppet Master Kankurō" Shippuden}
-    ^{change New "Regimental Commander Gaara" Shippuden}
-    ^{change New "Mei Terumi" Shippuden}
-    ^{change New "Ōnoki" Shippuden}
-    ^{change New "Masked Man" Original}
-    ^{change New "Konohamaru Sarutobi" Original}
+    <li>^{change New "Minato Namikaze" Reanimated}
+    <li>^{change New "Jirōbō" Reanimated}
+    <li>^{change New "True Form Sasori" Shippuden}
+    <li>^{change New "Eight-Gates Guy" Shippuden}
+    <li>^{change New "Sage Mode Kabuto" Shippuden}
+    <li>^{change New "Puppet Master Kankurō" Shippuden}
+    <li>^{change New "Regimental Commander Gaara" Shippuden}
+    <li>^{change New "Mei Terumi" Shippuden}
+    <li>^{change New "Ōnoki" Shippuden}
+    <li>^{change New "Masked Man" Original}
+    <li>^{change New "Konohamaru Sarutobi" Original}
 
 <section>
   <h1>Naruto Unison
